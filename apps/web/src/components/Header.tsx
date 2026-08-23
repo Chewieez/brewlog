@@ -31,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setActiveTab('timer')}>
+          <div className="flex items-center space-x-3 cursor-pointer select-none" onClick={() => setActiveTab('timer')}>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-orange-500 to-amber-400 p-0.5 shadow-lg shadow-amber-500/20 flex items-center justify-center">
               <div className="w-full h-full bg-stone-950 rounded-[10px] flex items-center justify-center">
                 <Coffee className="w-5 h-5 text-amber-400" />
@@ -56,7 +56,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg text-sm font-medium cursor-pointer select-none transition-all duration-200 ${
                     isActive
                       ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm shadow-amber-500/10'
                       : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/60'
@@ -78,7 +78,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center space-x-3">
             <button
               onClick={onOpenDatabaseSettings}
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-stone-300 bg-stone-900/90 border border-stone-800 hover:border-amber-500/40 hover:text-amber-300 transition-colors"
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-stone-300 bg-stone-900/90 border border-stone-800 hover:border-amber-500/40 hover:text-amber-300 cursor-pointer transition-colors"
               title="Configure Supabase Database"
             >
               <Database className="w-3.5 h-3.5 text-emerald-400" />
@@ -96,7 +96,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs whitespace-nowrap font-medium transition-all ${
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs whitespace-nowrap font-medium cursor-pointer transition-all ${
                   isActive
                     ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                     : 'text-stone-400 hover:text-stone-200'

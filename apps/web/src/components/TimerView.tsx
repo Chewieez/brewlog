@@ -1,7 +1,8 @@
+import { ScrollFadeContainer } from './ScrollFadeContainer';
 import React, { useState, useEffect, useRef } from 'react';
-import { BrewRecipe, BrewStage, rescaleRecipeDose } from '@brewlog/core';
+import { BrewRecipe, rescaleRecipeDose } from '@brewlog/core';
 import { coffeeAudio } from '../lib/audio';
-import { Play, Pause, RotateCcw, Volume2, CheckCircle2, ChevronRight, Droplets, Sparkles } from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, CheckCircle2, Droplets, Sparkles } from 'lucide-react';
 
 interface TimerViewProps {
   recipe: BrewRecipe;
@@ -21,6 +22,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
   const [isRunning, setIsRunning] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
   // Sync recipe when initial recipe or dose changes
   useEffect(() => {
@@ -36,16 +38,12 @@ export const TimerView: React.FC<TimerViewProps> = ({
       break;
     }
     if (elapsedSeconds >= stage.startSecond + stage.durationSeconds) {
-      currentStageIndex = i; // last completed stage
+      currentStageIndex = i;
     }
   }
 
   const currentStage = recipe.stages[currentStageIndex] || recipe.stages[0];
   const nextStage = recipe.stages[currentStageIndex + 1];
-
-  // Stage countdown
-  const stageElapsed = elapsedSeconds - currentStage.startSecond;
-  const stageRemaining = Math.max(0, currentStage.durationSeconds - stageElapsed);
 
   // Timer Tick Engine
   const lastChimedStageRef = useRef<number>(-1);
@@ -61,20 +59,26 @@ export const TimerView: React.FC<TimerViewProps> = ({
           recipe.stages.forEach((stage, idx) => {
             if (next === stage.startSecond && lastChimedStageRef.current !== idx) {
               lastChimedStageRef.current = idx;
-              coffeeAudio.playStageChime();
+              if (!isMuted) {
+                coffeeAudio.playStageChime();
+              }
             }
           });
 
           // Countdown 3, 2, 1 ticks before next stage
           if (nextStage && nextStage.startSecond - next <= 3 && nextStage.startSecond - next > 0) {
-            coffeeAudio.playTick();
+            if (!isMuted) {
+              coffeeAudio.playTick();
+            }
           }
 
           // Check for completion
           if (next >= recipe.totalTimeSeconds) {
             setIsRunning(false);
             setIsFinished(true);
-            coffeeAudio.playCompletionFanfare();
+            if (!isMuted) {
+              coffeeAudio.playCompletionFanfare();
+            }
           }
 
           return next;
@@ -85,7 +89,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isRunning, recipe, nextStage]);
+  }, [isRunning, recipe, nextStage, isMuted]);
 
   const toggleTimer = () => {
     if (isFinished) {
@@ -110,9 +114,6 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
   // Progress percentage (0 to 100)
   const totalProgress = Math.min(100, (elapsedSeconds / recipe.totalTimeSeconds) * 100);
-  const stageProgress = currentStage
-    ? Math.min(100, (stageElapsed / currentStage.durationSeconds) * 100)
-    : 0;
 
   // SVG Circle calculation
   const radius = 130;
@@ -120,7 +121,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
   const strokeDashoffset = circumference - (totalProgress / 100) * circumference;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       {/* Top Banner & Recipe Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-stone-900/60 border border-stone-800/80 backdrop-blur-md">
         <div>
@@ -144,28 +145,32 @@ export const TimerView: React.FC<TimerViewProps> = ({
               step="0.5"
               value={doseGrams}
               onChange={(e) => setDoseGrams(Number(e.target.value))}
-              className="w-12 bg-transparent text-sm font-bold text-amber-400 focus:outline-none text-center"
+              className="w-12 bg-transparent text-sm font-bold text-amber-400 focus:outline-none text-center cursor-text"
             />
             <span className="text-xs text-stone-400">g</span>
           </div>
 
           <button
             onClick={onSelectOtherRecipe}
-            className="px-3 py-1.5 text-xs font-medium text-stone-300 bg-stone-800 hover:bg-stone-700 rounded-xl transition-colors"
+            className="px-3 py-1.5 text-xs font-medium text-stone-300 bg-stone-800 hover:bg-stone-700 rounded-xl cursor-pointer transition-colors"
           >
             Change Recipe
           </button>
         </div>
       </div>
 
-      {/* Main Interactive Timer Display */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-        {/* Left: Giant Circular Timer */}
+      {/* Main Interactive Timer Display: Horizontal top-aligned and stretched */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left: Circular Timer Panel */}
         <div className="lg:col-span-7 flex flex-col items-center justify-center p-8 rounded-3xl bg-gradient-to-b from-stone-900/90 to-stone-950 border border-stone-800/80 shadow-2xl relative">
-          <div className="relative flex items-center justify-center">
+          <div className="w-full flex items-center justify-between text-xs text-stone-400 font-mono">
+            <span>METHOD: <strong className="text-stone-200 uppercase">{recipe.brewMethod}</strong></span>
+            <span>RATIO: <strong className="text-amber-400">1:{recipe.ratio}</strong></span>
+          </div>
+
+          <div className="relative flex items-center justify-center my-4">
             {/* SVG Circular Progress Ring */}
             <svg className="w-72 h-72 sm:w-80 sm:h-80 transform -rotate-90">
-              {/* Background Track */}
               <circle
                 cx="50%"
                 cy="50%"
@@ -174,7 +179,6 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 strokeWidth="12"
                 fill="transparent"
               />
-              {/* Animated Progress Stroke */}
               <circle
                 cx="50%"
                 cy="50%"
@@ -209,10 +213,10 @@ export const TimerView: React.FC<TimerViewProps> = ({
           </div>
 
           {/* Controls Button Row */}
-          <div className="flex items-center space-x-4 mt-8">
+          <div className="flex items-center space-x-4 mt-4">
             <button
               onClick={resetTimer}
-              className="p-3.5 rounded-2xl bg-stone-800/80 text-stone-300 hover:text-stone-100 hover:bg-stone-700/80 transition-colors"
+              className="p-3.5 rounded-2xl bg-stone-800/80 text-stone-300 hover:text-stone-100 hover:bg-stone-700/80 cursor-pointer transition-colors"
               title="Reset Timer"
             >
               <RotateCcw className="w-5 h-5" />
@@ -220,7 +224,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
             <button
               onClick={toggleTimer}
-              className={`flex items-center space-x-2 px-8 py-3.5 rounded-2xl font-bold text-base shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95 ${
+              className={`flex items-center space-x-2 px-8 py-3.5 rounded-2xl font-bold text-base shadow-xl cursor-pointer transition-all duration-200 transform hover:scale-105 active:scale-95 ${
                 isRunning
                   ? 'bg-amber-600 hover:bg-amber-500 text-stone-950 shadow-amber-600/30'
                   : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 shadow-amber-500/30'
@@ -240,11 +244,15 @@ export const TimerView: React.FC<TimerViewProps> = ({
             </button>
 
             <button
-              onClick={() => coffeeAudio.playStageChime()}
-              className="p-3.5 rounded-2xl bg-stone-800/80 text-stone-300 hover:text-amber-400 hover:bg-stone-700/80 transition-colors"
-              title="Test Audio Chime"
+              onClick={() => setIsMuted(!isMuted)}
+              className="p-3.5 rounded-2xl bg-stone-800/80 hover:bg-stone-700/80 border border-stone-800 cursor-pointer transition-colors"
+              title={isMuted ? "Unmute Audio Chimes" : "Mute Audio Chimes"}
             >
-              <Volume2 className="w-5 h-5" />
+              {isMuted ? (
+                <VolumeX className="w-5 h-5 text-stone-500 hover:text-stone-400 transition-colors" />
+              ) : (
+                <Volume2 className="w-5 h-5 text-amber-400 transition-colors" />
+              )}
             </button>
           </div>
 
@@ -252,7 +260,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
             <div className="mt-6 w-full animate-fade-in">
               <button
                 onClick={() => onLogCompletedBrew(recipe, elapsedSeconds)}
-                className="w-full flex items-center justify-center space-x-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold hover:from-emerald-500 hover:to-teal-500 shadow-lg shadow-emerald-600/20 transition-all"
+                className="w-full flex items-center justify-center space-x-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold hover:from-emerald-500 hover:to-teal-500 shadow-lg shadow-emerald-600/20 cursor-pointer transition-all"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>Brew Complete! Log to Cupping Sheet</span>
@@ -261,14 +269,19 @@ export const TimerView: React.FC<TimerViewProps> = ({
           )}
         </div>
 
-        {/* Right: Stage Timeline & Step Guide */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="p-6 rounded-3xl bg-stone-900/60 border border-stone-800/80 backdrop-blur-md">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-stone-400 mb-4">
-              Pour Timeline ({recipe.stages.length} Stages)
-            </h3>
+        {/* Right: Stage Timeline & Step Guide Panel */}
+        <div className="lg:col-span-5 p-6 rounded-3xl bg-stone-900/60 border border-stone-800/80 backdrop-blur-md space-y-4">
+          <div>
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-stone-800">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-stone-400">
+                Pour Timeline
+              </h3>
+              <span className="text-xs font-mono text-amber-400">
+                {recipe.stages.length} Stages
+              </span>
+            </div>
 
-            <div className="space-y-3">
+            <ScrollFadeContainer className="space-y-3 max-h-[380px] pr-1">
               {recipe.stages.map((stage, idx) => {
                 const isCurrent = idx === currentStageIndex && elapsedSeconds > 0;
                 const isPast = elapsedSeconds >= stage.startSecond + stage.durationSeconds;
@@ -313,7 +326,11 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   </div>
                 );
               })}
-            </div>
+            </ScrollFadeContainer>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-stone-800/60 text-center text-xs text-stone-500">
+            Total Target Extraction: {formatTime(recipe.totalTimeSeconds)}
           </div>
         </div>
       </div>

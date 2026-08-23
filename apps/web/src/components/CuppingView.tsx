@@ -1,6 +1,18 @@
+import { ScrollFadeContainer } from './ScrollFadeContainer';
 import React, { useState } from 'react';
 import { TastingLog, CuppingAttributes, calculateScaScore, SCA_FLAVOR_WHEEL } from '@brewlog/core';
-import { Sparkles, Star, Award, Calendar, Droplets } from 'lucide-react';
+import { Sparkles, Award, Cherry, Flower2, Flame, Coffee, Candy, Sun, Wine, PieChart, ListFilter } from 'lucide-react';
+import { ScaFlavorWheelSvg } from './ScaFlavorWheelSvg';
+
+const CATEGORY_ICONS: Record<string, React.ElementType> = {
+  'Fruity': Cherry,
+  'Floral': Flower2,
+  'Sweet': Candy,
+  'Nutty / Cocoa': Coffee,
+  'Spices': Flame,
+  'Roasted': Sun,
+  'Fermented / Sour': Wine,
+};
 
 interface CuppingViewProps {
   logs: TastingLog[];
@@ -9,6 +21,7 @@ interface CuppingViewProps {
 
 export const CuppingView: React.FC<CuppingViewProps> = ({ logs, onAddTastingLog }) => {
   const [selectedTags, setSelectedTags] = useState<string[]>(['Peach', 'Jasmine']);
+  const [flavorViewMode, setFlavorViewMode] = useState<'wheel' | 'tags'>('tags');
   const [scores, setScores] = useState<CuppingAttributes>({
     fragranceAroma: 8.5,
     acidity: 8.5,
@@ -45,8 +58,8 @@ export const CuppingView: React.FC<CuppingViewProps> = ({ logs, onAddTastingLog 
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left: SCA Live Cupping Score Form */}
-        <div className="lg:col-span-6 p-6 rounded-3xl bg-stone-900/80 border border-stone-800 shadow-xl space-y-6">
+        {/* Left: SCA Live Cupping Score Form (605px) */}
+        <div className="lg:col-span-6 p-6 rounded-3xl bg-stone-900/80 border border-stone-800 shadow-xl space-y-5 h-[605px]">
           <div className="flex items-center justify-between pb-4 border-b border-stone-800">
             <div>
               <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
@@ -95,9 +108,9 @@ export const CuppingView: React.FC<CuppingViewProps> = ({ logs, onAddTastingLog 
           </div>
         </div>
 
-        {/* Right: Interactive SCA Sensory Flavor Wheel */}
-        <div className="lg:col-span-6 p-6 rounded-3xl bg-stone-900/80 border border-stone-800 shadow-xl space-y-5">
-          <div className="flex items-center justify-between">
+        {/* Right: Interactive SCA Sensory Wheel & Tag Selector (605px) */}
+        <div className="lg:col-span-6 p-6 rounded-3xl bg-stone-900/80 border border-stone-800 shadow-xl flex flex-col h-[605px] space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-stone-800">
             <div>
               <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
                 SCA Sensory Wheel
@@ -105,61 +118,104 @@ export const CuppingView: React.FC<CuppingViewProps> = ({ logs, onAddTastingLog 
               <h3 className="text-lg font-bold text-stone-100 mt-0.5">Tasting Descriptors</h3>
             </div>
 
-            <span className="text-xs text-stone-400 font-mono">
-              {selectedTags.length} tags selected
-            </span>
+            {/* Segmented View Mode Toggle */}
+            <div className="flex items-center space-x-1 p-1 rounded-xl bg-stone-950 border border-stone-800">
+              <button
+                onClick={() => setFlavorViewMode('wheel')}
+                className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-medium cursor-pointer transition-all ${
+                  flavorViewMode === 'wheel'
+                    ? 'bg-amber-500 text-stone-950 font-bold shadow-sm'
+                    : 'text-stone-400 hover:text-stone-200'
+                }`}
+              >
+                <PieChart className="w-3.5 h-3.5" />
+                <span>Wheel</span>
+              </button>
+
+              <button
+                onClick={() => setFlavorViewMode('tags')}
+                className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-medium cursor-pointer transition-all ${
+                  flavorViewMode === 'tags'
+                    ? 'bg-amber-500 text-stone-950 font-bold shadow-sm'
+                    : 'text-stone-400 hover:text-stone-200'
+                }`}
+              >
+                <ListFilter className="w-3.5 h-3.5" />
+                <span>Tag List</span>
+              </button>
+            </div>
           </div>
 
-          {/* Selected Tag Chips */}
-          <div className="min-h-10 p-2.5 rounded-xl bg-stone-950/80 border border-stone-800 flex flex-wrap gap-1.5 items-center">
+          {/* Active Selected Tags Bar */}
+          <div className="min-h-11 p-2 rounded-xl bg-stone-950/80 border border-stone-800 flex flex-wrap gap-1.5 items-center">
             {selectedTags.length === 0 && (
-              <span className="text-xs text-stone-500 italic">
-                Tap flavor descriptors below to tag this cup...
+              <span className="text-xs text-stone-500 italic pl-1">
+                Select notes on the wheel or list to tag this cup...
               </span>
             )}
             {selectedTags.map((tag) => (
               <span
                 key={tag}
                 onClick={() => toggleFlavorTag(tag)}
-                className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 cursor-pointer hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/40 transition-colors"
+                className="inline-flex items-center space-x-2.5 px-3 py-1 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 cursor-pointer hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/40 transition-colors select-none group"
               >
-                {tag} ✕
+                <span>{tag}</span>
+                <span className="text-[11px] font-bold text-amber-400/80 group-hover:text-red-300 transition-colors pl-1">
+                  ✕
+                </span>
               </span>
             ))}
           </div>
 
-          {/* Tiered Flavor Selector */}
-          <div className="space-y-4 max-h-96 overflow-y-auto pr-1">
-            {SCA_FLAVOR_WHEEL.map((cat) => (
-              <div key={cat.name} className="space-y-2">
-                <span
-                  className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded"
-                  style={{ backgroundColor: `${cat.color}25`, color: cat.color }}
-                >
-                  {cat.name}
-                </span>
+          {/* Content Container (Wheel vs Tag List) */}
+          <ScrollFadeContainer className="flex-1 pr-1">
+            {flavorViewMode === 'wheel' ? (
+              <ScaFlavorWheelSvg
+                selectedTags={selectedTags}
+                onToggleTag={toggleFlavorTag}
+              />
+            ) : (
+              <div className="space-y-4 divide-y divide-stone-800/50">
+                {SCA_FLAVOR_WHEEL.map((cat) => {
+                  const CatIcon = CATEGORY_ICONS[cat.name] || Sparkles;
+                  return (
+                    <div key={cat.name} className="pt-3 first:pt-0 space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <div
+                          className="w-5 h-5 rounded-md flex items-center justify-center"
+                          style={{ backgroundColor: `${cat.color}20`, color: cat.color }}
+                        >
+                          <CatIcon className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-xs font-bold uppercase tracking-wider text-stone-200">
+                          {cat.name}
+                        </span>
+                      </div>
 
-                <div className="flex flex-wrap gap-1.5 pl-1">
-                  {cat.subcategories?.flatMap((sub) => sub.descriptors || []).map((desc) => {
-                    const isSelected = selectedTags.includes(desc);
-                    return (
-                      <button
-                        key={desc}
-                        onClick={() => toggleFlavorTag(desc)}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
-                          isSelected
-                            ? 'bg-amber-500 text-stone-950 font-bold shadow-sm'
-                            : 'bg-stone-950/70 border border-stone-800 text-stone-300 hover:border-stone-600 hover:text-stone-100'
-                        }`}
-                      >
-                        {desc}
-                      </button>
-                    );
-                  })}
-                </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {cat.subcategories?.flatMap((sub) => sub.descriptors || []).map((desc) => {
+                          const isSelected = selectedTags.includes(desc);
+                          return (
+                            <button
+                              key={desc}
+                              onClick={() => toggleFlavorTag(desc)}
+                              className={`px-2.5 py-1 rounded-lg text-xs font-medium cursor-pointer transition-all ${
+                                isSelected
+                                  ? 'bg-amber-500 text-stone-950 font-bold shadow-sm'
+                                  : 'bg-stone-950/80 border border-stone-800 text-stone-300 hover:border-stone-600 hover:text-stone-100 hover:bg-stone-900'
+                              }`}
+                            >
+                              {desc}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
-          </div>
+            )}
+          </ScrollFadeContainer>
         </div>
       </div>
 
