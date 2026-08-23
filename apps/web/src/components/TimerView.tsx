@@ -121,7 +121,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
   const strokeDashoffset = circumference - (totalProgress / 100) * circumference;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       {/* Top Banner & Recipe Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-stone-900/60 border border-stone-800/80 backdrop-blur-md">
         <div>
@@ -162,7 +162,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
       {/* Main Interactive Timer Display: Horizontal top-aligned and stretched */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: Circular Timer Panel */}
-        <div className="lg:col-span-7 flex flex-col items-center justify-center p-8 rounded-3xl bg-gradient-to-b from-stone-900/90 to-stone-950 border border-stone-800/80 shadow-2xl relative">
+        <div className="lg:col-span-7 flex flex-col items-center justify-between p-8 rounded-3xl bg-gradient-to-b from-stone-900/90 to-stone-950 border border-stone-800/80 shadow-2xl relative h-[520px]">
           <div className="w-full flex items-center justify-between text-xs text-stone-400 font-mono">
             <span>METHOD: <strong className="text-stone-200 uppercase">{recipe.brewMethod}</strong></span>
             <span>RATIO: <strong className="text-amber-400">1:{recipe.ratio}</strong></span>
@@ -270,18 +270,17 @@ export const TimerView: React.FC<TimerViewProps> = ({
         </div>
 
         {/* Right: Stage Timeline & Step Guide Panel */}
-        <div className="lg:col-span-5 p-6 rounded-3xl bg-stone-900/60 border border-stone-800/80 backdrop-blur-md space-y-4">
-          <div>
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-stone-800">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-stone-400">
-                Pour Timeline
-              </h3>
-              <span className="text-xs font-mono text-amber-400">
-                {recipe.stages.length} Stages
-              </span>
-            </div>
+        <div className="lg:col-span-5 p-6 rounded-3xl bg-stone-900/60 border border-stone-800/80 backdrop-blur-md flex flex-col h-[520px] overflow-hidden">
+          <div className="flex items-center justify-between mb-3 pb-2 border-b border-stone-800 flex-shrink-0">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-stone-400">
+              Pour Timeline
+            </h3>
+            <span className="text-xs font-mono text-amber-400">
+              {recipe.stages.length} Stages
+            </span>
+          </div>
 
-            <ScrollFadeContainer className="space-y-3 max-h-[380px] pr-1">
+          <ScrollFadeContainer className="flex-1 min-h-0 space-y-3 pr-1">
               {recipe.stages.map((stage, idx) => {
                 const isCurrent = idx === currentStageIndex && elapsedSeconds > 0;
                 const isPast = elapsedSeconds >= stage.startSecond + stage.durationSeconds;
@@ -327,9 +326,8 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 );
               })}
             </ScrollFadeContainer>
-          </div>
 
-          <div className="mt-4 pt-3 border-t border-stone-800/60 text-center text-xs text-stone-500">
+          <div className="mt-3 pt-3 border-t border-stone-800/60 text-center text-xs text-stone-500 flex-shrink-0">
             Total Target Extraction: {formatTime(recipe.totalTimeSeconds)}
           </div>
         </div>

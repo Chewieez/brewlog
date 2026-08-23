@@ -42,7 +42,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({ equipment, onAddEq
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-stone-100">Gear & Equipment</h2>
