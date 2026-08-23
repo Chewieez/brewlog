@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  --color-coffee-950: #0a0807;
+  --color-coffee-900: #140f0c;
+  --color-coffee-850: #1a1410;
+  --color-coffee-800: #231b16;
+  --color-coffee-700: #382c24;
+  --color-coffee-600: #544237;
+  --color-amber-accent: #d97706;
+  --color-copper-accent: #f97316;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: #0c0a09;
+    color: #f5f5f4;
+  }
+}
+
+.glass-panel {
+  background: rgba(28, 25, 23, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(217, 119, 6, 0.15);
+}
+
+.glass-panel-glow {
+  background: rgba(28, 25, 23, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 20px 0 rgba(217, 119, 6, 0.1);
+}
