@@ -4,8 +4,8 @@
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   display_name TEXT,
-  preferred_temp_unit TEXT NOT NULL DEFAULT celsius CHECK (preferred_temp_unit IN (celsius, fahrenheit)),
-  preferred_weight_unit TEXT NOT NULL DEFAULT grams CHECK (preferred_weight_unit IN (grams, oz)),
+  preferred_temp_unit TEXT NOT NULL DEFAULT 'celsius' CHECK (preferred_temp_unit IN ('celsius', 'fahrenheit')),
+  preferred_weight_unit TEXT NOT NULL DEFAULT 'grams' CHECK (preferred_weight_unit IN ('grams', 'oz')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS public.beans (
   process TEXT NOT NULL,
   roast_level TEXT NOT NULL,
   roast_date DATE NOT NULL,
-  flavor_notes TEXT[] DEFAULT {},
+  flavor_notes TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
   rating NUMERIC(3,2),
   bag_weight_grams NUMERIC,
   remaining_grams NUMERIC,
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS public.recipes (
   brew_method TEXT NOT NULL,
   recommended_brewer_id UUID REFERENCES public.equipment(id) ON DELETE SET NULL,
   recommended_grinder_id UUID REFERENCES public.equipment(id) ON DELETE SET NULL,
-  description TEXT NOT NULL DEFAULT ,
+  description TEXT NOT NULL DEFAULT '',
   author TEXT,
   coffee_dose_grams NUMERIC NOT NULL,
   water_amount_grams NUMERIC NOT NULL,
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS public.recipe_stages (
   duration_seconds INTEGER NOT NULL,
   target_water_weight_grams NUMERIC NOT NULL,
   instruction TEXT NOT NULL,
-  stage_type TEXT NOT NULL DEFAULT pour
+  stage_type TEXT NOT NULL DEFAULT 'pour'
 );
 
 -- 6. Tasting & Cupping Logs Table
@@ -115,8 +115,8 @@ CREATE TABLE IF NOT EXISTS public.tasting_logs (
   overall NUMERIC(3,1) NOT NULL DEFAULT 7.5,
   calculated_sca_score NUMERIC(4,1) NOT NULL,
   rating NUMERIC(2,1) NOT NULL DEFAULT 4.0,
-  flavor_tags TEXT[] DEFAULT {},
-  notes TEXT NOT NULL DEFAULT ,
+  flavor_tags TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+  notes TEXT NOT NULL DEFAULT '',
   would_brew_again BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -128,6 +128,18 @@ ALTER TABLE public.beans ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.recipes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.recipe_stages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tasting_logs ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if any
+DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users can manage own equipment" ON public.equipment;
+DROP POLICY IF EXISTS "Users can manage own beans" ON public.beans;
+DROP POLICY IF EXISTS "Users can read presets and own recipes" ON public.recipes;
+DROP POLICY IF EXISTS "Users can manage own recipes" ON public.recipes;
+DROP POLICY IF EXISTS "Users can read recipe stages" ON public.recipe_stages;
+DROP POLICY IF EXISTS "Users can manage stages for own recipes" ON public.recipe_stages;
+DROP POLICY IF EXISTS "Users can manage own tasting logs" ON public.tasting_logs;
 
 -- Profiles Policies
 CREATE POLICY "Users can view own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
@@ -160,7 +172,7 @@ CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.profiles (id, display_name)
-  VALUES (new.id, COALESCE(new.raw_user_meta_data->> 'display_name', split_part(new.email, '@', 1)));
+  VALUES (new.id, COALESCE(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)));
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

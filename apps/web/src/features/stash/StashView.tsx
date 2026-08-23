@@ -22,20 +22,22 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
   const [roastLevel, setRoastLevel] = useState<RoastLevel>('light');
   const [roastDate, setRoastDate] = useState(new Date().toISOString().split('T')[0]);
   const [flavorNotesStr, setFlavorNotesStr] = useState('');
-  const [bagWeightGrams, setBagWeightGrams] = useState(250);
+  const [bagWeightOz, setBagWeightOz] = useState<number | "">(12);
+  const [isSaving, setIsSaving] = useState(false);
 
   const filteredBeans = beans.filter((b) => {
     const matchesSearch =
       b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       b.roaster.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.originCountry.toLowerCase().includes(searchQuery.toLowerCase());
+      (b.originCountry || "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesProcess = selectedProcess === 'all' || b.process === selectedProcess;
     return matchesSearch && matchesProcess;
   });
 
   const handleSubmitNewBean = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !roaster || !originCountry) return;
+    if (!name.trim() || !roaster.trim()) return;
+    setIsSaving(true);
 
     const newBean: Bean = {
       id: 'bean-' + Date.now(),
@@ -47,13 +49,15 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
       roastLevel,
       roastDate,
       flavorNotes: flavorNotesStr.split(',').map((s) => s.trim()).filter(Boolean),
-      bagWeightGrams,
-      remainingGrams: bagWeightGrams,
+      bagWeightGrams: bagWeightOz ? Math.round(Number(bagWeightOz) * 28.3495) : 340,
+      bagWeightOz: bagWeightOz ? Number(bagWeightOz) : 12,
+      remainingGrams: bagWeightOz ? Math.round(Number(bagWeightOz) * 28.3495) : 340,
       createdAt: new Date().toISOString(),
     };
 
     onAddBean(newBean);
     setIsModalOpen(false);
+    setIsSaving(false);
     // Reset
     setName('');
     setRoaster('');
@@ -112,7 +116,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
       {/* Beans Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredBeans.map((bean) => {
-          const daysOffRoast = calculateDaysOffRoast(bean.roastDate);
+          const daysOffRoast = calculateDaysOffRoast(bean.roastDate || new Date().toISOString().split("T")[0]);
           const restInfo = getRestingStatus(daysOffRoast);
 
           return (
@@ -145,7 +149,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                     <span>{bean.originCountry}{bean.region ? `, ${bean.region}` : ''}</span>
                   </div>
                   <span>•</span>
-                  <span className="capitalize">{bean.process.replace('-', ' ')}</span>
+                  <span className="capitalize">{(bean.process || "washed").replace('-', ' ')}</span>
                 </div>
 
                 {/* Resting Status Badge */}
@@ -182,7 +186,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
               {/* Bottom Card Action */}
               <div className="mt-5 pt-3 border-t border-stone-800/60 flex items-center justify-between">
                 <span className="text-xs text-stone-400">
-                  {bean.remainingGrams || bean.bagWeightGrams || 250}g left
+                  {bean.bagWeightOz ? `${bean.bagWeightOz} oz` : bean.bagWeightGrams ? `${(bean.bagWeightGrams / 28.3495).toFixed(1)} oz` : '12 oz'}
                 </span>
 
                 <button
@@ -238,10 +242,9 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-1">Origin Country *</label>
+                  <label className="block text-xs font-medium text-stone-300 mb-1">Origin Country <span className="text-stone-500 font-normal">(Optional)</span></label>
                   <input
                     type="text"
-                    required
                     placeholder="e.g. Ethiopia, Colombia"
                     value={originCountry}
                     onChange={(e) => setOriginCountry(e.target.value)}
@@ -277,11 +280,13 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-1">Bag Weight (g)</label>
+                  <label className="block text-xs font-medium text-stone-300 mb-1">Bag Weight (oz) <span className="text-stone-500 font-normal">(Optional)</span></label>
                   <input
                     type="number"
-                    value={bagWeightGrams}
-                    onChange={(e) => setBagWeightGrams(Number(e.target.value))}
+                    step="0.1"
+                    placeholder="12"
+                    value={bagWeightOz}
+                    onChange={(e) => setBagWeightOz(e.target.value === "" ? "" : Number(e.target.value))}
                     className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
                   />
                 </div>
@@ -310,7 +315,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold shadow-md shadow-amber-500/20"
                 >
-                  Save Bean
+                  {isSaving ? "Saving..." : "Save Bean"}
                 </button>
               </div>
             </form>

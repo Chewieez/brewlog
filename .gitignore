@@ -17,11 +17,11 @@ android/
 ios/
 *.orig.*
 
-# Environment
+# Environment & Secrets (NEVER COMMIT SECRETS)
 .env
-.env.local
-.env.*.local
+.env.*
 *.env
+!.env.example
 
 # Logs
 npm-debug.log*
@@ -29,7 +29,12 @@ yarn-debug.log*
 pnpm-debug.log*
 *.log
 
-# OS / IDE
+# OS & IDE
 .DS_Store
 .vscode/
 .idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

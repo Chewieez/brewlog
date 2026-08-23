@@ -50,17 +50,19 @@ export interface Bean {
   userId?: string;
   name: string;
   roaster: string;
-  originCountry: string;
+  originCountry?: string;
   region?: string;
   farm?: string;
   variety?: string[];
   altitudeMeters?: number;
-  process: ProcessMethod;
-  roastLevel: RoastLevel;
-  roastDate: string; // YYYY-MM-DD
+  process?: ProcessMethod;
+  roastLevel?: RoastLevel;
+  roastDate?: string; // YYYY-MM-DD
   flavorNotes: string[];
   rating?: number; // 1-5 stars
   bagWeightGrams?: number;
+  bagWeightOz?: number;
+  remainingOz?: number;
   remainingGrams?: number;
   price?: number;
   isFavorite?: boolean;

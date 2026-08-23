@@ -1,3 +1,4 @@
+import { UserMenu } from "../../features/auth/UserMenu";
 import React from 'react';
 import { Coffee, Timer, Package, Sliders, BookOpen, Sparkles, Database } from 'lucide-react';
 
@@ -8,6 +9,7 @@ interface HeaderProps {
   setActiveTab: (tab: ActiveTab) => void;
   beanCount: number;
   brewCount: number;
+  onOpenAuthModal: () => void;
   onOpenDatabaseSettings: () => void;
 }
 
@@ -16,6 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
   setActiveTab,
   beanCount,
   brewCount,
+  onOpenAuthModal,
   onOpenDatabaseSettings,
 }) => {
   const tabs = [
@@ -77,16 +80,12 @@ export const Header: React.FC<HeaderProps> = ({
             })}
           </nav>
 
-          {/* Right Action: Supabase Cloud Status */}
+          {/* Right Action: User Auth & Database Status */}
           <div className="flex items-center space-x-2 flex-shrink-0">
-            <button
-              onClick={onOpenDatabaseSettings}
-              className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium text-stone-300 bg-stone-900/90 border border-stone-800 hover:border-amber-500/40 hover:text-amber-300 cursor-pointer whitespace-nowrap transition-colors"
-              title="Configure Supabase Database"
-            >
-              <Database className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-              <span className="hidden sm:inline">Supabase Cloud</span>
-            </button>
+            <UserMenu
+              onOpenAuthModal={onOpenAuthModal}
+              onOpenDatabaseSettings={onOpenDatabaseSettings}
+            />
           </div>
         </div>
 
