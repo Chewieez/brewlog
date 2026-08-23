@@ -1,7 +1,7 @@
 # ☕ BrewLog: Multi-Platform Specialty Coffee Engineering Case Study
 
 ## 🎯 Project Overview
-BrewLog is a full-stack, cross-platform specialty coffee companion designed to streamline bean logging, custom recipe creation, precision brew timing, and SCA cupping sensory evaluations across Web, Mobile, and Wearable platforms.
+BrewLog is a full-stack, cross-platform specialty coffee companion designed to streamline bean logging, custom recipe creation, precision brew timing, and SCA cupping sensory evaluations across Web, Mobile, and Wearable platforms (WearOS & watchOS).
 
 ---
 
@@ -14,7 +14,11 @@ All coffee math, ratio conversions, stage rescaling, and sensory calculations li
 Unlike generic document stores, coffee data relies on structured relationships between equipment, roast profiles, and extraction parameters. Supabase PostgreSQL with strict Row Level Security (RLS) ensures multi-tenant data privacy at the database layer.
 
 ### 3. Precision Web & Mobile Timing Architecture
-Interactive timers leverage performance timing APIs (`requestAnimationFrame` and monotonic timestamp delta calculation) combined with synthesized Web Audio chimes for stage transitions.
+Interactive timers leverage performance timing APIs combined with synthesized Web Audio chimes for stage transitions.
+
+### 4. Dual Wearable Companion Ecosystem
+- **WearOS (`apps/wearos`)**: Built with Jetpack Compose for Wear OS, connecting via Android Wearable DataLayer.
+- **watchOS (`apps/watchos`)**: Built with SwiftUI, communicating with the iOS host via WatchConnectivity (WCSession).
 
 ---
 
