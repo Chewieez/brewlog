@@ -217,7 +217,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
 
             <form onSubmit={handleSubmitNewBean} className="space-y-3 text-sm">
               <div>
-                <label className="block text-xs font-medium text-stone-300 mb-1">Roaster Name *</label>
+                <label className="block text-xs font-medium text-stone-300 mb-1">Roaster Name <span className="text-amber-400 font-bold">*</span></label>
                 <input
                   type="text"
                   required
@@ -229,7 +229,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-stone-300 mb-1">Coffee / Lot Name *</label>
+                <label className="block text-xs font-medium text-stone-300 mb-1">Coffee / Lot Name <span className="text-amber-400 font-bold">*</span></label>
                 <input
                   type="text"
                   required
@@ -242,7 +242,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-1">Origin Country <span className="text-stone-500 font-normal">(Optional)</span></label>
+                  <label className="block text-xs font-medium text-stone-300 mb-1">Origin Country</label>
                   <input
                     type="text"
                     placeholder="e.g. Ethiopia, Colombia"
@@ -259,6 +259,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                     onChange={(e) => setProcess(e.target.value as ProcessMethod)}
                     className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-300 focus:outline-none focus:border-amber-500"
                   >
+                    <option value="">Select process...</option>
                     <option value="washed">Washed</option>
                     <option value="natural">Natural</option>
                     <option value="honey">Honey</option>
@@ -280,7 +281,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-1">Bag Weight (oz) <span className="text-stone-500 font-normal">(Optional)</span></label>
+                  <label className="block text-xs font-medium text-stone-300 mb-1">Bag Weight (oz)</label>
                   <input
                     type="number"
                     step="0.1"
