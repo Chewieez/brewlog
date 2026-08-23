@@ -135,6 +135,7 @@ function MainAppContent() {
             onAddTastingLog={(log) => addTastingLog(log)}
           />
         )}
+
       </main>
 
       <SupabaseModal

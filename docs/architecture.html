@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BrewLog Interactive Node Graph</title>
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0c0a09;
+      color: #f5f5f4;
+      font-family: 'Outfit', -apple-system, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.5rem;
+      background: #141210;
+      border-bottom: 1px solid #292524;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fbbf24;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .subtitle {
+      color: #a8a29e;
+      font-size: 0.8rem;
+      margin-left: 1rem;
+    }
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn {
+      background: #1c1917;
+      border: 1px solid #44403c;
+      color: #fbbf24;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: #f59e0b;
+      color: #0c0a09;
+      border-color: #f59e0b;
+    }
+    .btn.active {
+      background: #f59e0b;
+      color: #0c0a09;
+    }
+    #network-canvas {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 50% 50%, #171513 0%, #090807 100%);
+      cursor: grab;
+    }
+    #network-canvas:active {
+      cursor: grabbing;
+    }
+    .legend {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      background: rgba(20, 18, 16, 0.9);
+      border: 1px solid #292524;
+      border-radius: 1rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      backdrop-blur: 10px;
+      z-index: 10;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #d6d3d1;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .info-panel {
+      position: absolute;
+      top: 4.5rem;
+      right: 1.5rem;
+      width: 320px;
+      background: rgba(20, 18, 16, 0.95);
+      border: 1px solid #3f3f46;
+      border-radius: 1rem;
+      padding: 1.25rem;
+      font-size: 0.85rem;
+      z-index: 10;
+      box-shadow: 0 20px 30px rgba(0,0,0,0.7);
+      display: none;
+    }
+    .info-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fbbf24;
+      margin-bottom: 0.25rem;
+    }
+    .info-type {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: bold;
+      color: #a8a29e;
+      margin-bottom: 0.75rem;
+    }
+    .info-desc {
+      color: #d6d3d1;
+      line-height: 1.4;
+      margin-bottom: 0.75rem;
+    }
+    .info-code {
+      font-family: 'JetBrains Mono', monospace;
+      background: #0c0a09;
+      padding: 0.4rem 0.6rem;
+      border-radius: 0.5rem;
+      color: #fbbf24;
+      font-size: 0.75rem;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="header-bar">
+    <div style="display: flex; align-items: center;">
+      <h1>☕ BrewLog Interactive Architecture Graph</h1>
+      <span class="subtitle">Drag nodes, scroll to zoom, click any node to inspect details</span>
+    </div>
+    <div class="controls">
+      <a href="http://localhost:3000/" style="text-decoration: none;" class="btn active">☕ Open Web App (localhost:3000)</a>
+      <button class="btn" onclick="network.fit({animation: true})">⟲ Reset View</button>
+      <button class="btn" onclick="network.zoomBy(0.3)">➕ Zoom In</button>
+      <button class="btn" onclick="network.zoomBy(-0.3)">➖ Zoom Out</button>
+      <button class="btn" id="togglePhysics" onclick="togglePhysics()">Disable Physics</button>
+    </div>
+  </div>
+
+  <div id="network-canvas"></div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div style="font-weight: bold; color: #fbbf24; margin-bottom: 0.2rem;">Node Types</div>
+    <div class="legend-item"><div class="legend-dot" style="background: #f59e0b;"></div> React Entry & Root</div>
+    <div class="legend-item"><div class="legend-dot" style="background: #3b82f6;"></div> Feature Views (Tabs)</div>
+    <div class="legend-item"><div class="legend-dot" style="background: #a855f7;"></div> Sub-Components & Primitives</div>
+    <div class="legend-item"><div class="legend-dot" style="background: #ec4899;"></div> Hooks & State Layer</div>
+    <div class="legend-item"><div class="legend-dot" style="background: #10b981;"></div> @brewlog/core Domain Math</div>
+    <div class="legend-item"><div class="legend-dot" style="background: #06b6d4;"></div> Supabase PostgreSQL Cloud</div>
+  </div>
+
+  <!-- Selected Node Info Sidebar -->
+  <div class="info-panel" id="info-panel">
+    <div class="info-title" id="info-title">Node Title</div>
+    <div class="info-type" id="info-type">Type</div>
+    <div class="info-desc" id="info-desc">Description</div>
+    <div class="info-code" id="info-code">Code / File Path</div>
+  </div>
+
+  <script>
+    const nodes = new vis.DataSet([
+      // Root & Entry
+      { id: 1, label: 'main.tsx\n(Vite Entry)', group: 'root', shape: 'box', level: 0, info: { title: 'main.tsx', type: 'Application Entrypoint', desc: 'Bootstraps the React 19 application, imports index.css theme tokens, and renders the App component.', file: 'apps/web/src/main.tsx' } },
+      { id: 2, label: 'App.tsx\n(Main Orchestrator)', group: 'root', shape: 'box', level: 1, info: { title: 'App.tsx', type: 'Root Component', desc: 'Houses global state, activeTab view router, AuthProvider wrapper, and global modals.', file: 'apps/web/src/App.tsx' } },
+      { id: 3, label: 'AuthProvider\n(AuthContext.tsx)', group: 'auth', shape: 'box', level: 1, info: { title: 'AuthProvider', type: 'React Context', desc: 'Listens to live Supabase auth state changes, manages user JWT tokens, signIn, and signUp.', file: 'apps/web/src/features/auth/AuthContext.tsx' } },
+
+      // Header & Navigation
+      { id: 4, label: 'Header.tsx\n(Responsive Nav)', group: 'shared', shape: 'box', level: 2, info: { title: 'Header.tsx', type: 'Navigation Component', desc: 'Provides tab switching, badge counters, responsive breakpoints, and user profile avatar.', file: 'apps/web/src/components/shared/Header.tsx' } },
+      { id: 5, label: 'UserMenu.tsx\n(Profile & Sign Out)', group: 'shared', shape: 'box', level: 3, info: { title: 'UserMenu.tsx', type: 'User Profile Menu', desc: 'Shows active barista initials avatar badge with dropdown to Sign Out or view database settings.', file: 'apps/web/src/features/auth/UserMenu.tsx' } },
+
+      // Modals
+      { id: 6, label: 'AuthModal.tsx\n(Login / Signup)', group: 'modal', shape: 'box', level: 2, info: { title: 'AuthModal.tsx', type: 'Authentication Modal', desc: 'Sign In and Create Account dialog with email verification alerts and error banners.', file: 'apps/web/src/features/auth/AuthModal.tsx' } },
+      { id: 7, label: 'SupabaseModal.tsx\n(Credentials)', group: 'modal', shape: 'box', level: 2, info: { title: 'SupabaseModal.tsx', type: 'Database Config Modal', desc: 'Project URL and Anon API key input modal.', file: 'apps/web/src/features/auth/SupabaseModal.tsx' } },
+
+      // Feature Views
+      { id: 10, label: 'TimerView.tsx\n(Brew Assistant)', group: 'feature', shape: 'box', level: 2, info: { title: 'TimerView.tsx', type: 'Feature View', desc: 'Interactive circular progress timer with millisecond countdowns, live dose scaling, and stage timeline.', file: 'apps/web/src/features/timer/TimerView.tsx' } },
+      { id: 11, label: 'StashView.tsx\n(Coffee Stash)', group: 'feature', shape: 'box', level: 2, info: { title: 'StashView.tsx', type: 'Feature View', desc: 'Whole bean tracking in ounces (oz) with resting window badges and add-bean modal.', file: 'apps/web/src/features/stash/StashView.tsx' } },
+      { id: 12, label: 'RecipeStudioView.tsx\n(Recipe Studio)', group: 'feature', shape: 'box', level: 2, info: { title: 'RecipeStudioView.tsx', type: 'Feature View', desc: 'Preset recipe library (Hoffmann V60, Kasuya 4:6, AeroPress, Flair 58) with auto-scaler.', file: 'apps/web/src/features/recipes/RecipeStudioView.tsx' } },
+      { id: 13, label: 'EquipmentView.tsx\n(Gear & Grinders)', group: 'feature', shape: 'box', level: 2, info: { title: 'EquipmentView.tsx', type: 'Feature View', desc: 'Grinder burr settings calibration (clicks, microns, stepped numbers) and brewer management.', file: 'apps/web/src/features/equipment/EquipmentView.tsx' } },
+      { id: 14, label: 'CuppingView.tsx\n(Cupping & Wheel)', group: 'feature', shape: 'box', level: 2, info: { title: 'CuppingView.tsx', type: 'Feature View', desc: 'SCA 0-100 cupping scoring sheet and interactive flavor wheel tag selector.', file: 'apps/web/src/features/cupping/CuppingView.tsx' } },
+
+      // Sub-Components
+      { id: 20, label: 'ScaFlavorWheelSvg.tsx\n(Pure Polar SVG Wheel)', group: 'subcomp', shape: 'ellipse', level: 3, info: { title: 'ScaFlavorWheelSvg.tsx', type: 'Interactive Vector Graphic', desc: 'Pure React + SVG polar trigonometry rendering 7 concentric categories and outer descriptors with live hover inspection.', file: 'apps/web/src/features/cupping/ScaFlavorWheelSvg.tsx' } },
+      { id: 21, label: 'ScrollFadeContainer.tsx\n(Dynamic Mask)', group: 'subcomp', shape: 'ellipse', level: 3, info: { title: 'ScrollFadeContainer.tsx', type: 'UI Primitive', desc: 'Observes scroll metrics with ResizeObserver and dynamically hides gradient fade at top/bottom.', file: 'apps/web/src/components/shared/ScrollFadeContainer.tsx' } },
+
+      // Hooks Layer
+      { id: 30, label: 'useAuth.ts\n(Session Hook)', group: 'hook', shape: 'diamond', level: 3, info: { title: 'useAuth.ts', type: 'Custom React Hook', desc: 'Exposes active user object, session, and signIn / signUp methods.', file: 'apps/web/src/features/auth/AuthContext.tsx' } },
+      { id: 31, label: 'useBeans.ts\n(Cloud Stash Hook)', group: 'hook', shape: 'diamond', level: 3, info: { title: 'useBeans.ts', type: 'Custom React Hook', desc: 'Performs real-time CRUD on public.beans in Supabase PostgreSQL with optimistic local updates.', file: 'apps/web/src/features/stash/useBeans.ts' } },
+      { id: 32, label: 'useTastingLogs.ts\n(Cupping Hook)', group: 'hook', shape: 'diamond', level: 3, info: { title: 'useTastingLogs.ts', type: 'Custom React Hook', desc: 'Fetches and saves completed brew logs and SCA scores to public.tasting_logs.', file: 'apps/web/src/features/cupping/useTastingLogs.ts' } },
+
+      // Core Monorepo Package (@brewlog/core)
+      { id: 40, label: 'calculator.ts\n(Dose Scaler & Scores)', group: 'core', shape: 'hexagon', level: 4, info: { title: 'calculator.ts', type: 'Domain Algorithms', desc: 'Pure math: brew ratios, Hoffman dose scaling, official SCA 0-100 cupping formula, days-off-roast status.', file: 'packages/core/src/calculator.ts' } },
+      { id: 41, label: 'flavorWheel.ts\n(SCA Hierarchy)', group: 'core', shape: 'hexagon', level: 4, info: { title: 'flavorWheel.ts', type: 'Domain Data', desc: 'Official SCA Coffee Taster Flavor Wheel dataset with concentric categories, notes, and hex colors.', file: 'packages/core/src/flavorWheel.ts' } },
+      { id: 42, label: 'presets.ts\n(Expert Recipes)', group: 'core', shape: 'hexagon', level: 4, info: { title: 'presets.ts', type: 'Domain Data', desc: 'Standard recipes: Hoffmann V60, Kasuya 4:6, Inverted AeroPress, Flair 58 Lever Espresso.', file: 'packages/core/src/presets.ts' } },
+      { id: 43, label: 'types.ts\n(TypeScript Models)', group: 'core', shape: 'hexagon', level: 4, info: { title: 'types.ts', type: 'Shared Type Definitions', desc: 'Domain models for Bean, Equipment, BrewRecipe, BrewStage, TastingLog, CuppingAttributes.', file: 'packages/core/src/types.ts' } },
+
+      // Hardware & Cloud Backend
+      { id: 50, label: 'audio.ts\n(Web Audio API)', group: 'backend', shape: 'box', level: 3, info: { title: 'audio.ts', type: 'Hardware Synthesizer', desc: 'Zero-asset Web Audio API oscillator synthesizing pure acoustic bell tones and 3-2-1 countdown ticks.', file: 'apps/web/src/lib/audio.ts' } },
+      { id: 51, label: 'lib/supabase.ts\n(Typed Client)', group: 'backend', shape: 'box', level: 4, info: { title: 'lib/supabase.ts', type: 'Database Client', desc: 'SupabaseClient typed with Database schema from @brewlog/supabase and .env credentials.', file: 'apps/web/src/lib/supabase.ts' } },
+      { id: 52, label: 'PostgreSQL Cloud DB\n(Row Level Security)', group: 'cloud', shape: 'database', level: 5, info: { title: 'PostgreSQL Database', type: 'Cloud Backend', desc: 'Supabase PostgreSQL database storing profiles, beans, equipment, recipes, stages, and tasting_logs with RLS.', file: 'packages/supabase/migrations/001_initial_schema.sql' } },
+    ]);
+
+    const edges = new vis.DataSet([
+      // App Tree
+      { from: 1, to: 2, arrows: 'to' },
+      { from: 2, to: 3, arrows: 'to' },
+      { from: 2, to: 4, arrows: 'to' },
+      { from: 4, to: 5, arrows: 'to' },
+      { from: 2, to: 6, arrows: 'to' },
+      { from: 2, to: 7, arrows: 'to' },
+
+      // Tab Switching to Views
+      { from: 2, to: 10, arrows: 'to', label: 'Tab: timer' },
+      { from: 2, to: 11, arrows: 'to', label: 'Tab: stash' },
+      { from: 2, to: 12, arrows: 'to', label: 'Tab: recipes' },
+      { from: 2, to: 13, arrows: 'to', label: 'Tab: equipment' },
+      { from: 2, to: 14, arrows: 'to', label: 'Tab: cupping' },
+
+      // Sub-Components
+      { from: 10, to: 21, arrows: 'to' },
+      { from: 14, to: 21, arrows: 'to' },
+      { from: 14, to: 20, arrows: 'to' },
+
+      // Views to Hooks
+      { from: 3, to: 30, arrows: 'to' },
+      { from: 11, to: 31, arrows: 'to' },
+      { from: 14, to: 32, arrows: 'to' },
+      { from: 10, to: 50, arrows: 'to' },
+
+      // Hooks to Supabase Client
+      { from: 30, to: 51, arrows: 'to' },
+      { from: 31, to: 51, arrows: 'to' },
+      { from: 32, to: 51, arrows: 'to' },
+
+      // Supabase Client to PostgreSQL Cloud
+      { from: 51, to: 52, arrows: 'to;from', label: 'Real-time WebSocket / SQL' },
+
+      // Views / Hooks to Core Package
+      { from: 10, to: 40, dashes: true, arrows: 'to' },
+      { from: 11, to: 40, dashes: true, arrows: 'to' },
+      { from: 12, to: 40, dashes: true, arrows: 'to' },
+      { from: 12, to: 42, dashes: true, arrows: 'to' },
+      { from: 14, to: 40, dashes: true, arrows: 'to' },
+      { from: 14, to: 41, dashes: true, arrows: 'to' },
+      { from: 20, to: 41, dashes: true, arrows: 'to' },
+      { from: 31, to: 43, dashes: true, arrows: 'to' },
+    ]);
+
+    const container = document.getElementById('network-canvas');
+    const data = { nodes, edges };
+
+    const options = {
+      groups: {
+        root: { color: { background: '#f59e0b', border: '#d97706', highlight: '#fbbf24' }, font: { color: '#0c0a09', face: 'Outfit', size: 14, bold: true } },
+        auth: { color: { background: '#ea580c', border: '#c2410c', highlight: '#f97316' }, font: { color: '#ffffff', face: 'Outfit', size: 13, bold: true } },
+        shared: { color: { background: '#44403c', border: '#78716c', highlight: '#a8a29e' }, font: { color: '#f5f5f4', face: 'Outfit', size: 12 } },
+        modal: { color: { background: '#292524', border: '#57534e', highlight: '#a8a29e' }, font: { color: '#f5f5f4', face: 'Outfit', size: 12 } },
+        feature: { color: { background: '#2563eb', border: '#1d4ed8', highlight: '#60a5fa' }, font: { color: '#ffffff', face: 'Outfit', size: 13, bold: true } },
+        subcomp: { color: { background: '#9333ea', border: '#7e22ce', highlight: '#c084fc' }, font: { color: '#ffffff', face: 'Outfit', size: 12 } },
+        hook: { color: { background: '#db2777', border: '#be185d', highlight: '#f472b6' }, font: { color: '#ffffff', face: 'Outfit', size: 12, bold: true } },
+        core: { color: { background: '#059669', border: '#047857', highlight: '#34d399' }, font: { color: '#ffffff', face: 'Outfit', size: 12, bold: true } },
+        backend: { color: { background: '#0891b2', border: '#0e7490', highlight: '#22d3ee' }, font: { color: '#ffffff', face: 'Outfit', size: 12 } },
+        cloud: { color: { background: '#0284c7', border: '#0369a1', highlight: '#38bdf8' }, font: { color: '#ffffff', face: 'Outfit', size: 14, bold: true } },
+      },
+      nodes: {
+        shadow: { enabled: true, color: 'rgba(0,0,0,0.6)', size: 10, x: 5, y: 5 },
+        margin: 12,
+        borderWidth: 2,
+      },
+      edges: {
+        color: { color: '#78716c', highlight: '#fbbf24', hover: '#f59e0b' },
+        width: 2,
+        smooth: { type: 'cubicBezier', forceDirection: 'vertical', roundness: 0.4 },
+        font: { color: '#a8a29e', size: 10, face: 'JetBrains Mono', background: '#0c0a09', strokeWidth: 0 }
+      },
+      layout: {
+        hierarchical: {
+          direction: 'UD',
+          sortMethod: 'directed',
+          nodeSpacing: 220,
+          levelSeparation: 140,
+        }
+      },
+      physics: {
+        hierarchicalRepulsion: { nodeDistance: 240 },
+        solver: 'hierarchicalRepulsion'
+      },
+      interaction: {
+        hover: true,
+        tooltipDelay: 100,
+        navigationButtons: true,
+        keyboard: true
+      }
+    };
+
+    const network = new vis.Network(container, data, options);
+
+    // Node click inspector
+    network.on('click', function(params) {
+      if (params.nodes.length > 0) {
+        const nodeId = params.nodes[0];
+        const node = nodes.get(nodeId);
+        if (node && node.info) {
+          document.getElementById('info-title').innerText = node.info.title;
+          document.getElementById('info-type').innerText = node.info.type;
+          document.getElementById('info-desc').innerText = node.info.desc;
+          document.getElementById('info-code').innerText = node.info.file;
+          document.getElementById('info-panel').style.display = 'block';
+        }
+      } else {
+        document.getElementById('info-panel').style.display = 'none';
+      }
+    });
+
+    let physicsEnabled = false;
+    function togglePhysics() {
+      physicsEnabled = !physicsEnabled;
+      network.setOptions({ physics: { enabled: physicsEnabled } });
+      document.getElementById('togglePhysics').innerText = physicsEnabled ? 'Lock Layout' : 'Unlock Physics';
+    }
+  </script>
+</body>
+</html>
