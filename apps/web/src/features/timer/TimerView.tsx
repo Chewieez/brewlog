@@ -1,7 +1,7 @@
-import { ScrollFadeContainer } from './ScrollFadeContainer';
+import { ScrollFadeContainer } from '../../components/shared/ScrollFadeContainer';
 import React, { useState, useEffect, useRef } from 'react';
 import { BrewRecipe, rescaleRecipeDose } from '@brewlog/core';
-import { coffeeAudio } from '../lib/audio';
+import { coffeeAudio } from '../../lib/audio';
 import { Play, Pause, RotateCcw, Volume2, VolumeX, CheckCircle2, Droplets, Sparkles } from 'lucide-react';
 
 interface TimerViewProps {

@@ -1,4 +1,4 @@
-import { ScrollFadeContainer } from './ScrollFadeContainer';
+import { ScrollFadeContainer } from '../../components/shared/ScrollFadeContainer';
 import React, { useState } from 'react';
 import { TastingLog, CuppingAttributes, calculateScaScore, SCA_FLAVOR_WHEEL } from '@brewlog/core';
 import { Sparkles, Award, Cherry, Flower2, Flame, Coffee, Candy, Sun, Wine, PieChart, ListFilter } from 'lucide-react';

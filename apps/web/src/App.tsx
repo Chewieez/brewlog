@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Header, ActiveTab } from './components/Header';
-import { TimerView } from './components/TimerView';
-import { StashView } from './components/StashView';
-import { RecipeStudioView } from './components/RecipeStudioView';
-import { EquipmentView } from './components/EquipmentView';
-import { CuppingView } from './components/CuppingView';
-import { SupabaseModal } from './components/SupabaseModal';
+import { Header, ActiveTab } from './components/shared/Header';
+import { TimerView } from './features/timer/TimerView';
+import { StashView } from './features/stash/StashView';
+import { RecipeStudioView } from './features/recipes/RecipeStudioView';
+import { EquipmentView } from './features/equipment/EquipmentView';
+import { CuppingView } from './features/cupping/CuppingView';
+import { SupabaseModal } from './features/auth/SupabaseModal';
 import { Bean, Equipment, BrewRecipe, TastingLog, DEFAULT_PRESET_RECIPES, calculateScaScore } from '@brewlog/core';
 import { INITIAL_BEANS, INITIAL_EQUIPMENT, INITIAL_TASTING_LOGS } from './lib/sampleData';
 
