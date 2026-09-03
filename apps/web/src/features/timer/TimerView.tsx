@@ -1,17 +1,23 @@
 import { ScrollFadeContainer } from '../../components/shared/ScrollFadeContainer';
 import React, { useState, useEffect, useRef } from 'react';
-import { BrewRecipe, rescaleRecipeDose } from '@brewlog/core';
+import { BrewRecipe, Bean, rescaleRecipeDose } from '@brewlog/core';
 import { coffeeAudio } from '../../lib/audio';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, CheckCircle2, Droplets, Sparkles } from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, CheckCircle2, Droplets, Sparkles, Coffee } from 'lucide-react';
 
 interface TimerViewProps {
   recipe: BrewRecipe;
+  selectedBean?: Bean | null;
+  beans?: Bean[];
+  onSelectBean?: (bean: Bean) => void;
   onSelectOtherRecipe: () => void;
-  onLogCompletedBrew: (recipe: BrewRecipe, actualTimeSeconds: number) => void;
+  onLogCompletedBrew: (recipe: BrewRecipe, actualTimeSeconds: number, bean: Bean | null) => void;
 }
 
 export const TimerView: React.FC<TimerViewProps> = ({
   recipe: initialRecipe,
+  selectedBean,
+  beans = [],
+  onSelectBean,
   onSelectOtherRecipe,
   onLogCompletedBrew,
 }) => {
@@ -132,6 +138,34 @@ export const TimerView: React.FC<TimerViewProps> = ({
             <h2 className="text-xl font-bold text-stone-100">{recipe.name}</h2>
           </div>
           <p className="text-xs text-stone-400 mt-1">{recipe.description}</p>
+
+          {/* Active Bean Indicator / Selector */}
+          <div className="mt-2.5 flex items-center space-x-2 text-xs">
+            <div className="flex items-center space-x-1.5 text-amber-400 font-medium">
+              <Coffee className="w-3.5 h-3.5" />
+              <span>Bean:</span>
+            </div>
+            {beans.length > 0 ? (
+              <select
+                value={selectedBean?.id || ''}
+                onChange={(e) => {
+                  const b = beans.find((item) => item.id === e.target.value);
+                  if (b && onSelectBean) onSelectBean(b);
+                }}
+                className="bg-stone-950 border border-stone-800 rounded-lg px-2.5 py-1 text-xs font-semibold text-stone-200 focus:outline-none focus:border-amber-500 cursor-pointer"
+              >
+                {beans.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name} ({b.roaster})
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span className="text-stone-300 font-medium">
+                {selectedBean ? `${selectedBean.name} (${selectedBean.roaster})` : "Specialty Blend"}
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center space-x-3">
@@ -159,16 +193,16 @@ export const TimerView: React.FC<TimerViewProps> = ({
         </div>
       </div>
 
-      {/* Main Interactive Timer Display: Horizontal top-aligned and stretched */}
+      {/* Main Interactive Timer Display */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: Circular Timer Panel */}
-        <div className="lg:col-span-7 flex flex-col items-center justify-between p-8 rounded-3xl bg-gradient-to-b from-stone-900/90 to-stone-950 border border-stone-800/80 shadow-2xl relative h-[520px]">
+        <div className="lg:col-span-7 flex flex-col items-center justify-between p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-stone-900/90 to-stone-950 border border-stone-800/80 shadow-2xl relative min-h-[530px]">
           <div className="w-full flex items-center justify-between text-xs text-stone-400 font-mono">
             <span>METHOD: <strong className="text-stone-200 uppercase">{recipe.brewMethod}</strong></span>
             <span>RATIO: <strong className="text-amber-400">1:{recipe.ratio}</strong></span>
           </div>
 
-          <div className="relative flex items-center justify-center my-4">
+          <div className="relative flex items-center justify-center my-3">
             {/* SVG Circular Progress Ring */}
             <svg className="w-72 h-72 sm:w-80 sm:h-80 transform -rotate-90">
               <circle
@@ -183,7 +217,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 cx="50%"
                 cy="50%"
                 r={radius}
-                className="stroke-amber-500 transition-all duration-300 ease-out"
+                className="stroke-amber-500 transition-all duration-300 ease-linear"
                 strokeWidth="12"
                 strokeDasharray={circumference}
                 strokeDashoffset={strokeDashoffset}
@@ -212,23 +246,14 @@ export const TimerView: React.FC<TimerViewProps> = ({
             </div>
           </div>
 
-          {/* Controls Button Row */}
-          <div className="flex items-center space-x-4 mt-4">
-            <button
-              onClick={resetTimer}
-              className="p-3.5 rounded-2xl bg-stone-800/80 text-stone-300 hover:text-stone-100 hover:bg-stone-700/80 cursor-pointer transition-colors"
-              title="Reset Timer"
-            >
-              <RotateCcw className="w-5 h-5" />
-            </button>
-
+          {/* Primary Controls */}
+          <div className="flex items-center space-x-4">
             <button
               onClick={toggleTimer}
-              className={`flex items-center space-x-2 px-8 py-3.5 rounded-2xl font-bold text-base shadow-xl cursor-pointer transition-all duration-200 transform hover:scale-105 active:scale-95 ${
-                isRunning
-                  ? 'bg-amber-600 hover:bg-amber-500 text-stone-950 shadow-amber-600/30'
-                  : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 shadow-amber-500/30'
-              }`}
+              className={`flex items-center space-x-2 px-8 py-3.5 rounded-2xl font-bold shadow-lg cursor-pointer transition-all transform active:scale-95 ${isRunning
+                ? 'bg-amber-500 text-stone-950 hover:bg-amber-400 shadow-amber-500/20'
+                : 'bg-stone-100 text-stone-950 hover:bg-white shadow-stone-100/10'
+                }`}
             >
               {isRunning ? (
                 <>
@@ -241,6 +266,14 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   <span>{elapsedSeconds > 0 ? 'Resume' : 'Start Brew'}</span>
                 </>
               )}
+            </button>
+
+            <button
+              onClick={resetTimer}
+              className="p-3.5 rounded-2xl bg-stone-800/80 hover:bg-stone-700/80 border border-stone-800 text-stone-300 hover:text-stone-100 cursor-pointer transition-colors"
+              title="Reset Timer"
+            >
+              <RotateCcw className="w-5 h-5" />
             </button>
 
             <button
@@ -259,18 +292,18 @@ export const TimerView: React.FC<TimerViewProps> = ({
           {isFinished && (
             <div className="mt-6 w-full animate-fade-in">
               <button
-                onClick={() => onLogCompletedBrew(recipe, elapsedSeconds)}
+                onClick={() => onLogCompletedBrew(recipe, elapsedSeconds, selectedBean || null)}
                 className="w-full flex items-center justify-center space-x-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold hover:from-emerald-500 hover:to-teal-500 shadow-lg shadow-emerald-600/20 cursor-pointer transition-all"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Brew Complete! Log to Cupping Sheet</span>
+                <span>Brew Complete! Rate & Log to Cupping Sheet</span>
               </button>
             </div>
           )}
         </div>
 
         {/* Right: Stage Timeline & Step Guide Panel */}
-        <div className="lg:col-span-5 p-6 rounded-3xl bg-stone-900/60 border border-stone-800/80 backdrop-blur-md flex flex-col h-[520px] overflow-hidden">
+        <div className="lg:col-span-5 p-6 rounded-3xl bg-stone-900/60 border border-stone-800/80 backdrop-blur-md flex flex-col min-h-[530px] lg:h-[530px] overflow-hidden">
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-stone-800 flex-shrink-0">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-stone-400">
               Pour Timeline
@@ -281,51 +314,50 @@ export const TimerView: React.FC<TimerViewProps> = ({
           </div>
 
           <ScrollFadeContainer className="flex-1 min-h-0 space-y-3 pr-1">
-              {recipe.stages.map((stage, idx) => {
-                const isCurrent = idx === currentStageIndex && elapsedSeconds > 0;
-                const isPast = elapsedSeconds >= stage.startSecond + stage.durationSeconds;
+            {recipe.stages.map((stage, idx) => {
+              const isCurrent = idx === currentStageIndex && elapsedSeconds > 0;
+              const isPast = elapsedSeconds >= stage.startSecond + stage.durationSeconds;
 
-                return (
-                  <div
-                    key={stage.id}
-                    className={`p-3.5 rounded-2xl border transition-all duration-200 ${
-                      isCurrent
-                        ? 'bg-amber-500/15 border-amber-500/50 shadow-md shadow-amber-500/10'
-                        : isPast
-                        ? 'bg-stone-950/40 border-stone-800/40 opacity-60'
-                        : 'bg-stone-950/70 border-stone-800/60'
+              return (
+                <div
+                  key={stage.id}
+                  className={`p-3.5 rounded-2xl border transition-all duration-200 ${isCurrent
+                    ? 'bg-amber-500/15 border-amber-500/50 shadow-md shadow-amber-500/10'
+                    : isPast
+                      ? 'bg-stone-950/40 border-stone-800/40 opacity-60'
+                      : 'bg-stone-950/70 border-stone-800/60'
                     }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        {isPast ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                        ) : isCurrent ? (
-                          <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
-                        ) : (
-                          <span className="w-2.5 h-2.5 rounded-full bg-stone-700" />
-                        )}
-                        <span className={`text-sm font-semibold ${isCurrent ? 'text-amber-300' : 'text-stone-200'}`}>
-                          {stage.name}
-                        </span>
-                      </div>
-                      <span className="text-xs font-mono text-stone-400">
-                        {formatTime(stage.startSecond)} ({stage.durationSeconds}s)
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      {isPast ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      ) : isCurrent ? (
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+                      ) : (
+                        <span className="w-2.5 h-2.5 rounded-full bg-stone-700" />
+                      )}
+                      <span className={`text-sm font-semibold ${isCurrent ? 'text-amber-300' : 'text-stone-200'}`}>
+                        {stage.name}
                       </span>
                     </div>
-
-                    <p className="text-xs text-stone-300 mt-2 leading-relaxed">
-                      {stage.instruction}
-                    </p>
-
-                    <div className="mt-2 flex items-center justify-between text-[11px] text-stone-400 font-mono">
-                      <span>Target Weight:</span>
-                      <span className="text-amber-300 font-bold">{stage.targetWaterWeightGrams}g</span>
-                    </div>
+                    <span className="text-xs font-mono text-stone-400">
+                      {formatTime(stage.startSecond)} ({stage.durationSeconds}s)
+                    </span>
                   </div>
-                );
-              })}
-            </ScrollFadeContainer>
+
+                  <p className="text-xs text-stone-300 mt-2 leading-relaxed">
+                    {stage.instruction}
+                  </p>
+
+                  <div className="mt-2 flex items-center justify-between text-[11px] text-stone-400 font-mono">
+                    <span>Target Weight:</span>
+                    <span className="text-amber-300 font-bold">{stage.targetWaterWeightGrams}g</span>
+                  </div>
+                </div>
+              );
+            })}
+          </ScrollFadeContainer>
 
           <div className="mt-3 pt-3 border-t border-stone-800/60 text-center text-xs text-stone-500 flex-shrink-0">
             Total Target Extraction: {formatTime(recipe.totalTimeSeconds)}

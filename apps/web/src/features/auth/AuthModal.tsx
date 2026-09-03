@@ -1,6 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
-import { LogIn, UserPlus, Sparkles, AlertCircle, CheckCircle2, Mail, Info, ArrowRight } from "lucide-react";
+import {
+  LogIn,
+  UserPlus,
+  Sparkles,
+  AlertCircle,
+  CheckCircle2,
+  Mail,
+  Info,
+  ArrowRight,
+  KeyRound,
+  ArrowLeft,
+  ShieldCheck,
+} from "lucide-react";
+
+export type AuthMode = "signin" | "signup" | "forgot" | "update_password";
+
+const MODAL_TITLES: Record<AuthMode, string> = {
+  signin: "Sign In to BrewLog",
+  signup: "Create Account",
+  forgot: "Reset Your Password",
+  update_password: "Choose New Password",
+};
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -8,30 +29,70 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const { signInWithEmail, signUpWithEmail, isConfigured } = useAuth();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const {
+    signInWithEmail,
+    signUpWithEmail,
+    resetPasswordForEmail,
+    updatePassword,
+    isConfigured,
+    isPasswordRecovery,
+    authUrlError,
+    clearAuthUrlError,
+    setIsPasswordRecovery,
+  } = useAuth();
+
+  const [mode, setMode] = useState<AuthMode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [needsEmailConfirmation, setNeedsEmailConfirmation] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  // Derived state booleans for readable JSX
+  const isSignIn = mode === "signin";
+  const isSignUp = mode === "signup";
+  const isForgot = mode === "forgot";
+  const isUpdatePassword = mode === "update_password";
+  const isCredentialMode = isSignIn || isSignUp;
+
+  useEffect(() => {
+    if (isPasswordRecovery) {
+      setMode("update_password");
+      setErrorMsg(null);
+    } else if (authUrlError) {
+      setMode("forgot");
+      setErrorMsg(authUrlError);
+    }
+  }, [isPasswordRecovery, authUrlError]);
+
   useEffect(() => {
     if (isOpen) {
-      setErrorMsg(null);
-      setSuccessMsg(null);
+      if (!isPasswordRecovery && !authUrlError) {
+        setErrorMsg(null);
+        setSuccessMsg(null);
+      }
       setNeedsEmailConfirmation(false);
     }
   }, [isOpen]);
 
   if (!isOpen) return null;
 
+  const switchMode = (newMode: AuthMode) => {
+    setMode(newMode);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    setNeedsEmailConfirmation(false);
+    clearAuthUrlError();
+  };
+
   const handleClose = () => {
     setErrorMsg(null);
     setSuccessMsg(null);
     setNeedsEmailConfirmation(false);
+    clearAuthUrlError();
     onClose();
   };
 
@@ -42,7 +103,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setNeedsEmailConfirmation(false);
     setSubmitting(true);
 
-    if (mode === "signin") {
+    if (isSignIn) {
       const { error } = await signInWithEmail(email, password);
       if (error) {
         if (error.message.toLowerCase().includes("email not confirmed")) {
@@ -56,13 +117,40 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         setPassword("");
         setTimeout(() => handleClose(), 700);
       }
-    } else {
+    } else if (isSignUp) {
       const { error } = await signUpWithEmail(email, password, displayName);
       if (error) {
         setErrorMsg(error.message);
       } else {
-        // Prominently trigger the email confirmation alert screen
         setNeedsEmailConfirmation(true);
+      }
+    } else if (isForgot) {
+      const { error } = await resetPasswordForEmail(email);
+      if (error) {
+        setErrorMsg(error.message);
+      } else {
+        setSuccessMsg("Password reset email sent! Check your inbox for the reset link.");
+      }
+    } else if (isUpdatePassword) {
+      if (password !== confirmPassword) {
+        setErrorMsg("Passwords do not match. Please re-type them.");
+        setSubmitting(false);
+        return;
+      }
+      if (password.length < 6) {
+        setErrorMsg("Password must be at least 6 characters.");
+        setSubmitting(false);
+        return;
+      }
+      const { error } = await updatePassword(password);
+      if (error) {
+        setErrorMsg(error.message);
+      } else {
+        setSuccessMsg("Your password has been updated! Logging you in...");
+        setTimeout(() => {
+          setIsPasswordRecovery(false);
+          handleClose();
+        }, 1200);
       }
     }
 
@@ -76,7 +164,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           <div className="flex items-center space-x-2">
             <Sparkles className="w-5 h-5 text-amber-400" />
             <h3 className="text-lg font-bold text-stone-100">
-              {mode === "signin" ? "Sign In to BrewLog" : "Create Account"}
+              {MODAL_TITLES[mode]}
             </h3>
           </div>
           <button onClick={handleClose} className="text-stone-400 hover:text-stone-200 cursor-pointer">
@@ -84,41 +172,41 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex rounded-xl bg-stone-950 p-1 border border-stone-800">
-          <button
-            type="button"
-            onClick={() => {
-              setMode("signin");
-              setErrorMsg(null);
-              setSuccessMsg(null);
-              setNeedsEmailConfirmation(false);
-            }}
-            className={`flex-1 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
-              mode === "signin"
-                ? "bg-amber-500 text-stone-950 shadow-sm"
-                : "text-stone-400 hover:text-stone-200"
-            }`}
-          >
-            Sign In
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setMode("signup");
-              setErrorMsg(null);
-              setSuccessMsg(null);
-              setNeedsEmailConfirmation(false);
-            }}
-            className={`flex-1 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
-              mode === "signup"
-                ? "bg-amber-500 text-stone-950 shadow-sm"
-                : "text-stone-400 hover:text-stone-200"
-            }`}
-          >
-            Create Account
-          </button>
-        </div>
+        {/* Tab Switcher for Sign In / Sign Up */}
+        {isCredentialMode ? (
+          <div className="flex rounded-xl bg-stone-950 p-1 border border-stone-800">
+            <button
+              type="button"
+              onClick={() => switchMode("signin")}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
+                isSignIn
+                  ? "bg-amber-500 text-stone-950 shadow-sm"
+                  : "text-stone-400 hover:text-stone-200"
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => switchMode("signup")}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
+                isSignUp
+                  ? "bg-amber-500 text-stone-950 shadow-sm"
+                  : "text-stone-400 hover:text-stone-200"
+              }`}
+            >
+              Create Account
+            </button>
+          </div>
+        ) : isForgot ? (
+          <p className="text-xs text-stone-400 leading-relaxed">
+            Enter your registered email address below. We'll send you a link to reset your password.
+          </p>
+        ) : (
+          <p className="text-xs text-stone-400 leading-relaxed">
+            Enter and confirm your new account password below.
+          </p>
+        )}
 
         {!isConfigured && (
           <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-start space-x-2">
@@ -167,10 +255,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <div className="pt-2 flex items-center justify-between">
               <button
                 type="button"
-                onClick={() => {
-                  setMode("signin");
-                  setNeedsEmailConfirmation(false);
-                }}
+                onClick={() => switchMode("signin")}
                 className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-500 text-stone-950 font-bold text-xs hover:bg-amber-400 cursor-pointer transition-colors"
               >
                 <span>Go to Sign In</span>
@@ -186,6 +271,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               </button>
             </div>
           </div>
+        ) : isUpdatePassword && successMsg ? (
+          <div className="py-8 text-center space-y-4 animate-fade-in">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto text-emerald-400 shadow-xl shadow-emerald-500/10">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-lg font-bold text-stone-100">Password Updated!</h4>
+              <p className="text-xs text-stone-300">
+                Your new password has been saved and your session is active.
+              </p>
+            </div>
+            <div className="text-xs font-semibold text-amber-400 pt-1">
+              Taking you to your coffee journal...
+            </div>
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3.5 text-sm">
             {successMsg && (
@@ -195,7 +295,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               </div>
             )}
 
-            {mode === "signup" && (
+            {isSignUp && (
               <div>
                 <label className="block text-xs font-medium text-stone-300 mb-1">Your Name / Barista Tag</label>
                 <input
@@ -208,55 +308,121 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               </div>
             )}
 
-            <div>
-              <label className="block text-xs font-medium text-stone-300 mb-1">Email Address *</label>
-              <input
-                type="email"
-                required
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
-              />
-              {mode === "signup" && (
-                <span className="text-[11px] text-stone-400 mt-1 flex items-center space-x-1">
-                  <Info className="w-3 h-3 text-amber-400/80 flex-shrink-0" />
-                  <span>A verification email will be sent to this address.</span>
-                </span>
-              )}
-            </div>
+            {!isUpdatePassword && (
+              <div>
+                <label className="block text-xs font-medium text-stone-300 mb-1">Email Address *</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
+                />
+                {isSignUp && (
+                  <span className="text-[11px] text-stone-400 mt-1 flex items-center space-x-1">
+                    <Info className="w-3 h-3 text-amber-400/80 flex-shrink-0" />
+                    <span>A verification email will be sent to this address.</span>
+                  </span>
+                )}
+              </div>
+            )}
 
-            <div>
-              <label className="block text-xs font-medium text-stone-300 mb-1">Password *</label>
-              <input
-                type="password"
-                required
-                minLength={6}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
-              />
-            </div>
+            {isCredentialMode && (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-medium text-stone-300">Password *</label>
+                  {isSignIn && (
+                    <button
+                      type="button"
+                      onClick={() => switchMode("forgot")}
+                      className="text-xs text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
+                />
+              </div>
+            )}
 
-            <div className="pt-2">
+            {isUpdatePassword && (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-stone-300 mb-1">New Password *</label>
+                  <input
+                    type="password"
+                    required
+                    minLength={6}
+                    placeholder="Enter at least 6 characters"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-stone-300 mb-1">Confirm New Password *</label>
+                  <input
+                    type="password"
+                    required
+                    minLength={6}
+                    placeholder="Re-type your new password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="pt-2 space-y-2">
               <button
                 type="submit"
                 disabled={submitting}
                 className="w-full flex items-center justify-center space-x-2 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-bold shadow-lg shadow-amber-500/20 cursor-pointer transition-all disabled:opacity-50"
               >
-                {mode === "signin" ? (
+                {isSignIn ? (
                   <>
                     <LogIn className="w-4 h-4" />
                     <span>{submitting ? "Signing In..." : "Sign In"}</span>
                   </>
-                ) : (
+                ) : isSignUp ? (
                   <>
                     <UserPlus className="w-4 h-4" />
                     <span>{submitting ? "Creating Account..." : "Create Account"}</span>
                   </>
+                ) : isForgot ? (
+                  <>
+                    <KeyRound className="w-4 h-4" />
+                    <span>{submitting ? "Sending Link..." : "Send Password Reset Link"}</span>
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>{submitting ? "Updating Password..." : "Save New Password"}</span>
+                  </>
                 )}
               </button>
+
+              {isForgot && (
+                <button
+                  type="button"
+                  onClick={() => switchMode("signin")}
+                  className="w-full flex items-center justify-center space-x-1.5 py-2 text-xs text-stone-400 hover:text-stone-200 cursor-pointer transition-colors"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Back to Sign In</span>
+                </button>
+              )}
             </div>
           </form>
         )}

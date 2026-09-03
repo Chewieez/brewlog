@@ -1,33 +1,50 @@
 import { useBeans } from "./features/stash/useBeans";
 import { useTastingLogs } from "./features/cupping/useTastingLogs";
-import { AuthProvider } from "./features/auth/AuthContext";
+import { AuthProvider, useAuth } from "./features/auth/AuthContext";
 import { AuthModal } from "./features/auth/AuthModal";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header, ActiveTab } from './components/shared/Header';
 import { TimerView } from './features/timer/TimerView';
 import { StashView } from './features/stash/StashView';
 import { RecipeStudioView } from './features/recipes/RecipeStudioView';
 import { EquipmentView } from './features/equipment/EquipmentView';
-import { CuppingView } from './features/cupping/CuppingView';
+import { CuppingView, PendingBrewSession } from './features/cupping/CuppingView';
 import { SupabaseModal } from './features/auth/SupabaseModal';
-import { Bean, Equipment, BrewRecipe, TastingLog, DEFAULT_PRESET_RECIPES, calculateScaScore } from '@brewlog/core';
-import { INITIAL_BEANS, INITIAL_EQUIPMENT, INITIAL_TASTING_LOGS } from './lib/sampleData';
+import { Bean, Equipment, BrewRecipe, TastingLog, DEFAULT_PRESET_RECIPES } from '@brewlog/core';
+import { INITIAL_BEANS, INITIAL_EQUIPMENT } from './lib/sampleData';
 
 function MainAppContent() {
   const { beans, addBean } = useBeans();
   const { logs: tastingLogs, addTastingLog } = useTastingLogs();
+  const { isPasswordRecovery, authUrlError } = useAuth();
   const [activeTab, setActiveTab] = useState<ActiveTab>('timer');
   const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
+  // Automatically pop open auth modal if arriving via password recovery link or expired link
+  useEffect(() => {
+    if (isPasswordRecovery || authUrlError) {
+      setIsAuthModalOpen(true);
+    }
+  }, [isPasswordRecovery, authUrlError]);
+
   // Core App State
-  // beans from useBeans
   const [equipment, setEquipment] = useState<Equipment[]>(INITIAL_EQUIPMENT);
   const [recipes, setRecipes] = useState<BrewRecipe[]>(DEFAULT_PRESET_RECIPES);
-  // logs from useTastingLogs
 
-  // Active Timer Recipe
+  // Active Timer Recipe & Selected Bean
   const [selectedRecipe, setSelectedRecipe] = useState<BrewRecipe>(DEFAULT_PRESET_RECIPES[0]);
+  const [selectedBean, setSelectedBean] = useState<Bean | null>(INITIAL_BEANS[0] || null);
+
+  // Pending Brew Handoff to Cupping Form
+  const [pendingBrewSession, setPendingBrewSession] = useState<PendingBrewSession | null>(null);
+
+  // Keep selectedBean synced when beans load from Supabase
+  useEffect(() => {
+    if (!selectedBean && beans.length > 0) {
+      setSelectedBean(beans[0]);
+    }
+  }, [beans, selectedBean]);
 
   // Handlers
   const handleAddBean = async (newBean: Bean) => {
@@ -43,6 +60,7 @@ function MainAppContent() {
   };
 
   const handleSelectBeanForBrew = (bean: Bean) => {
+    setSelectedBean(bean);
     setActiveTab('timer');
   };
 
@@ -51,43 +69,17 @@ function MainAppContent() {
     setActiveTab('timer');
   };
 
-  const handleLogCompletedBrew = async (recipe: BrewRecipe, actualTimeSeconds: number) => {
-    const newLog: TastingLog = {
-      id: 'log-' + Date.now(),
-      beanNameSnapshot: beans[0]?.name || 'Specialty Blend',
-      roasterSnapshot: beans[0]?.roaster || 'Local Roaster',
-      recipeNameSnapshot: recipe.name,
-      brewMethod: recipe.brewMethod,
-      brewDate: new Date().toISOString(),
-      coffeeDoseGrams: recipe.coffeeDoseGrams,
-      waterAmountGrams: recipe.waterAmountGrams,
+  const handleLogCompletedBrew = (recipe: BrewRecipe, actualTimeSeconds: number, bean: Bean | null) => {
+    setPendingBrewSession({
+      bean: bean || selectedBean,
+      recipe,
       actualTimeSeconds,
-      grindSetting: recipe.grindSize,
-      waterTempCelsius: recipe.waterTempCelsius,
-      scores: {
-        fragranceAroma: 8.5,
-        acidity: 8.5,
-        sweetness: 8.8,
-        body: 8.0,
-        clarity: 9.0,
-        aftertaste: 8.5,
-        balance: 8.7,
-        overall: 8.8,
-      },
-      calculatedScaScore: 87.2,
-      rating: 4.8,
-      flavorTags: ['Sweetness', 'Clarity'],
-      notes: 'Brewed with Brew Assistant timer.',
-      wouldBrewAgain: true,
-      createdAt: new Date().toISOString(),
-    };
-
-    await addTastingLog(newLog);
+    });
     setActiveTab('cupping');
   };
 
   return (
-      <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans">
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -101,6 +93,9 @@ function MainAppContent() {
         {activeTab === 'timer' && (
           <TimerView
             recipe={selectedRecipe}
+            selectedBean={selectedBean}
+            beans={beans}
+            onSelectBean={setSelectedBean}
             onSelectOtherRecipe={() => setActiveTab('recipes')}
             onLogCompletedBrew={handleLogCompletedBrew}
           />
@@ -132,10 +127,15 @@ function MainAppContent() {
         {activeTab === 'cupping' && (
           <CuppingView
             logs={tastingLogs}
-            onAddTastingLog={(log) => addTastingLog(log)}
+            beans={beans}
+            pendingBrewSession={pendingBrewSession}
+            onClearPendingSession={() => setPendingBrewSession(null)}
+            onAddTastingLog={async (log) => {
+              await addTastingLog(log);
+              setPendingBrewSession(null);
+            }}
           />
         )}
-
       </main>
 
       <SupabaseModal

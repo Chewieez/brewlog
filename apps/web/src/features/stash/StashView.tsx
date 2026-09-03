@@ -191,7 +191,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
 
                 <button
                   onClick={() => onSelectBeanForBrew(bean)}
-                  className="px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 text-xs font-semibold border border-amber-500/30 transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 text-xs font-semibold border border-amber-500/30 transition-colors cursor-pointer"
                 >
                   Brew This Bean →
                 </button>

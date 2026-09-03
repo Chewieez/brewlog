@@ -76,20 +76,20 @@ The findings below represent **active bugs, architectural gaps, and deviations f
 
 ### Category C: Feature Integration & Data Flow (P1)
 
-#### 8. Cupping View Cannot Save Logs
+#### 8. Cupping View Cannot Save Logs *(Resolved)*
 * **File**: [`CuppingView.tsx`](../apps/web/src/features/cupping/CuppingView.tsx)
-* **Issue**: The view renders 8 attribute sliders and the sensory flavor wheel, but has **no "Save Tasting Log" button**. The prop `onAddTastingLog` is passed into `CuppingView` from `App.tsx` but is never invoked. Users cannot record standalone cupping evaluations.
-* **Fix**: Add a save/submit action to `CuppingView` that captures bean selection, scores, flavor tags, and notes.
+* **Status**: ✅ **Fixed** (Added bean selector, brew parameters, notes textarea, 1–5 star rating, "Would brew again" toggle, and "Save Tasting Log to Book" action connected to `onAddTastingLog`)
+* **Impact**: Users can now evaluate and save both standalone cuppings and completed timer brews.
 
-#### 9. Timer Brew Logging Uses Hardcoded Mock Scores & Default Bean
-* **File**: [`App.tsx`](../apps/web/src/App.tsx#L54-L87)
-* **Issue**: When logging a completed brew from the timer, `handleLogCompletedBrew` hardcodes sensory scores (`8.5`, `8.8`, `overall: 8.8`, `calculatedScaScore: 87.2`) and defaults to `beans[0]` snapshot, ignoring user evaluation and active recipe bean context.
-* **Fix**: Allow the timer completion flow to select the active bean and route into the cupping form with pre-filled brew metadata (dose, water, actual brew duration).
+#### 9. Timer Brew Logging Uses Hardcoded Mock Scores & Default Bean *(Resolved)*
+* **File**: [`App.tsx`](../apps/web/src/App.tsx#L54-L87), [`TimerView.tsx`](../apps/web/src/features/timer/TimerView.tsx)
+* **Status**: ✅ **Fixed** (Timer completion now hands off actual brew parameters—active bean, recipe, dose, water, elapsed seconds—to `CuppingView`, allowing the barista to evaluate their cup)
+* **Impact**: Eliminates fake hardcoded scores (`8.5`, `8.8`, `87.2`) and ensures the actual brewed coffee bean snapshot is used.
 
-#### 10. "Brew with this Bean" Stash Action Drops Selected Bean
-* **File**: [`App.tsx`](../apps/web/src/App.tsx#L45-L47), [`StashView.tsx`](../apps/web/src/features/stash/StashView.tsx)
-* **Issue**: Clicking "Brew with this Bean" calls `handleSelectBeanForBrew(bean)`, but the handler only switches `activeTab` to `'timer'` without setting active bean state. The Timer has no knowledge of which bean was picked.
-* **Fix**: Store `selectedBean` in state and pass it down to `TimerView`.
+#### 10. "Brew with this Bean" Stash Action Drops Selected Bean *(Resolved)*
+* **File**: [`App.tsx`](../apps/web/src/App.tsx#L45-L47), [`TimerView.tsx`](../apps/web/src/features/timer/TimerView.tsx)
+* **Status**: ✅ **Fixed** (Wired `selectedBean` in `App.tsx` and added coffee bean indicator/dropdown in `TimerView`'s top banner)
+* **Impact**: Selecting a bean in the Stash immediately reflects in the Timer and carries through into the Cupping log.
 
 #### 11. Equipment View Incomplete Rendering & Volatile State
 * **File**: [`EquipmentView.tsx`](../apps/web/src/features/equipment/EquipmentView.tsx#L19-L20, #L120-L123)
@@ -148,9 +148,9 @@ The findings below represent **active bugs, architectural gaps, and deviations f
 - [ ] Replace `any` casts in `useBeans.ts` and `useTastingLogs.ts` with typed Supabase schemas.
 
 ### Milestone 2: Data Flow & Feature Completeness (P1)
-- [ ] Implement "Save Cupping Log" in `CuppingView` and connect to `useTastingLogs`.
-- [ ] Connect selected bean from Stash ("Brew with this Bean") into `TimerView`.
-- [ ] Update Timer completion flow to route into cupping log with actual brew parameters.
+- [x] Implement "Save Cupping Log" in `CuppingView` and connect to `useTastingLogs`.
+- [x] Connect selected bean from Stash ("Brew with this Bean") into `TimerView`.
+- [x] Update Timer completion flow to route into cupping log with actual brew parameters.
 - [ ] Add display support for Scales and Kettles in `EquipmentView`.
 - [ ] Add `localStorage` caching fallback for Equipment and Custom Recipes.
 - [ ] Reload or reconfigure Supabase client when credentials are saved in `SupabaseModal`.
