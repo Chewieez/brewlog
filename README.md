@@ -1,8 +1,8 @@
 # ☕ BrewLog
 
-> Multi-platform specialty coffee tracking, custom recipe studio, interactive brewing assistant, and SCA cupping logbook.
+> A specialty coffee brewing companion built to learn React, React Native, Expo, Wear OS, watchOS, and agentic AI-driven development.
 
-Built with **React 19**, **Tailwind CSS v4**, **React Native (Expo)**, **TypeScript**, and **Supabase (PostgreSQL)**.
+Multi-platform specialty coffee tracking, custom recipe studio, interactive brewing assistant, and SCA cupping logbook. Built with **React 19**, **Tailwind CSS v4**, **React Native (Expo)**, **TypeScript**, and **Supabase (PostgreSQL)**.
 
 ---
 
