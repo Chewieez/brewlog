@@ -16,7 +16,7 @@ export function calculateRatio(coffeeDoseGrams: number, waterAmountGrams: number
 
 export function rescaleRecipeDose(recipe: BrewRecipe, newDoseGrams: number): BrewRecipe {
   if (recipe.coffeeDoseGrams <= 0 || newDoseGrams <= 0) return recipe;
-  
+
   const scale = newDoseGrams / recipe.coffeeDoseGrams;
   const newWaterAmount = Math.round(recipe.waterAmountGrams * scale);
 
@@ -51,6 +51,7 @@ export function calculateScaScore(scores: CuppingAttributes): number {
 export function calculateDaysOffRoast(roastDateStr: string): number {
   try {
     const roastDate = new Date(roastDateStr);
+    if (isNaN(roastDate.getTime())) return 0;
     const now = new Date();
     const diffTime = now.getTime() - roastDate.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
