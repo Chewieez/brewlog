@@ -5,15 +5,45 @@
 class CoffeeAudioSynthesizer {
   private ctx: AudioContext | null = null;
 
-  private getContext(): AudioContext {
-    if (!this.ctx) {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      this.ctx = new AudioCtx();
+  private getContext(): AudioContext | null {
+    if (typeof window === 'undefined') return null;
+    try {
+      if (!this.ctx) {
+        const AudioCtx =
+          window.AudioContext ||
+          (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        if (!AudioCtx) return null;
+        this.ctx = new AudioCtx();
+      }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+      return this.ctx;
+    } catch {
+      return null;
     }
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
+  }
+
+  /**
+   * Prime and unlock Web Audio API on direct user gesture (touch / click).
+   * Resolves iOS Safari and mobile Chrome autoplay restrictions.
+   */
+  unlock() {
+    try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
+      // Play 1-frame silent buffer to fully unlock audio pipeline on iOS
+      const buffer = ctx.createBuffer(1, 1, 22050);
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      source.start(0);
+    } catch {
+      // AudioContext may not be available in headless test environments
     }
-    return this.ctx;
   }
 
   /**
@@ -22,6 +52,8 @@ class CoffeeAudioSynthesizer {
   playTick() {
     try {
       const ctx = this.getContext();
+      if (!ctx) return;
+
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
@@ -48,6 +80,7 @@ class CoffeeAudioSynthesizer {
   playStageChime() {
     try {
       const ctx = this.getContext();
+      if (!ctx) return;
       const now = ctx.currentTime;
 
       // Dual harmonic sine waves for rich chime
@@ -81,6 +114,7 @@ class CoffeeAudioSynthesizer {
   playCompletionFanfare() {
     try {
       const ctx = this.getContext();
+      if (!ctx) return;
       const now = ctx.currentTime;
       const notes = [440, 554.37, 659.25, 880]; // A major arpeggio
 

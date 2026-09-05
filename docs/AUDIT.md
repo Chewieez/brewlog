@@ -52,25 +52,25 @@ The findings below represent **active bugs, architectural gaps, and deviations f
 
 ### Category B: Timer Engine & Audio Best Practices (P1)
 
-#### 4. Timer Drift with `setInterval`
-* **File**: [`TimerView.tsx`](../apps/web/src/features/timer/TimerView.tsx#L54-L86)
-* **Issue**: The timer increments `elapsedSeconds` by `+1` inside a `setInterval(..., 1000)`. In browser environments, `setInterval` drifts significantly when tabs lose focus, the device throttles CPU, or UI renders queue up. Over a 4-minute brew, it can drift 3–6 seconds.
-* **Best Practice**: Track `startTime = performance.now()` and calculate elapsed time as `Math.floor((now - startTime) / 1000)`.
+#### 4. Timer Drift with `setInterval` *(Resolved)*
+* **File**: [`TimerView.tsx`](../apps/web/src/features/timer/TimerView.tsx), [`useBrewTimer.ts`](../apps/web/src/features/timer/useBrewTimer.ts)
+* **Status**: ✅ **Fixed** (Extracted timer into a dedicated `useBrewTimer` hook that tracks elapsed time using `performance.now()` delta math with timestamp checkpoints, preventing drift when browser tabs are throttled or backgrounded)
+* **Impact**: Millisecond-accurate timer precision across long multi-stage pour-overs without time loss or drift.
 
-#### 5. Stale Closure on Countdown Audio Ticks
-* **File**: [`TimerView.tsx`](../apps/web/src/features/timer/TimerView.tsx#L69-L73)
-* **Issue**: `nextStage` is captured when `isRunning` triggers the effect. Because `elapsedSeconds` is omitted from the dependency array (to prevent interval resets), `nextStage` remains frozen at Stage 2. Countdown audio ticks (3, 2, 1) never play for Stages 3, 4, etc.
-* **Best Practice**: Derive the next stage dynamically inside the tick handler or via a mutable ref.
+#### 5. Stale Closure on Countdown Audio Ticks *(Resolved)*
+* **File**: [`TimerView.tsx`](../apps/web/src/features/timer/TimerView.tsx), [`useBrewTimer.ts`](../apps/web/src/features/timer/useBrewTimer.ts)
+* **Status**: ✅ **Fixed** (Stages and next stage transitions are dynamically evaluated against the latest recipe and current elapsed seconds on every tick loop iteration with `lastTickedSecondRef` deduplication)
+* **Impact**: Audio countdown ticks (3, 2, 1) play reliably before every single stage transition.
 
-#### 6. Impure Side-Effects Inside React State Updater
-* **File**: [`TimerView.tsx`](../apps/web/src/features/timer/TimerView.tsx#L55-L85)
-* **Issue**: `coffeeAudio.playStageChime()`, `coffeeAudio.playTick()`, `setIsRunning(false)`, and `setIsFinished(true)` are called inside `setElapsedSeconds((prev) => { ... })`. Under React 19 Concurrent Mode and React StrictMode, state updater functions must be pure because they can run multiple times.
-* **Best Practice**: Separate state mutation from side-effects (use an animation frame / tick loop or effect-driven audio cues).
+#### 6. Impure Side-Effects Inside React State Updater *(Resolved)*
+* **File**: [`TimerView.tsx`](../apps/web/src/features/timer/TimerView.tsx), [`useBrewTimer.ts`](../apps/web/src/features/timer/useBrewTimer.ts)
+* **Status**: ✅ **Fixed** (Moved `coffeeAudio.playStageChime()`, `coffeeAudio.playTick()`, and `playCompletionFanfare()` completely outside React state setters into a dedicated tick loop with ref tracking)
+* **Impact**: Fully compliant with React 19 Concurrent Mode and StrictMode; zero duplicate audio chime artifacts.
 
-#### 7. Mobile Web Audio Autoplay Policy
-* **File**: [`audio.ts`](../apps/web/src/lib/audio.ts#L8-L17)
-* **Issue**: `AudioContext.resume()` is called lazily during tick playback. Mobile Safari and Android Chrome block Web Audio unless resumed directly from a synchronous user gesture event (e.g. tapping "Start Brew").
-* **Best Practice**: Expose an explicit `coffeeAudio.init()` or `coffeeAudio.resume()` triggered directly by the user's click handler.
+#### 7. Mobile Web Audio Autoplay Policy *(Resolved)*
+* **File**: [`audio.ts`](../apps/web/src/lib/audio.ts#L30-L48), [`useBrewTimer.ts`](../apps/web/src/features/timer/useBrewTimer.ts)
+* **Status**: ✅ **Fixed** (Implemented `coffeeAudio.unlock()` which plays a 1-frame silent buffer synchronously during the user's direct "Start Brew" click gesture, transitioning `AudioContext` from `suspended` to `running`)
+* **Impact**: Reliable audio cues on iOS Safari, Android Chrome, and mobile PWA installations.
 
 ---
 
@@ -154,10 +154,10 @@ The findings below represent **active bugs, architectural gaps, and deviations f
 - [x] Removed temporary SupabaseModal in favor of standard production .env configuration.
 
 ### Milestone 3: Timer Precision & Audio Engine (P1)
-- [ ] Refactor timer engine from `setInterval` to `performance.now()` delta calculation.
-- [ ] Eliminate stale closure on countdown ticks before stage transitions.
-- [ ] Move audio calls and timer stop actions out of the `setElapsedSeconds` state updater.
-- [ ] Add explicit audio unlocking on user click for mobile Safari/Chrome compatibility.
+- [x] Refactor timer engine from `setInterval` to `performance.now()` delta calculation.
+- [x] Eliminate stale closure on countdown ticks before stage transitions.
+- [x] Move audio calls and timer stop actions out of the `setElapsedSeconds` state updater.
+- [x] Add explicit audio unlocking on user click for mobile Safari/Chrome compatibility.
 
 ### Milestone 4: a11y, Responsiveness & Specialty Domain (P2)
 - [ ] Add ARIA roles, labels, and keyboard controls to `ScaFlavorWheelSvg`.

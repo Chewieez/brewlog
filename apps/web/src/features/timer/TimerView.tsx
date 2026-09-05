@@ -1,7 +1,7 @@
 import { ScrollFadeContainer } from '../../components/shared/ScrollFadeContainer';
 import React, { useState, useEffect, useRef } from 'react';
 import { BrewRecipe, Bean, rescaleRecipeDose } from '@brewlog/core';
-import { coffeeAudio } from '../../lib/audio';
+import { useBrewTimer } from './useBrewTimer';
 import { Play, Pause, RotateCcw, Volume2, VolumeX, CheckCircle2, Droplets, Sparkles, Coffee } from 'lucide-react';
 
 interface TimerViewProps {
@@ -24,93 +24,26 @@ export const TimerView: React.FC<TimerViewProps> = ({
   const [doseGrams, setDoseGrams] = useState(initialRecipe.coffeeDoseGrams);
   const [recipe, setRecipe] = useState<BrewRecipe>(initialRecipe);
 
-  // Timer state
-  const [isRunning, setIsRunning] = useState(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [isFinished, setIsFinished] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-
   // Sync recipe when initial recipe or dose changes
   useEffect(() => {
     setRecipe(rescaleRecipeDose(initialRecipe, doseGrams));
   }, [initialRecipe, doseGrams]);
 
-  // Determine current active stage
-  let currentStageIndex = 0;
-  for (let i = 0; i < recipe.stages.length; i++) {
-    const stage = recipe.stages[i];
-    if (elapsedSeconds >= stage.startSecond && elapsedSeconds < stage.startSecond + stage.durationSeconds) {
-      currentStageIndex = i;
-      break;
-    }
-    if (elapsedSeconds >= stage.startSecond + stage.durationSeconds) {
-      currentStageIndex = i;
-    }
-  }
-
-  const currentStage = recipe.stages[currentStageIndex] || recipe.stages[0];
-  const nextStage = recipe.stages[currentStageIndex + 1];
-
-  // Timer Tick Engine
-  const lastChimedStageRef = useRef<number>(-1);
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-
-    if (isRunning) {
-      interval = setInterval(() => {
-        setElapsedSeconds((prev) => {
-          const next = prev + 1;
-
-          // Sound check for stage transitions
-          recipe.stages.forEach((stage, idx) => {
-            if (next === stage.startSecond && lastChimedStageRef.current !== idx) {
-              lastChimedStageRef.current = idx;
-              if (!isMuted) {
-                coffeeAudio.playStageChime();
-              }
-            }
-          });
-
-          // Countdown 3, 2, 1 ticks before next stage
-          if (nextStage && nextStage.startSecond - next <= 3 && nextStage.startSecond - next > 0) {
-            if (!isMuted) {
-              coffeeAudio.playTick();
-            }
-          }
-
-          // Check for completion
-          if (next >= recipe.totalTimeSeconds) {
-            setIsRunning(false);
-            setIsFinished(true);
-            if (!isMuted) {
-              coffeeAudio.playCompletionFanfare();
-            }
-          }
-
-          return next;
-        });
-      }, 1000);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isRunning, recipe, nextStage, isMuted]);
-
-  const toggleTimer = () => {
-    if (isFinished) {
-      setElapsedSeconds(0);
-      setIsFinished(false);
-    }
-    setIsRunning(!isRunning);
-  };
-
-  const resetTimer = () => {
-    setIsRunning(false);
-    setElapsedSeconds(0);
-    setIsFinished(false);
-    lastChimedStageRef.current = -1;
-  };
+  // Hook into precision brew timer engine
+  const {
+    elapsedSeconds,
+    isRunning,
+    isFinished,
+    isMuted,
+    currentStageIndex,
+    currentStage,
+    totalProgress,
+    toggleTimer,
+    reset: resetTimer,
+    toggleMute,
+    startTimeRef,
+    accumulatedMsRef,
+  } = useBrewTimer(recipe);
 
   const formatTime = (totalSeconds: number) => {
     const mins = Math.floor(totalSeconds / 60);
@@ -118,13 +51,90 @@ export const TimerView: React.FC<TimerViewProps> = ({
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  // Progress percentage (0 to 100)
-  const totalProgress = Math.min(100, (elapsedSeconds / recipe.totalTimeSeconds) * 100);
-
   // SVG Circle calculation
   const radius = 130;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (totalProgress / 100) * circumference;
+  const circleRef = useRef<SVGCircleElement | null>(null);
+
+  // 15% Orbital Tracer Sweep state on Reset
+  const [isResetting, setIsResetting] = useState(false);
+  const tracerRef = useRef<SVGCircleElement | null>(null);
+
+  const handleReset = () => {
+    resetTimer();
+    setIsResetting(true);
+  };
+
+  // Precise 800ms reset sweep animation: sweeps 360° and collapses into the exact 0 (12 o'clock) mark
+  useEffect(() => {
+    if (!isResetting) return;
+
+    const startTime = performance.now();
+    const duration = 800; // Slower, relaxed, buttery smooth
+    const maxArc = circumference * 0.06; // 6% of circle
+    const totalDistance = circumference + maxArc;
+
+    let animId: number;
+
+    const sweep = (now: number) => {
+      const elapsed = now - startTime;
+      const t = Math.min(1, elapsed / duration);
+
+      // Smooth ease-in-out cubic curve
+      const u = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+      const head = Math.min(circumference, u * totalDistance);
+      const tail = Math.max(0, u * totalDistance - maxArc);
+      const arcLength = Math.max(0, head - tail);
+
+      if (tracerRef.current) {
+        tracerRef.current.style.strokeDasharray = `${arcLength} ${circumference}`;
+        tracerRef.current.style.strokeDashoffset = `${-tail}`;
+        // Fade out smoothly during the final 15% as the tail collapses into 0
+        const opacity = t > 0.82 ? (1 - t) / 0.18 : 1;
+        tracerRef.current.style.opacity = `${opacity}`;
+      }
+
+      if (t < 1) {
+        animId = requestAnimationFrame(sweep);
+      } else {
+        setIsResetting(false);
+      }
+    };
+
+    animId = requestAnimationFrame(sweep);
+    return () => cancelAnimationFrame(animId);
+  }, [isResetting, circumference]);
+
+  // Continuous 60fps/120fps display loop via requestAnimationFrame
+  // Eliminates backward jump on pause by locking to exact accumulated milliseconds
+  useEffect(() => {
+    if (!circleRef.current) return;
+
+    if (!isRunning) {
+      // Freeze or reset to exact elapsed position with zero rewind jump
+      const currentMs = accumulatedMsRef.current;
+      const progress = Math.min(1, currentMs / (recipe.totalTimeSeconds * 1000));
+      circleRef.current.style.strokeDashoffset = `${circumference * (1 - progress)}`;
+      return;
+    }
+
+    let animationFrameId: number;
+    const updateCircle = () => {
+      const now = performance.now();
+      const elapsedMs = now - startTimeRef.current;
+      const progress = Math.min(1, elapsedMs / (recipe.totalTimeSeconds * 1000));
+      if (circleRef.current) {
+        circleRef.current.style.strokeDashoffset = `${circumference * (1 - progress)}`;
+      }
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(updateCircle);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(updateCircle);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isRunning, elapsedSeconds === 0, recipe.totalTimeSeconds, circumference, startTimeRef, accumulatedMsRef]);
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -176,35 +186,34 @@ export const TimerView: React.FC<TimerViewProps> = ({
               type="number"
               min="5"
               max="100"
-              step="0.5"
               value={doseGrams}
-              onChange={(e) => setDoseGrams(Number(e.target.value))}
-              className="w-12 bg-transparent text-sm font-bold text-amber-400 focus:outline-none text-center cursor-text"
+              onChange={(e) => setDoseGrams(Math.max(5, Math.min(100, Number(e.target.value) || 0)))}
+              className="w-12 bg-transparent text-sm font-bold text-amber-400 focus:outline-none text-right"
             />
-            <span className="text-xs text-stone-400">g</span>
+            <span className="text-xs text-stone-500 font-medium">g</span>
           </div>
 
           <button
             onClick={onSelectOtherRecipe}
-            className="px-3 py-1.5 text-xs font-medium text-stone-300 bg-stone-800 hover:bg-stone-700 rounded-xl cursor-pointer transition-colors"
+            className="px-3 py-1.5 rounded-xl bg-stone-800/80 hover:bg-stone-700/80 border border-stone-700 text-xs font-medium text-stone-300 transition-colors cursor-pointer"
           >
             Change Recipe
           </button>
         </div>
       </div>
 
-      {/* Main Interactive Timer Display */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left: Circular Timer Panel */}
-        <div className="lg:col-span-7 flex flex-col items-center justify-between p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-stone-900/90 to-stone-950 border border-stone-800/80 shadow-2xl relative min-h-[530px]">
-          <div className="w-full flex items-center justify-between text-xs text-stone-400 font-mono">
-            <span>METHOD: <strong className="text-stone-200 uppercase">{recipe.brewMethod}</strong></span>
-            <span>RATIO: <strong className="text-amber-400">1:{recipe.ratio}</strong></span>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column: Big Interactive Timer Circle & Controls */}
+        <div className="lg:col-span-7 flex flex-col items-center justify-between p-8 rounded-3xl bg-stone-900/40 border border-stone-800/80 backdrop-blur-md relative overflow-hidden h-[520px]">
+          {/* Recipe Method & Ratio Stats */}
+          <div className="flex items-center space-x-6 text-xs font-mono text-stone-400 uppercase tracking-wider">
+            <div>METHOD: <span className="text-stone-200 font-bold">{recipe.brewMethod}</span></div>
+            <div>RATIO: <span className="text-stone-200 font-bold">1:{recipe.ratio}</span></div>
           </div>
 
-          <div className="relative flex items-center justify-center my-3">
-            {/* SVG Circular Progress Ring */}
-            <svg className="w-72 h-72 sm:w-80 sm:h-80 transform -rotate-90">
+          {/* Circular Progress Display */}
+          <div className="relative flex items-center justify-center my-auto">
+            <svg className="w-72 h-72 transform -rotate-90">
               <circle
                 cx="50%"
                 cy="50%"
@@ -214,16 +223,32 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 fill="transparent"
               />
               <circle
+                ref={circleRef}
                 cx="50%"
                 cy="50%"
                 r={radius}
-                className="stroke-amber-500 transition-all duration-300 ease-linear"
+                className="stroke-amber-500"
                 strokeWidth="12"
                 strokeDasharray={circumference}
-                strokeDashoffset={strokeDashoffset}
+                strokeDashoffset={circumference}
                 strokeLinecap="round"
                 fill="transparent"
               />
+              {/* 6% Orbital Reset Tracer Sweep */}
+              {isResetting && (
+                <circle
+                  ref={tracerRef}
+                  cx="50%"
+                  cy="50%"
+                  r={radius}
+                  className="stroke-amber-500"
+                  strokeWidth="12"
+                  strokeDasharray={`0 ${circumference}`}
+                  strokeDashoffset="0"
+                  strokeLinecap="round"
+                  fill="transparent"
+                />
+              )}
             </svg>
 
             {/* Inner Timer Digits */}
@@ -269,15 +294,16 @@ export const TimerView: React.FC<TimerViewProps> = ({
             </button>
 
             <button
-              onClick={resetTimer}
-              className="p-3.5 rounded-2xl bg-stone-800/80 hover:bg-stone-700/80 border border-stone-800 text-stone-300 hover:text-stone-100 cursor-pointer transition-colors"
+              onClick={handleReset}
+              className="p-3.5 rounded-2xl bg-stone-800/80 hover:bg-stone-700/80 border border-stone-800 text-stone-300 hover:text-stone-100 cursor-pointer transition-all"
               title="Reset Timer"
+              aria-label="Reset Timer"
             >
-              <RotateCcw className="w-5 h-5" />
+              <RotateCcw className={`w-5 h-5 transition-transform duration-300 ${isResetting ? "-rotate-180 text-amber-400" : ""}`} />
             </button>
 
             <button
-              onClick={() => setIsMuted(!isMuted)}
+              onClick={toggleMute}
               className="p-3.5 rounded-2xl bg-stone-800/80 hover:bg-stone-700/80 border border-stone-800 cursor-pointer transition-colors"
               title={isMuted ? "Unmute Audio Chimes" : "Mute Audio Chimes"}
             >
