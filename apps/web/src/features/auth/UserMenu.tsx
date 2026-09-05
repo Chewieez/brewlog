@@ -1,17 +1,13 @@
 import React, { useState } from "react";
 import { useAuth } from "./AuthContext";
-import { User, LogIn, LogOut, Database, ShieldCheck, ChevronDown } from "lucide-react";
+import { LogIn, LogOut, ChevronDown } from "lucide-react";
 
 interface UserMenuProps {
   onOpenAuthModal: () => void;
-  onOpenDatabaseSettings: () => void;
 }
 
-export const UserMenu: React.FC<UserMenuProps> = ({
-  onOpenAuthModal,
-  onOpenDatabaseSettings,
-}) => {
-  const { user, signOut, isConfigured } = useAuth();
+export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
+  const { user, signOut } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const displayName =
@@ -28,14 +24,6 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         >
           <LogIn className="w-3.5 h-3.5 text-amber-400" />
           <span>Sign In</span>
-        </button>
-
-        <button
-          onClick={onOpenDatabaseSettings}
-          className="p-2 rounded-lg text-stone-400 hover:text-stone-200 hover:bg-stone-900 border border-stone-800 cursor-pointer transition-colors"
-          title="Supabase Config"
-        >
-          <Database className={`w-3.5 h-3.5 ${isConfigured ? "text-emerald-400" : "text-stone-500"}`} />
         </button>
       </div>
     );
@@ -64,17 +52,6 @@ export const UserMenu: React.FC<UserMenuProps> = ({
               <div className="font-bold text-stone-100 truncate">{displayName}</div>
               <div className="text-[11px] text-stone-400 truncate">{user.email}</div>
             </div>
-
-            <button
-              onClick={() => {
-                setDropdownOpen(false);
-                onOpenDatabaseSettings();
-              }}
-              className="w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-stone-300 hover:text-stone-100 hover:bg-stone-800 cursor-pointer transition-colors"
-            >
-              <Database className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Database Settings</span>
-            </button>
 
             <button
               onClick={() => {

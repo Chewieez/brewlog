@@ -96,10 +96,10 @@ The findings below represent **active bugs, architectural gaps, and deviations f
 * **Status**: ✅ **Fixed** (Added complete UI sections for Precision Scales and Kettles, created `useEquipment` hook with Supabase persistence, localStorage offline cache, and offline-to-online auto-sync on sign-in)
 * **Impact**: All four gear categories (Grinders, Brewers, Scales, Kettles) render, persist across page reloads, and automatically sync to Supabase when the user logs in.
 
-#### 12. Supabase Client Non-Reactive to Modal Credential Changes
-* **Files**: [`SupabaseModal.tsx`](../apps/web/src/features/auth/SupabaseModal.tsx#L18-L25), [`lib/supabase.ts`](../apps/web/src/lib/supabase.ts#L10-L18)
-* **Issue**: Entering new Supabase credentials in the modal saves to `localStorage`, but the `supabase` client is instantiated as an exported module singleton. The new credentials have no effect until a full browser reload.
-* **Fix**: Trigger `window.location.reload()` on save, or provide a reactive client provider.
+#### 12. Supabase Client Non-Reactive to Modal Credential Changes *(Resolved)*
+* **Files**: [`lib/supabase.ts`](../apps/web/src/lib/supabase.ts)
+* **Status**: ✅ **Fixed** (Removed temporary BYOD `SupabaseModal` and direct `localStorage` credential overrides; transitioned to standard production `.env` configuration via `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`)
+* **Impact**: Aligns client architecture with standard production React/Angular deployments and eliminates confusing database config modals from end-user UI.
 
 ---
 
@@ -151,7 +151,7 @@ The findings below represent **active bugs, architectural gaps, and deviations f
 - [x] Update Timer completion flow to route into cupping log with actual brew parameters.
 - [x] Add display support for Scales and Kettles in `EquipmentView`.
 - [x] Add `localStorage` caching fallback and Supabase persistence for Equipment.
-- [ ] Reload or reconfigure Supabase client when credentials are saved in `SupabaseModal`.
+- [x] Removed temporary SupabaseModal in favor of standard production .env configuration.
 
 ### Milestone 3: Timer Precision & Audio Engine (P1)
 - [ ] Refactor timer engine from `setInterval` to `performance.now()` delta calculation.

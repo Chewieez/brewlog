@@ -10,7 +10,6 @@ import { StashView } from './features/stash/StashView';
 import { RecipeStudioView } from './features/recipes/RecipeStudioView';
 import { EquipmentView } from './features/equipment/EquipmentView';
 import { CuppingView, PendingBrewSession } from './features/cupping/CuppingView';
-import { SupabaseModal } from './features/auth/SupabaseModal';
 import { Bean, Equipment, BrewRecipe, TastingLog, DEFAULT_PRESET_RECIPES } from '@brewlog/core';
 import { INITIAL_BEANS } from './lib/sampleData';
 
@@ -20,7 +19,6 @@ function MainAppContent() {
   const { equipment, addEquipment, deleteEquipment } = useEquipment();
   const { isPasswordRecovery, authUrlError } = useAuth();
   const [activeTab, setActiveTab] = useState<ActiveTab>('timer');
-  const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Automatically pop open auth modal if arriving via password recovery link or expired link
@@ -87,7 +85,6 @@ function MainAppContent() {
         beanCount={beans.length}
         brewCount={tastingLogs.length}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
-        onOpenDatabaseSettings={() => setIsSupabaseModalOpen(true)}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -140,10 +137,6 @@ function MainAppContent() {
         )}
       </main>
 
-      <SupabaseModal
-        isOpen={isSupabaseModalOpen}
-        onClose={() => setIsSupabaseModalOpen(false)}
-      />
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}

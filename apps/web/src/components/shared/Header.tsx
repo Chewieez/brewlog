@@ -1,6 +1,6 @@
 import { UserMenu } from "../../features/auth/UserMenu";
 import React from 'react';
-import { Coffee, Timer, Package, Sliders, BookOpen, Sparkles, Database } from 'lucide-react';
+import { Coffee, Timer, Package, Sliders, BookOpen, Sparkles } from 'lucide-react';
 
 export type ActiveTab = 'timer' | 'stash' | 'recipes' | 'equipment' | 'cupping';
 
@@ -10,7 +10,6 @@ interface HeaderProps {
   beanCount: number;
   brewCount: number;
   onOpenAuthModal: () => void;
-  onOpenDatabaseSettings: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -19,7 +18,6 @@ export const Header: React.FC<HeaderProps> = ({
   beanCount,
   brewCount,
   onOpenAuthModal,
-  onOpenDatabaseSettings,
 }) => {
   const tabs = [
     { id: 'timer' as ActiveTab, label: 'Brew Assistant', icon: Timer },
@@ -62,11 +60,10 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-1.5 lg:space-x-2 px-2.5 lg:px-3.5 py-2 rounded-lg text-xs lg:text-sm font-medium cursor-pointer select-none whitespace-nowrap transition-all duration-200 ${
-                    isActive
+                  className={`flex items-center space-x-1.5 lg:space-x-2 px-2.5 lg:px-3.5 py-2 rounded-lg text-xs lg:text-sm font-medium cursor-pointer select-none whitespace-nowrap transition-all duration-200 ${isActive
                       ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm shadow-amber-500/10'
                       : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/60'
-                  }`}
+                    }`}
                 >
                   <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-amber-400' : 'text-stone-400'}`} />
                   <span>{tab.label}</span>
@@ -80,11 +77,10 @@ export const Header: React.FC<HeaderProps> = ({
             })}
           </nav>
 
-          {/* Right Action: User Auth & Database Status */}
+          {/* Right Action: User Auth & Profile */}
           <div className="flex items-center space-x-2 flex-shrink-0">
             <UserMenu
               onOpenAuthModal={onOpenAuthModal}
-              onOpenDatabaseSettings={onOpenDatabaseSettings}
             />
           </div>
         </div>
@@ -98,11 +94,10 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs whitespace-nowrap font-medium cursor-pointer transition-all flex-shrink-0 ${
-                  isActive
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs whitespace-nowrap font-medium cursor-pointer transition-all flex-shrink-0 ${isActive
                     ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                     : 'text-stone-400 hover:text-stone-200'
-                }`}
+                  }`}
               >
                 <Icon className="w-3.5 h-3.5 flex-shrink-0" />
                 <span>{tab.label}</span>
