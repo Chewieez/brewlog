@@ -1,5 +1,6 @@
 import { useBeans } from "./features/stash/useBeans";
 import { useTastingLogs } from "./features/cupping/useTastingLogs";
+import { useEquipment } from "./features/equipment/useEquipment";
 import { AuthProvider, useAuth } from "./features/auth/AuthContext";
 import { AuthModal } from "./features/auth/AuthModal";
 import React, { useState, useEffect } from 'react';
@@ -11,11 +12,12 @@ import { EquipmentView } from './features/equipment/EquipmentView';
 import { CuppingView, PendingBrewSession } from './features/cupping/CuppingView';
 import { SupabaseModal } from './features/auth/SupabaseModal';
 import { Bean, Equipment, BrewRecipe, TastingLog, DEFAULT_PRESET_RECIPES } from '@brewlog/core';
-import { INITIAL_BEANS, INITIAL_EQUIPMENT } from './lib/sampleData';
+import { INITIAL_BEANS } from './lib/sampleData';
 
 function MainAppContent() {
   const { beans, addBean } = useBeans();
   const { logs: tastingLogs, addTastingLog } = useTastingLogs();
+  const { equipment, addEquipment, deleteEquipment } = useEquipment();
   const { isPasswordRecovery, authUrlError } = useAuth();
   const [activeTab, setActiveTab] = useState<ActiveTab>('timer');
   const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
@@ -29,7 +31,6 @@ function MainAppContent() {
   }, [isPasswordRecovery, authUrlError]);
 
   // Core App State
-  const [equipment, setEquipment] = useState<Equipment[]>(INITIAL_EQUIPMENT);
   const [recipes, setRecipes] = useState<BrewRecipe[]>(DEFAULT_PRESET_RECIPES);
 
   // Active Timer Recipe & Selected Bean
@@ -51,8 +52,8 @@ function MainAppContent() {
     await addBean(newBean);
   };
 
-  const handleAddEquipment = (newItem: Equipment) => {
-    setEquipment([newItem, ...equipment]);
+  const handleAddEquipment = async (newItem: Omit<Equipment, "id" | "createdAt">) => {
+    await addEquipment(newItem);
   };
 
   const handleAddRecipe = (newRecipe: BrewRecipe) => {
@@ -121,6 +122,7 @@ function MainAppContent() {
           <EquipmentView
             equipment={equipment}
             onAddEquipment={handleAddEquipment}
+            onDeleteEquipment={deleteEquipment}
           />
         )}
 

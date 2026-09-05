@@ -91,12 +91,10 @@ The findings below represent **active bugs, architectural gaps, and deviations f
 * **Status**: ✅ **Fixed** (Wired `selectedBean` in `App.tsx` and added coffee bean indicator/dropdown in `TimerView`'s top banner)
 * **Impact**: Selecting a bean in the Stash immediately reflects in the Timer and carries through into the Cupping log.
 
-#### 11. Equipment View Incomplete Rendering & Volatile State
-* **File**: [`EquipmentView.tsx`](../apps/web/src/features/equipment/EquipmentView.tsx#L19-L20, #L120-L123)
-* **Issue**:
-  - The "Add Equipment" modal allows selecting "Scale" and "Kettle", but the view only filters and displays Grinders and Brewers. Any added scale or kettle disappears from view.
-  - Equipment is only kept in local `useState` in `App.tsx` with no `localStorage` fallback. Refreshing wipes user gear.
-* **Fix**: Add UI sections for Scales & Kettles, and add local storage / Supabase persistence.
+#### 11. Equipment View Incomplete Rendering & Volatile State *(Resolved)*
+* **File**: [`EquipmentView.tsx`](../apps/web/src/features/equipment/EquipmentView.tsx), [`useEquipment.ts`](../apps/web/src/features/equipment/useEquipment.ts)
+* **Status**: ✅ **Fixed** (Added complete UI sections for Precision Scales and Kettles, created `useEquipment` hook with Supabase persistence, localStorage offline cache, and offline-to-online auto-sync on sign-in)
+* **Impact**: All four gear categories (Grinders, Brewers, Scales, Kettles) render, persist across page reloads, and automatically sync to Supabase when the user logs in.
 
 #### 12. Supabase Client Non-Reactive to Modal Credential Changes
 * **Files**: [`SupabaseModal.tsx`](../apps/web/src/features/auth/SupabaseModal.tsx#L18-L25), [`lib/supabase.ts`](../apps/web/src/lib/supabase.ts#L10-L18)
@@ -151,8 +149,8 @@ The findings below represent **active bugs, architectural gaps, and deviations f
 - [x] Implement "Save Cupping Log" in `CuppingView` and connect to `useTastingLogs`.
 - [x] Connect selected bean from Stash ("Brew with this Bean") into `TimerView`.
 - [x] Update Timer completion flow to route into cupping log with actual brew parameters.
-- [ ] Add display support for Scales and Kettles in `EquipmentView`.
-- [ ] Add `localStorage` caching fallback for Equipment and Custom Recipes.
+- [x] Add display support for Scales and Kettles in `EquipmentView`.
+- [x] Add `localStorage` caching fallback and Supabase persistence for Equipment.
 - [ ] Reload or reconfigure Supabase client when credentials are saved in `SupabaseModal`.
 
 ### Milestone 3: Timer Precision & Audio Engine (P1)

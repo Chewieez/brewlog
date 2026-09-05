@@ -119,6 +119,26 @@ export const INITIAL_EQUIPMENT: Equipment[] = [
     notes: '58mm commercial portafilter manual lever espresso machine.',
     createdAt: new Date().toISOString(),
   },
+  {
+    id: 'eq-6',
+    type: 'scale',
+    brand: 'Timemore',
+    model: 'Black Mirror Basic 2',
+    subType: 'smart-scale',
+    isFavorite: true,
+    notes: '0.1g resolution with auto-flow rate and auto-timer.',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'eq-7',
+    type: 'kettle',
+    brand: 'Fellow',
+    model: 'Stagg EKG (0.9L)',
+    subType: 'gooseneck-electric',
+    isFavorite: true,
+    notes: 'Precision gooseneck pour with PID temperature hold.',
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 export const INITIAL_TASTING_LOGS: TastingLog[] = [
