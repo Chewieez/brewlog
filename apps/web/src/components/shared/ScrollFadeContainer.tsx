@@ -32,10 +32,11 @@ export const ScrollFadeContainer: React.FC<ScrollFadeContainerProps> = ({
     const el = containerRef.current;
     if (!el) return;
 
-    const observer = new ResizeObserver(checkScroll);
-    observer.observe(el);
-
-    return () => observer.disconnect();
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(checkScroll);
+      observer.observe(el);
+      return () => observer.disconnect();
+    }
   }, [children, checkScroll]);
 
   // Dynamic CSS linear gradient mask

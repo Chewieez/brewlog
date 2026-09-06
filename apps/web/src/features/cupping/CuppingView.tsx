@@ -56,15 +56,39 @@ interface CuppingViewProps {
   onAddTastingLog: (log: Omit<TastingLog, 'id' | 'createdAt'>) => Promise<any> | void;
 }
 
-const DEFAULT_SCORES: CuppingAttributes = {
+export const SPECIALTY_BASELINE_SCORES: CuppingAttributes = {
+  fragranceAroma: 7.5,
+  flavor: 7.5,
+  aftertaste: 7.5,
+  acidity: 7.5,
+  body: 7.5,
+  balance: 7.5,
+  uniformity: 10.0,
+  cleanCup: 10.0,
+  sweetness: 10.0,
+  overall: 7.5,
+};
+
+export const ZERO_SCORES: CuppingAttributes = {
   fragranceAroma: 0,
-  acidity: 0,
-  sweetness: 0,
-  body: 0,
-  clarity: 0,
+  flavor: 0,
   aftertaste: 0,
+  acidity: 0,
+  body: 0,
   balance: 0,
+  uniformity: 0,
+  cleanCup: 0,
+  sweetness: 0,
   overall: 0,
+};
+
+const DEFAULT_SCORES: CuppingAttributes = SPECIALTY_BASELINE_SCORES;
+
+export const getScaClassification = (score: number) => {
+  if (score >= 90) return { label: 'Outstanding (Specialty)', color: 'text-emerald-300 bg-emerald-500/20 border-emerald-500/40' };
+  if (score >= 85) return { label: 'Excellent (Specialty)', color: 'text-amber-300 bg-amber-500/20 border-amber-500/40' };
+  if (score >= 80) return { label: 'Very Good (Specialty)', color: 'text-amber-400 bg-stone-800 border-amber-500/30' };
+  return { label: 'Commercial / Below Specialty (<80)', color: 'text-stone-400 bg-stone-900 border-stone-800' };
 };
 
 const BREW_METHODS: { value: BrewMethodType; label: string }[] = [
@@ -249,15 +273,20 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
         {/* Left Column: Session Details, SCA Sliders, Notes & Save Action */}
         <div className="lg:col-span-6 p-6 rounded-3xl bg-stone-900/80 border border-stone-800 shadow-xl space-y-6">
           {/* Card Header: Score Badge */}
-          <div className="flex items-center justify-between pb-4 border-b border-stone-800">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-stone-800">
             <div>
               <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
-                SCA Cupping Matrix
+                Official SCA Cupping Matrix (10 Attributes)
               </span>
-              <h3 className="text-lg font-bold text-stone-100 mt-0.5">Calculated Cup Score</h3>
+              <div className="flex flex-wrap items-center gap-2 mt-0.5">
+                <h3 className="text-lg font-bold text-stone-100">Calculated Cup Score</h3>
+                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${getScaClassification(scaScore).color}`}>
+                  {getScaClassification(scaScore).label}
+                </span>
+              </div>
             </div>
 
-            <div className="flex items-center space-x-2 px-4 py-2 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono">
+            <div className="flex items-center space-x-2 px-4 py-2 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono self-start sm:self-auto">
               <Award className="w-5 h-5 text-amber-400" />
               <span className="text-2xl font-extrabold">{scaScore.toFixed(1)}</span>
               <span className="text-xs text-stone-400">/ 100</span>
@@ -380,42 +409,111 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
             </div>
           </div>
 
-          {/* 8 Attribute Sliders */}
-          <div className="space-y-3.5">
-            <div className="text-xs font-bold text-stone-300 uppercase tracking-wider pb-1 border-b border-stone-800/80">
-              Sensory Attribute Scoring (0.0 – 10.0)
+          {/* 10 Official SCA Attribute Sliders */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between pb-1 border-b border-stone-800/80">
+              <div className="text-xs font-bold text-stone-300 uppercase tracking-wider">
+                Sensory Attribute Scoring (0.0 – 10.0)
+              </div>
+              <div className="flex items-center space-x-2 text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => setScores(SPECIALTY_BASELINE_SCORES)}
+                  className="text-amber-400 hover:text-amber-300 transition-colors font-medium cursor-pointer"
+                >
+                  Baseline (82.5)
+                </button>
+                <span className="text-stone-600">•</span>
+                <button
+                  type="button"
+                  onClick={() => setScores(ZERO_SCORES)}
+                  className="text-stone-400 hover:text-stone-200 transition-colors cursor-pointer"
+                >
+                  Clear (0)
+                </button>
+              </div>
             </div>
 
-            {(
-              [
-                { key: 'fragranceAroma', label: 'Fragrance / Aroma' },
-                { key: 'acidity', label: 'Acidity (Brightness)' },
-                { key: 'sweetness', label: 'Sweetness' },
-                { key: 'clarity', label: 'Clarity / Clean Cup' },
-                { key: 'body', label: 'Body (Mouthfeel)' },
-                { key: 'aftertaste', label: 'Aftertaste / Finish' },
-                { key: 'balance', label: 'Balance' },
-                { key: 'overall', label: 'Overall Impression' },
-              ] as { key: keyof CuppingAttributes; label: string }[]
-            ).map(({ key, label }) => (
-              <div key={key} className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="font-medium text-stone-300">{label}</span>
-                  <span className="font-mono font-bold text-amber-400">
-                    {scores[key].toFixed(1)}
-                  </span>
+            {/* Group 1: Qualitative Sensory Attributes */}
+            <div className="space-y-3">
+              <span className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider">
+                Sensory Profile (Typically 6.00 – 10.00)
+              </span>
+
+              {(
+                [
+                  { key: 'fragranceAroma', label: 'Fragrance / Aroma', hint: 'Dry fragrance & wet crust aroma' },
+                  { key: 'flavor', label: 'Flavor', hint: 'Principal taste character & intensity' },
+                  { key: 'aftertaste', label: 'Aftertaste / Finish', hint: 'Length of positive lingering aroma & taste' },
+                  { key: 'acidity', label: 'Acidity (Brightness)', hint: 'Crispness, liveliness & structure' },
+                  { key: 'body', label: 'Body (Mouthfeel)', hint: 'Tactile weight, texture & viscosity' },
+                  { key: 'balance', label: 'Balance', hint: 'Harmony of flavor, aftertaste, acidity & body' },
+                  { key: 'overall', label: 'Overall Impression', hint: 'Cupper’s holistic appraisal of the cup' },
+                ] as { key: keyof CuppingAttributes; label: string; hint: string }[]
+              ).map(({ key, label, hint }) => (
+                <div key={key} className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <div>
+                      <span className="font-medium text-stone-300">{label}</span>
+                      <span className="text-[10px] text-stone-500 ml-1.5 hidden sm:inline">({hint})</span>
+                    </div>
+                    <span className="font-mono font-bold text-amber-400">
+                      {(scores[key] ?? 0).toFixed(1)}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="10"
+                    step="0.1"
+                    aria-label={`${label} score`}
+                    value={scores[key] ?? 0}
+                    onChange={(e) => handleSliderChange(key, Number(e.target.value))}
+                    className="w-full accent-amber-500 bg-stone-950 h-2 rounded-lg cursor-pointer"
+                  />
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="10"
-                  step="0.1"
-                  value={scores[key]}
-                  onChange={(e) => handleSliderChange(key, Number(e.target.value))}
-                  className="w-full accent-amber-500 bg-stone-950 h-2 rounded-lg cursor-pointer"
-                />
+              ))}
+            </div>
+
+            {/* Group 2: Cup Cleanliness & Uniformity (5 Cups, 2 pts each) */}
+            <div className="space-y-3 pt-3 border-t border-stone-800/60">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider">
+                  Cup Purity & Consistency (5 Cups, 2 pts / cup)
+                </span>
+                <span className="text-[10px] text-stone-500">Standard baseline: 10.0</span>
               </div>
-            ))}
+
+              {(
+                [
+                  { key: 'cleanCup', label: 'Clean Cup', hint: 'Absence of negative taints (2 pts / cup)' },
+                  { key: 'sweetness', label: 'Sweetness', hint: 'Pleasing fullness of sweetness (2 pts / cup)' },
+                  { key: 'uniformity', label: 'Uniformity', hint: 'Consistency across all 5 bowls (2 pts / cup)' },
+                ] as { key: keyof CuppingAttributes; label: string; hint: string }[]
+              ).map(({ key, label, hint }) => (
+                <div key={key} className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <div>
+                      <span className="font-medium text-stone-300">{label}</span>
+                      <span className="text-[10px] text-stone-500 ml-1.5 hidden sm:inline">({hint})</span>
+                    </div>
+                    <span className="font-mono font-bold text-amber-400">
+                      {(scores[key] ?? 0).toFixed(1)}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="10"
+                    step="0.5"
+                    aria-label={`${label} score`}
+                    value={scores[key] ?? 0}
+                    onChange={(e) => handleSliderChange(key, Number(e.target.value))}
+                    className="w-full accent-amber-500 bg-stone-950 h-2 rounded-lg cursor-pointer"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Tasting Notes & Quick Rating */}

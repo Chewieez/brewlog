@@ -105,10 +105,10 @@ The findings below represent **active bugs, architectural gaps, and deviations f
 
 ### Category D: Specialty Coffee Domain & Math (P2)
 
-#### 13. SCA Cupping Form Attributes Alignment
-* **File**: [`calculator.ts`](../packages/core/src/calculator.ts#L36-L49), [`types.ts`](../packages/core/src/types.ts#L107-L116)
-* **Issue**: The SCA 100-point cupping protocol scores 10 categories (Fragrance/Aroma, Flavor, Aftertaste, Acidity, Body, Balance, Uniformity, Clean Cup, Sweetness, Overall) from 6.00 to 10.00. Current code evaluates 8 categories (`sum / 80 * 100`), omitting "Flavor" and "Uniformity", and combining Clean Cup into "Clarity".
-* **Fix**: Align attributes with the standard 10-point SCA sheet or support the modern SCA Coffee Value Assessment (CVA) standard.
+#### 13. SCA Cupping Form Attributes Alignment *(Resolved)*
+* **Files**: [`calculator.ts`](../packages/core/src/calculator.ts#L36-L65), [`types.ts`](../packages/core/src/types.ts#L107-L121), [`tastingLogMappers.ts`](../packages/supabase/src/mappers/tastingLogMappers.ts), [`CuppingView.tsx`](../apps/web/src/features/cupping/CuppingView.tsx)
+* **Status**: ✅ **Fixed** (Aligned sensory attributes with the official 10-attribute SCA Cupping Protocol: Fragrance/Aroma, Flavor, Aftertaste, Acidity, Body, Balance, Uniformity, Clean Cup, Sweetness, Overall. Added migration `002_align_sca_cupping_attributes.sql`, updated `database.types.ts`, and refactored `calculateScaScore` to compute authentic 100-point direct sum scores with defect deduction and legacy backward compatibility. Added quick Specialty Baseline [82.5 pts] actions and official SCA classification badges in the UI).
+* **Impact**: Authentic 100-point SCA specialty scoring matching international cupping protocol; eliminated artificial `sum / 80 * 100` approximation while preserving backward compatibility for older logs.
 
 ##### 14. Timezone Shift in `calculateDaysOffRoast` *(Resolved)*
 * **File**: [`calculator.ts`](../packages/core/src/calculator.ts#L51-L89)
@@ -163,5 +163,5 @@ The findings below represent **active bugs, architectural gaps, and deviations f
 - [x] Replace hardcoded pixel heights (`h-[520px]`, `h-[605px]`) with responsive flex/grid layouts.
 - [x] Fix timezone normalization in `calculateDaysOffRoast`.
 - [x] Add descriptive `aria-label` tags and keyboard accessibility to all icon buttons and tag badges.
-- [ ] Align cupping attributes with official SCA standards.
+- [x] Align cupping attributes with official SCA standards.
 

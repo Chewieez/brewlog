@@ -33,18 +33,37 @@ export function rescaleRecipeDose(recipe: BrewRecipe, newDoseGrams: number): Bre
   };
 }
 
-export function calculateScaScore(scores: CuppingAttributes): number {
-  const sum =
-    scores.fragranceAroma +
-    scores.acidity +
-    scores.sweetness +
-    scores.body +
-    scores.clarity +
-    scores.aftertaste +
-    scores.balance +
-    scores.overall;
+export function calculateScaScore(scores: CuppingAttributes, defects: number = 0): number {
+  // Backward compatibility: If evaluating an older legacy log with only the 8 original attributes
+  if (scores.flavor === undefined && scores.uniformity === undefined && scores.clarity !== undefined) {
+    const legacySum =
+      (scores.fragranceAroma || 0) +
+      (scores.acidity || 0) +
+      (scores.sweetness || 0) +
+      (scores.body || 0) +
+      (scores.clarity || 0) +
+      (scores.aftertaste || 0) +
+      (scores.balance || 0) +
+      (scores.overall || 0);
+    const legacyScore = Math.round(((legacySum / 80) * 100 - defects) * 10) / 10;
+    return Math.min(100, Math.max(0, legacyScore));
+  }
 
-  const score = Math.round((sum / 80) * 100 * 10) / 10;
+  // Official SCA 100-point cupping protocol: sum of 10 attributes (each up to 10 points) minus defects
+  const cleanCup = scores.cleanCup !== undefined ? scores.cleanCup : (scores.clarity ?? 0);
+  const sum =
+    (scores.fragranceAroma || 0) +
+    (scores.flavor || 0) +
+    (scores.aftertaste || 0) +
+    (scores.acidity || 0) +
+    (scores.body || 0) +
+    (scores.balance || 0) +
+    (scores.uniformity || 0) +
+    cleanCup +
+    (scores.sweetness || 0) +
+    (scores.overall || 0);
+
+  const score = Math.round((sum - defects) * 10) / 10;
   return Math.min(100, Math.max(0, score));
 }
 

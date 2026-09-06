@@ -105,14 +105,17 @@ export interface BrewRecipe {
 }
 
 export interface CuppingAttributes {
-  fragranceAroma: number; // 1-10
-  acidity: number;        // 1-10
-  sweetness: number;      // 1-10
-  body: number;           // 1-10
-  clarity: number;        // 1-10
-  aftertaste: number;     // 1-10
-  balance: number;        // 1-10
-  overall: number;        // 1-10
+  fragranceAroma: number; // 0-10 (typically 6.00-10.00 in SCA protocol)
+  flavor: number;         // 0-10 (typically 6.00-10.00 in SCA protocol)
+  aftertaste: number;     // 0-10 (typically 6.00-10.00 in SCA protocol)
+  acidity: number;        // 0-10 (typically 6.00-10.00 in SCA protocol)
+  body: number;           // 0-10 (typically 6.00-10.00 in SCA protocol)
+  balance: number;        // 0-10 (typically 6.00-10.00 in SCA protocol)
+  uniformity: number;     // 0-10 (2 pts/cup across 5 cups, standard baseline 10)
+  cleanCup: number;       // 0-10 (2 pts/cup across 5 cups, standard baseline 10)
+  sweetness: number;      // 0-10 (2 pts/cup across 5 cups, standard baseline 10)
+  overall: number;        // 0-10 (typically 6.00-10.00 in SCA protocol)
+  clarity?: number;       // legacy fallback support for older logs
 }
 
 export interface TastingLog {

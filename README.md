@@ -31,7 +31,7 @@ brewlog/
 * **⚙️ Equipment & Gear Tracking**: Log your grinders (burr type, dial settings), brewers (V60, AeroPress, Flair 58, Chemex), and gear settings.
 * **📖 Interactive Recipe Studio**: Build and scale multi-stage recipes (bloom, pours, agitation, drawdown target) with real-time auto-scaling.
 * **⏱️ Interactive Brew Assistant**: Live visual stage timer with target weight indicators, synthesized Web Audio bell chimes, and pause/restart controls.
-* **📝 SCA Cupping Logbook & Flavor Wheel**: Rate fragrance, acidity, sweetness, body, clarity, balance, and tap interactive flavor tags to calculate authentic 0–100 SCA scores.
+* **📝 SCA Cupping Logbook & Flavor Wheel**: Score fragrance/aroma, flavor, aftertaste, acidity, body, balance, uniformity, clean cup, sweetness, and overall impression with interactive flavor tags to calculate authentic 0–100 SCA scores.
 * **☁️ Cloud Sync & Multi-User**: Supabase PostgreSQL backend with Row Level Security (RLS).
 * **⌚ Wearable Companion Roadmap**:
   - **Phase 4 (WearOS)**: Android Wear OS wrist timer with haptic pour alerts via Wearable DataLayer.

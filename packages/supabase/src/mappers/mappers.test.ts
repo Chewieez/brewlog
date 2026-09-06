@@ -104,13 +104,16 @@ describe("Shared Mappers (@brewlog/supabase)", () => {
         grind_setting: "22 clicks",
         water_temp_celsius: 94,
         fragrance_aroma: 8.5,
-        acidity: 8.0,
-        sweetness: 8.5,
-        body: 8.0,
-        clarity: 8.0,
+        flavor: 8.5,
         aftertaste: 8.0,
+        acidity: 8.0,
+        body: 8.0,
         balance: 8.5,
+        uniformity: 10.0,
+        clean_cup: 10.0,
+        sweetness: 8.5,
         overall: 8.5,
+        clarity: 8.0,
         calculated_sca_score: 87.5,
         rating: 4.5,
         flavor_tags: ["Chocolate", "Plum"],
@@ -124,7 +127,15 @@ describe("Shared Mappers (@brewlog/supabase)", () => {
       expect(domain.id).toBe("log-1");
       expect(domain.brewMethod).toBe("v60");
       expect(domain.scores.fragranceAroma).toBe(8.5);
+      expect(domain.scores.flavor).toBe(8.5);
+      expect(domain.scores.aftertaste).toBe(8.0);
       expect(domain.scores.acidity).toBe(8.0);
+      expect(domain.scores.body).toBe(8.0);
+      expect(domain.scores.balance).toBe(8.5);
+      expect(domain.scores.uniformity).toBe(10.0);
+      expect(domain.scores.cleanCup).toBe(10.0);
+      expect(domain.scores.sweetness).toBe(8.5);
+      expect(domain.scores.overall).toBe(8.5);
       expect(domain.calculatedScaScore).toBe(87.5);
       expect(domain.wouldBrewAgain).toBe(true);
     });
@@ -143,12 +154,14 @@ describe("Shared Mappers (@brewlog/supabase)", () => {
         waterTempCelsius: 91,
         scores: {
           fragranceAroma: 9.0,
-          acidity: 9.0,
-          sweetness: 9.5,
-          body: 8.5,
-          clarity: 9.0,
+          flavor: 9.0,
           aftertaste: 9.0,
+          acidity: 9.0,
+          body: 8.5,
           balance: 9.0,
+          uniformity: 10.0,
+          cleanCup: 10.0,
+          sweetness: 9.5,
           overall: 9.0,
         },
         calculatedScaScore: 92.5,
@@ -163,6 +176,9 @@ describe("Shared Mappers (@brewlog/supabase)", () => {
       expect(payload.user_id).toBe("user-456");
       expect(payload.bean_name_snapshot).toBe("Geisha");
       expect(payload.fragrance_aroma).toBe(9.0);
+      expect(payload.flavor).toBe(9.0);
+      expect(payload.uniformity).toBe(10.0);
+      expect(payload.clean_cup).toBe(10.0);
       expect(payload.calculated_sca_score).toBe(92.5);
       expect(payload.flavor_tags).toEqual(["Jasmine", "Bergamot", "Peach"]);
     });

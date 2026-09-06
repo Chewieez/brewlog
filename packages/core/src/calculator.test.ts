@@ -118,20 +118,56 @@ describe("Brew Calculator Math", () => {
   });
 
   describe("calculateScaScore", () => {
-    it("should calculate score out of 100 based on the 8 attributes", () => {
+    it("should calculate score out of 100 based on the 10 official SCA attributes", () => {
       const perfectScores: CuppingAttributes = {
         fragranceAroma: 10,
-        acidity: 10,
-        sweetness: 10,
-        body: 10,
-        clarity: 10,
+        flavor: 10,
         aftertaste: 10,
+        acidity: 10,
+        body: 10,
         balance: 10,
+        uniformity: 10,
+        cleanCup: 10,
+        sweetness: 10,
         overall: 10,
       };
       expect(calculateScaScore(perfectScores)).toBe(100);
 
       const specialtyScores: CuppingAttributes = {
+        fragranceAroma: 8.5,
+        flavor: 8.75,
+        aftertaste: 8.25,
+        acidity: 8.5,
+        body: 8.25,
+        balance: 8.5,
+        uniformity: 10.0,
+        cleanCup: 10.0,
+        sweetness: 10.0,
+        overall: 8.75,
+      };
+      // sum = 8.5 + 8.75 + 8.25 + 8.5 + 8.25 + 8.5 + 8.75 + 10 + 10 + 10 = 89.5
+      expect(calculateScaScore(specialtyScores)).toBe(89.5);
+    });
+
+    it("should deduct defects when present", () => {
+      const scoresWithDefect: CuppingAttributes = {
+        fragranceAroma: 8.0,
+        flavor: 8.0,
+        aftertaste: 8.0,
+        acidity: 8.0,
+        body: 8.0,
+        balance: 8.0,
+        uniformity: 8.0,
+        cleanCup: 8.0,
+        sweetness: 10.0,
+        overall: 8.0,
+      };
+      // base sum = (7 * 8.0) + (2 * 8.0) + 10.0 = 56.0 + 16.0 + 10.0 = 82.0; defect = 4.0 -> 78.0
+      expect(calculateScaScore(scoresWithDefect, 4.0)).toBe(78);
+    });
+
+    it("should support legacy 8-attribute logs with clarity fallback", () => {
+      const legacyScores: CuppingAttributes = {
         fragranceAroma: 8.5,
         acidity: 8.5,
         sweetness: 8.8,
@@ -140,23 +176,28 @@ describe("Brew Calculator Math", () => {
         aftertaste: 8.5,
         balance: 8.7,
         overall: 8.8,
-      };
-      // sum = 68.8; (68.8 / 80) * 100 = 86.0
-      expect(calculateScaScore(specialtyScores)).toBe(86);
+      } as any;
+      // legacy formula: (68.8 / 80) * 100 = 86.0
+      expect(calculateScaScore(legacyScores)).toBe(86);
     });
 
     it("should clamp scores between 0 and 100", () => {
       const zeroScores: CuppingAttributes = {
         fragranceAroma: 0,
-        acidity: 0,
-        sweetness: 0,
-        body: 0,
-        clarity: 0,
+        flavor: 0,
         aftertaste: 0,
+        acidity: 0,
+        body: 0,
         balance: 0,
+        uniformity: 0,
+        cleanCup: 0,
+        sweetness: 0,
         overall: 0,
       };
       expect(calculateScaScore(zeroScores)).toBe(0);
+
+      // Defect greater than sum clamps to 0
+      expect(calculateScaScore(zeroScores, 10)).toBe(0);
     });
   });
 
