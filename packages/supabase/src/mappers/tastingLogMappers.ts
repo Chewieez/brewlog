@@ -67,3 +67,4 @@ export const mapTastingLogDomainToInsert = (
   notes: log.notes,
   would_brew_again: log.wouldBrewAgain,
 });
+

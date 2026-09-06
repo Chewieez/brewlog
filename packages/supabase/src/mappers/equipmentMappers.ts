@@ -28,3 +28,4 @@ export const mapEquipmentDomainToInsert = (
   is_favorite: item.isFavorite || false,
   notes: item.notes || null,
 });
+

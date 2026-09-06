@@ -33,6 +33,9 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
     <div className="relative">
       <button
         onClick={() => setDropdownOpen(!dropdownOpen)}
+        aria-label="User account menu"
+        aria-haspopup="true"
+        aria-expanded={dropdownOpen}
         className="flex items-center space-x-2 px-2.5 py-1.5 rounded-xl bg-stone-900/90 border border-stone-800 hover:border-amber-500/40 cursor-pointer transition-colors"
       >
         <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-stone-950 font-bold text-xs">

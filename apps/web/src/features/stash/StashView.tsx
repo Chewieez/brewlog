@@ -209,7 +209,8 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
               <h3 className="text-lg font-bold text-stone-100">Add New Whole Bean</h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-stone-400 hover:text-stone-200 text-sm"
+                className="text-stone-400 hover:text-stone-200 text-sm cursor-pointer"
+                aria-label="Close dialog"
               >
                 ✕
               </button>

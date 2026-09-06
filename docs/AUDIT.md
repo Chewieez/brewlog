@@ -110,29 +110,29 @@ The findings below represent **active bugs, architectural gaps, and deviations f
 * **Issue**: The SCA 100-point cupping protocol scores 10 categories (Fragrance/Aroma, Flavor, Aftertaste, Acidity, Body, Balance, Uniformity, Clean Cup, Sweetness, Overall) from 6.00 to 10.00. Current code evaluates 8 categories (`sum / 80 * 100`), omitting "Flavor" and "Uniformity", and combining Clean Cup into "Clarity".
 * **Fix**: Align attributes with the standard 10-point SCA sheet or support the modern SCA Coffee Value Assessment (CVA) standard.
 
-#### 14. Timezone Shift in `calculateDaysOffRoast`
-* **File**: [`calculator.ts`](../packages/core/src/calculator.ts#L51-L61)
-* **Issue**: Parsing ISO `YYYY-MM-DD` strings with `new Date("2026-08-20")` defaults to UTC midnight, which shifts the calculated date by ±1 day depending on user local timezones.
-* **Fix**: Parse year, month, and day components as local midnight or normalize to UTC midnight for comparison.
+##### 14. Timezone Shift in `calculateDaysOffRoast` *(Resolved)*
+* **File**: [`calculator.ts`](../packages/core/src/calculator.ts#L51-L89)
+* **Status**: ✅ **Fixed** (Normalized date parsing to calendar year/month/day UTC midnights against reference date midnight; eliminated UTC vs local midnight time-of-day offsets and verified with deterministic Vitest tests across leap years and month boundaries)
+* **Impact**: Guaranteed calendar-day resting status calculation without ±1 day drift across global timezones.
 
 ---
 
 ### Category E: UI/UX, Accessibility & Responsiveness (P2)
 
-#### 15. Fixed Panel Heights Inducing Double Scrollbars
-* **Files**: [`TimerView.tsx`](../apps/web/src/features/timer/TimerView.tsx#L165, #L273), [`CuppingView.tsx`](../apps/web/src/features/cupping/CuppingView.tsx#L62, #L112)
-* **Issue**: Panels are locked to `h-[520px]` and `h-[605px]`. On smaller screens (13" laptops, tablets) or zoomed displays, this creates rigid clipping or nested scrollbars.
-* **Fix**: Transition from fixed pixel heights to responsive minimum heights (`min-h-[520px] lg:h-[calc(100vh-14rem)]`) with flex-grow containers.
+#### 15. Fixed Panel Heights Inducing Double Scrollbars *(Resolved)*
+* **Files**: [`TimerView.tsx`](../apps/web/src/features/timer/TimerView.tsx), [`CuppingView.tsx`](../apps/web/src/features/cupping/CuppingView.tsx)
+* **Status**: ✅ **Fixed** (Replaced rigid `h-[520px]` and `lg:h-[530px]` panel locks with responsive `min-h-[520px] lg:min-h-[560px]` flex containers and fluid scroll containers)
+* **Impact**: Eliminates rigid clipping on 13" laptops, tablets, and high-DPI zoom configurations.
 
 #### 16. Interactive SVG Flavor Wheel Accessibility & Touch UX *(Resolved)*
 * **File**: [`ScaFlavorWheelSvg.tsx`](../apps/web/src/features/cupping/ScaFlavorWheelSvg.tsx)
 * **Status**: ✅ **Fixed** (Added SVG region semantics, `<title>`/`<desc>`, `aria-live` announcements, `role="checkbox"`, roving tabindex with Arrow key/Home/End navigation, Enter/Space toggling, inner category tap inspection, and center hub touch controls)
 * **Impact**: Full compliance with WAI-ARIA standards; eliminates 80+ tab keyboard traps while enabling screen-reader and mobile touch inspection.
 
-#### 17. Icon Button Labels
-* **Files**: [`TimerView.tsx`](../apps/web/src/features/timer/TimerView.tsx), [`Header.tsx`](../apps/web/src/components/shared/Header.tsx), [`EquipmentView.tsx`](../apps/web/src/features/equipment/EquipmentView.tsx)
-* **Issue**: Icon-only buttons (Reset Timer, Mute, Close "✕") lack `aria-label` attributes.
-* **Fix**: Add descriptive `aria-label` tags to all icon buttons.
+#### 17. Icon Button Labels *(Resolved)*
+* **Files**: [`TimerView.tsx`](../apps/web/src/features/timer/TimerView.tsx), [`Header.tsx`](../apps/web/src/components/shared/Header.tsx), [`EquipmentView.tsx`](../apps/web/src/features/equipment/EquipmentView.tsx), [`StashView.tsx`](../apps/web/src/features/stash/StashView.tsx), [`AuthModal.tsx`](../apps/web/src/features/auth/AuthModal.tsx), [`CuppingView.tsx`](../apps/web/src/features/cupping/CuppingView.tsx)
+* **Status**: ✅ **Fixed** (Added descriptive `aria-label` tags to mute audio cues, gear item delete buttons, modal close "✕" buttons, header logo home button, and upgraded flavor tag badges to accessible button controls)
+* **Impact**: Zero unlabelled icon controls for screen readers across the entire application.
 
 ---
 
@@ -160,7 +160,8 @@ The findings below represent **active bugs, architectural gaps, and deviations f
 ### Milestone 4: a11y, Responsiveness & Specialty Domain (P2)
 - [x] Add ARIA roles, labels, and keyboard controls to `ScaFlavorWheelSvg`.
 - [x] Add mobile tap inspection to the sensory flavor wheel.
-- [ ] Replace hardcoded pixel heights (`h-[520px]`, `h-[605px]`) with responsive flex/grid layouts.
+- [x] Replace hardcoded pixel heights (`h-[520px]`, `h-[605px]`) with responsive flex/grid layouts.
+- [x] Fix timezone normalization in `calculateDaysOffRoast`.
+- [x] Add descriptive `aria-label` tags and keyboard accessibility to all icon buttons and tag badges.
 - [ ] Align cupping attributes with official SCA standards.
-- [ ] Fix timezone normalization in `calculateDaysOffRoast`.
 

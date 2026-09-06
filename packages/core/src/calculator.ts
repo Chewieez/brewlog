@@ -48,13 +48,42 @@ export function calculateScaScore(scores: CuppingAttributes): number {
   return Math.min(100, Math.max(0, score));
 }
 
-export function calculateDaysOffRoast(roastDateStr: string): number {
+export function calculateDaysOffRoast(
+  roastDateStr: string,
+  referenceDate: Date = new Date()
+): number {
   try {
-    const roastDate = new Date(roastDateStr);
-    if (isNaN(roastDate.getTime())) return 0;
-    const now = new Date();
-    const diffTime = now.getTime() - roastDate.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    if (!roastDateStr || typeof roastDateStr !== "string") return 0;
+
+    // Match calendar year, month, and day from YYYY-MM-DD (or ISO strings)
+    const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(roastDateStr.trim());
+    let roastUtcMidnight: number;
+
+    if (match) {
+      const year = parseInt(match[1], 10);
+      const monthIndex = parseInt(match[2], 10) - 1;
+      const day = parseInt(match[3], 10);
+      roastUtcMidnight = Date.UTC(year, monthIndex, day);
+    } else {
+      const parsed = new Date(roastDateStr);
+      if (isNaN(parsed.getTime())) return 0;
+      roastUtcMidnight = Date.UTC(
+        parsed.getFullYear(),
+        parsed.getMonth(),
+        parsed.getDate()
+      );
+    }
+
+    // Normalize reference date (local today) to UTC midnight for exact calendar day comparison
+    const refUtcMidnight = Date.UTC(
+      referenceDate.getFullYear(),
+      referenceDate.getMonth(),
+      referenceDate.getDate()
+    );
+
+    const diffDays = Math.round(
+      (refUtcMidnight - roastUtcMidnight) / (1000 * 60 * 60 * 24)
+    );
     return Math.max(0, diffDays);
   } catch {
     return 0;

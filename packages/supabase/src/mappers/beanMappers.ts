@@ -49,3 +49,4 @@ export const mapBeanDomainToInsert = (
   is_favorite: bean.isFavorite || false,
   notes: bean.notes || null,
 });
+

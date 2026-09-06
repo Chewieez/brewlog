@@ -167,7 +167,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               {MODAL_TITLES[mode]}
             </h3>
           </div>
-          <button onClick={handleClose} className="text-stone-400 hover:text-stone-200 cursor-pointer">
+          <button
+            onClick={handleClose}
+            className="text-stone-400 hover:text-stone-200 cursor-pointer"
+            aria-label="Close authentication modal"
+          >
             ✕
           </button>
         </div>

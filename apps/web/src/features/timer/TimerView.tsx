@@ -204,7 +204,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Big Interactive Timer Circle & Controls */}
-        <div className="lg:col-span-7 flex flex-col items-center justify-between p-8 rounded-3xl bg-stone-900/40 border border-stone-800/80 backdrop-blur-md relative overflow-hidden h-[520px]">
+        <div className="lg:col-span-7 flex flex-col items-center justify-between p-6 sm:p-8 rounded-3xl bg-stone-900/40 border border-stone-800/80 backdrop-blur-md relative overflow-hidden min-h-[520px] lg:min-h-[560px]">
           {/* Recipe Method & Ratio Stats */}
           <div className="flex items-center space-x-6 text-xs font-mono text-stone-400 uppercase tracking-wider">
             <div>METHOD: <span className="text-stone-200 font-bold">{recipe.brewMethod}</span></div>
@@ -306,6 +306,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               onClick={toggleMute}
               className="p-3.5 rounded-2xl bg-stone-800/80 hover:bg-stone-700/80 border border-stone-800 cursor-pointer transition-colors"
               title={isMuted ? "Unmute Audio Chimes" : "Mute Audio Chimes"}
+              aria-label={isMuted ? "Unmute Audio Chimes" : "Mute Audio Chimes"}
             >
               {isMuted ? (
                 <VolumeX className="w-5 h-5 text-stone-500 hover:text-stone-400 transition-colors" />
@@ -329,7 +330,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
         </div>
 
         {/* Right: Stage Timeline & Step Guide Panel */}
-        <div className="lg:col-span-5 p-6 rounded-3xl bg-stone-900/60 border border-stone-800/80 backdrop-blur-md flex flex-col min-h-[530px] lg:h-[530px] overflow-hidden">
+        <div className="lg:col-span-5 p-6 rounded-3xl bg-stone-900/60 border border-stone-800/80 backdrop-blur-md flex flex-col min-h-[520px] lg:min-h-[560px] overflow-hidden">
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-stone-800 flex-shrink-0">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-stone-400">
               Pour Timeline

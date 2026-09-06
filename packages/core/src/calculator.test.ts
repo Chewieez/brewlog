@@ -161,14 +161,46 @@ describe("Brew Calculator Math", () => {
   });
 
   describe("calculateDaysOffRoast", () => {
-    it("should return positive days between roast date and today", () => {
+    it("should return exact calendar days with a deterministic reference date", () => {
+      // Fixed reference date: September 6, 2026
+      const refDate = new Date(2026, 8, 6, 15, 30, 0); // Sept 6, 2026 3:30 PM local
+
+      // Roasted 14 days ago: August 23, 2026
+      expect(calculateDaysOffRoast("2026-08-23", refDate)).toBe(14);
+
+      // Roasted same day: September 6, 2026
+      expect(calculateDaysOffRoast("2026-09-06", refDate)).toBe(0);
+
+      // Roasted 1 day ago: September 5, 2026
+      expect(calculateDaysOffRoast("2026-09-05", refDate)).toBe(1);
+
+      // Future roast date: September 10, 2026 -> clamped to 0
+      expect(calculateDaysOffRoast("2026-09-10", refDate)).toBe(0);
+    });
+
+    it("should accurately cross month boundaries and leap years", () => {
+      // Leap year test: March 1, 2024 with roast date Feb 27, 2024 -> 3 days (Feb 27, 28, 29)
+      const leapRef = new Date(2024, 2, 1, 10, 0, 0); // March 1, 2024
+      expect(calculateDaysOffRoast("2024-02-27", leapRef)).toBe(3);
+
+      // Year boundary test: Jan 3, 2026 with roast date Dec 30, 2025 -> 4 days
+      const newYearRef = new Date(2026, 0, 3, 8, 0, 0);
+      expect(calculateDaysOffRoast("2025-12-30", newYearRef)).toBe(4);
+    });
+
+    it("should correctly handle full ISO strings as well as YYYY-MM-DD", () => {
+      const refDate = new Date(2026, 8, 6, 12, 0, 0);
+      expect(calculateDaysOffRoast("2026-09-01T18:45:00.000Z", refDate)).toBe(5);
+    });
+
+    it("should return positive days between roast date and today (default reference)", () => {
       const pastDate = new Date();
       pastDate.setDate(pastDate.getDate() - 14);
       const roastDateStr = pastDate.toISOString().split("T")[0];
 
       const days = calculateDaysOffRoast(roastDateStr);
-      expect(days).toBeGreaterThanOrEqual(13);
-      expect(days).toBeLessThanOrEqual(15);
+      // Calendar day diff is exactly 14
+      expect(days).toBe(14);
     });
 
     it("should return 0 for today or future dates", () => {
@@ -180,8 +212,11 @@ describe("Brew Calculator Math", () => {
       expect(calculateDaysOffRoast(futureDate.toISOString().split("T")[0])).toBe(0);
     });
 
-    it("should return 0 for invalid date strings", () => {
+    it("should return 0 for invalid date strings or empty input", () => {
       expect(calculateDaysOffRoast("invalid-date-string")).toBe(0);
+      expect(calculateDaysOffRoast("")).toBe(0);
+      // @ts-expect-error test runtime guard against null/undefined
+      expect(calculateDaysOffRoast(null)).toBe(0);
     });
   });
 

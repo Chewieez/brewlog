@@ -536,16 +536,18 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
               </span>
             )}
             {selectedTags.map((tag) => (
-              <span
+              <button
                 key={tag}
+                type="button"
                 onClick={() => toggleFlavorTag(tag)}
-                className="inline-flex items-center space-x-2.5 px-3 py-1 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 cursor-pointer hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/40 transition-colors select-none group"
+                aria-label={`Remove flavor tag ${tag}`}
+                className="inline-flex items-center space-x-2.5 px-3 py-1 rounded-lg text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 cursor-pointer hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/40 transition-colors select-none group focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
               >
                 <span>{tag}</span>
-                <span className="text-[11px] font-bold text-amber-400/80 group-hover:text-red-300 transition-colors pl-1">
+                <span className="text-[11px] font-bold text-amber-400/80 group-hover:text-red-300 transition-colors pl-1" aria-hidden="true">
                   ✕
                 </span>
-              </span>
+              </button>
             ))}
           </div>
 

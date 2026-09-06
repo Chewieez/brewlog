@@ -101,7 +101,8 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                       <button
                         onClick={() => onDeleteEquipment(g.id)}
                         className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-stone-500 hover:text-red-400 cursor-pointer"
-                        title="Delete gear"
+                        title={`Delete ${g.model}`}
+                        aria-label={`Delete ${g.model}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -143,7 +144,8 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                       <button
                         onClick={() => onDeleteEquipment(b.id)}
                         className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-stone-500 hover:text-red-400 cursor-pointer"
-                        title="Delete gear"
+                        title={`Delete ${b.model}`}
+                        aria-label={`Delete ${b.model}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -185,7 +187,8 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                       <button
                         onClick={() => onDeleteEquipment(s.id)}
                         className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-stone-500 hover:text-red-400 cursor-pointer"
-                        title="Delete gear"
+                        title={`Delete ${s.model}`}
+                        aria-label={`Delete ${s.model}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -227,7 +230,8 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                       <button
                         onClick={() => onDeleteEquipment(k.id)}
                         className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-stone-500 hover:text-red-400 cursor-pointer"
-                        title="Delete gear"
+                        title={`Delete ${k.model}`}
+                        aria-label={`Delete ${k.model}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

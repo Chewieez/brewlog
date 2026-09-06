@@ -32,9 +32,11 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-3">
           {/* Logo */}
-          <div
-            className="flex items-center space-x-2.5 cursor-pointer select-none flex-shrink-0"
+          <button
+            type="button"
+            className="flex items-center space-x-2.5 cursor-pointer select-none flex-shrink-0 bg-transparent border-0 p-0 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-xl"
             onClick={() => setActiveTab('timer')}
+            aria-label="BrewLog Home, switch to Brew Assistant"
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-orange-500 to-amber-400 p-0.5 shadow-lg shadow-amber-500/20 flex items-center justify-center flex-shrink-0">
               <div className="w-full h-full bg-stone-950 rounded-[10px] flex items-center justify-center">
@@ -49,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
                 Specialty
               </span>
             </div>
-          </div>
+          </button>
 
           {/* Desktop Navigation Tabs: Responsive, no shrinking, no text wrap */}
           <nav className="hidden lg:flex items-center space-x-1 lg:space-x-2 flex-shrink-0">
