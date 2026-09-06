@@ -1,7 +1,8 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
-import { Database } from "./types";
+import { Database } from "./database.types";
 
-export * from "./types";
+export * from "./database.types";
+export * from "./mappers";
 
 export function createBrewlogClient(
   supabaseUrl: string,

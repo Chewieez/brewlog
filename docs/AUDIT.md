@@ -43,10 +43,10 @@ The findings below represent **active bugs, architectural gaps, and deviations f
 * **Status**: ✅ **Fixed** (Installed Vitest, configured monorepo `npm test`, created 32 unit tests across calculator math and presets, and resolved a latent `NaN` bug in `calculateDaysOffRoast`)
 * **Impact**: 32 unit tests passing in ~110ms with zero-regression protection for all brew formulas.
 
-#### 3. Pervasive `any` Type Assertions in Supabase Hooks
-* **Files**: [`useBeans.ts`](../apps/web/src/features/stash/useBeans.ts#L28), [`useTastingLogs.ts`](../apps/web/src/features/cupping/useTastingLogs.ts#L25)
-* **Issue**: Database records are cast through `(data as any[])`, bypassing TypeScript's generated database types from `@brewlog/supabase` and risking runtime errors if column names drift.
-* **Fix**: Leverage the generated `Database['public']['Tables']['...']['Row']` types from `@brewlog/supabase`.
+#### 3. Pervasive `any` Type Assertions in Supabase Hooks *(Resolved)*
+* **Files**: [`useBeans.ts`](../apps/web/src/features/stash/useBeans.ts), [`useTastingLogs.ts`](../apps/web/src/features/cupping/useTastingLogs.ts), [`useEquipment.ts`](../apps/web/src/features/equipment/useEquipment.ts)
+* **Status**: ✅ **Fixed** (Adopted official `database.types.ts` schema with full `Row`, `Insert`, `Update`, and `Relationships: []` types; extracted pure `beanMappers.ts`, `tastingLogMappers.ts`, and `equipmentMappers.ts` modules to isolate DTO mapping from React hooks; eliminated all `as any` casts)
+* **Impact**: Strict compile-time type safety across database queries and inserts; schema changes immediately catch type drift in TypeScript.
 
 ---
 
@@ -141,7 +141,7 @@ The findings below represent **active bugs, architectural gaps, and deviations f
 ### Milestone 1: Tooling & Build Health (P0)
 - [x] Add `packages/supabase/tsconfig.json` and ensure `npm run typecheck` passes cleanly.
 - [x] Add Vitest testing harness and test `@brewlog/core` math functions.
-- [ ] Replace `any` casts in `useBeans.ts` and `useTastingLogs.ts` with typed Supabase schemas.
+- [x] Replace `any` casts in `useBeans.ts`, `useTastingLogs.ts`, and `useEquipment.ts` with typed Supabase schemas.
 
 ### Milestone 2: Data Flow & Feature Completeness (P1)
 - [x] Implement "Save Cupping Log" in `CuppingView` and connect to `useTastingLogs`.

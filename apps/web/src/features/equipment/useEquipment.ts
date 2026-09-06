@@ -1,5 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { Equipment } from "@brewlog/core";
+import {
+  mapEquipmentRowToDomain,
+  mapEquipmentDomainToInsert,
+} from "@brewlog/supabase";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../auth/AuthContext";
 import { INITIAL_EQUIPMENT } from "../../lib/sampleData";
@@ -29,19 +33,6 @@ const saveLocalEquipment = (items: Equipment[]) => {
   }
 };
 
-const mapEquipmentRow = (row: any): Equipment => ({
-  id: row.id,
-  userId: row.user_id,
-  type: row.type,
-  brand: row.brand,
-  model: row.model,
-  subType: row.sub_type || undefined,
-  settingScaleType: row.setting_scale_type || undefined,
-  isFavorite: row.is_favorite ?? false,
-  notes: row.notes || undefined,
-  createdAt: row.created_at,
-});
-
 export const useEquipment = () => {
   const { user } = useAuth();
   const [equipment, setEquipment] = useState<Equipment[]>(loadLocalEquipment);
@@ -65,16 +56,8 @@ export const useEquipment = () => {
         console.log(`Auto-syncing ${unsyncedItems.length} offline equipment item(s) to Supabase...`);
         for (const item of unsyncedItems) {
           try {
-            await supabase.from("equipment").insert({
-              user_id: user.id,
-              type: item.type,
-              brand: item.brand,
-              model: item.model,
-              sub_type: item.subType || null,
-              setting_scale_type: item.settingScaleType || null,
-              is_favorite: item.isFavorite || false,
-              notes: item.notes || null,
-            } as any);
+            const payload = mapEquipmentDomainToInsert(item, user.id);
+            await supabase.from("equipment").insert(payload);
           } catch (syncErr) {
             console.error("Failed to sync item:", item, syncErr);
           }
@@ -90,7 +73,7 @@ export const useEquipment = () => {
       if (error) {
         console.error("Supabase fetchEquipment error:", error);
       } else if (data) {
-        const mapped: Equipment[] = (data as any[]).map(mapEquipmentRow);
+        const mapped: Equipment[] = data.map(mapEquipmentRowToDomain);
         setEquipment(mapped);
         saveLocalEquipment(mapped);
       }
@@ -124,20 +107,11 @@ export const useEquipment = () => {
     }
 
     try {
-      const payload = {
-        user_id: user.id,
-        type: newEquipment.type,
-        brand: newEquipment.brand,
-        model: newEquipment.model,
-        sub_type: newEquipment.subType || null,
-        setting_scale_type: newEquipment.settingScaleType || null,
-        is_favorite: newEquipment.isFavorite || false,
-        notes: newEquipment.notes || null,
-      };
+      const payload = mapEquipmentDomainToInsert(newEquipment, user.id);
 
       const { data, error } = await supabase
         .from("equipment")
-        .insert(payload as any)
+        .insert(payload)
         .select()
         .single();
 
@@ -153,7 +127,7 @@ export const useEquipment = () => {
       }
 
       if (data) {
-        const created = mapEquipmentRow(data);
+        const created = mapEquipmentRowToDomain(data);
         setEquipment((prev) => {
           const updated = [created, ...prev.filter((i) => i.id !== localId)];
           saveLocalEquipment(updated);

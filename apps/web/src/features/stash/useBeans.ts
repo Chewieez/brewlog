@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
 import { Bean } from "@brewlog/core";
+import {
+  mapBeanRowToDomain,
+  mapBeanDomainToInsert,
+} from "@brewlog/supabase";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../auth/AuthContext";
 import { INITIAL_BEANS } from "../../lib/sampleData";
@@ -25,29 +29,7 @@ export const useBeans = () => {
       if (error) {
         console.error("Supabase fetchBeans error:", error);
       } else if (data) {
-        const mapped: Bean[] = (data as any[]).map((b) => ({
-          id: b.id,
-          userId: b.user_id,
-          roaster: b.roaster,
-          name: b.name,
-          originCountry: b.origin_country,
-          region: b.region || undefined,
-          farm: b.farm || undefined,
-          variety: b.variety || [],
-          altitudeMeters: b.altitude_meters || undefined,
-          process: b.process as any,
-          roastLevel: b.roast_level as any,
-          roastDate: b.roast_date,
-          flavorNotes: b.flavor_notes || [],
-          rating: b.rating ? Number(b.rating) : undefined,
-          bagWeightGrams: b.bag_weight_grams ? Number(b.bag_weight_grams) : undefined,
-          bagWeightOz: b.bag_weight_grams ? Number((b.bag_weight_grams / 28.3495).toFixed(1)) : undefined,
-          remainingGrams: b.remaining_grams ? Number(b.remaining_grams) : undefined,
-          price: b.price ? Number(b.price) : undefined,
-          isFavorite: b.is_favorite,
-          notes: b.notes || undefined,
-          createdAt: b.created_at,
-        }));
+        const mapped: Bean[] = data.map(mapBeanRowToDomain);
         // If user has no beans yet, start empty so they can add their own
         setBeans(mapped);
       }
@@ -77,31 +59,13 @@ export const useBeans = () => {
     }
 
     try {
-      const payload = {
-        user_id: user.id,
-        roaster: newBean.roaster,
-        name: newBean.name,
-        origin_country: newBean.originCountry || null,
-        region: newBean.region || null,
-        farm: newBean.farm || null,
-        variety: newBean.variety || [],
-        altitude_meters: newBean.altitudeMeters || null,
-        process: newBean.process || null,
-        roast_level: newBean.roastLevel || null,
-        roast_date: newBean.roastDate || null,
-        flavor_notes: newBean.flavorNotes || [],
-        bag_weight_grams: newBean.bagWeightGrams || 340,
-        remaining_grams: newBean.remainingGrams || newBean.bagWeightGrams || 340,
-        price: newBean.price || null,
-        is_favorite: newBean.isFavorite || false,
-        notes: newBean.notes || null,
-      };
+      const payload = mapBeanDomainToInsert(newBean, user.id);
 
       console.log("Saving bean payload to Supabase:", payload);
 
       const { data, error } = await supabase
         .from("beans")
-        .insert(payload as any)
+        .insert(payload)
         .select()
         .single();
 
@@ -113,30 +77,7 @@ export const useBeans = () => {
       }
 
       if (data) {
-        const b = data as any;
-        const created: Bean = {
-          id: b.id,
-          userId: b.user_id,
-          roaster: b.roaster,
-          name: b.name,
-          originCountry: b.origin_country,
-          region: b.region || undefined,
-          farm: b.farm || undefined,
-          variety: b.variety || [],
-          altitudeMeters: b.altitude_meters || undefined,
-          process: b.process as any,
-          roastLevel: b.roast_level as any,
-          roastDate: b.roast_date,
-          flavorNotes: b.flavor_notes || [],
-          rating: b.rating ? Number(b.rating) : undefined,
-          bagWeightGrams: b.bag_weight_grams ? Number(b.bag_weight_grams) : undefined,
-          bagWeightOz: b.bag_weight_grams ? Number((b.bag_weight_grams / 28.3495).toFixed(1)) : undefined,
-          remainingGrams: b.remaining_grams ? Number(b.remaining_grams) : undefined,
-          price: b.price ? Number(b.price) : undefined,
-          isFavorite: b.is_favorite,
-          notes: b.notes || undefined,
-          createdAt: b.created_at,
-        };
+        const created: Bean = mapBeanRowToDomain(data);
         setBeans((prev) => [created, ...prev.filter((item) => item.id !== localId)]);
         return created;
       }
