@@ -1,6 +1,7 @@
 import { useBeans } from "./features/stash/useBeans";
 import { useTastingLogs } from "./features/cupping/useTastingLogs";
 import { useEquipment } from "./features/equipment/useEquipment";
+import { useRecipes } from "./features/recipes/useRecipes";
 import { AuthProvider, useAuth } from "./features/auth/AuthContext";
 import { AuthModal } from "./features/auth/AuthModal";
 import React, { useState, useEffect } from 'react';
@@ -17,6 +18,7 @@ function MainAppContent() {
   const { beans, addBean } = useBeans();
   const { logs: tastingLogs, addTastingLog } = useTastingLogs();
   const { equipment, addEquipment, deleteEquipment } = useEquipment();
+  const { recipes, addRecipe, deleteRecipe } = useRecipes();
   const { isPasswordRecovery, authUrlError } = useAuth();
   const [activeTab, setActiveTab] = useState<ActiveTab>('timer');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -28,15 +30,21 @@ function MainAppContent() {
     }
   }, [isPasswordRecovery, authUrlError]);
 
-  // Core App State
-  const [recipes, setRecipes] = useState<BrewRecipe[]>(DEFAULT_PRESET_RECIPES);
-
   // Active Timer Recipe & Selected Bean
-  const [selectedRecipe, setSelectedRecipe] = useState<BrewRecipe>(DEFAULT_PRESET_RECIPES[0]);
+  const [selectedRecipe, setSelectedRecipe] = useState<BrewRecipe>(
+    recipes[0] || DEFAULT_PRESET_RECIPES[0]
+  );
   const [selectedBean, setSelectedBean] = useState<Bean | null>(INITIAL_BEANS[0] || null);
 
   // Pending Brew Handoff to Cupping Form
   const [pendingBrewSession, setPendingBrewSession] = useState<PendingBrewSession | null>(null);
+
+  // Keep selectedRecipe valid if current one was deleted
+  useEffect(() => {
+    if (recipes.length > 0 && !recipes.some((r) => r.id === selectedRecipe.id)) {
+      setSelectedRecipe(recipes[0]);
+    }
+  }, [recipes, selectedRecipe.id]);
 
   // Keep selectedBean synced when beans load from Supabase
   useEffect(() => {
@@ -54,8 +62,10 @@ function MainAppContent() {
     await addEquipment(newItem);
   };
 
-  const handleAddRecipe = (newRecipe: BrewRecipe) => {
-    setRecipes([newRecipe, ...recipes]);
+  const handleAddRecipe = async (
+    newRecipe: Omit<BrewRecipe, "id" | "createdAt">
+  ) => {
+    return await addRecipe(newRecipe);
   };
 
   const handleSelectBeanForBrew = (bean: Bean) => {
@@ -112,6 +122,7 @@ function MainAppContent() {
             recipes={recipes}
             onSelectRecipeForTimer={handleSelectRecipeForTimer}
             onAddCustomRecipe={handleAddRecipe}
+            onDeleteRecipe={deleteRecipe}
           />
         )}
 

@@ -6,9 +6,19 @@ import {
   mapTastingLogDomainToInsert,
   mapEquipmentRowToDomain,
   mapEquipmentDomainToInsert,
+  mapRecipeRowToDomain,
+  mapRecipeDomainToInsert,
+  mapRecipeStageRowToDomain,
+  mapRecipeStageDomainToInsert,
 } from "./index";
-import { BeanRow, TastingLogRow, EquipmentRow } from "../database.types";
-import { Bean, TastingLog, Equipment } from "@brewlog/core";
+import {
+  BeanRow,
+  TastingLogRow,
+  EquipmentRow,
+  RecipeRow,
+  RecipeStageRow,
+} from "../database.types";
+import { Bean, TastingLog, Equipment, BrewRecipe, BrewStage } from "@brewlog/core";
 
 describe("Shared Mappers (@brewlog/supabase)", () => {
   describe("Bean Mappers", () => {
@@ -226,6 +236,187 @@ describe("Shared Mappers (@brewlog/supabase)", () => {
       expect(payload.model).toBe("Switch 02");
       expect(payload.sub_type).toBe("hybrid-dripper");
       expect(payload.is_favorite).toBe(true);
+    });
+  });
+
+  describe("Recipe Mappers", () => {
+    it("maps raw PostgreSQL RecipeRow and unordered RecipeStageRows to domain BrewRecipe entity", () => {
+      const row: RecipeRow = {
+        id: "recipe-456",
+        user_id: "user-123",
+        name: "Hoffmann V60 1-Cup",
+        brew_method: "v60",
+        recommended_brewer_id: "eq-v60",
+        recommended_grinder_id: "eq-ode",
+        description: "Classic single cup pour over technique",
+        author: "James Hoffmann",
+        coffee_dose_grams: 15,
+        water_amount_grams: 250,
+        ratio: 16.67,
+        grind_size: "Medium-Fine",
+        water_temp_celsius: 99,
+        total_time_seconds: 210,
+        is_preset: false,
+        is_favorite: true,
+        notes: "Great clarity and sweetness",
+        created_at: "2026-09-01T12:00:00Z",
+        updated_at: "2026-09-01T12:00:00Z",
+      };
+
+      // Passed out of order to verify sorting by step_order ascending
+      const stages: RecipeStageRow[] = [
+        {
+          id: "stage-2",
+          recipe_id: "recipe-456",
+          step_order: 1,
+          name: "Main Pour",
+          start_second: 45,
+          duration_seconds: 60,
+          target_water_weight_grams: 250,
+          instruction: "Pour steadily in circles up to 250g",
+          stage_type: "pour",
+        },
+        {
+          id: "stage-1",
+          recipe_id: "recipe-456",
+          step_order: 0,
+          name: "Bloom",
+          start_second: 0,
+          duration_seconds: 45,
+          target_water_weight_grams: 50,
+          instruction: "Saturate grounds and swirl",
+          stage_type: "bloom",
+        },
+        {
+          id: "stage-3",
+          recipe_id: "recipe-456",
+          step_order: 2,
+          name: "Drawdown",
+          start_second: 105,
+          duration_seconds: 105,
+          target_water_weight_grams: 250,
+          instruction: "Swirl once and allow full drawdown",
+          stage_type: "drawdown",
+        },
+      ];
+
+      const domain = mapRecipeRowToDomain(row, stages);
+
+      expect(domain.id).toBe("recipe-456");
+      expect(domain.userId).toBe("user-123");
+      expect(domain.name).toBe("Hoffmann V60 1-Cup");
+      expect(domain.brewMethod).toBe("v60");
+      expect(domain.recommendedBrewerId).toBe("eq-v60");
+      expect(domain.recommendedGrinderId).toBe("eq-ode");
+      expect(domain.description).toBe("Classic single cup pour over technique");
+      expect(domain.author).toBe("James Hoffmann");
+      expect(domain.coffeeDoseGrams).toBe(15);
+      expect(domain.waterAmountGrams).toBe(250);
+      expect(domain.ratio).toBe(16.67);
+      expect(domain.grindSize).toBe("Medium-Fine");
+      expect(domain.waterTempCelsius).toBe(99);
+      expect(domain.totalTimeSeconds).toBe(210);
+      expect(domain.isPreset).toBe(false);
+      expect(domain.isFavorite).toBe(true);
+      expect(domain.notes).toBe("Great clarity and sweetness");
+      expect(domain.createdAt).toBe("2026-09-01T12:00:00Z");
+
+      // Verify stages were sorted correctly
+      expect(domain.stages).toHaveLength(3);
+      expect(domain.stages[0].id).toBe("stage-1");
+      expect(domain.stages[0].name).toBe("Bloom");
+      expect(domain.stages[0].startSecond).toBe(0);
+      expect(domain.stages[0].stageType).toBe("bloom");
+
+      expect(domain.stages[1].id).toBe("stage-2");
+      expect(domain.stages[1].name).toBe("Main Pour");
+      expect(domain.stages[1].startSecond).toBe(45);
+
+      expect(domain.stages[2].id).toBe("stage-3");
+      expect(domain.stages[2].name).toBe("Drawdown");
+      expect(domain.stages[2].startSecond).toBe(105);
+    });
+
+    it("maps domain BrewRecipe to PostgreSQL RecipeInsert payload", () => {
+      const recipe: Omit<BrewRecipe, "id" | "createdAt"> = {
+        name: "Aeropress Inverted",
+        brewMethod: "aeropress",
+        description: "Rich immersion brew profile",
+        author: "Tim Wendelboe",
+        coffeeDoseGrams: 14,
+        waterAmountGrams: 200,
+        ratio: 14.3,
+        grindSize: "Medium",
+        waterTempCelsius: 85,
+        totalTimeSeconds: 120,
+        stages: [],
+        isPreset: false,
+        isFavorite: true,
+        notes: "Inverted method with 1 min steep",
+      };
+
+      const payload = mapRecipeDomainToInsert(recipe, "user-789");
+
+      expect(payload.user_id).toBe("user-789");
+      expect(payload.name).toBe("Aeropress Inverted");
+      expect(payload.brew_method).toBe("aeropress");
+      expect(payload.author).toBe("Tim Wendelboe");
+      expect(payload.coffee_dose_grams).toBe(14);
+      expect(payload.water_amount_grams).toBe(200);
+      expect(payload.ratio).toBe(14.3);
+      expect(payload.grind_size).toBe("Medium");
+      expect(payload.water_temp_celsius).toBe(85);
+      expect(payload.total_time_seconds).toBe(120);
+      expect(payload.is_preset).toBe(false);
+      expect(payload.is_favorite).toBe(true);
+      expect(payload.notes).toBe("Inverted method with 1 min steep");
+    });
+
+    it("maps RecipeStageRow to domain BrewStage", () => {
+      const row: RecipeStageRow = {
+        id: "stg-99",
+        recipe_id: "rec-1",
+        step_order: 0,
+        name: "Initial Bloom",
+        start_second: 0,
+        duration_seconds: 35,
+        target_water_weight_grams: 60,
+        instruction: "Wet grounds thoroughly",
+        stage_type: "bloom",
+      };
+
+      const domain = mapRecipeStageRowToDomain(row);
+
+      expect(domain.id).toBe("stg-99");
+      expect(domain.name).toBe("Initial Bloom");
+      expect(domain.startSecond).toBe(0);
+      expect(domain.durationSeconds).toBe(35);
+      expect(domain.targetWaterWeightGrams).toBe(60);
+      expect(domain.instruction).toBe("Wet grounds thoroughly");
+      expect(domain.stageType).toBe("bloom");
+    });
+
+    it("maps BrewStage domain entity to RecipeStageInsert payload", () => {
+      const stage: BrewStage = {
+        id: "temp-stage",
+        name: "Plunge",
+        startSecond: 60,
+        durationSeconds: 30,
+        targetWaterWeightGrams: 200,
+        instruction: "Gently press plunger down over 30 seconds",
+        stageType: "press",
+      };
+
+      const payload = mapRecipeStageDomainToInsert(stage, "rec-123", 2);
+
+      expect(payload.recipe_id).toBe("rec-123");
+      expect(payload.step_order).toBe(2);
+      expect(payload.name).toBe("Plunge");
+      expect(payload.start_second).toBe(60);
+      expect(payload.duration_seconds).toBe(30);
+      expect(payload.target_water_weight_grams).toBe(200);
+      expect(payload.instruction).toBe("Gently press plunger down over 30 seconds");
+      expect(payload.stage_type).toBe("press");
     });
   });
 });

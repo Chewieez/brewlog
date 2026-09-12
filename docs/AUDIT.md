@@ -20,8 +20,6 @@ Based on the project documentation ([`README.md`](../README.md), [`CASE_STUDY.md
 The following items are recognized as planned roadmap additions for upcoming milestones and are **not** considered implementation defects of the current code:
 1. **Mobile Application Scaffolding**: `apps/mobile/` is currently an empty placeholder awaiting Phase 3 Expo SDK setup.
 2. **Native Wearable Apps**: `apps/wearos` and `apps/watchos` are roadmap items for Phases 4 and 5.
-3. **Full Cloud Sync for Equipment & Recipes**: Supabase sync was completed first for `beans` and `tasting_logs` (commit `7909743`); equipment and custom recipe cloud sync are the next planned backend milestones.
-4. **Custom Recipe Builder Modal**: The Recipe Studio currently functions as an interactive preset explorer with live scaling; the custom recipe authoring form is slated for Phase 2 completion.
 
 ---
 
@@ -149,6 +147,8 @@ The findings below represent **active bugs, architectural gaps, and deviations f
 - [x] Update Timer completion flow to route into cupping log with actual brew parameters.
 - [x] Add display support for Scales and Kettles in `EquipmentView`.
 - [x] Add `localStorage` caching fallback and Supabase persistence for Equipment.
+- [x] Add `localStorage` caching fallback and Supabase persistence for Custom Recipes (`useRecipes` + shared pure mappers).
+- [x] Implement Custom Recipe Builder Modal with multi-stage timeline editor, live ratio calculation, and delete confirmation.
 - [x] Removed temporary SupabaseModal in favor of standard production .env configuration.
 
 ### Milestone 3: Timer Precision & Audio Engine (P1)
