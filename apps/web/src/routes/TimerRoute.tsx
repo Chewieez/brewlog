@@ -1,7 +1,7 @@
 import React from 'react';
-import { useOutletContext, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { TimerView } from '../features/timer/TimerView';
-import { RootOutletContext } from '../layouts/RootLayout';
+import { useRootOutletContext } from '../layouts/RootLayout';
 import { BrewRecipe, Bean } from '@brewlog/core';
 
 export const TimerRoute: React.FC = () => {
@@ -11,7 +11,7 @@ export const TimerRoute: React.FC = () => {
     beans,
     setSelectedBean,
     setPendingBrewSession,
-  } = useOutletContext<RootOutletContext>();
+  } = useRootOutletContext();
   const navigate = useNavigate();
 
   const handleLogCompletedBrew = (recipe: BrewRecipe, actualTimeSeconds: number, bean: Bean | null) => {

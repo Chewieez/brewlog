@@ -1,7 +1,6 @@
 import React from 'react';
-import { useOutletContext } from 'react-router';
 import { CuppingView } from '../features/cupping/CuppingView';
-import { RootOutletContext } from '../layouts/RootLayout';
+import { useRootOutletContext } from '../layouts/RootLayout';
 
 export const CuppingRoute: React.FC = () => {
   const {
@@ -10,7 +9,7 @@ export const CuppingRoute: React.FC = () => {
     pendingBrewSession,
     setPendingBrewSession,
     onAddTastingLog,
-  } = useOutletContext<RootOutletContext>();
+  } = useRootOutletContext();
 
   return (
     <CuppingView

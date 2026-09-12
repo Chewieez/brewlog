@@ -1,11 +1,11 @@
 import React from 'react';
-import { useOutletContext, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { RecipeStudioView } from '../features/recipes/RecipeStudioView';
-import { RootOutletContext } from '../layouts/RootLayout';
+import { useRootOutletContext } from '../layouts/RootLayout';
 import { BrewRecipe } from '@brewlog/core';
 
 export const RecipesRoute: React.FC = () => {
-  const { recipes, setSelectedRecipe, onAddRecipe, onDeleteRecipe } = useOutletContext<RootOutletContext>();
+  const { recipes, setSelectedRecipe, onAddRecipe, onDeleteRecipe } = useRootOutletContext();
   const navigate = useNavigate();
 
   const handleSelectRecipeForTimer = (recipe: BrewRecipe) => {

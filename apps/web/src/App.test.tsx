@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import React from 'react';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, Navigate } from 'react-router';
 import { RootLayout } from './layouts/RootLayout';
@@ -7,6 +8,15 @@ import { StashRoute } from './routes/StashRoute';
 import { NotFoundRoute } from './routes/NotFoundRoute';
 import { AuthProvider } from './features/auth/AuthContext';
 import { App } from './App';
+
+vi.mock('./features/auth/AuthContext', () => ({
+  useAuth: () => ({
+    user: null,
+    isPasswordRecovery: false,
+    authUrlError: null,
+  }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
 
 function TestApp({ initialPath = '/' }: { initialPath?: string }) {
   return (

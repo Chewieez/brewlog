@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Outlet } from 'react-router';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Outlet, useOutletContext } from 'react-router';
 import { Header } from '../components/shared/Header';
 import { AuthModal } from '../features/auth/AuthModal';
 import { useAuth } from '../features/auth/AuthContext';
@@ -29,6 +29,8 @@ export interface RootOutletContext {
   onDeleteRecipe: (id: string) => Promise<void>;
   onAddTastingLog: (log: Omit<TastingLog, 'id' | 'createdAt'>) => Promise<void>;
 }
+
+export const useRootOutletContext = () => useOutletContext<RootOutletContext>();
 
 export const RootLayout: React.FC = () => {
   const { beans, addBean } = useBeans();
@@ -62,30 +64,65 @@ export const RootLayout: React.FC = () => {
     }
   }, [beans, selectedBean]);
 
-  const contextValue: RootOutletContext = {
-    beans,
-    recipes,
-    equipment,
-    tastingLogs,
-    selectedBean,
-    selectedRecipe,
-    pendingBrewSession,
-    setSelectedBean,
-    setSelectedRecipe,
-    setPendingBrewSession,
-    onAddBean: async (bean: Bean) => {
+  const onAddBean = useCallback(
+    async (bean: Bean) => {
       await addBean(bean);
     },
-    onAddEquipment: async (item: Omit<Equipment, 'id' | 'createdAt'>) => {
+    [addBean]
+  );
+
+  const onAddEquipment = useCallback(
+    async (item: Omit<Equipment, 'id' | 'createdAt'>) => {
       await addEquipment(item);
     },
-    onDeleteEquipment: deleteEquipment,
-    onAddRecipe: addRecipe,
-    onDeleteRecipe: deleteRecipe,
-    onAddTastingLog: async (log: Omit<TastingLog, 'id' | 'createdAt'>) => {
+    [addEquipment]
+  );
+
+  const onAddTastingLog = useCallback(
+    async (log: Omit<TastingLog, 'id' | 'createdAt'>) => {
       await addTastingLog(log);
     },
-  };
+    [addTastingLog]
+  );
+
+  const contextValue: RootOutletContext = useMemo(
+    () => ({
+      beans,
+      recipes,
+      equipment,
+      tastingLogs,
+      selectedBean,
+      selectedRecipe,
+      pendingBrewSession,
+      setSelectedBean,
+      setSelectedRecipe,
+      setPendingBrewSession,
+      onAddBean,
+      onAddEquipment,
+      onDeleteEquipment: deleteEquipment,
+      onAddRecipe: addRecipe,
+      onDeleteRecipe: deleteRecipe,
+      onAddTastingLog,
+    }),
+    [
+      beans,
+      recipes,
+      equipment,
+      tastingLogs,
+      selectedBean,
+      selectedRecipe,
+      pendingBrewSession,
+      setSelectedBean,
+      setSelectedRecipe,
+      setPendingBrewSession,
+      onAddBean,
+      onAddEquipment,
+      deleteEquipment,
+      addRecipe,
+      deleteRecipe,
+      onAddTastingLog,
+    ]
+  );
 
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans">
