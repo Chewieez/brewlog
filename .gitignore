@@ -42,3 +42,6 @@ pnpm-debug.log*
 # Local Handoff & Session Docs
 docs/handoffs/
 handoffs/
+
+# Superpowers scratch
+.superpowers/
