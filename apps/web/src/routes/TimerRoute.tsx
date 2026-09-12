@@ -23,13 +23,17 @@ export const TimerRoute: React.FC = () => {
     navigate('/cupping');
   };
 
+  const handleSelectOtherRecipe = () => {
+    navigate('/recipes');
+  };
+
   return (
     <TimerView
       recipe={selectedRecipe}
       selectedBean={selectedBean}
       beans={beans}
       onSelectBean={setSelectedBean}
-      onSelectOtherRecipe={() => navigate('/recipes')}
+      onSelectOtherRecipe={handleSelectOtherRecipe}
       onLogCompletedBrew={handleLogCompletedBrew}
     />
   );

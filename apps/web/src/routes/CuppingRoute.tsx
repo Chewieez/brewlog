@@ -1,6 +1,7 @@
 import React from 'react';
 import { CuppingView } from '../features/cupping/CuppingView';
 import { useRootOutletContext } from '../layouts/RootLayout';
+import { TastingLog } from '@brewlog/core';
 
 export const CuppingRoute: React.FC = () => {
   const {
@@ -11,16 +12,22 @@ export const CuppingRoute: React.FC = () => {
     onAddTastingLog,
   } = useRootOutletContext();
 
+  const handleClearPendingSession = () => {
+    setPendingBrewSession(null);
+  };
+
+  const handleSaveTastingLog = async (log: Omit<TastingLog, 'id' | 'createdAt'>) => {
+    await onAddTastingLog(log);
+    setPendingBrewSession(null);
+  };
+
   return (
     <CuppingView
       logs={tastingLogs}
       beans={beans}
       pendingBrewSession={pendingBrewSession}
-      onClearPendingSession={() => setPendingBrewSession(null)}
-      onAddTastingLog={async (log) => {
-        await onAddTastingLog(log);
-        setPendingBrewSession(null);
-      }}
+      onClearPendingSession={handleClearPendingSession}
+      onAddTastingLog={handleSaveTastingLog}
     />
   );
 };

@@ -124,12 +124,20 @@ export const RootLayout: React.FC = () => {
     ]
   );
 
+  const handleOpenAuthModal = useCallback(() => {
+    setIsAuthModalOpen(true);
+  }, []);
+
+  const handleCloseAuthModal = useCallback(() => {
+    setIsAuthModalOpen(false);
+  }, []);
+
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans">
       <Header
         beanCount={beans.length}
         brewCount={tastingLogs.length}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onOpenAuthModal={handleOpenAuthModal}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -138,7 +146,7 @@ export const RootLayout: React.FC = () => {
 
       <AuthModal
         isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+        onClose={handleCloseAuthModal}
       />
     </div>
   );
