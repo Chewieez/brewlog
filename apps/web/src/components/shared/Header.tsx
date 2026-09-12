@@ -1,30 +1,31 @@
 import { UserMenu } from "../../features/auth/UserMenu";
 import React from 'react';
 import { Coffee, Timer, Package, Sliders, BookOpen, Sparkles } from 'lucide-react';
+import { Link, NavLink } from 'react-router';
 
 export type ActiveTab = 'timer' | 'stash' | 'recipes' | 'equipment' | 'cupping';
 
-interface HeaderProps {
-  activeTab: ActiveTab;
-  setActiveTab: (tab: ActiveTab) => void;
+export interface HeaderProps {
   beanCount: number;
   brewCount: number;
   onOpenAuthModal: () => void;
+  /** @deprecated Kept optional for backward compatibility until App.tsx is refactored in Task 5 */
+  activeTab?: any;
+  /** @deprecated Kept optional for backward compatibility until App.tsx is refactored in Task 5 */
+  setActiveTab?: any;
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  activeTab,
-  setActiveTab,
   beanCount,
   brewCount,
   onOpenAuthModal,
 }) => {
   const tabs = [
-    { id: 'timer' as ActiveTab, label: 'Brew Assistant', icon: Timer },
-    { id: 'stash' as ActiveTab, label: 'Coffee Stash', icon: Package, badge: beanCount },
-    { id: 'recipes' as ActiveTab, label: 'Recipe Studio', icon: BookOpen },
-    { id: 'equipment' as ActiveTab, label: 'Gear & Grinders', icon: Sliders },
-    { id: 'cupping' as ActiveTab, label: 'Cupping & Wheel', icon: Sparkles, badge: brewCount },
+    { id: 'timer', path: '/timer', label: 'Brew Assistant', icon: Timer },
+    { id: 'stash', path: '/stash', label: 'Coffee Stash', icon: Package, badge: beanCount },
+    { id: 'recipes', path: '/recipes', label: 'Recipe Studio', icon: BookOpen },
+    { id: 'equipment', path: '/equipment', label: 'Gear & Grinders', icon: Sliders },
+    { id: 'cupping', path: '/cupping', label: 'Cupping & Wheel', icon: Sparkles, badge: brewCount },
   ];
 
   return (
@@ -32,10 +33,9 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-3">
           {/* Logo */}
-          <button
-            type="button"
+          <Link
+            to="/timer"
             className="flex items-center space-x-2.5 cursor-pointer select-none flex-shrink-0 bg-transparent border-0 p-0 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-xl"
-            onClick={() => setActiveTab('timer')}
             aria-label="BrewLog Home, switch to Brew Assistant"
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-orange-500 to-amber-400 p-0.5 shadow-lg shadow-amber-500/20 flex items-center justify-center flex-shrink-0">
@@ -51,30 +51,36 @@ export const Header: React.FC<HeaderProps> = ({
                 Specialty
               </span>
             </div>
-          </button>
+          </Link>
 
           {/* Desktop Navigation Tabs: Responsive, no shrinking, no text wrap */}
           <nav className="hidden lg:flex items-center space-x-1 lg:space-x-2 flex-shrink-0">
             {tabs.map((tab) => {
               const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
               return (
-                <button
+                <NavLink
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-1.5 lg:space-x-2 px-2.5 lg:px-3.5 py-2 rounded-lg text-xs lg:text-sm font-medium cursor-pointer select-none whitespace-nowrap transition-all duration-200 ${isActive
-                      ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm shadow-amber-500/10'
-                      : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/60'
-                    }`}
+                  to={tab.path}
+                  className={({ isActive }) =>
+                    `flex items-center space-x-1.5 lg:space-x-2 px-2.5 lg:px-3.5 py-2 rounded-lg text-xs lg:text-sm font-medium cursor-pointer select-none whitespace-nowrap transition-all duration-200 ${
+                      isActive
+                        ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm shadow-amber-500/10'
+                        : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900/60'
+                    }`
+                  }
                 >
-                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-amber-400' : 'text-stone-400'}`} />
-                  <span>{tab.label}</span>
-                  {tab.badge !== undefined && tab.badge > 0 && (
-                    <span className="ml-1 px-1.5 py-0.2 text-[10px] lg:text-[11px] font-bold rounded-full bg-stone-800 text-stone-300 border border-stone-700 flex-shrink-0">
-                      {tab.badge}
-                    </span>
+                  {({ isActive }) => (
+                    <>
+                      <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-amber-400' : 'text-stone-400'}`} />
+                      <span>{tab.label}</span>
+                      {tab.badge !== undefined && tab.badge > 0 && (
+                        <span className="ml-1 px-1.5 py-0.2 text-[10px] lg:text-[11px] font-bold rounded-full bg-stone-800 text-stone-300 border border-stone-700 flex-shrink-0">
+                          {tab.badge}
+                        </span>
+                      )}
+                    </>
                   )}
-                </button>
+                </NavLink>
               );
             })}
           </nav>
@@ -91,15 +97,17 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex lg:hidden overflow-x-auto py-2 space-x-1.5 border-t border-stone-800/50 scrollbar-none">
           {tabs.map((tab) => {
             const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
             return (
-              <button
+              <NavLink
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs whitespace-nowrap font-medium cursor-pointer transition-all flex-shrink-0 ${isActive
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                    : 'text-stone-400 hover:text-stone-200'
-                  }`}
+                to={tab.path}
+                className={({ isActive }) =>
+                  `flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs whitespace-nowrap font-medium cursor-pointer transition-all flex-shrink-0 ${
+                    isActive
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                      : 'text-stone-400 hover:text-stone-200'
+                  }`
+                }
               >
                 <Icon className="w-3.5 h-3.5 flex-shrink-0" />
                 <span>{tab.label}</span>
@@ -108,7 +116,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {tab.badge}
                   </span>
                 )}
-              </button>
+              </NavLink>
             );
           })}
         </div>
