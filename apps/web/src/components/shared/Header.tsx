@@ -3,8 +3,6 @@ import React from 'react';
 import { Coffee, Timer, Package, Sliders, BookOpen, Sparkles } from 'lucide-react';
 import { Link, NavLink } from 'react-router';
 
-export type ActiveTab = 'timer' | 'stash' | 'recipes' | 'equipment' | 'cupping';
-
 export interface HeaderProps {
   beanCount: number;
   brewCount: number;
