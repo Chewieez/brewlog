@@ -1,165 +1,30 @@
-import { useBeans } from "./features/stash/useBeans";
-import { useTastingLogs } from "./features/cupping/useTastingLogs";
-import { useEquipment } from "./features/equipment/useEquipment";
-import { useRecipes } from "./features/recipes/useRecipes";
-import { AuthProvider, useAuth } from "./features/auth/AuthContext";
-import { AuthModal } from "./features/auth/AuthModal";
-import React, { useState, useEffect } from 'react';
-import { Header, ActiveTab } from './components/shared/Header';
-import { TimerView } from './features/timer/TimerView';
-import { StashView } from './features/stash/StashView';
-import { RecipeStudioView } from './features/recipes/RecipeStudioView';
-import { EquipmentView } from './features/equipment/EquipmentView';
-import { CuppingView, PendingBrewSession } from './features/cupping/CuppingView';
-import { Bean, Equipment, BrewRecipe, TastingLog, DEFAULT_PRESET_RECIPES } from '@brewlog/core';
-import { INITIAL_BEANS } from './lib/sampleData';
-
-function MainAppContent() {
-  const { beans, addBean } = useBeans();
-  const { logs: tastingLogs, addTastingLog } = useTastingLogs();
-  const { equipment, addEquipment, deleteEquipment } = useEquipment();
-  const { recipes, addRecipe, deleteRecipe } = useRecipes();
-  const { isPasswordRecovery, authUrlError } = useAuth();
-  const [activeTab, setActiveTab] = useState<ActiveTab>('timer');
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-
-  // Automatically pop open auth modal if arriving via password recovery link or expired link
-  useEffect(() => {
-    if (isPasswordRecovery || authUrlError) {
-      setIsAuthModalOpen(true);
-    }
-  }, [isPasswordRecovery, authUrlError]);
-
-  // Active Timer Recipe & Selected Bean
-  const [selectedRecipe, setSelectedRecipe] = useState<BrewRecipe>(
-    recipes[0] || DEFAULT_PRESET_RECIPES[0]
-  );
-  const [selectedBean, setSelectedBean] = useState<Bean | null>(INITIAL_BEANS[0] || null);
-
-  // Pending Brew Handoff to Cupping Form
-  const [pendingBrewSession, setPendingBrewSession] = useState<PendingBrewSession | null>(null);
-
-  // Keep selectedRecipe valid if current one was deleted
-  useEffect(() => {
-    if (recipes.length > 0 && !recipes.some((r) => r.id === selectedRecipe.id)) {
-      setSelectedRecipe(recipes[0]);
-    }
-  }, [recipes, selectedRecipe.id]);
-
-  // Keep selectedBean synced when beans load from Supabase
-  useEffect(() => {
-    if (!selectedBean && beans.length > 0) {
-      setSelectedBean(beans[0]);
-    }
-  }, [beans, selectedBean]);
-
-  // Handlers
-  const handleAddBean = async (newBean: Bean) => {
-    await addBean(newBean);
-  };
-
-  const handleAddEquipment = async (newItem: Omit<Equipment, "id" | "createdAt">) => {
-    await addEquipment(newItem);
-  };
-
-  const handleAddRecipe = async (
-    newRecipe: Omit<BrewRecipe, "id" | "createdAt">
-  ) => {
-    return await addRecipe(newRecipe);
-  };
-
-  const handleSelectBeanForBrew = (bean: Bean) => {
-    setSelectedBean(bean);
-    setActiveTab('timer');
-  };
-
-  const handleSelectRecipeForTimer = (recipe: BrewRecipe) => {
-    setSelectedRecipe(recipe);
-    setActiveTab('timer');
-  };
-
-  const handleLogCompletedBrew = (recipe: BrewRecipe, actualTimeSeconds: number, bean: Bean | null) => {
-    setPendingBrewSession({
-      bean: bean || selectedBean,
-      recipe,
-      actualTimeSeconds,
-    });
-    setActiveTab('cupping');
-  };
-
-  return (
-    <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans">
-      <Header
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        beanCount={beans.length}
-        brewCount={tastingLogs.length}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
-      />
-
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {activeTab === 'timer' && (
-          <TimerView
-            recipe={selectedRecipe}
-            selectedBean={selectedBean}
-            beans={beans}
-            onSelectBean={setSelectedBean}
-            onSelectOtherRecipe={() => setActiveTab('recipes')}
-            onLogCompletedBrew={handleLogCompletedBrew}
-          />
-        )}
-
-        {activeTab === 'stash' && (
-          <StashView
-            beans={beans}
-            onAddBean={handleAddBean}
-            onSelectBeanForBrew={handleSelectBeanForBrew}
-          />
-        )}
-
-        {activeTab === 'recipes' && (
-          <RecipeStudioView
-            recipes={recipes}
-            onSelectRecipeForTimer={handleSelectRecipeForTimer}
-            onAddCustomRecipe={handleAddRecipe}
-            onDeleteRecipe={deleteRecipe}
-          />
-        )}
-
-        {activeTab === 'equipment' && (
-          <EquipmentView
-            equipment={equipment}
-            onAddEquipment={handleAddEquipment}
-            onDeleteEquipment={deleteEquipment}
-          />
-        )}
-
-        {activeTab === 'cupping' && (
-          <CuppingView
-            logs={tastingLogs}
-            beans={beans}
-            pendingBrewSession={pendingBrewSession}
-            onClearPendingSession={() => setPendingBrewSession(null)}
-            onAddTastingLog={async (log) => {
-              await addTastingLog(log);
-              setPendingBrewSession(null);
-            }}
-          />
-        )}
-      </main>
-
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-      />
-    </div>
-  );
-}
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
+import { AuthProvider } from './features/auth/AuthContext';
+import { RootLayout } from './layouts/RootLayout';
+import { TimerRoute } from './routes/TimerRoute';
+import { StashRoute } from './routes/StashRoute';
+import { RecipesRoute } from './routes/RecipesRoute';
+import { EquipmentRoute } from './routes/EquipmentRoute';
+import { CuppingRoute } from './routes/CuppingRoute';
+import { NotFoundRoute } from './routes/NotFoundRoute';
 
 export function App() {
   return (
     <AuthProvider>
-      <MainAppContent />
+      <BrowserRouter>
+        <Routes>
+          <Route element={<RootLayout />}>
+            <Route index element={<Navigate to="/timer" replace />} />
+            <Route path="/timer" element={<TimerRoute />} />
+            <Route path="/stash" element={<StashRoute />} />
+            <Route path="/recipes" element={<RecipesRoute />} />
+            <Route path="/equipment" element={<EquipmentRoute />} />
+            <Route path="/cupping" element={<CuppingRoute />} />
+            <Route path="*" element={<NotFoundRoute />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </AuthProvider>
   );
 }

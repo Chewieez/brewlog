@@ -9,10 +9,6 @@ export interface HeaderProps {
   beanCount: number;
   brewCount: number;
   onOpenAuthModal: () => void;
-  /** @deprecated Kept optional for backward compatibility until App.tsx is refactored in Task 5 */
-  activeTab?: any;
-  /** @deprecated Kept optional for backward compatibility until App.tsx is refactored in Task 5 */
-  setActiveTab?: any;
 }
 
 export const Header: React.FC<HeaderProps> = ({
