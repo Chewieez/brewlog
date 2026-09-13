@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router';
 import { BrewRecipe } from '@brewlog/core';
 import { Trash2 } from 'lucide-react';
+import { DeleteRecipeModal } from './DeleteRecipeModal';
 
 export interface RecipeCatalogListProps {
   recipes: BrewRecipe[];
@@ -22,6 +23,8 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
   onSelectRecipe,
   onDeleteRecipe,
 }) => {
+  const [recipeToDelete, setRecipeToDelete] = useState<BrewRecipe | null>(null);
+
   const filteredRecipes = recipes.filter((r) => {
     return selectedMethodFilter === 'all' || r.brewMethod === selectedMethodFilter;
   });
@@ -99,7 +102,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          onDeleteRecipe(r);
+                          setRecipeToDelete(r);
                         }}
                         className="p-1 rounded text-stone-500 hover:text-red-400 hover:bg-stone-800/80 transition-colors cursor-pointer"
                         title="Delete Recipe"
@@ -132,6 +135,19 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
           })
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteRecipeModal
+        recipe={recipeToDelete}
+        isOpen={Boolean(recipeToDelete)}
+        onClose={() => setRecipeToDelete(null)}
+        onConfirm={() => {
+          if (recipeToDelete && onDeleteRecipe) {
+            onDeleteRecipe(recipeToDelete);
+          }
+          setRecipeToDelete(null);
+        }}
+      />
     </div>
   );
 };

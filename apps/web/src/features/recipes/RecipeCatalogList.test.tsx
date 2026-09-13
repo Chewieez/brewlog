@@ -101,7 +101,7 @@ describe('RecipeCatalogList', () => {
     expect(screen.getByText(/no recipes found for this brew method/i)).toBeDefined();
   });
 
-  it('renders custom badge and delete button for custom recipes, and calls onDeleteRecipe', () => {
+  it('renders custom badge and delete button for custom recipes, and prompts confirmation before deleting', () => {
     const customRecipe: BrewRecipe = {
       id: 'custom-123',
       name: 'My Special Brew',
@@ -135,7 +135,20 @@ describe('RecipeCatalogList', () => {
     const deleteBtn = screen.getByRole('button', { name: /delete custom recipe my special brew/i });
     expect(deleteBtn).toBeDefined();
 
+    // Clicking delete opens confirmation modal without immediately deleting
     fireEvent.click(deleteBtn);
+    expect(onDelete).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeDefined();
+    expect(screen.getByText('Delete Custom Recipe?')).toBeDefined();
+
+    // Clicking cancel closes the modal without deleting
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(onDelete).not.toHaveBeenCalled();
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    // Reopening and clicking confirm triggers onDeleteRecipe
+    fireEvent.click(deleteBtn);
+    fireEvent.click(screen.getByRole('button', { name: 'Delete Recipe' }));
     expect(onDelete).toHaveBeenCalledWith(customRecipe);
   });
 });

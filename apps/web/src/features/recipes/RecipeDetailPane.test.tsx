@@ -119,7 +119,20 @@ describe('RecipeDetailPane', () => {
     });
     expect(deleteButton).toBeDefined();
 
+    // Clicking delete button opens confirmation modal without calling onDelete
     fireEvent.click(deleteButton);
+    expect(onDelete).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeDefined();
+    expect(screen.getByText('Delete Custom Recipe?')).toBeDefined();
+
+    // Clicking cancel closes the modal without deleting
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(onDelete).not.toHaveBeenCalled();
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    // Reopening and clicking confirm triggers onDelete
+    fireEvent.click(deleteButton);
+    fireEvent.click(screen.getByRole('button', { name: 'Delete Recipe' }));
     expect(onDelete).toHaveBeenCalledTimes(1);
     expect(onDelete).toHaveBeenCalledWith(customRecipe);
   });

@@ -10,6 +10,7 @@ import {
   Trash2,
   ArrowLeft,
 } from 'lucide-react';
+import { DeleteRecipeModal } from './DeleteRecipeModal';
 
 export interface RecipeDetailPaneProps {
   recipe: BrewRecipe;
@@ -25,6 +26,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
   showMobileBackButton = false,
 }) => {
   const [customDose, setCustomDose] = useState<number>(recipe.coffeeDoseGrams);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Sync dose when recipe changes
   useEffect(() => {
@@ -81,7 +83,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           {isCustom && onDeleteRecipe && (
             <button
               type="button"
-              onClick={() => onDeleteRecipe(recipe)}
+              onClick={() => setIsDeleteModalOpen(true)}
               className="p-2 rounded-xl text-stone-500 hover:text-red-400 hover:bg-stone-800/80 border border-transparent hover:border-red-500/30 transition-colors cursor-pointer"
               title="Delete Recipe"
               aria-label={`Delete custom recipe ${recipe.name}`}
@@ -219,6 +221,17 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           })}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteRecipeModal
+        recipe={recipe}
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => {
+          setIsDeleteModalOpen(false);
+          onDeleteRecipe?.(recipe);
+        }}
+      />
     </div>
   );
 };

@@ -79,13 +79,19 @@ describe('RecipeDetailRoute', () => {
     expect(screen.getByTestId('location-display').textContent).toBe('/timer');
   });
 
-  it('calls onDeleteRecipe and navigates to /recipes when deleting a custom recipe', async () => {
+  it('prompts confirmation modal and calls onDeleteRecipe and navigates to /recipes on confirm', async () => {
     renderWithContext(`/recipes/${mockCustomRecipe.id}`);
 
     const deleteButton = screen.getByRole('button', {
       name: `Delete custom recipe ${mockCustomRecipe.name}`,
     });
     fireEvent.click(deleteButton);
+
+    expect(screen.getByRole('dialog')).toBeDefined();
+    expect(screen.getByText('Delete Custom Recipe?')).toBeDefined();
+    expect(mockContext.onDeleteRecipe).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete Recipe' }));
 
     await waitFor(() => {
       expect(mockContext.onDeleteRecipe).toHaveBeenCalledWith(mockCustomRecipe.id);
