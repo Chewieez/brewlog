@@ -56,4 +56,21 @@ describe('App Routing', () => {
     render(<App />);
     expect(screen.getByText(/Start Brew/i)).toBeDefined();
   });
+
+  it('renders a specific recipe detail when deep-linked to /recipes/:recipeId', async () => {
+    window.history.pushState({}, 'Test', '/recipes/preset-v60-hoffmann');
+    render(<App />);
+
+    const headings = await screen.findAllByRole('heading', { level: 3 });
+    expect(headings.some((h) => /hoffmann/i.test(h.textContent || ''))).toBe(true);
+    expect(await screen.findByRole('button', { name: /brew with this recipe/i })).toBeDefined();
+  });
+
+  it('renders 404 NotFoundRoute when navigating to an unknown recipe ID', async () => {
+    window.history.pushState({}, 'Test', '/recipes/unknown-recipe-999');
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { level: 1, name: /brew spilled/i })).toBeDefined();
+    expect(screen.getByText(/Error 404/i)).toBeDefined();
+  });
 });
