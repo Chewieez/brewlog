@@ -15,7 +15,7 @@ While simple initially, this approach suffered from major limitations:
 ## Decision
 We adopted **React Router v8** (`react-router` ^8.3.1) in **Library Mode**:
 - **Library Mode over Framework Mode**: We chose declarative client-side library routing (`BrowserRouter`, `Routes`, `Route`, `Outlet`, `NavLink`, `Link`, `useNavigate`, `useOutletContext`, `useParams`) within our existing Vite SPA, rather than adopting full-framework Remix mode. This keeps the build pipeline lightweight and avoids requiring a Node server runtime.
-- **Persistent Shell with `<RootLayout>` and `<Outlet />`**: Shared UI (responsive `Header`, global `AuthModal`, top-level notification state) lives in `RootLayout`. Route views render inside `<Outlet context={contextValue} />`, preserving audio playback and modal state across navigations.
+- **Persistent Shell with `<RootLayout>` and `<Outlet />`**: Shared UI (responsive `Header`, global `AuthModal`, top-level notification state, and shared repository data) lives in `RootLayout`. Route views render inside `<Outlet context={contextValue} />`, preserving authentication modal state and active recipe selections across navigations (cross-route background timer execution and audio persistence is slated for a subsequent milestone via a global `TimerProvider`).
 - **Nested Child Routes for Master-Detail**: Features with list-detail hierarchies (such as `/recipes` and `/recipes/:recipeId`) utilize nested routing with route-level `<Outlet />` to support responsive two-column layouts on desktop and stacked views on mobile.
 - **Dedicated 404 Catch-All Route**: An unmatched path wildcard (`path="*"`) renders a coffee-themed `NotFoundRoute`.
 

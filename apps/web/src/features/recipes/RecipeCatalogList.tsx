@@ -64,17 +64,24 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
             const isCustom = isCustomRecipe(r);
 
             return (
-              <Link
+              <div
                 key={r.id}
-                to={`/recipes/${r.id}`}
                 onClick={() => onSelectRecipe?.(r)}
-                className={`block p-4 rounded-2xl border transition-all duration-200 relative group cursor-pointer ${
+                className={`p-4 rounded-2xl border transition-all duration-200 relative group cursor-pointer ${
                   isSelected
                     ? 'bg-amber-500/15 border-amber-500/50 shadow-lg shadow-amber-500/10'
                     : 'bg-stone-900/60 border-stone-800/80 hover:border-stone-700'
                 }`}
               >
-                <div className="flex items-center justify-between">
+                {/* Overlay Link for navigation and accessible card click */}
+                <Link
+                  to={`/recipes/${r.id}`}
+                  aria-label={r.name}
+                  onClick={() => onSelectRecipe?.(r)}
+                  className="absolute inset-0 rounded-2xl z-0 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                />
+
+                <div className="relative z-10 flex items-center justify-between pointer-events-none">
                   <div className="flex items-center space-x-2">
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-stone-800 text-amber-400 border border-amber-500/20">
                       {r.brewMethod}
@@ -104,7 +111,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                           e.stopPropagation();
                           setRecipeToDelete(r);
                         }}
-                        className="p-1 rounded text-stone-500 hover:text-red-400 hover:bg-stone-800/80 transition-colors cursor-pointer"
+                        className="pointer-events-auto p-1 rounded text-stone-500 hover:text-red-400 hover:bg-stone-800/80 transition-colors cursor-pointer"
                         title="Delete Recipe"
                         aria-label={`Delete custom recipe ${r.name}`}
                       >
@@ -114,23 +121,25 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                   </div>
                 </div>
 
-                <h3 className="text-base font-bold text-stone-100 mt-2">{r.name}</h3>
-                <p className="text-xs text-stone-400 mt-1 line-clamp-2">
-                  {r.description || 'No description provided.'}
-                </p>
+                <div className="relative z-10 pointer-events-none">
+                  <h3 className="text-base font-bold text-stone-100 mt-2">{r.name}</h3>
+                  <p className="text-xs text-stone-400 mt-1 line-clamp-2">
+                    {r.description || 'No description provided.'}
+                  </p>
 
-                <div className="mt-3 flex items-center space-x-4 text-xs font-mono text-stone-300">
-                  <span>1:{r.ratio}</span>
-                  <span>•</span>
-                  <span>
-                    {r.coffeeDoseGrams}g : {r.waterAmountGrams}g
-                  </span>
-                  <span>•</span>
-                  <span>
-                    {`${Math.floor(r.totalTimeSeconds / 60)}m ${(r.totalTimeSeconds % 60).toString().padStart(2, '0')}s`}
-                  </span>
+                  <div className="mt-3 flex items-center space-x-4 text-xs font-mono text-stone-300">
+                    <span>1:{r.ratio}</span>
+                    <span>•</span>
+                    <span>
+                      {r.coffeeDoseGrams}g : {r.waterAmountGrams}g
+                    </span>
+                    <span>•</span>
+                    <span>
+                      {`${Math.floor(r.totalTimeSeconds / 60)}m ${(r.totalTimeSeconds % 60).toString().padStart(2, '0')}s`}
+                    </span>
+                  </div>
                 </div>
-              </Link>
+              </div>
             );
           })
         )}

@@ -21,7 +21,7 @@ Interactive timers leverage performance timing APIs combined with synthesized We
 - **watchOS (`apps/watchos`)**: Built with SwiftUI, communicating with the iOS host via WatchConnectivity (WCSession).
 
 ### 5. Declarative Client-Side Routing & Master-Detail Architecture
-`@brewlog/web` employs React Router v8 library mode for deep-linkable URLs and browser history traversal while avoiding Node runtime overhead. A persistent `<RootLayout>` shell with `<Outlet />` ensures global audio chimes and authentication modals persist across route transitions, while nested child routes (`/recipes/:recipeId`) power responsive master-detail layouts across desktop and mobile breakpoints.
+`@brewlog/web` employs React Router v8 library mode for deep-linkable URLs and browser history traversal while avoiding Node runtime overhead. A persistent `<RootLayout>` shell with `<Outlet />` ensures authentication modals and shared application state persist across route transitions, while nested child routes (`/recipes/:recipeId`) power responsive master-detail layouts across desktop and mobile breakpoints.
 
 ---
 
