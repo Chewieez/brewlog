@@ -1,8 +1,16 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useOutletContext } from 'react-router';
 import { RecipeStudioView } from '../features/recipes/RecipeStudioView';
 import { useRootOutletContext } from '../layouts/RootLayout';
 import { BrewRecipe } from '@brewlog/core';
+
+export interface RecipeOutletContext {
+  recipes: BrewRecipe[];
+  onSelectRecipeForTimer: (recipe: BrewRecipe) => void;
+  onDeleteRecipe?: (id: string) => Promise<void> | void;
+}
+
+export const useRecipeOutletContext = () => useOutletContext<RecipeOutletContext>();
 
 export const RecipesRoute: React.FC = () => {
   const { recipes, setSelectedRecipe, onAddRecipe, onDeleteRecipe } = useRootOutletContext();
