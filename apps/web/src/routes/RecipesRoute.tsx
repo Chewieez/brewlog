@@ -34,8 +34,11 @@ export const RecipesRoute: React.FC = () => {
       if (onDeleteRecipe) {
         await onDeleteRecipe(recipe.id);
       }
+      if (recipe.id === recipeId) {
+        navigate('/recipes');
+      }
     },
-    [onDeleteRecipe]
+    [onDeleteRecipe, recipeId, navigate]
   );
 
   const handleSaveRecipe = useCallback(

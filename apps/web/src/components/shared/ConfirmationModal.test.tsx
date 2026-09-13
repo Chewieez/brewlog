@@ -104,3 +104,4 @@ describe('ConfirmationModal', () => {
     expect(onConfirm).toHaveBeenCalledTimes(1);
   });
 });
+

@@ -76,4 +76,12 @@ describe('App Routing', () => {
     expect(await screen.findByRole('heading', { level: 1, name: /brew spilled/i })).toBeDefined();
     expect(screen.getByText(/Error 404/i)).toBeDefined();
   });
+
+  it('renders recipe catalog and placeholder when visiting /recipes', async () => {
+    window.history.pushState({}, 'Test', '/recipes');
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { level: 3, name: 'Select a Recipe' })).toBeDefined();
+    expect(screen.getByText(/choose a recipe from the catalog/i)).toBeDefined();
+  });
 });

@@ -109,40 +109,10 @@ describe('RecipeIndexRoute', () => {
     };
   });
 
-  it('redirects to the first recipe on desktop', () => {
-    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-      matches: true,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    }));
-
-    const targetRecipe = DEFAULT_PRESET_RECIPES[0];
+  it('renders select recipe placeholder on /recipes', () => {
     renderWithContext('/recipes');
 
-    expect(screen.getByTestId('location-display').textContent).toBe(`/recipes/${targetRecipe.id}`);
-    expect(screen.getByRole('heading', { level: 3, name: targetRecipe.name })).toBeDefined();
-  });
-
-  it('renders nothing on mobile when at /recipes', () => {
-    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    }));
-
-    renderWithContext('/recipes');
-
-    expect(screen.getByTestId('location-display').textContent).toBe('/recipes');
-    expect(screen.queryByRole('heading', { level: 3 })).toBeNull();
+    expect(screen.getByRole('heading', { level: 3, name: 'Select a Recipe' })).toBeDefined();
+    expect(screen.getByText(/choose a recipe from the catalog/i)).toBeDefined();
   });
 });
