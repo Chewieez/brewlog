@@ -1,39 +1,49 @@
 import React from 'react';
-import { BrewRecipe } from '@brewlog/core';
 
-export interface DeleteRecipeModalProps {
-  recipe: BrewRecipe | null;
+export interface ConfirmationModalProps {
   isOpen: boolean;
+  title: string;
+  message: React.ReactNode;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  variant?: 'danger' | 'primary';
   onClose: () => void;
   onConfirm: () => void;
 }
 
-export const DeleteRecipeModal: React.FC<DeleteRecipeModalProps> = ({
-  recipe,
+export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   isOpen,
+  title,
+  message,
+  confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
+  variant = 'danger',
   onClose,
   onConfirm,
 }) => {
-  if (!isOpen || !recipe) return null;
+  if (!isOpen) return null;
+
+  const confirmButtonClass =
+    variant === 'danger'
+      ? 'bg-red-600 hover:bg-red-500 text-white shadow-red-600/20'
+      : 'bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-amber-500/20';
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/80 backdrop-blur-sm p-4"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="delete-recipe-title"
+      aria-labelledby="confirmation-modal-title"
     >
       <div className="w-full max-w-sm p-6 rounded-3xl bg-stone-900 border border-stone-800 shadow-2xl space-y-4">
         <h3
-          id="delete-recipe-title"
+          id="confirmation-modal-title"
           className="text-base font-bold text-stone-100"
         >
-          Delete Custom Recipe?
+          {title}
         </h3>
         <p className="text-xs text-stone-400 leading-relaxed">
-          Are you sure you want to delete{' '}
-          <strong className="text-stone-200">"{recipe.name}"</strong>? This action
-          cannot be undone.
+          {message}
         </p>
         <div className="flex justify-end space-x-3 pt-2">
           <button
@@ -41,14 +51,14 @@ export const DeleteRecipeModal: React.FC<DeleteRecipeModalProps> = ({
             onClick={onClose}
             className="px-4 py-2 rounded-xl bg-stone-800 text-stone-300 text-xs font-semibold hover:bg-stone-700 cursor-pointer"
           >
-            Cancel
+            {cancelLabel}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-md shadow-red-600/20 cursor-pointer"
+            className={`px-4 py-2 rounded-xl text-xs font-bold shadow-md cursor-pointer ${confirmButtonClass}`}
           >
-            Delete Recipe
+            {confirmLabel}
           </button>
         </div>
       </div>

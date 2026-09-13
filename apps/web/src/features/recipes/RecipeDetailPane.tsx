@@ -10,7 +10,7 @@ import {
   Trash2,
   ArrowLeft,
 } from 'lucide-react';
-import { DeleteRecipeModal } from './DeleteRecipeModal';
+import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 
 export interface RecipeDetailPaneProps {
   recipe: BrewRecipe;
@@ -223,9 +223,18 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
       </div>
 
       {/* Delete Confirmation Modal */}
-      <DeleteRecipeModal
-        recipe={recipe}
+      <ConfirmationModal
         isOpen={isDeleteModalOpen}
+        title="Delete Custom Recipe?"
+        message={
+          <>
+            Are you sure you want to delete{' '}
+            <strong className="text-stone-200">"{recipe.name}"</strong>? This action
+            cannot be undone.
+          </>
+        }
+        confirmLabel="Delete Recipe"
+        variant="danger"
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={() => {
           setIsDeleteModalOpen(false);

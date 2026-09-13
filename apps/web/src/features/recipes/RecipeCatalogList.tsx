@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router';
 import { BrewRecipe } from '@brewlog/core';
 import { Trash2 } from 'lucide-react';
-import { DeleteRecipeModal } from './DeleteRecipeModal';
+import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 
 export interface RecipeCatalogListProps {
   recipes: BrewRecipe[];
@@ -137,9 +137,18 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
       </div>
 
       {/* Delete Confirmation Modal */}
-      <DeleteRecipeModal
-        recipe={recipeToDelete}
+      <ConfirmationModal
         isOpen={Boolean(recipeToDelete)}
+        title="Delete Custom Recipe?"
+        message={
+          <>
+            Are you sure you want to delete{' '}
+            <strong className="text-stone-200">"{recipeToDelete?.name}"</strong>? This
+            action cannot be undone.
+          </>
+        }
+        confirmLabel="Delete Recipe"
+        variant="danger"
         onClose={() => setRecipeToDelete(null)}
         onConfirm={() => {
           if (recipeToDelete && onDeleteRecipe) {
