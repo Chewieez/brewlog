@@ -103,5 +103,54 @@ describe('ConfirmationModal', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Delete Recipe' }));
     expect(onConfirm).toHaveBeenCalledTimes(1);
   });
+
+  it('calls onClose when Escape key is pressed', () => {
+    const onClose = vi.fn();
+    render(
+      <ConfirmationModal
+        isOpen={true}
+        title="Delete Item?"
+        message="Are you sure?"
+        onClose={onClose}
+        onConfirm={vi.fn()}
+      />
+    );
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onClose when clicking the backdrop overlay', () => {
+    const onClose = vi.fn();
+    render(
+      <ConfirmationModal
+        isOpen={true}
+        title="Delete Item?"
+        message="Are you sure?"
+        onClose={onClose}
+        onConfirm={vi.fn()}
+      />
+    );
+
+    const dialogBackdrop = screen.getByRole('dialog');
+    fireEvent.click(dialogBackdrop);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call onClose when clicking inside the modal content', () => {
+    const onClose = vi.fn();
+    render(
+      <ConfirmationModal
+        isOpen={true}
+        title="Delete Item?"
+        message="Are you sure?"
+        onClose={onClose}
+        onConfirm={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByText('Delete Item?'));
+    expect(onClose).not.toHaveBeenCalled();
+  });
 });
 

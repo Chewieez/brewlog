@@ -65,7 +65,7 @@ describe('RecipeCatalogList', () => {
       </MemoryRouter>
     );
 
-    fireEvent.click(screen.getByText(DEFAULT_PRESET_RECIPES[0].name));
+    fireEvent.click(screen.getByRole('link', { name: DEFAULT_PRESET_RECIPES[0].name }));
     expect(onSelect).toHaveBeenCalledWith(DEFAULT_PRESET_RECIPES[0]);
   });
 

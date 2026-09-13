@@ -66,8 +66,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
             return (
               <div
                 key={r.id}
-                onClick={() => onSelectRecipe?.(r)}
-                className={`p-4 rounded-2xl border transition-all duration-200 relative group cursor-pointer ${
+                className={`p-4 rounded-2xl border transition-all duration-200 relative group ${
                   isSelected
                     ? 'bg-amber-500/15 border-amber-500/50 shadow-lg shadow-amber-500/10'
                     : 'bg-stone-900/60 border-stone-800/80 hover:border-stone-700'
@@ -78,7 +77,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                   to={`/recipes/${r.id}`}
                   aria-label={r.name}
                   onClick={() => onSelectRecipe?.(r)}
-                  className="absolute inset-0 rounded-2xl z-0 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  className="absolute inset-0 rounded-2xl z-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 />
 
                 <div className="relative z-10 flex items-center justify-between pointer-events-none">
