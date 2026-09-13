@@ -29,11 +29,20 @@ export const RecipesRoute: React.FC = () => {
     [setSelectedRecipe]
   );
 
+  const handleDeleteRecipeFromList = useCallback(
+    async (recipe: BrewRecipe) => {
+      if (onDeleteRecipe) {
+        await onDeleteRecipe(recipe.id);
+      }
+    },
+    [onDeleteRecipe]
+  );
+
   const handleSaveRecipe = useCallback(
     async (newRecipe: Omit<BrewRecipe, 'id' | 'createdAt'>) => {
       const created = await onAddRecipe(newRecipe);
-      if (created && (created as BrewRecipe).id) {
-        navigate(`/recipes/${(created as BrewRecipe).id}`);
+      if (created?.id) {
+        navigate('/recipes/' + created.id);
       }
     },
     [onAddRecipe, navigate]
@@ -89,6 +98,7 @@ export const RecipesRoute: React.FC = () => {
             activeRecipeId={recipeId}
             selectedMethodFilter={selectedMethodFilter}
             onSelectMethodFilter={setSelectedMethodFilter}
+            onDeleteRecipe={handleDeleteRecipeFromList}
           />
         </div>
 

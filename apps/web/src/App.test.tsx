@@ -1,5 +1,5 @@
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, Navigate } from 'react-router';
 import { RootLayout } from './layouts/RootLayout';
@@ -36,6 +36,9 @@ function TestApp({ initialPath = '/' }: { initialPath?: string }) {
 }
 
 describe('App Routing', () => {
+  afterEach(() => {
+    window.history.pushState({}, 'Test', '/');
+  });
   it('redirects from / to /timer', () => {
     render(<TestApp initialPath="/" />);
     // Brew Assistant / Timer elements are present

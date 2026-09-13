@@ -20,9 +20,11 @@ describe('RecipeCatalogList', () => {
     expect(screen.getByRole('button', { name: /^all$/i })).toBeDefined();
     expect(screen.getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
 
-    const link = screen.getByText(DEFAULT_PRESET_RECIPES[0].name).closest('a');
+    const link = screen.getByRole('link', {
+      name: (content) => content.includes(DEFAULT_PRESET_RECIPES[0].name),
+    });
     expect(link).toBeDefined();
-    expect(link?.getAttribute('href')).toBe(`/recipes/${DEFAULT_PRESET_RECIPES[0].id}`);
+    expect(link.getAttribute('href')).toBe(`/recipes/${DEFAULT_PRESET_RECIPES[0].id}`);
   });
 
   it('filters recipes by selected method', () => {

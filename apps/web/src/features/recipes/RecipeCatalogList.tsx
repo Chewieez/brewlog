@@ -124,7 +124,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                   </span>
                   <span>•</span>
                   <span>
-                    {Math.floor(r.totalTimeSeconds / 60)}m {r.totalTimeSeconds % 60}s
+                    {`${Math.floor(r.totalTimeSeconds / 60)}m ${(r.totalTimeSeconds % 60).toString().padStart(2, '0')}s`}
                   </span>
                 </div>
               </Link>

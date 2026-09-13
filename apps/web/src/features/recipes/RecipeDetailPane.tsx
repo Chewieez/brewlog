@@ -160,7 +160,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           <div>
             <div className="text-[10px] text-stone-400 uppercase font-medium">Target Time</div>
             <div className="text-sm font-bold font-mono text-stone-100">
-              {Math.floor(recipe.totalTimeSeconds / 60)}m {recipe.totalTimeSeconds % 60}s
+              {`${Math.floor(recipe.totalTimeSeconds / 60)}m ${(recipe.totalTimeSeconds % 60).toString().padStart(2, '0')}s`}
             </div>
           </div>
         </div>
