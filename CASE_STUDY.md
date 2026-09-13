@@ -20,7 +20,14 @@ Interactive timers leverage performance timing APIs combined with synthesized We
 - **WearOS (`apps/wearos`)**: Built with Jetpack Compose for Wear OS, connecting via Android Wearable DataLayer.
 - **watchOS (`apps/watchos`)**: Built with SwiftUI, communicating with the iOS host via WatchConnectivity (WCSession).
 
+### 5. Declarative Client-Side Routing & Master-Detail Architecture
+`@brewlog/web` employs React Router v8 library mode for deep-linkable URLs and browser history traversal while avoiding Node runtime overhead. A persistent `<RootLayout>` shell with `<Outlet />` ensures global audio chimes and authentication modals persist across route transitions, while nested child routes (`/recipes/:recipeId`) power responsive master-detail layouts across desktop and mobile breakpoints.
+
 ---
 
-## 📈 Learning Roadmap & Devlogs
-See [`docs/adr/`](./docs/adr/) for detailed Architecture Decision Records.
+## 📈 Learning Roadmap & Architecture Decision Records
+- [`docs/adr/001-monorepo-and-shared-domain.md`](./docs/adr/001-monorepo-and-shared-domain.md) — Monorepo Architecture & Shared Domain
+- [`docs/adr/002-database-choice-and-supabase-rls.md`](./docs/adr/002-database-choice-and-supabase-rls.md) — Database Choice & Supabase RLS
+- [`docs/adr/003-supabase-typescript-multiplatform-best-practices.md`](./docs/adr/003-supabase-typescript-multiplatform-best-practices.md) — Multi-Platform Supabase TypeScript Patterns
+- [`docs/adr/004-client-side-declarative-routing.md`](./docs/adr/004-client-side-declarative-routing.md) — Declarative Routing via React Router v8
+- [`docs/ROADMAP.md`](./docs/ROADMAP.md) — Macro Milestones & Technical Debt Tracker
