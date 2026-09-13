@@ -11,7 +11,7 @@ This document tracks upcoming milestones, architectural refactors, and technical
 - Dedicated routes for `/timer`, `/stash`, `/recipes`, `/equipment`, `/cupping`, and catch-all `*` 404 page (`NotFoundRoute`).
 - Preserved root shell layout (`RootLayout`) and persistent authentication handling.
 
-### Phase 2: Dynamic Recipe Routing & Master-Detail (In Progress 🔄)
+### Phase 2: Dynamic Recipe Routing & Master-Detail (Complete ✅)
 - Dynamic child routes at `/recipes/:recipeId` with nested `<Outlet />`.
 - Responsive master-detail layout (desktop 2-column grid; mobile catalog list to full-width detail with back link).
 - Direct deep-linking and URL synchronization.
@@ -20,6 +20,12 @@ This document tracks upcoming milestones, architectural refactors, and technical
 ---
 
 ## 📋 Technical Debt & Component Refactoring (TODO)
+
+### 🔗 Human-Friendly URL Slugs for Custom Recipes
+- [ ] **Hybrid Slug-ID Routing (`/recipes/:slug--:id` or short hash)**:
+  - Custom recipes currently use raw UUIDs in their URL path (e.g. `/recipes/750e6dda-1814-42a3-9a0f-f97220c202a9`).
+  - Implement a hybrid slug pattern (e.g. `/recipes/my-morning-v60--750e6dda`).
+  - Update route matching to extract the UUID/ID portion for recipe lookup while displaying the human-readable slug for sharing, readability, and bookmarking without database collision risks.
 
 ### 🧩 Recipe Feature Component Decomposition
 Once Phase 2 routing is complete and stabilized with passing tests, decompose the recipe UI components into focused, single-responsibility units:
