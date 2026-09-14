@@ -190,23 +190,24 @@
     const nodes = new vis.DataSet([
       // Root & Entry
       { id: 1, label: 'main.tsx\n(Vite Entry)', group: 'root', shape: 'box', level: 0, info: { title: 'main.tsx', type: 'Application Entrypoint', desc: 'Bootstraps the React 19 application, imports index.css theme tokens, and renders the App component.', file: 'apps/web/src/main.tsx' } },
-      { id: 2, label: 'App.tsx\n(Main Orchestrator)', group: 'root', shape: 'box', level: 1, info: { title: 'App.tsx', type: 'Root Component', desc: 'Houses global state, activeTab view router, AuthProvider wrapper, and global modals.', file: 'apps/web/src/App.tsx' } },
+      { id: 2, label: 'App.tsx\n(React Router v8)', group: 'root', shape: 'box', level: 1, info: { title: 'App.tsx', type: 'Declarative Router', desc: 'Configures React Router v8 BrowserRouter, Routes, RootLayout shell, and route tree.', file: 'apps/web/src/App.tsx' } },
       { id: 3, label: 'AuthProvider\n(AuthContext.tsx)', group: 'auth', shape: 'box', level: 1, info: { title: 'AuthProvider', type: 'React Context', desc: 'Listens to live Supabase auth state changes, manages user JWT tokens, signIn, and signUp.', file: 'apps/web/src/features/auth/AuthContext.tsx' } },
+      { id: 8, label: 'RootLayout.tsx\n(Shell & Outlet)', group: 'root', shape: 'box', level: 2, info: { title: 'RootLayout.tsx', type: 'App Shell Layout', desc: 'Mounts shared data hooks, provides persistent Header and AuthModal, and renders <Outlet context={contextValue} />.', file: 'apps/web/src/layouts/RootLayout.tsx' } },
 
       // Header & Navigation
-      { id: 4, label: 'Header.tsx\n(Responsive Nav)', group: 'shared', shape: 'box', level: 2, info: { title: 'Header.tsx', type: 'Navigation Component', desc: 'Provides tab switching, badge counters, responsive breakpoints, and user profile avatar.', file: 'apps/web/src/components/shared/Header.tsx' } },
-      { id: 5, label: 'UserMenu.tsx\n(Profile & Sign Out)', group: 'shared', shape: 'box', level: 3, info: { title: 'UserMenu.tsx', type: 'User Profile Menu', desc: 'Shows active barista initials avatar badge with dropdown to Sign Out or view database settings.', file: 'apps/web/src/features/auth/UserMenu.tsx' } },
+      { id: 4, label: 'Header.tsx\n(NavLink Nav)', group: 'shared', shape: 'box', level: 3, info: { title: 'Header.tsx', type: 'Navigation Component', desc: 'Uses NavLink for URL-based active link styling, badge counters, and barista profile avatar.', file: 'apps/web/src/components/shared/Header.tsx' } },
+      { id: 5, label: 'UserMenu.tsx\n(Profile & Sign Out)', group: 'shared', shape: 'box', level: 4, info: { title: 'UserMenu.tsx', type: 'User Profile Menu', desc: 'Shows active barista initials avatar badge with dropdown to Sign Out or view database settings.', file: 'apps/web/src/features/auth/UserMenu.tsx' } },
 
-      // Modals
-      { id: 6, label: 'AuthModal.tsx\n(Login / Signup)', group: 'modal', shape: 'box', level: 2, info: { title: 'AuthModal.tsx', type: 'Authentication Modal', desc: 'Sign In and Create Account dialog with email verification alerts and error banners.', file: 'apps/web/src/features/auth/AuthModal.tsx' } },
-      { id: 7, label: 'SupabaseModal.tsx\n(Credentials)', group: 'modal', shape: 'box', level: 2, info: { title: 'SupabaseModal.tsx', type: 'Database Config Modal', desc: 'Project URL and Anon API key input modal.', file: 'apps/web/src/features/auth/SupabaseModal.tsx' } },
+      // Modals & 404
+      { id: 6, label: 'AuthModal.tsx\n(Login / Signup)', group: 'modal', shape: 'box', level: 3, info: { title: 'AuthModal.tsx', type: 'Authentication Modal', desc: 'Sign In and Create Account dialog with email verification alerts and error banners.', file: 'apps/web/src/features/auth/AuthModal.tsx' } },
+      { id: 9, label: 'NotFoundRoute.tsx\n(404 Fallback)', group: 'feature', shape: 'box', level: 3, info: { title: 'NotFoundRoute.tsx', type: 'Catch-All Route', desc: 'Coffee-themed 404 page for unmatched URLs with Return to Timer button.', file: 'apps/web/src/routes/NotFoundRoute.tsx' } },
 
-      // Feature Views
-      { id: 10, label: 'TimerView.tsx\n(Brew Assistant)', group: 'feature', shape: 'box', level: 2, info: { title: 'TimerView.tsx', type: 'Feature View', desc: 'Interactive circular progress timer with millisecond countdowns, live dose scaling, and stage timeline.', file: 'apps/web/src/features/timer/TimerView.tsx' } },
-      { id: 11, label: 'StashView.tsx\n(Coffee Stash)', group: 'feature', shape: 'box', level: 2, info: { title: 'StashView.tsx', type: 'Feature View', desc: 'Whole bean tracking in ounces (oz) with resting window badges and add-bean modal.', file: 'apps/web/src/features/stash/StashView.tsx' } },
-      { id: 12, label: 'RecipeStudioView.tsx\n(Recipe Studio)', group: 'feature', shape: 'box', level: 2, info: { title: 'RecipeStudioView.tsx', type: 'Feature View', desc: 'Preset recipe library (Hoffmann V60, Kasuya 4:6, AeroPress, Flair 58) with auto-scaler.', file: 'apps/web/src/features/recipes/RecipeStudioView.tsx' } },
-      { id: 13, label: 'EquipmentView.tsx\n(Gear & Grinders)', group: 'feature', shape: 'box', level: 2, info: { title: 'EquipmentView.tsx', type: 'Feature View', desc: 'Grinder burr settings calibration (clicks, microns, stepped numbers) and brewer management.', file: 'apps/web/src/features/equipment/EquipmentView.tsx' } },
-      { id: 14, label: 'CuppingView.tsx\n(Cupping & Wheel)', group: 'feature', shape: 'box', level: 2, info: { title: 'CuppingView.tsx', type: 'Feature View', desc: 'SCA 0-100 cupping scoring sheet and interactive flavor wheel tag selector.', file: 'apps/web/src/features/cupping/CuppingView.tsx' } },
+      // Feature Routes & Views
+      { id: 10, label: 'TimerRoute.tsx\n(/timer)', group: 'feature', shape: 'box', level: 3, info: { title: 'TimerRoute.tsx', type: 'Route Adapter', desc: 'Connects RootLayout outlet context to TimerView for interactive brew timing.', file: 'apps/web/src/routes/TimerRoute.tsx' } },
+      { id: 11, label: 'StashRoute.tsx\n(/stash)', group: 'feature', shape: 'box', level: 3, info: { title: 'StashRoute.tsx', type: 'Route Adapter', desc: 'Whole bean tracking in ounces (oz) with resting window badges and add-bean modal.', file: 'apps/web/src/routes/StashRoute.tsx' } },
+      { id: 12, label: 'RecipesRoute.tsx\n(/recipes & :recipeId)', group: 'feature', shape: 'box', level: 3, info: { title: 'RecipesRoute.tsx', type: 'Route Adapter', desc: 'Master-detail recipe studio: catalog list on desktop, nested child route <Outlet /> for recipe details.', file: 'apps/web/src/routes/RecipesRoute.tsx' } },
+      { id: 13, label: 'EquipmentRoute.tsx\n(/equipment)', group: 'feature', shape: 'box', level: 3, info: { title: 'EquipmentRoute.tsx', type: 'Route Adapter', desc: 'Grinder burr settings calibration (clicks, microns, stepped numbers) and brewer management.', file: 'apps/web/src/routes/EquipmentRoute.tsx' } },
+      { id: 14, label: 'CuppingRoute.tsx\n(/cupping)', group: 'feature', shape: 'box', level: 3, info: { title: 'CuppingRoute.tsx', type: 'Route Adapter', desc: 'SCA 0-100 cupping scoring sheet and interactive flavor wheel tag selector.', file: 'apps/web/src/routes/CuppingRoute.tsx' } },
 
       // Sub-Components
       { id: 20, label: 'ScaFlavorWheelSvg.tsx\n(Pure Polar SVG Wheel)', group: 'subcomp', shape: 'ellipse', level: 3, info: { title: 'ScaFlavorWheelSvg.tsx', type: 'Interactive Vector Graphic', desc: 'Pure React + SVG polar trigonometry rendering 7 concentric categories and outer descriptors with live hover inspection.', file: 'apps/web/src/features/cupping/ScaFlavorWheelSvg.tsx' } },
@@ -230,30 +231,31 @@
     ]);
 
     const edges = new vis.DataSet([
-      // App Tree
+      // App Tree & Router
       { from: 1, to: 2, arrows: 'to' },
       { from: 2, to: 3, arrows: 'to' },
-      { from: 2, to: 4, arrows: 'to' },
+      { from: 2, to: 8, arrows: 'to', label: '<RootLayout />' },
+      { from: 8, to: 4, arrows: 'to' },
       { from: 4, to: 5, arrows: 'to' },
-      { from: 2, to: 6, arrows: 'to' },
-      { from: 2, to: 7, arrows: 'to' },
+      { from: 8, to: 6, arrows: 'to' },
 
-      // Tab Switching to Views
-      { from: 2, to: 10, arrows: 'to', label: 'Tab: timer' },
-      { from: 2, to: 11, arrows: 'to', label: 'Tab: stash' },
-      { from: 2, to: 12, arrows: 'to', label: 'Tab: recipes' },
-      { from: 2, to: 13, arrows: 'to', label: 'Tab: equipment' },
-      { from: 2, to: 14, arrows: 'to', label: 'Tab: cupping' },
+      // Declarative Routes
+      { from: 8, to: 10, arrows: 'to', label: '/timer' },
+      { from: 8, to: 11, arrows: 'to', label: '/stash' },
+      { from: 8, to: 12, arrows: 'to', label: '/recipes' },
+      { from: 8, to: 13, arrows: 'to', label: '/equipment' },
+      { from: 8, to: 14, arrows: 'to', label: '/cupping' },
+      { from: 8, to: 9, arrows: 'to', label: '* (404)' },
 
       // Sub-Components
       { from: 10, to: 21, arrows: 'to' },
       { from: 14, to: 21, arrows: 'to' },
       { from: 14, to: 20, arrows: 'to' },
 
-      // Views to Hooks
-      { from: 3, to: 30, arrows: 'to' },
-      { from: 11, to: 31, arrows: 'to' },
-      { from: 14, to: 32, arrows: 'to' },
+      // Layout Shell to Data Hooks
+      { from: 8, to: 30, arrows: 'to' },
+      { from: 8, to: 31, arrows: 'to' },
+      { from: 8, to: 32, arrows: 'to' },
       { from: 10, to: 50, arrows: 'to' },
 
       // Hooks to Supabase Client

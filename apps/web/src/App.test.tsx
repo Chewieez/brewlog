@@ -1,5 +1,5 @@
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, Navigate } from 'react-router';
 import { RootLayout } from './layouts/RootLayout';
@@ -36,6 +36,9 @@ function TestApp({ initialPath = '/' }: { initialPath?: string }) {
 }
 
 describe('App Routing', () => {
+  afterEach(() => {
+    window.history.pushState({}, 'Test', '/');
+  });
   it('redirects from / to /timer', () => {
     render(<TestApp initialPath="/" />);
     // Brew Assistant / Timer elements are present
@@ -55,5 +58,30 @@ describe('App Routing', () => {
   it('renders App component with default route', () => {
     render(<App />);
     expect(screen.getByText(/Start Brew/i)).toBeDefined();
+  });
+
+  it('renders a specific recipe detail when deep-linked to /recipes/:recipeId', async () => {
+    window.history.pushState({}, 'Test', '/recipes/preset-v60-hoffmann');
+    render(<App />);
+
+    const headings = await screen.findAllByRole('heading', { level: 3 });
+    expect(headings.some((h) => /hoffmann/i.test(h.textContent || ''))).toBe(true);
+    expect(await screen.findByRole('button', { name: /brew with this recipe/i })).toBeDefined();
+  });
+
+  it('renders 404 NotFoundRoute when navigating to an unknown recipe ID', async () => {
+    window.history.pushState({}, 'Test', '/recipes/unknown-recipe-999');
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { level: 1, name: /brew spilled/i })).toBeDefined();
+    expect(screen.getByText(/Error 404/i)).toBeDefined();
+  });
+
+  it('renders recipe catalog and placeholder when visiting /recipes', async () => {
+    window.history.pushState({}, 'Test', '/recipes');
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { level: 3, name: 'Select a Recipe' })).toBeDefined();
+    expect(screen.getByText(/choose a recipe from the catalog/i)).toBeDefined();
   });
 });
