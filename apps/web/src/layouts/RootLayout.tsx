@@ -133,7 +133,7 @@ export const RootLayout: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#121214] text-zinc-100 flex flex-col font-sans selection:bg-[#d97736]/30 selection:text-zinc-100">
       <Header
         beanCount={beans.length}
         brewCount={tastingLogs.length}
