@@ -57,18 +57,6 @@ export const TimerView: React.FC<TimerViewProps> = ({
   // Linear extraction progress calculation
   const totalProgressPercent = Math.min(100, Math.round((elapsedSeconds / recipe.totalTimeSeconds) * 100));
 
-  type TimerFontStyle = 'outfit-bold' | 'outfit-light' | 'chivo-din' | 'space-grotesk' | 'orbitron-led' | 'jetbrains-mono';
-  const [fontStyle, setFontStyle] = useState<TimerFontStyle>('outfit-bold');
-
-  const fontClasses: Record<TimerFontStyle, string> = {
-    'outfit-bold': "font-['Outfit'] font-bold tracking-tight",
-    'outfit-light': "font-['Outfit'] font-light tracking-tight",
-    'chivo-din': "font-['Chivo'] font-bold tracking-tight",
-    'space-grotesk': "font-['Space_Grotesk'] font-bold tracking-tight",
-    'orbitron-led': "font-['Orbitron'] font-bold tracking-wide",
-    'jetbrains-mono': "font-mono font-bold tracking-tight",
-  };
-
   return (
     <div className="max-w-6xl mx-auto pb-12">
       {/* Top Device Context Bar — Clean, borderless header with hairline divider */}
@@ -162,35 +150,12 @@ export const TimerView: React.FC<TimerViewProps> = ({
             </div>
           </div>
 
-          {/* Live Font Style Preview Switcher */}
-          <div className="flex items-center flex-wrap gap-1.5 pt-1 text-[11px] font-mono">
-            <span className="text-text-muted text-[10px] uppercase tracking-wider mr-1">Preview Font:</span>
-            {[
-              { id: 'outfit-bold', label: '1. Mockup Sans (Outfit Bold)' },
-              { id: 'outfit-light', label: '2. Appliance Light' },
-              { id: 'chivo-din', label: '3. Industrial DIN (Chivo)' },
-              { id: 'space-grotesk', label: '4. Tech Sans' },
-              { id: 'orbitron-led', label: '5. Scale LED (Orbitron)' },
-              { id: 'jetbrains-mono', label: '6. Terminal Mono' },
-            ].map((f) => (
-              <button
-                key={f.id}
-                onClick={() => setFontStyle(f.id as TimerFontStyle)}
-                className={`px-2.5 py-1 rounded text-xs font-mono transition-all cursor-pointer ${
-                  fontStyle === f.id
-                    ? 'bg-accent text-zinc-950 font-bold shadow-sm'
-                    : 'bg-panel hover:bg-panel-recessed text-text-secondary border border-border-subtle hover:text-text-primary'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Oversized Tabular Digital Time Readout */}
-          <div className="py-2">
-            <div className={`text-8xl sm:text-9xl tabular-nums text-text-primary leading-none ${fontClasses[fontStyle]}`}>
-              {formatTime(elapsedSeconds)}
+          {/* Oversized Tabular Digital Time Readout — Appliance Light with vertically centered colon */}
+          <div className="py-2 select-none">
+            <div className="text-8xl sm:text-9xl font-['Outfit'] font-light tabular-nums text-text-primary leading-none tracking-tight flex items-center">
+              <span>{Math.floor(elapsedSeconds / 60)}</span>
+              <span className="inline-block relative -top-[0.06em] px-1 text-text-muted/80">:</span>
+              <span>{String(elapsedSeconds % 60).padStart(2, '0')}</span>
             </div>
           </div>
 
