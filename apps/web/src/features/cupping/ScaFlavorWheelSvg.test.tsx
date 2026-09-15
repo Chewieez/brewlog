@@ -1,8 +1,12 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+/** @vitest-environment jsdom */
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { ScaFlavorWheelSvg } from './ScaFlavorWheelSvg';
 
 describe('ScaFlavorWheelSvg', () => {
+  afterEach(() => {
+    cleanup();
+  });
   it('renders SVG with accessible region role, title, and initial active count', () => {
     render(<ScaFlavorWheelSvg selectedTags={['Blackberry', 'Peach']} onToggleTag={vi.fn()} />);
 
