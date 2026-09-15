@@ -107,7 +107,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
       <div className="p-4 rounded-xl bg-panel-recessed border border-border-subtle space-y-2.5">
         <div className="flex items-center justify-between text-xs">
           <span className="text-zinc-400 font-medium font-mono uppercase tracking-wider text-[11px]">Coffee Dose</span>
-          <span className="text-zinc-100 font-mono font-bold text-base tabular-nums">
+          <span className="text-zinc-100 font-['Outfit'] font-light text-lg tabular-nums">
             {customDose}g
           </span>
         </div>
@@ -137,7 +137,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           </div>
           <div>
             <div className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider font-medium">Total Water</div>
-            <div className="text-sm font-bold font-mono text-zinc-100 tabular-nums">
+            <div className="text-base font-light font-['Outfit'] text-zinc-100 tabular-nums">
               {scaledRecipe.waterAmountGrams}g
             </div>
           </div>
@@ -149,7 +149,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           </div>
           <div>
             <div className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider font-medium">Brew Ratio</div>
-            <div className="text-sm font-bold font-mono text-zinc-100 tabular-nums">
+            <div className="text-base font-light font-['Outfit'] text-zinc-100 tabular-nums">
               1:{recipe.ratio}
             </div>
           </div>
@@ -161,7 +161,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           </div>
           <div>
             <div className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider font-medium">Target Time</div>
-            <div className="text-sm font-bold font-mono text-zinc-100 tabular-nums">
+            <div className="text-base font-light font-['Outfit'] text-zinc-100 tabular-nums">
               {`${Math.floor(recipe.totalTimeSeconds / 60)}m ${(recipe.totalTimeSeconds % 60).toString().padStart(2, '0')}s`}
             </div>
           </div>
@@ -173,7 +173,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           </div>
           <div>
             <div className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider font-medium">Water Temp</div>
-            <div className="text-sm font-bold font-mono text-zinc-100 tabular-nums">
+            <div className="text-base font-light font-['Outfit'] text-zinc-100 tabular-nums">
               {recipe.waterTempCelsius ? `${recipe.waterTempCelsius}°C` : '93-96°C'}
             </div>
           </div>
@@ -203,7 +203,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
                     <span className="text-xs font-bold text-zinc-200">{title}</span>
                     <div className="flex items-center space-x-2 text-xs font-mono text-zinc-400 shrink-0">
                       {targetWeight !== undefined && (
-                        <span className="text-zinc-100 font-bold tabular-nums">
+                        <span className="text-zinc-100 font-['Outfit'] font-light text-sm tabular-nums">
                           {targetWeight}g
                         </span>
                       )}

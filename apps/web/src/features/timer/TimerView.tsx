@@ -109,10 +109,10 @@ export const TimerView: React.FC<TimerViewProps> = ({
               max="100"
               value={doseGrams}
               onChange={(e) => setDoseGrams(Math.max(5, Math.min(100, Number(e.target.value) || 0)))}
-              className="w-10 bg-transparent text-sm font-mono font-bold tabular-nums text-text-primary focus:outline-none text-right"
+              className="w-10 bg-transparent text-sm font-['Outfit'] font-light tabular-nums text-text-primary focus:outline-none text-right"
               aria-label="Coffee dose in grams"
             />
-            <span className="text-xs text-text-muted font-mono">g</span>
+            <span className="text-xs text-text-muted font-['Outfit'] font-light">g</span>
           </div>
 
           <button
@@ -168,7 +168,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               <div className="text-[11px] font-mono tracking-widest text-text-muted uppercase">
                 COFFEE DOSE
               </div>
-              <div className="text-2xl sm:text-3xl font-mono font-bold text-text-primary tabular-nums mt-1">
+              <div className="text-2xl sm:text-3xl font-['Outfit'] font-light text-text-primary tabular-nums mt-1">
                 {doseGrams}g
               </div>
             </div>
@@ -177,7 +177,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               <div className="text-[11px] font-mono tracking-widest text-text-muted uppercase">
                 WATER TARGET
               </div>
-              <div className="text-2xl sm:text-3xl font-mono font-bold text-text-primary tabular-nums mt-1">
+              <div className="text-2xl sm:text-3xl font-['Outfit'] font-light text-text-primary tabular-nums mt-1">
                 {recipe.waterAmountGrams}g
               </div>
             </div>
@@ -186,7 +186,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               <div className="text-[11px] font-mono tracking-widest text-text-muted uppercase">
                 POUR TO
               </div>
-              <div className="text-2xl sm:text-3xl font-mono font-bold text-accent tabular-nums mt-1">
+              <div className="text-2xl sm:text-3xl font-['Outfit'] font-light text-accent tabular-nums mt-1">
                 {currentStage.targetWaterWeightGrams}g
               </div>
             </div>
@@ -305,11 +305,11 @@ export const TimerView: React.FC<TimerViewProps> = ({
                       </span>
                     </div>
 
-                    <div className="flex items-center space-x-4 text-xs font-mono">
-                      <span className="text-text-muted">
+                    <div className="flex items-center space-x-3 text-xs">
+                      <span className="text-text-muted font-mono">
                         {formatTime(stage.startSecond)} ({stage.durationSeconds}s)
                       </span>
-                      <span className="font-bold text-text-primary tabular-nums">
+                      <span className="font-['Outfit'] font-light text-sm text-text-primary tabular-nums">
                         {stage.targetWaterWeightGrams}g
                       </span>
                     </div>
@@ -323,9 +323,9 @@ export const TimerView: React.FC<TimerViewProps> = ({
             })}
           </div>
 
-          <div className="mt-4 pt-3 border-t border-border-subtle flex items-center justify-between text-xs text-text-muted font-mono">
-            <span>TOTAL EXTRACTION TARGET</span>
-            <span className="text-text-primary font-bold tabular-nums">
+          <div className="mt-4 pt-3 border-t border-border-subtle flex items-center justify-between text-xs text-text-muted">
+            <span className="font-mono text-[11px] uppercase tracking-wider">TOTAL EXTRACTION TARGET</span>
+            <span className="text-text-primary font-['Outfit'] font-light text-sm tabular-nums">
               {formatTime(recipe.totalTimeSeconds)}
             </span>
           </div>
