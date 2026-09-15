@@ -188,7 +188,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               max="100"
               value={doseGrams}
               onChange={(e) => setDoseGrams(Math.max(5, Math.min(100, Number(e.target.value) || 0)))}
-              className="w-12 bg-transparent text-sm font-mono font-bold text-[#d97736] focus:outline-none text-right"
+              className="w-12 bg-transparent text-sm font-mono font-bold tabular-nums text-zinc-100 focus:outline-none text-right"
               aria-label="Coffee dose in grams"
             />
             <span className="text-xs text-zinc-400 font-mono">g</span>
@@ -267,7 +267,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               {/* Target Grams Badge */}
               <div className="mt-3 flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#202024] border border-zinc-700 text-zinc-200 font-mono text-xs font-semibold">
                 <Droplets className="w-3.5 h-3.5 text-[#d97736]" />
-                <span>Pour to {currentStage.targetWaterWeightGrams}g</span>
+                <span>Pour to <span className="text-zinc-100 tabular-nums font-mono">{currentStage.targetWaterWeightGrams}g</span></span>
               </div>
             </div>
           </div>
@@ -382,7 +382,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
                   <div className="mt-2 flex items-center justify-between text-[11px] text-zinc-400 font-mono">
                     <span>Target Weight:</span>
-                    <span className="text-[#d97736] font-bold">{stage.targetWaterWeightGrams}g</span>
+                    <span className="text-zinc-100 font-bold tabular-nums font-mono">{stage.targetWaterWeightGrams}g</span>
                   </div>
                 </div>
               );
