@@ -1,11 +1,16 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+/** @vitest-environment jsdom */
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { DEFAULT_PRESET_RECIPES, BrewRecipe } from '@brewlog/core';
 import { RecipeDetailPane } from './RecipeDetailPane';
 
 describe('RecipeDetailPane', () => {
   const recipe = DEFAULT_PRESET_RECIPES[0];
+
+  afterEach(() => {
+    cleanup();
+  });
 
   it('renders recipe title, author, specs, and steps', () => {
     render(

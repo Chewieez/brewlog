@@ -1,10 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+/** @vitest-environment jsdom */
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { DEFAULT_PRESET_RECIPES, BrewRecipe } from '@brewlog/core';
 import { RecipeCatalogList } from './RecipeCatalogList';
 
 describe('RecipeCatalogList', () => {
+  afterEach(() => {
+    cleanup();
+  });
   it('renders method filter buttons and recipe cards with links', () => {
     render(
       <MemoryRouter>
