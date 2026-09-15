@@ -1,8 +1,7 @@
-import { ScrollFadeContainer } from '../../components/shared/ScrollFadeContainer';
 import React, { useState, useEffect, useRef } from 'react';
 import { BrewRecipe, Bean, rescaleRecipeDose } from '@brewlog/core';
 import { useBrewTimer } from './useBrewTimer';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, CheckCircle2, Droplets, Sparkles, Coffee } from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, Sparkles, Coffee } from 'lucide-react';
 
 interface TimerViewProps {
   recipe: BrewRecipe;
@@ -37,12 +36,9 @@ export const TimerView: React.FC<TimerViewProps> = ({
     isMuted,
     currentStageIndex,
     currentStage,
-    totalProgress,
     toggleTimer,
     reset: resetTimer,
     toggleMute,
-    startTimeRef,
-    accumulatedMsRef,
   } = useBrewTimer(recipe);
 
   const formatTime = (totalSeconds: number) => {
@@ -51,107 +47,32 @@ export const TimerView: React.FC<TimerViewProps> = ({
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  // SVG Circle calculation
-  const radius = 130;
-  const circumference = 2 * Math.PI * radius;
-  const circleRef = useRef<SVGCircleElement | null>(null);
-
-  // 15% Orbital Tracer Sweep state on Reset
   const [isResetting, setIsResetting] = useState(false);
-  const tracerRef = useRef<SVGCircleElement | null>(null);
-
   const handleReset = () => {
     resetTimer();
     setIsResetting(true);
+    setTimeout(() => setIsResetting(false), 500);
   };
 
-  // Precise 800ms reset sweep animation: sweeps 360° and collapses into the exact 0 (12 o'clock) mark
-  useEffect(() => {
-    if (!isResetting) return;
-
-    const startTime = performance.now();
-    const duration = 800; // Slower, relaxed, buttery smooth
-    const maxArc = circumference * 0.06; // 6% of circle
-    const totalDistance = circumference + maxArc;
-
-    let animId: number;
-
-    const sweep = (now: number) => {
-      const elapsed = now - startTime;
-      const t = Math.min(1, elapsed / duration);
-
-      // Smooth ease-in-out cubic curve
-      const u = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-      const head = Math.min(circumference, u * totalDistance);
-      const tail = Math.max(0, u * totalDistance - maxArc);
-      const arcLength = Math.max(0, head - tail);
-
-      if (tracerRef.current) {
-        tracerRef.current.style.strokeDasharray = `${arcLength} ${circumference}`;
-        tracerRef.current.style.strokeDashoffset = `${-tail}`;
-        // Fade out smoothly during the final 15% as the tail collapses into 0
-        const opacity = t > 0.82 ? (1 - t) / 0.18 : 1;
-        tracerRef.current.style.opacity = `${opacity}`;
-      }
-
-      if (t < 1) {
-        animId = requestAnimationFrame(sweep);
-      } else {
-        setIsResetting(false);
-      }
-    };
-
-    animId = requestAnimationFrame(sweep);
-    return () => cancelAnimationFrame(animId);
-  }, [isResetting, circumference]);
-
-  // Continuous 60fps/120fps display loop via requestAnimationFrame
-  // Eliminates backward jump on pause by locking to exact accumulated milliseconds
-  useEffect(() => {
-    if (!circleRef.current) return;
-
-    if (!isRunning) {
-      // Freeze or reset to exact elapsed position with zero rewind jump
-      const currentMs = accumulatedMsRef.current;
-      const progress = Math.min(1, currentMs / (recipe.totalTimeSeconds * 1000));
-      circleRef.current.style.strokeDashoffset = `${circumference * (1 - progress)}`;
-      return;
-    }
-
-    let animationFrameId: number;
-    const updateCircle = () => {
-      const now = performance.now();
-      const elapsedMs = now - startTimeRef.current;
-      const progress = Math.min(1, elapsedMs / (recipe.totalTimeSeconds * 1000));
-      if (circleRef.current) {
-        circleRef.current.style.strokeDashoffset = `${circumference * (1 - progress)}`;
-      }
-      if (progress < 1) {
-        animationFrameId = requestAnimationFrame(updateCircle);
-      }
-    };
-
-    animationFrameId = requestAnimationFrame(updateCircle);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [isRunning, elapsedSeconds === 0, recipe.totalTimeSeconds, circumference, startTimeRef, accumulatedMsRef]);
+  // Linear extraction progress calculation
+  const totalProgressPercent = Math.min(100, Math.round((elapsedSeconds / recipe.totalTimeSeconds) * 100));
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      {/* Top Banner & Recipe Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-panel border border-border-subtle">
+    <div className="max-w-6xl mx-auto pb-12">
+      {/* Top Device Context Bar — Clean, borderless header with hairline divider */}
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 pb-6 mb-8 border-b border-border-subtle">
         <div>
-          <div className="flex items-center space-x-2">
-            <span className="font-mono uppercase px-2 py-0.5 text-xs bg-zinc-800 text-zinc-200 border border-zinc-700 rounded">
+          <div className="flex items-center space-x-2.5">
+            <span className="font-mono uppercase px-2 py-0.5 text-xs text-text-secondary border border-border-subtle rounded">
               {recipe.brewMethod}
             </span>
-            <h2 className="text-xl font-bold text-zinc-100 tracking-tight">{recipe.name}</h2>
+            <h2 className="text-2xl font-bold text-text-primary tracking-tight">{recipe.name}</h2>
           </div>
-          <p className="text-xs text-zinc-400 mt-1">{recipe.description}</p>
+          <p className="text-xs text-text-muted mt-1.5">{recipe.description}</p>
 
-          {/* Active Bean Indicator / Selector */}
-          <div className="mt-2.5 flex items-center space-x-2 text-xs">
-            <div className="flex items-center space-x-1.5 text-accent font-medium font-mono">
+          {/* Active Bean Indicator / Inline Selector */}
+          <div className="mt-3 flex items-center space-x-2 text-xs">
+            <div className="flex items-center space-x-1.5 text-accent font-medium font-mono uppercase tracking-wider text-[11px]">
               <Coffee className="w-3.5 h-3.5" />
               <span>Bean:</span>
             </div>
@@ -162,7 +83,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   const b = beans.find((item) => item.id === e.target.value);
                   if (b && onSelectBean) onSelectBean(b);
                 }}
-                className="bg-panel-recessed border border-border-subtle rounded-lg px-2.5 py-1 text-xs font-mono font-medium text-zinc-200 focus:outline-none focus:border-accent cursor-pointer"
+                className="bg-panel border border-border-subtle rounded px-2.5 py-1 text-xs font-mono font-medium text-text-primary focus:outline-none focus:border-accent cursor-pointer"
               >
                 {beans.map((b) => (
                   <option key={b.id} value={b.id}>
@@ -171,158 +92,165 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 ))}
               </select>
             ) : (
-              <span className="text-zinc-300 font-medium font-mono">
+              <span className="text-text-secondary font-mono">
                 {selectedBean ? `${selectedBean.name} (${selectedBean.roaster})` : "Specialty Blend"}
               </span>
             )}
           </div>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-4">
           {/* Dose Scaler */}
-          <div className="flex items-center space-x-2 bg-panel-recessed border border-border-subtle px-3 py-1.5 rounded-lg">
-            <span className="text-xs text-zinc-400 font-mono">Coffee:</span>
+          <div className="flex items-center space-x-2 px-3 py-1.5 border border-border-subtle rounded">
+            <span className="text-xs text-text-muted font-mono uppercase text-[11px] tracking-wider">Coffee:</span>
             <input
               type="number"
               min="5"
               max="100"
               value={doseGrams}
               onChange={(e) => setDoseGrams(Math.max(5, Math.min(100, Number(e.target.value) || 0)))}
-              className="w-12 bg-transparent text-sm font-mono font-bold tabular-nums text-zinc-100 focus:outline-none text-right"
+              className="w-10 bg-transparent text-sm font-mono font-bold tabular-nums text-text-primary focus:outline-none text-right"
               aria-label="Coffee dose in grams"
             />
-            <span className="text-xs text-zinc-400 font-mono">g</span>
+            <span className="text-xs text-text-muted font-mono">g</span>
           </div>
 
           <button
             onClick={onSelectOtherRecipe}
-            className="px-3.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs font-mono font-medium text-zinc-200 transition-colors cursor-pointer"
+            className="px-3.5 py-1.5 rounded border border-border-subtle hover:border-border-active hover:bg-panel text-xs font-mono text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
           >
             Change Recipe
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Big Interactive Timer Circle & Controls */}
-        <div className="lg:col-span-7 flex flex-col items-center justify-between p-6 sm:p-8 rounded-2xl bg-panel border border-border-subtle relative overflow-hidden min-h-[520px] lg:min-h-[560px]">
-          {/* Recipe Method & Ratio Stats */}
-          <div className="flex items-center space-x-6 text-xs font-mono text-zinc-400 uppercase tracking-wider">
-            <div>METHOD: <span className="text-zinc-200 font-bold">{recipe.brewMethod}</span></div>
-            <div>RATIO: <span className="text-zinc-200 font-bold">1:{recipe.ratio}</span></div>
-          </div>
-
-          {/* Circular Progress Display */}
-          <div className="relative flex items-center justify-center my-auto">
-            <svg className="w-72 h-72 transform -rotate-90">
-              <circle
-                cx="50%"
-                cy="50%"
-                r={radius}
-                className="stroke-zinc-800"
-                strokeWidth="10"
-                fill="transparent"
-              />
-              <circle
-                ref={circleRef}
-                cx="50%"
-                cy="50%"
-                r={radius}
-                className="stroke-accent"
-                strokeWidth="10"
-                strokeDasharray={circumference}
-                strokeDashoffset={circumference}
-                strokeLinecap="round"
-                fill="transparent"
-              />
-              {/* 6% Orbital Reset Tracer Sweep */}
-              {isResetting && (
-                <circle
-                  ref={tracerRef}
-                  cx="50%"
-                  cy="50%"
-                  r={radius}
-                  className="stroke-accent"
-                  strokeWidth="10"
-                  strokeDasharray={`0 ${circumference}`}
-                  strokeDashoffset="0"
-                  strokeLinecap="round"
-                  fill="transparent"
-                />
-              )}
-            </svg>
-
-            {/* Inner Timer Digits */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <span className="text-xs uppercase font-mono tracking-widest text-accent font-semibold">
+      {/* Main Open Instrument Faceplate (2 Columns, NO Outer Card Wrappers) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+        
+        {/* Left Column: Direct Instrument Readouts (Timer + Metrics + Hardware Controls) */}
+        <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
+          
+          {/* Active Stage & Linear Progress */}
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between text-xs font-mono">
+              <span className="text-accent font-bold tracking-widest uppercase">
                 {currentStage.name}
               </span>
-              <div className="text-6xl sm:text-7xl font-extrabold font-mono tabular-nums text-zinc-100 tracking-tight mt-1">
-                {formatTime(elapsedSeconds)}
-              </div>
-              <div className="text-xs font-mono text-zinc-400 mt-1">
-                Target: {formatTime(recipe.totalTimeSeconds)}
-              </div>
+              <span className="text-text-muted">
+                {totalProgressPercent}% · Target: {formatTime(recipe.totalTimeSeconds)}
+              </span>
+            </div>
+            
+            {/* Sleek linear progress line on chassis */}
+            <div className="w-full h-1 bg-panel-recessed overflow-hidden rounded-full">
+              <div
+                className="h-full bg-accent transition-all duration-300 ease-out"
+                style={{ width: `${totalProgressPercent}%` }}
+              />
+            </div>
+          </div>
 
-              {/* Target Grams Badge */}
-              <div className="mt-3 flex items-center space-x-1.5 px-3 py-1 rounded-full bg-panel-recessed border border-zinc-700 text-zinc-200 font-mono text-xs font-semibold">
-                <Droplets className="w-3.5 h-3.5 text-accent" />
-                <span>Pour to <span className="text-zinc-100 tabular-nums font-mono">{currentStage.targetWaterWeightGrams}g</span></span>
+          {/* Oversized Tabular Digital Time Readout */}
+          <div className="py-4">
+            <div className="text-8xl sm:text-9xl font-mono font-bold tabular-nums text-text-primary tracking-tight leading-none">
+              {formatTime(elapsedSeconds)}
+            </div>
+          </div>
+
+          {/* Hairline Divider */}
+          <div className="h-px bg-border-subtle" />
+
+          {/* Primary Hardware Metrics Grid — Directly on Chassis (No mini-cards) */}
+          <div className="grid grid-cols-3 gap-6">
+            <div>
+              <div className="text-[11px] font-mono tracking-widest text-text-muted uppercase">
+                COFFEE DOSE
+              </div>
+              <div className="text-2xl sm:text-3xl font-mono font-bold text-text-primary tabular-nums mt-1">
+                {doseGrams}g
+              </div>
+            </div>
+
+            <div>
+              <div className="text-[11px] font-mono tracking-widest text-text-muted uppercase">
+                WATER TARGET
+              </div>
+              <div className="text-2xl sm:text-3xl font-mono font-bold text-text-primary tabular-nums mt-1">
+                {recipe.waterAmountGrams}g
+              </div>
+            </div>
+
+            <div>
+              <div className="text-[11px] font-mono tracking-widest text-text-muted uppercase">
+                POUR TO
+              </div>
+              <div className="text-2xl sm:text-3xl font-mono font-bold text-accent tabular-nums mt-1">
+                {currentStage.targetWaterWeightGrams}g
               </div>
             </div>
           </div>
 
-          {/* Primary Controls */}
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={toggleTimer}
-              className={`flex items-center space-x-2 px-8 py-3.5 rounded-xl font-mono text-sm uppercase tracking-wider font-bold shadow-sm cursor-pointer transition-all transform active:scale-95 ${
-                isRunning
-                  ? 'bg-accent text-zinc-950 hover:bg-accent-hover'
-                  : 'bg-zinc-100 text-zinc-950 hover:bg-white'
-              }`}
-            >
-              {isRunning ? (
-                <>
-                  <Pause className="w-5 h-5 fill-current" />
-                  <span>Pause</span>
-                </>
-              ) : (
-                <>
-                  <Play className="w-5 h-5 fill-current" />
-                  <span>{elapsedSeconds > 0 ? 'Resume' : 'Start Brew'}</span>
-                </>
-              )}
-            </button>
+          {/* Hairline Divider */}
+          <div className="h-px bg-border-subtle" />
 
-            <button
-              onClick={handleReset}
-              className="p-3.5 rounded-xl bg-zinc-800/90 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-zinc-100 cursor-pointer transition-all active:scale-95"
-              title="Reset Timer"
-              aria-label="Reset Timer"
-            >
-              <RotateCcw className={`w-5 h-5 transition-transform duration-300 ${isResetting ? "-rotate-180 text-accent" : ""}`} />
-            </button>
+          {/* Method / Ratio Specs & Tactile Physical Buttons */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
+            <div className="flex items-center space-x-6 text-xs font-mono text-text-muted uppercase tracking-wider">
+              <div>METHOD: <span className="text-text-primary font-bold">{recipe.brewMethod}</span></div>
+              <div>RATIO: <span className="text-text-primary font-bold">1:{recipe.ratio}</span></div>
+            </div>
 
-            <button
-              onClick={toggleMute}
-              className="p-3.5 rounded-xl bg-zinc-800/90 hover:bg-zinc-700 border border-zinc-700 cursor-pointer transition-colors active:scale-95"
-              title={isMuted ? "Unmute Audio Chimes" : "Mute Audio Chimes"}
-              aria-label={isMuted ? "Unmute Audio Chimes" : "Mute Audio Chimes"}
-            >
-              {isMuted ? (
-                <VolumeX className="w-5 h-5 text-zinc-500 hover:text-zinc-400 transition-colors" />
-              ) : (
-                <Volume2 className="w-5 h-5 text-accent transition-colors" />
-              )}
-            </button>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={toggleTimer}
+                className={`flex items-center space-x-2 px-8 py-3 rounded font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-all active:scale-95 ${
+                  isRunning
+                    ? 'bg-accent text-zinc-950 hover:bg-accent-hover'
+                    : 'bg-text-primary text-zinc-950 hover:bg-white'
+                }`}
+              >
+                {isRunning ? (
+                  <>
+                    <Pause className="w-4 h-4 fill-current" />
+                    <span>Pause</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4 fill-current" />
+                    <span>{elapsedSeconds > 0 ? 'Resume' : 'Start Brew'}</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={handleReset}
+                className="p-3 rounded border border-border-subtle hover:border-border-active bg-panel hover:bg-panel-recessed text-text-secondary hover:text-text-primary cursor-pointer transition-all active:scale-95"
+                title="Reset Timer"
+                aria-label="Reset Timer"
+              >
+                <RotateCcw className={`w-4 h-4 transition-transform duration-300 ${isResetting ? "-rotate-180 text-accent" : ""}`} />
+              </button>
+
+              <button
+                onClick={toggleMute}
+                className="p-3 rounded border border-border-subtle hover:border-border-active bg-panel hover:bg-panel-recessed cursor-pointer transition-colors active:scale-95"
+                title={isMuted ? "Unmute Audio Chimes" : "Mute Audio Chimes"}
+                aria-label={isMuted ? "Unmute Audio Chimes" : "Mute Audio Chimes"}
+              >
+                {isMuted ? (
+                  <VolumeX className="w-4 h-4 text-text-muted" />
+                ) : (
+                  <Volume2 className="w-4 h-4 text-accent" />
+                )}
+              </button>
+            </div>
           </div>
 
           {isFinished && (
-            <div className="mt-6 w-full animate-fade-in">
+            <div className="pt-4 animate-fade-in">
               <button
                 onClick={() => onLogCompletedBrew(recipe, elapsedSeconds, selectedBean || null)}
-                className="w-full flex items-center justify-center space-x-2 py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-sm uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all"
+                className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>Brew Complete! Rate & Log to Cupping Sheet</span>
@@ -331,18 +259,19 @@ export const TimerView: React.FC<TimerViewProps> = ({
           )}
         </div>
 
-        {/* Right: Stage Timeline & Step Guide Panel */}
-        <div className="lg:col-span-5 p-6 rounded-2xl bg-panel border border-border-subtle flex flex-col min-h-[520px] lg:min-h-[560px] overflow-hidden">
-          <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-800 flex-shrink-0">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-400 font-mono">
-              Pour Timeline
+        {/* Right Column: Open Linear Pour Timeline (No Card Enclosures) */}
+        <div className="lg:col-span-5 flex flex-col">
+          <div className="flex items-center justify-between pb-3 mb-2 border-b border-border-subtle">
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted font-mono">
+              POUR TIMELINE
             </h3>
-            <span className="text-xs font-mono text-accent">
+            <span className="text-xs font-mono text-accent font-semibold">
               {recipe.stages.length} Stages
             </span>
           </div>
 
-          <ScrollFadeContainer className="flex-1 min-h-0 space-y-3 pr-1">
+          {/* Continuous linear stage rows (No nested card boxes) */}
+          <div className="divide-y divide-border-subtle/40">
             {recipe.stages.map((stage, idx) => {
               const isCurrent = idx === currentStageIndex && elapsedSeconds > 0;
               const isPast = elapsedSeconds >= stage.startSecond + stage.durationSeconds;
@@ -350,49 +279,56 @@ export const TimerView: React.FC<TimerViewProps> = ({
               return (
                 <div
                   key={stage.id}
-                  className={`p-3.5 rounded-xl border transition-all duration-200 ${
+                  className={`py-3.5 transition-all duration-200 ${
                     isCurrent
-                      ? 'bg-panel-recessed border-accent'
+                      ? 'opacity-100'
                       : isPast
-                        ? 'bg-canvas border-zinc-800/40 opacity-50'
-                        : 'bg-panel border-border-subtle'
+                        ? 'opacity-35'
+                        : 'opacity-65'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      {isPast ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      ) : isCurrent ? (
-                        <span className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse" />
-                      ) : (
-                        <span className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-                      )}
-                      <span className={`text-sm font-semibold ${isCurrent ? 'text-zinc-100' : 'text-zinc-200'}`}>
+                  <div className="flex items-baseline justify-between">
+                    <div className="flex items-center space-x-2.5">
+                      <div
+                        className={`w-2 h-2 rounded-full transition-all ${
+                          isCurrent
+                            ? 'bg-accent ring-4 ring-accent/25 scale-110'
+                            : isPast
+                              ? 'bg-emerald-500'
+                              : 'bg-zinc-700'
+                        }`}
+                      />
+                      <span className={`text-sm font-semibold tracking-tight ${isCurrent ? 'text-text-primary' : 'text-text-secondary'}`}>
                         {stage.name}
                       </span>
                     </div>
-                    <span className="text-xs font-mono text-zinc-400">
-                      {formatTime(stage.startSecond)} ({stage.durationSeconds}s)
-                    </span>
+
+                    <div className="flex items-center space-x-4 text-xs font-mono">
+                      <span className="text-text-muted">
+                        {formatTime(stage.startSecond)} ({stage.durationSeconds}s)
+                      </span>
+                      <span className="font-bold text-text-primary tabular-nums">
+                        {stage.targetWaterWeightGrams}g
+                      </span>
+                    </div>
                   </div>
 
-                  <p className="text-xs text-zinc-300 mt-2 leading-relaxed">
+                  <p className="text-xs text-text-secondary mt-1.5 pl-4.5 leading-relaxed">
                     {stage.instruction}
                   </p>
-
-                  <div className="mt-2 flex items-center justify-between text-[11px] text-zinc-400 font-mono">
-                    <span>Target Weight:</span>
-                    <span className="text-zinc-100 font-bold tabular-nums font-mono">{stage.targetWaterWeightGrams}g</span>
-                  </div>
                 </div>
               );
             })}
-          </ScrollFadeContainer>
+          </div>
 
-          <div className="mt-3 pt-3 border-t border-zinc-800 text-center text-xs text-zinc-500 font-mono flex-shrink-0">
-            Total Target Extraction: {formatTime(recipe.totalTimeSeconds)}
+          <div className="mt-4 pt-3 border-t border-border-subtle flex items-center justify-between text-xs text-text-muted font-mono">
+            <span>TOTAL EXTRACTION TARGET</span>
+            <span className="text-text-primary font-bold tabular-nums">
+              {formatTime(recipe.totalTimeSeconds)}
+            </span>
           </div>
         </div>
+
       </div>
     </div>
   );
