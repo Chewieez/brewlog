@@ -224,7 +224,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
       {/* Add Bean Modal */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="add-bean-modal-title"
