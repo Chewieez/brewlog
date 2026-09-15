@@ -1,34 +1,59 @@
 @import "tailwindcss";
 
+:root {
+  --color-canvas: #121214;
+  --color-panel: #18181b;
+  --color-panel-recessed: #202024;
+  --color-border-subtle: #27272a;
+  --color-border-active: #3f3f46;
+  --color-accent: #d97736;
+  --color-accent-hover: #e88344;
+  --color-text-primary: #f4f4f5;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+  --color-status-success: #22c55e;
+  --color-status-warning: #f59e0b;
+}
+
 @theme {
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  --color-canvas: #121214;
-  --color-surface-panel: #18181b;
-  --color-surface-recessed: #202024;
-  --color-border-subtle: #27272a;
-  --color-border-active: #3f3f46;
-  --color-copper: #d97736;
-  --color-copper-hover: #e88344;
-  --color-bone: #f4f4f5;
-  --color-bone-muted: #a1a1aa;
+  --color-canvas: var(--color-canvas);
+  --color-panel: var(--color-panel);
+  --color-panel-recessed: var(--color-panel-recessed);
+  --color-border-subtle: var(--color-border-subtle);
+  --color-border-active: var(--color-border-active);
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-status-success: var(--color-status-success);
+  --color-status-warning: var(--color-status-warning);
+
+  --color-surface-panel: var(--color-panel);
+  --color-surface-recessed: var(--color-panel-recessed);
+  --color-copper: var(--color-accent);
+  --color-copper-hover: var(--color-accent-hover);
+  --color-bone: var(--color-text-primary);
+  --color-bone-muted: var(--color-text-secondary);
 }
 
 @layer base {
   body {
     font-family: var(--font-sans);
-    background-color: #121214;
-    color: #f4f4f5;
+    background-color: var(--color-canvas);
+    color: var(--color-text-primary);
   }
 }
 
 .hardware-panel {
-  background-color: #18181b;
-  border: 1px solid #27272a;
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border-subtle);
 }
 
 .hardware-panel-inset {
-  background-color: #202024;
-  border: 1px solid #27272a;
+  background-color: var(--color-panel-recessed);
+  border: 1px solid var(--color-border-subtle);
 }

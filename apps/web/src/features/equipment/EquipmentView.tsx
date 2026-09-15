@@ -59,7 +59,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-[#d97736] hover:bg-[#e88344] text-zinc-950 font-bold shadow-sm cursor-pointer transition-colors"
+          className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-bold shadow-sm cursor-pointer transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span>Add Equipment</span>
@@ -69,12 +69,12 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       {/* Grinders Section */}
       <div>
         <div className="flex items-center space-x-2 mb-4">
-          <Sliders className="w-5 h-5 text-[#d97736]" />
+          <Sliders className="w-5 h-5 text-accent" />
           <h3 className="text-lg font-bold text-zinc-100">Grinders ({grinders.length})</h3>
         </div>
 
         {grinders.length === 0 ? (
-          <div className="p-6 rounded-2xl bg-[#18181b]/50 border border-dashed border-zinc-800 text-center text-xs text-zinc-500">
+          <div className="p-6 rounded-2xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-zinc-500">
             No grinders logged yet.
           </div>
         ) : (
@@ -82,10 +82,10 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
             {grinders.map((g) => (
               <div
                 key={g.id}
-                className="relative group p-4 rounded-2xl bg-[#18181b] border border-zinc-800 hover:border-zinc-700 transition-colors shadow-sm"
+                className="relative group p-4 rounded-2xl bg-panel border border-border-subtle hover:border-zinc-700 transition-colors shadow-sm"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#d97736] uppercase tracking-wider font-mono">
+                  <span className="text-xs font-bold text-accent uppercase tracking-wider font-mono">
                     {g.brand}
                   </span>
                   <div className="flex items-center space-x-2">
@@ -122,12 +122,12 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       {/* Brewers Section */}
       <div>
         <div className="flex items-center space-x-2 mb-4">
-          <Coffee className="w-5 h-5 text-[#d97736]" />
+          <Coffee className="w-5 h-5 text-accent" />
           <h3 className="text-lg font-bold text-zinc-100">Brewers & Drippers ({brewers.length})</h3>
         </div>
 
         {brewers.length === 0 ? (
-          <div className="p-6 rounded-2xl bg-[#18181b]/50 border border-dashed border-zinc-800 text-center text-xs text-zinc-500">
+          <div className="p-6 rounded-2xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-zinc-500">
             No brewers logged yet.
           </div>
         ) : (
@@ -135,10 +135,10 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
             {brewers.map((b) => (
               <div
                 key={b.id}
-                className="relative group p-4 rounded-2xl bg-[#18181b] border border-zinc-800 hover:border-zinc-700 transition-colors shadow-sm"
+                className="relative group p-4 rounded-2xl bg-panel border border-border-subtle hover:border-zinc-700 transition-colors shadow-sm"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#d97736] uppercase tracking-wider font-mono">
+                  <span className="text-xs font-bold text-accent uppercase tracking-wider font-mono">
                     {b.brand}
                   </span>
                   <div className="flex items-center space-x-2">
@@ -170,12 +170,12 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       {/* Scales Section */}
       <div>
         <div className="flex items-center space-x-2 mb-4">
-          <Scale className="w-5 h-5 text-[#d97736]" />
+          <Scale className="w-5 h-5 text-accent" />
           <h3 className="text-lg font-bold text-zinc-100">Precision Scales ({scales.length})</h3>
         </div>
 
         {scales.length === 0 ? (
-          <div className="p-6 rounded-2xl bg-[#18181b]/50 border border-dashed border-zinc-800 text-center text-xs text-zinc-500">
+          <div className="p-6 rounded-2xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-zinc-500">
             No scales logged yet. Add your brew scale to track 0.1g dose and flow rate.
           </div>
         ) : (
@@ -183,10 +183,10 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
             {scales.map((s) => (
               <div
                 key={s.id}
-                className="relative group p-4 rounded-2xl bg-[#18181b] border border-zinc-800 hover:border-zinc-700 transition-colors shadow-sm"
+                className="relative group p-4 rounded-2xl bg-panel border border-border-subtle hover:border-zinc-700 transition-colors shadow-sm"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#d97736] uppercase tracking-wider font-mono">
+                  <span className="text-xs font-bold text-accent uppercase tracking-wider font-mono">
                     {s.brand}
                   </span>
                   <div className="flex items-center space-x-2">
@@ -218,12 +218,12 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       {/* Kettles Section */}
       <div>
         <div className="flex items-center space-x-2 mb-4">
-          <Flame className="w-5 h-5 text-[#d97736]" />
+          <Flame className="w-5 h-5 text-accent" />
           <h3 className="text-lg font-bold text-zinc-100">Kettles & Water Gear ({kettles.length})</h3>
         </div>
 
         {kettles.length === 0 ? (
-          <div className="p-6 rounded-2xl bg-[#18181b]/50 border border-dashed border-zinc-800 text-center text-xs text-zinc-500">
+          <div className="p-6 rounded-2xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-zinc-500">
             No kettles logged yet. Add your gooseneck or temperature kettle.
           </div>
         ) : (
@@ -231,10 +231,10 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
             {kettles.map((k) => (
               <div
                 key={k.id}
-                className="relative group p-4 rounded-2xl bg-[#18181b] border border-zinc-800 hover:border-zinc-700 transition-colors shadow-sm"
+                className="relative group p-4 rounded-2xl bg-panel border border-border-subtle hover:border-zinc-700 transition-colors shadow-sm"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#d97736] uppercase tracking-wider font-mono">
+                  <span className="text-xs font-bold text-accent uppercase tracking-wider font-mono">
                     {k.brand}
                   </span>
                   <div className="flex items-center space-x-2">
@@ -276,7 +276,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
             }
           }}
         >
-          <div className="w-full max-w-md p-6 rounded-2xl bg-[#18181b] border border-zinc-800 shadow-2xl space-y-4">
+          <div className="w-full max-w-md p-6 rounded-2xl bg-panel border border-border-subtle shadow-2xl space-y-4">
             <div className="flex items-center justify-between pb-1 border-b border-zinc-800">
               <h3 id="add-equipment-modal-title" className="text-lg font-bold text-zinc-100">
                 Add Equipment
@@ -299,18 +299,18 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                 <select
                   value={type}
                   onChange={(e) => setType(e.target.value as EquipmentType)}
-                  className="w-full px-3 py-2 rounded-xl bg-[#202024] border border-zinc-800 text-zinc-100 text-sm focus:outline-none focus:border-[#d97736] transition-colors cursor-pointer"
+                  className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-zinc-100 text-sm focus:outline-none focus:border-accent transition-colors cursor-pointer"
                 >
-                  <option value="grinder" className="bg-[#202024] text-zinc-100">Grinder</option>
-                  <option value="brewer" className="bg-[#202024] text-zinc-100">Brewer / Dripper</option>
-                  <option value="scale" className="bg-[#202024] text-zinc-100">Precision Scale</option>
-                  <option value="kettle" className="bg-[#202024] text-zinc-100">Kettle</option>
+                  <option value="grinder" className="bg-panel-recessed text-zinc-100">Grinder</option>
+                  <option value="brewer" className="bg-panel-recessed text-zinc-100">Brewer / Dripper</option>
+                  <option value="scale" className="bg-panel-recessed text-zinc-100">Precision Scale</option>
+                  <option value="kettle" className="bg-panel-recessed text-zinc-100">Kettle</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-zinc-300 mb-1">
-                  Brand Name <span className="text-[#d97736] font-bold">*</span>
+                  Brand Name <span className="text-accent font-bold">*</span>
                 </label>
                 <input
                   type="text"
@@ -326,13 +326,13 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                   }
                   value={brand}
                   onChange={(e) => setBrand(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-[#202024] border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-[#d97736] transition-colors"
+                  className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-zinc-300 mb-1">
-                  Model Name <span className="text-[#d97736] font-bold">*</span>
+                  Model Name <span className="text-accent font-bold">*</span>
                 </label>
                 <input
                   type="text"
@@ -348,7 +348,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                   }
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-[#202024] border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-[#d97736] transition-colors"
+                  className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
 
@@ -375,7 +375,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                   }
                   value={subType}
                   onChange={(e) => setSubType(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-[#202024] border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-[#d97736] transition-colors"
+                  className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
 
@@ -387,11 +387,11 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                   <select
                     value={settingScaleType}
                     onChange={(e) => setSettingScaleType(e.target.value as any)}
-                    className="w-full px-3 py-2 rounded-xl bg-[#202024] border border-zinc-800 text-zinc-100 text-sm focus:outline-none focus:border-[#d97736] transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-zinc-100 text-sm focus:outline-none focus:border-accent transition-colors cursor-pointer"
                   >
-                    <option value="stepped-numbers" className="bg-[#202024] text-zinc-100">Stepped Numbers (e.g. 4.1, 5.2)</option>
-                    <option value="clicks" className="bg-[#202024] text-zinc-100">Clicks from Zero (e.g. 24 clicks)</option>
-                    <option value="stepless" className="bg-[#202024] text-zinc-100">Stepless Dial</option>
+                    <option value="stepped-numbers" className="bg-panel-recessed text-zinc-100">Stepped Numbers (e.g. 4.1, 5.2)</option>
+                    <option value="clicks" className="bg-panel-recessed text-zinc-100">Clicks from Zero (e.g. 24 clicks)</option>
+                    <option value="stepless" className="bg-panel-recessed text-zinc-100">Stepless Dial</option>
                   </select>
                 </div>
               )}
@@ -403,7 +403,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                   placeholder="e.g. Preferred settings, accessories, or calibration notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-[#202024] border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-[#d97736] transition-colors"
+                  className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
 
@@ -417,7 +417,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#d97736] hover:bg-[#e88344] text-zinc-950 font-bold text-sm shadow-sm transition-colors cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-bold text-sm shadow-sm transition-colors cursor-pointer"
                 >
                   Save Equipment
                 </button>

@@ -38,13 +38,13 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
   const stages = scaledRecipe.stages || (scaledRecipe as unknown as { steps: typeof scaledRecipe.stages }).steps || [];
 
   return (
-    <div className="p-6 rounded-2xl bg-[#18181b] border border-zinc-800 space-y-6">
+    <div className="p-6 rounded-2xl bg-panel border border-border-subtle space-y-6">
       {/* Mobile Back Button */}
       {showMobileBackButton && (
         <div className="lg:hidden pb-2 border-b border-zinc-800">
           <Link
             to="/recipes"
-            className="inline-flex items-center space-x-2 text-xs font-semibold text-[#d97736] hover:text-[#e88344] transition-colors"
+            className="inline-flex items-center space-x-2 text-xs font-semibold text-accent hover:text-accent-hover transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Recipes</span>
@@ -60,7 +60,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
               {recipe.brewMethod}
             </span>
             {isCustom ? (
-              <span className="px-2.5 py-1 rounded-md text-xs font-bold font-mono uppercase tracking-wider bg-[#d97736]/10 text-[#d97736] border border-[#d97736]/30">
+              <span className="px-2.5 py-1 rounded-md text-xs font-bold font-mono uppercase tracking-wider bg-accent/10 text-accent border border-accent/30">
                 Custom
               </span>
             ) : (
@@ -104,7 +104,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
       </div>
 
       {/* Dose Rescaler Slider */}
-      <div className="p-4 rounded-xl bg-[#202024] border border-zinc-800 space-y-2.5">
+      <div className="p-4 rounded-xl bg-panel-recessed border border-border-subtle space-y-2.5">
         <div className="flex items-center justify-between text-xs">
           <span className="text-zinc-400 font-medium font-mono uppercase tracking-wider text-[11px]">Coffee Dose</span>
           <span className="text-zinc-100 font-mono font-bold text-base tabular-nums">
@@ -119,7 +119,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           step={0.5}
           value={customDose}
           onChange={(e) => setCustomDose(parseFloat(e.target.value))}
-          className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-[#d97736] focus:outline-none"
+          className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-accent focus:outline-none"
         />
         <div className="flex justify-between text-[10px] text-zinc-500 font-mono">
           <span>10g</span>
@@ -131,8 +131,8 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
 
       {/* Specifications Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3.5 rounded-xl bg-[#18181b] border border-zinc-800 flex items-center space-x-3">
-          <div className="p-2 rounded-lg bg-[#202024] text-[#d97736] border border-zinc-800">
+        <div className="p-3.5 rounded-xl bg-panel border border-border-subtle flex items-center space-x-3">
+          <div className="p-2 rounded-lg bg-panel-recessed text-accent border border-border-subtle">
             <Droplets className="w-4 h-4" />
           </div>
           <div>
@@ -143,8 +143,8 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#18181b] border border-zinc-800 flex items-center space-x-3">
-          <div className="p-2 rounded-lg bg-[#202024] text-[#d97736] border border-zinc-800">
+        <div className="p-3.5 rounded-xl bg-panel border border-border-subtle flex items-center space-x-3">
+          <div className="p-2 rounded-lg bg-panel-recessed text-accent border border-border-subtle">
             <BookOpen className="w-4 h-4" />
           </div>
           <div>
@@ -155,8 +155,8 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#18181b] border border-zinc-800 flex items-center space-x-3">
-          <div className="p-2 rounded-lg bg-[#202024] text-[#d97736] border border-zinc-800">
+        <div className="p-3.5 rounded-xl bg-panel border border-border-subtle flex items-center space-x-3">
+          <div className="p-2 rounded-lg bg-panel-recessed text-accent border border-border-subtle">
             <Clock className="w-4 h-4" />
           </div>
           <div>
@@ -167,8 +167,8 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#18181b] border border-zinc-800 flex items-center space-x-3">
-          <div className="p-2 rounded-lg bg-[#202024] text-[#d97736] border border-zinc-800">
+        <div className="p-3.5 rounded-xl bg-panel border border-border-subtle flex items-center space-x-3">
+          <div className="p-2 rounded-lg bg-panel-recessed text-accent border border-border-subtle">
             <Thermometer className="w-4 h-4" />
           </div>
           <div>
@@ -193,7 +193,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
             return (
               <div
                 key={step.id || idx}
-                className="p-3.5 rounded-xl bg-[#202024] border border-zinc-800 flex items-start space-x-3"
+                className="p-3.5 rounded-xl bg-panel-recessed border border-border-subtle flex items-start space-x-3"
               >
                 <div className="flex items-center justify-center w-6 h-6 rounded-full bg-zinc-800 text-zinc-300 text-xs font-mono font-bold shrink-0 border border-zinc-700">
                   {idx + 1}

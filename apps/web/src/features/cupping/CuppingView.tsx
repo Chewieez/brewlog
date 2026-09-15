@@ -81,8 +81,8 @@ const DEFAULT_SCORES: CuppingAttributes = SPECIALTY_BASELINE_SCORES;
 
 export const getScaClassification = (score: number) => {
   if (score >= 90) return { label: 'Outstanding (Specialty)', color: 'text-emerald-300 bg-emerald-950/50 border-emerald-800' };
-  if (score >= 85) return { label: 'Excellent (Specialty)', color: 'text-[#d97736] bg-[#202024] border-[#d97736]/50' };
-  if (score >= 80) return { label: 'Very Good (Specialty)', color: 'text-zinc-200 bg-[#202024] border-zinc-700' };
+  if (score >= 85) return { label: 'Excellent (Specialty)', color: 'text-accent bg-panel-recessed border-accent/50' };
+  if (score >= 80) return { label: 'Very Good (Specialty)', color: 'text-zinc-200 bg-panel-recessed border-zinc-700' };
   return { label: 'Commercial / Below Specialty (<80)', color: 'text-zinc-400 bg-zinc-900 border-zinc-800' };
 };
 
@@ -238,13 +238,13 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
 
       {/* Pending Session Alert Banner */}
       {pendingBrewSession && (
-        <div className="p-4 rounded-xl bg-[#18181b] border border-zinc-800 flex items-center justify-between gap-4 animate-fade-in">
+        <div className="p-4 rounded-xl bg-panel border border-border-subtle flex items-center justify-between gap-4 animate-fade-in">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg bg-[#202024] border border-zinc-700 text-[#d97736] flex items-center justify-center font-bold flex-shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-panel-recessed border border-zinc-700 text-accent flex items-center justify-center font-bold flex-shrink-0">
               <Coffee className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xs font-mono font-semibold text-[#d97736] uppercase tracking-wider">
+              <div className="text-xs font-mono font-semibold text-accent uppercase tracking-wider">
                 Completed Brew Loaded
               </div>
               <div className="text-sm font-bold text-zinc-100 mt-0.5">
@@ -266,11 +266,11 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
       {/* Form and Wheel Grid */}
       <form onSubmit={handleSaveTastingLog} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Session Details, SCA Sliders, Notes & Save Action */}
-        <div className="lg:col-span-6 p-6 rounded-2xl bg-[#18181b] border border-zinc-800 shadow-sm space-y-6">
+        <div className="lg:col-span-6 p-6 rounded-2xl bg-panel border border-border-subtle shadow-sm space-y-6">
           {/* Card Header: Score Badge */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-zinc-800">
             <div>
-              <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[#d97736]">
+              <span className="text-xs font-mono font-semibold uppercase tracking-wider text-accent">
                 Official SCA Cupping Matrix (10 Attributes)
               </span>
               <div className="flex flex-wrap items-center gap-2 mt-0.5">
@@ -279,7 +279,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
             </div>
 
             <div className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-zinc-800 border border-zinc-700 self-start sm:self-auto shadow-sm">
-              <Award className="w-5 h-5 text-[#d97736] shrink-0" />
+              <Award className="w-5 h-5 text-accent shrink-0" />
               <span className="text-2xl font-extrabold font-mono text-zinc-100 tabular-nums">
                 {scaScore.toFixed(1)}
               </span>
@@ -292,8 +292,8 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
           </div>
 
           {/* Coffee & Brew Parameters */}
-          <div className="p-4 rounded-xl bg-[#202024] border border-zinc-800 space-y-3">
-            <div className="flex items-center space-x-2 text-xs font-mono font-bold text-[#d97736] uppercase tracking-wider">
+          <div className="p-4 rounded-xl bg-panel-recessed border border-border-subtle space-y-3">
+            <div className="flex items-center space-x-2 text-xs font-mono font-bold text-accent uppercase tracking-wider">
               <Coffee className="w-4 h-4" />
               <span>Coffee & Brew Parameters</span>
             </div>
@@ -311,7 +311,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                       setCustomRoaster(b.roaster);
                     }
                   }}
-                  className="w-full px-3 py-2 rounded-lg bg-[#18181b] border border-zinc-800 text-zinc-200 font-semibold focus:outline-none focus:border-[#d97736] cursor-pointer"
+                  className="w-full px-3 py-2 rounded-lg bg-panel border border-border-subtle text-zinc-200 font-semibold focus:outline-none focus:border-accent cursor-pointer"
                 >
                   {beans.map((b) => (
                     <option key={b.id} value={b.id}>
@@ -332,7 +332,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                       placeholder="e.g. Worka Sakaro"
                       value={customBeanName}
                       onChange={(e) => setCustomBeanName(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-lg bg-[#18181b] border border-zinc-800 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-[#d97736]"
+                      className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-accent"
                     />
                   </div>
                   <div>
@@ -343,7 +343,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                       placeholder="e.g. Sey Coffee"
                       value={customRoaster}
                       onChange={(e) => setCustomRoaster(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-lg bg-[#18181b] border border-zinc-800 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-[#d97736]"
+                      className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-accent"
                     />
                   </div>
                 </div>
@@ -355,7 +355,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                   <select
                     value={brewMethod}
                     onChange={(e) => setBrewMethod(e.target.value as BrewMethodType)}
-                    className="w-full px-3 py-1.5 rounded-lg bg-[#18181b] border border-zinc-800 text-zinc-200 font-medium focus:outline-none focus:border-[#d97736] cursor-pointer"
+                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-200 font-medium focus:outline-none focus:border-accent cursor-pointer"
                   >
                     {BREW_METHODS.map((m) => (
                       <option key={m.value} value={m.value}>
@@ -373,7 +373,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                     max="1800"
                     value={actualTimeSeconds}
                     onChange={(e) => setActualTimeSeconds(Number(e.target.value))}
-                    className="w-full px-3 py-1.5 rounded-lg bg-[#18181b] border border-zinc-800 text-[#d97736] font-mono font-bold focus:outline-none focus:border-[#d97736]"
+                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-accent font-mono font-bold focus:outline-none focus:border-accent"
                   />
                 </div>
               </div>
@@ -388,7 +388,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                     max="150"
                     value={coffeeDoseGrams}
                     onChange={(e) => setCoffeeDoseGrams(Number(e.target.value))}
-                    className="w-full px-3 py-1.5 rounded-lg bg-[#18181b] border border-zinc-800 text-zinc-100 font-mono focus:outline-none focus:border-[#d97736]"
+                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-100 font-mono focus:outline-none focus:border-accent"
                   />
                 </div>
 
@@ -400,7 +400,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                     max="2000"
                     value={waterAmountGrams}
                     onChange={(e) => setWaterAmountGrams(Number(e.target.value))}
-                    className="w-full px-3 py-1.5 rounded-lg bg-[#18181b] border border-zinc-800 text-zinc-100 font-mono focus:outline-none focus:border-[#d97736]"
+                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-100 font-mono focus:outline-none focus:border-accent"
                   />
                 </div>
               </div>
@@ -417,7 +417,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setScores(SPECIALTY_BASELINE_SCORES)}
-                  className="text-[#d97736] hover:text-[#e88344] transition-colors font-medium cursor-pointer"
+                  className="text-accent hover:text-accent-hover transition-colors font-medium cursor-pointer"
                 >
                   Baseline (82.5)
                 </button>
@@ -455,7 +455,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                       <span className="font-medium text-zinc-200">{label}</span>
                       <span className="text-[10px] text-zinc-500 ml-1.5 hidden sm:inline">({hint})</span>
                     </div>
-                    <span className="font-mono font-bold text-[#d97736] tabular-nums">
+                    <span className="font-mono font-bold text-accent tabular-nums">
                       {(scores[key] ?? 0).toFixed(1)}
                     </span>
                   </div>
@@ -467,7 +467,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                     aria-label={`${label} score`}
                     value={scores[key] ?? 0}
                     onChange={(e) => handleSliderChange(key, Number(e.target.value))}
-                    className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-[#d97736] focus:outline-none"
+                    className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-accent focus:outline-none"
                   />
                 </div>
               ))}
@@ -495,7 +495,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                       <span className="font-medium text-zinc-200">{label}</span>
                       <span className="text-[10px] text-zinc-500 ml-1.5 hidden sm:inline">({hint})</span>
                     </div>
-                    <span className="font-mono font-bold text-[#d97736] tabular-nums">
+                    <span className="font-mono font-bold text-accent tabular-nums">
                       {(scores[key] ?? 0).toFixed(1)}
                     </span>
                   </div>
@@ -507,7 +507,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                     aria-label={`${label} score`}
                     value={scores[key] ?? 0}
                     onChange={(e) => handleSliderChange(key, Number(e.target.value))}
-                    className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-[#d97736] focus:outline-none"
+                    className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-accent focus:outline-none"
                   />
                 </div>
               ))}
@@ -525,7 +525,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                 placeholder="e.g. Vibrant peach and white tea notes, crisp malic acidity, silky finish..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-[#202024] border border-zinc-800 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-[#d97736] resize-none"
+                className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-accent resize-none"
               />
             </div>
 
@@ -542,13 +542,13 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                   >
                     <Star
                       className={`w-4 h-4 ${rating >= star
-                          ? 'text-[#d97736] fill-[#d97736]'
+                          ? 'text-accent fill-accent'
                           : 'text-zinc-700'
                         }`}
                     />
                   </button>
                 ))}
-                <span className="text-xs font-mono font-bold text-[#d97736] ml-1">
+                <span className="text-xs font-mono font-bold text-accent ml-1">
                   {rating.toFixed(1)}
                 </span>
               </div>
@@ -559,7 +559,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                   type="checkbox"
                   checked={wouldBrewAgain}
                   onChange={(e) => setWouldBrewAgain(e.target.checked)}
-                  className="w-4 h-4 accent-[#d97736] rounded cursor-pointer"
+                  className="w-4 h-4 accent-accent rounded cursor-pointer"
                 />
                 <span>Would brew again</span>
               </label>
@@ -577,7 +577,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
               <button
                 type="submit"
                 disabled={isSaving}
-                className="w-full flex items-center justify-center space-x-2 py-3.5 px-4 rounded-xl bg-[#d97736] hover:bg-[#e88344] text-zinc-950 font-bold text-sm shadow-sm cursor-pointer transition-all disabled:opacity-50"
+                className="w-full flex items-center justify-center space-x-2 py-3.5 px-4 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-bold text-sm shadow-sm cursor-pointer transition-all disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
                 <span>{isSaving ? 'Saving Tasting Log...' : 'Save Tasting Log to Book'}</span>
@@ -587,22 +587,22 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
         </div>
 
         {/* Right Column: Interactive SCA Sensory Wheel & Tag Selector */}
-        <div className="lg:col-span-6 p-6 rounded-2xl bg-[#18181b] border border-zinc-800 shadow-sm flex flex-col space-y-4">
+        <div className="lg:col-span-6 p-6 rounded-2xl bg-panel border border-border-subtle shadow-sm flex flex-col space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
             <div>
-              <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[#d97736]">
+              <span className="text-xs font-mono font-semibold uppercase tracking-wider text-accent">
                 SCA Sensory Wheel
               </span>
               <h3 className="text-lg font-bold text-zinc-100 mt-0.5">Tasting Descriptors</h3>
             </div>
 
             {/* Segmented View Mode Toggle */}
-            <div className="flex items-center space-x-1 p-1 rounded-xl bg-[#202024] border border-zinc-800">
+            <div className="flex items-center space-x-1 p-1 rounded-xl bg-panel-recessed border border-border-subtle">
               <button
                 type="button"
                 onClick={() => setFlavorViewMode('wheel')}
                 className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-medium cursor-pointer transition-all ${flavorViewMode === 'wheel'
-                    ? 'bg-[#d97736] text-zinc-950 font-bold shadow-sm'
+                    ? 'bg-accent text-zinc-950 font-bold shadow-sm'
                     : 'text-zinc-400 hover:text-zinc-200'
                   }`}
               >
@@ -614,7 +614,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                 type="button"
                 onClick={() => setFlavorViewMode('tags')}
                 className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-medium cursor-pointer transition-all ${flavorViewMode === 'tags'
-                    ? 'bg-[#d97736] text-zinc-950 font-bold shadow-sm'
+                    ? 'bg-accent text-zinc-950 font-bold shadow-sm'
                     : 'text-zinc-400 hover:text-zinc-200'
                   }`}
               >
@@ -625,7 +625,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
           </div>
 
           {/* Active Selected Tags Bar */}
-          <div className="min-h-11 p-2 rounded-xl bg-[#141416] border border-zinc-800 flex flex-wrap gap-1.5 items-center">
+          <div className="min-h-11 p-2 rounded-xl bg-canvas border border-border-subtle flex flex-wrap gap-1.5 items-center">
             {selectedTags.length === 0 && (
               <span className="text-xs text-zinc-500 italic pl-1">
                 Select notes on the wheel or list to tag this cup...
@@ -637,7 +637,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                 type="button"
                 onClick={() => toggleFlavorTag(tag)}
                 aria-label={`Remove flavor tag ${tag}`}
-                className="inline-flex items-center space-x-2 px-3 py-1 rounded-lg text-xs font-semibold bg-[#202024] text-[#d97736] border border-[#d97736] cursor-pointer hover:bg-red-950/30 hover:text-red-300 hover:border-red-500/60 transition-colors select-none group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d97736]"
+                className="inline-flex items-center space-x-2 px-3 py-1 rounded-lg text-xs font-semibold bg-panel-recessed text-accent border border-accent cursor-pointer hover:bg-red-950/30 hover:text-red-300 hover:border-red-500/60 transition-colors select-none group focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 <span>{tag}</span>
                 <span className="text-[11px] font-mono group-hover:text-red-300 transition-colors pl-1" aria-hidden="true">
@@ -681,7 +681,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                               type="button"
                               onClick={() => toggleFlavorTag(desc)}
                               className={`px-2.5 py-1 rounded-lg text-xs font-medium cursor-pointer transition-all ${isSelected
-                                  ? 'bg-[#202024] border-[#d97736] text-[#d97736] font-semibold border shadow-sm'
+                                  ? 'bg-panel-recessed border-accent text-accent font-semibold border shadow-sm'
                                   : 'bg-zinc-800 text-zinc-300 border border-zinc-700 hover:bg-zinc-700 hover:text-zinc-100'
                                 }`}
                             >
@@ -707,7 +707,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
         </div>
 
         {logs.length === 0 ? (
-          <div className="p-8 rounded-xl bg-[#18181b] border border-zinc-800 text-center text-zinc-400 text-sm">
+          <div className="p-8 rounded-xl bg-panel border border-border-subtle text-center text-zinc-400 text-sm">
             No tasting logs recorded yet. Score your first brew above!
           </div>
         ) : (
@@ -715,11 +715,11 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
             {logs.map((log) => (
               <div
                 key={log.id}
-                className="p-5 rounded-xl bg-[#18181b] border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                className="p-5 rounded-xl bg-panel border border-border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs font-mono font-bold text-[#d97736] uppercase tracking-wider">
+                    <span className="text-xs font-mono font-bold text-accent uppercase tracking-wider">
                       {log.brewMethod}
                     </span>
                     <span className="text-xs text-zinc-600">•</span>
@@ -729,7 +729,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                     {log.rating && (
                       <>
                         <span className="text-xs text-zinc-600">•</span>
-                        <div className="flex items-center text-[#d97736] text-xs font-mono">
+                        <div className="flex items-center text-accent text-xs font-mono">
                           <Star className="w-3 h-3 fill-current mr-0.5" />
                           <span>{log.rating}</span>
                         </div>
@@ -761,7 +761,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                 </div>
 
                 <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-3 sm:pt-0 border-zinc-800">
-                  <div className="text-xl font-extrabold font-mono text-[#d97736]">
+                  <div className="text-xl font-extrabold font-mono text-accent">
                     {log.calculatedScaScore}{' '}
                     <span className="text-xs text-zinc-400 font-sans">SCA pts</span>
                   </div>

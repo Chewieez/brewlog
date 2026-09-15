@@ -23,7 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-zinc-800/90 bg-[#121214]/95">
+    <header className="sticky top-0 z-40 w-full border-b border-zinc-800/90 bg-canvas/95">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-3">
           {/* Logo */}
@@ -32,8 +32,8 @@ export const Header: React.FC<HeaderProps> = ({
             className="group flex items-center space-x-2.5 cursor-pointer select-none flex-shrink-0 bg-transparent border-0 p-0 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-xl"
             aria-label="BrewLog Home, switch to Brew Assistant"
           >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#18181b] border border-zinc-800 group-hover:border-[#d97736]/60 transition-colors flex items-center justify-center flex-shrink-0 shadow-sm">
-              <Coffee className="w-4 h-4 sm:w-5 sm:h-5 text-[#d97736]" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-panel border border-border-subtle group-hover:border-accent/60 transition-colors flex items-center justify-center flex-shrink-0 shadow-sm">
+              <Coffee className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
             </div>
             <div>
               <span className="text-lg sm:text-xl font-bold tracking-tight text-zinc-100">

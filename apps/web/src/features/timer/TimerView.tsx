@@ -139,7 +139,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Top Banner & Recipe Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-[#18181b] border border-zinc-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-panel border border-border-subtle">
         <div>
           <div className="flex items-center space-x-2">
             <span className="font-mono uppercase px-2 py-0.5 text-xs bg-zinc-800 text-zinc-200 border border-zinc-700 rounded">
@@ -151,7 +151,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
           {/* Active Bean Indicator / Selector */}
           <div className="mt-2.5 flex items-center space-x-2 text-xs">
-            <div className="flex items-center space-x-1.5 text-[#d97736] font-medium font-mono">
+            <div className="flex items-center space-x-1.5 text-accent font-medium font-mono">
               <Coffee className="w-3.5 h-3.5" />
               <span>Bean:</span>
             </div>
@@ -162,7 +162,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   const b = beans.find((item) => item.id === e.target.value);
                   if (b && onSelectBean) onSelectBean(b);
                 }}
-                className="bg-[#202024] border border-zinc-800 rounded-lg px-2.5 py-1 text-xs font-mono font-medium text-zinc-200 focus:outline-none focus:border-[#d97736] cursor-pointer"
+                className="bg-panel-recessed border border-border-subtle rounded-lg px-2.5 py-1 text-xs font-mono font-medium text-zinc-200 focus:outline-none focus:border-accent cursor-pointer"
               >
                 {beans.map((b) => (
                   <option key={b.id} value={b.id}>
@@ -180,7 +180,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
         <div className="flex items-center space-x-3">
           {/* Dose Scaler */}
-          <div className="flex items-center space-x-2 bg-[#202024] border border-zinc-800 px-3 py-1.5 rounded-lg">
+          <div className="flex items-center space-x-2 bg-panel-recessed border border-border-subtle px-3 py-1.5 rounded-lg">
             <span className="text-xs text-zinc-400 font-mono">Coffee:</span>
             <input
               type="number"
@@ -205,7 +205,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Big Interactive Timer Circle & Controls */}
-        <div className="lg:col-span-7 flex flex-col items-center justify-between p-6 sm:p-8 rounded-2xl bg-[#18181b] border border-zinc-800 relative overflow-hidden min-h-[520px] lg:min-h-[560px]">
+        <div className="lg:col-span-7 flex flex-col items-center justify-between p-6 sm:p-8 rounded-2xl bg-panel border border-border-subtle relative overflow-hidden min-h-[520px] lg:min-h-[560px]">
           {/* Recipe Method & Ratio Stats */}
           <div className="flex items-center space-x-6 text-xs font-mono text-zinc-400 uppercase tracking-wider">
             <div>METHOD: <span className="text-zinc-200 font-bold">{recipe.brewMethod}</span></div>
@@ -228,7 +228,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 cx="50%"
                 cy="50%"
                 r={radius}
-                className="stroke-[#d97736]"
+                className="stroke-accent"
                 strokeWidth="10"
                 strokeDasharray={circumference}
                 strokeDashoffset={circumference}
@@ -242,7 +242,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   cx="50%"
                   cy="50%"
                   r={radius}
-                  className="stroke-[#d97736]"
+                  className="stroke-accent"
                   strokeWidth="10"
                   strokeDasharray={`0 ${circumference}`}
                   strokeDashoffset="0"
@@ -254,7 +254,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
             {/* Inner Timer Digits */}
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <span className="text-xs uppercase font-mono tracking-widest text-[#d97736] font-semibold">
+              <span className="text-xs uppercase font-mono tracking-widest text-accent font-semibold">
                 {currentStage.name}
               </span>
               <div className="text-6xl sm:text-7xl font-extrabold font-mono tabular-nums text-zinc-100 tracking-tight mt-1">
@@ -265,8 +265,8 @@ export const TimerView: React.FC<TimerViewProps> = ({
               </div>
 
               {/* Target Grams Badge */}
-              <div className="mt-3 flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#202024] border border-zinc-700 text-zinc-200 font-mono text-xs font-semibold">
-                <Droplets className="w-3.5 h-3.5 text-[#d97736]" />
+              <div className="mt-3 flex items-center space-x-1.5 px-3 py-1 rounded-full bg-panel-recessed border border-zinc-700 text-zinc-200 font-mono text-xs font-semibold">
+                <Droplets className="w-3.5 h-3.5 text-accent" />
                 <span>Pour to <span className="text-zinc-100 tabular-nums font-mono">{currentStage.targetWaterWeightGrams}g</span></span>
               </div>
             </div>
@@ -278,7 +278,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               onClick={toggleTimer}
               className={`flex items-center space-x-2 px-8 py-3.5 rounded-xl font-mono text-sm uppercase tracking-wider font-bold shadow-sm cursor-pointer transition-all transform active:scale-95 ${
                 isRunning
-                  ? 'bg-[#d97736] text-zinc-950 hover:bg-[#e88344]'
+                  ? 'bg-accent text-zinc-950 hover:bg-accent-hover'
                   : 'bg-zinc-100 text-zinc-950 hover:bg-white'
               }`}
             >
@@ -301,7 +301,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               title="Reset Timer"
               aria-label="Reset Timer"
             >
-              <RotateCcw className={`w-5 h-5 transition-transform duration-300 ${isResetting ? "-rotate-180 text-[#d97736]" : ""}`} />
+              <RotateCcw className={`w-5 h-5 transition-transform duration-300 ${isResetting ? "-rotate-180 text-accent" : ""}`} />
             </button>
 
             <button
@@ -313,7 +313,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               {isMuted ? (
                 <VolumeX className="w-5 h-5 text-zinc-500 hover:text-zinc-400 transition-colors" />
               ) : (
-                <Volume2 className="w-5 h-5 text-[#d97736] transition-colors" />
+                <Volume2 className="w-5 h-5 text-accent transition-colors" />
               )}
             </button>
           </div>
@@ -332,12 +332,12 @@ export const TimerView: React.FC<TimerViewProps> = ({
         </div>
 
         {/* Right: Stage Timeline & Step Guide Panel */}
-        <div className="lg:col-span-5 p-6 rounded-2xl bg-[#18181b] border border-zinc-800 flex flex-col min-h-[520px] lg:min-h-[560px] overflow-hidden">
+        <div className="lg:col-span-5 p-6 rounded-2xl bg-panel border border-border-subtle flex flex-col min-h-[520px] lg:min-h-[560px] overflow-hidden">
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-800 flex-shrink-0">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-400 font-mono">
               Pour Timeline
             </h3>
-            <span className="text-xs font-mono text-[#d97736]">
+            <span className="text-xs font-mono text-accent">
               {recipe.stages.length} Stages
             </span>
           </div>
@@ -352,10 +352,10 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   key={stage.id}
                   className={`p-3.5 rounded-xl border transition-all duration-200 ${
                     isCurrent
-                      ? 'bg-[#202024] border-[#d97736]'
+                      ? 'bg-panel-recessed border-accent'
                       : isPast
-                        ? 'bg-[#141416] border-zinc-800/40 opacity-50'
-                        : 'bg-[#18181b] border-zinc-800'
+                        ? 'bg-canvas border-zinc-800/40 opacity-50'
+                        : 'bg-panel border-border-subtle'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -363,7 +363,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                       {isPast ? (
                         <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                       ) : isCurrent ? (
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#d97736] animate-pulse" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse" />
                       ) : (
                         <span className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
                       )}
