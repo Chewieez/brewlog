@@ -1,6 +1,7 @@
+/** @vitest-environment jsdom */
 import React from 'react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, Navigate } from 'react-router';
 import { RootLayout } from './layouts/RootLayout';
 import { TimerRoute } from './routes/TimerRoute';
@@ -37,6 +38,7 @@ function TestApp({ initialPath = '/' }: { initialPath?: string }) {
 
 describe('App Routing', () => {
   afterEach(() => {
+    cleanup();
     window.history.pushState({}, 'Test', '/');
   });
   it('redirects from / to /timer', () => {
