@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Equipment, EquipmentType } from "@brewlog/core";
-import { Sliders, Plus, Coffee, Scale, Flame, Trash2, Sparkles } from "lucide-react";
+import { Sliders, Plus, Coffee, Scale, Flame, Trash2 } from "lucide-react";
 
 interface EquipmentViewProps {
   equipment: Equipment[];
@@ -51,18 +51,15 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2">
-            <Sparkles className="w-5 h-5 text-amber-400" />
-            <h2 className="text-2xl font-bold tracking-tight text-stone-100">Gear & Equipment</h2>
-          </div>
-          <p className="text-sm text-stone-400 mt-1">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Gear & Equipment</h2>
+          <p className="text-sm text-zinc-400 mt-1">
             Manage your grinders, brewers, scales, and kettles to pair with dial-in recipes and tasting logs.
           </p>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold shadow-lg shadow-amber-500/20 cursor-pointer transition-colors"
+          className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-[#d97736] hover:bg-[#e88344] text-zinc-950 font-bold shadow-sm cursor-pointer transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span>Add Equipment</span>
@@ -72,35 +69,40 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       {/* Grinders Section */}
       <div>
         <div className="flex items-center space-x-2 mb-4">
-          <Sliders className="w-5 h-5 text-amber-400" />
-          <h3 className="text-lg font-bold text-stone-200">Grinders ({grinders.length})</h3>
+          <Sliders className="w-5 h-5 text-[#d97736]" />
+          <h3 className="text-lg font-bold text-zinc-100">Grinders ({grinders.length})</h3>
         </div>
 
         {grinders.length === 0 ? (
-          <div className="p-6 rounded-2xl bg-stone-900/40 border border-dashed border-stone-800 text-center text-xs text-stone-500">
+          <div className="p-6 rounded-2xl bg-[#18181b]/50 border border-dashed border-zinc-800 text-center text-xs text-zinc-500">
             No grinders logged yet.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {grinders.map((g) => (
-              <div key={g.id} className="relative group p-4 rounded-2xl bg-stone-900/60 border border-stone-800 backdrop-blur-md">
+              <div
+                key={g.id}
+                className="relative group p-4 rounded-2xl bg-[#18181b] border border-zinc-800 hover:border-zinc-700 transition-colors shadow-sm"
+              >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">{g.brand}</span>
+                  <span className="text-xs font-bold text-[#d97736] uppercase tracking-wider font-mono">
+                    {g.brand}
+                  </span>
                   <div className="flex items-center space-x-2">
                     {g.settingScaleType && (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-stone-800 text-stone-300">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-300 border border-zinc-700">
                         {g.settingScaleType}
                       </span>
                     )}
                     {g.subType && (
-                      <span className="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-300 border border-zinc-700">
                         {g.subType}
                       </span>
                     )}
                     {onDeleteEquipment && (
                       <button
                         onClick={() => onDeleteEquipment(g.id)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-stone-500 hover:text-red-400 cursor-pointer"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-zinc-500 hover:text-red-400 cursor-pointer"
                         title={`Delete ${g.model}`}
                         aria-label={`Delete ${g.model}`}
                       >
@@ -109,8 +111,8 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                     )}
                   </div>
                 </div>
-                <h4 className="text-base font-bold text-stone-100 mt-1">{g.model}</h4>
-                {g.notes && <p className="text-xs text-stone-400 mt-2">{g.notes}</p>}
+                <h4 className="text-base font-bold text-zinc-100 mt-1">{g.model}</h4>
+                {g.notes && <p className="text-xs text-zinc-400 mt-2">{g.notes}</p>}
               </div>
             ))}
           </div>
@@ -120,30 +122,35 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       {/* Brewers Section */}
       <div>
         <div className="flex items-center space-x-2 mb-4">
-          <Coffee className="w-5 h-5 text-amber-400" />
-          <h3 className="text-lg font-bold text-stone-200">Brewers & Drippers ({brewers.length})</h3>
+          <Coffee className="w-5 h-5 text-[#d97736]" />
+          <h3 className="text-lg font-bold text-zinc-100">Brewers & Drippers ({brewers.length})</h3>
         </div>
 
         {brewers.length === 0 ? (
-          <div className="p-6 rounded-2xl bg-stone-900/40 border border-dashed border-stone-800 text-center text-xs text-stone-500">
+          <div className="p-6 rounded-2xl bg-[#18181b]/50 border border-dashed border-zinc-800 text-center text-xs text-zinc-500">
             No brewers logged yet.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {brewers.map((b) => (
-              <div key={b.id} className="relative group p-4 rounded-2xl bg-stone-900/60 border border-stone-800 backdrop-blur-md">
+              <div
+                key={b.id}
+                className="relative group p-4 rounded-2xl bg-[#18181b] border border-zinc-800 hover:border-zinc-700 transition-colors shadow-sm"
+              >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">{b.brand}</span>
+                  <span className="text-xs font-bold text-[#d97736] uppercase tracking-wider font-mono">
+                    {b.brand}
+                  </span>
                   <div className="flex items-center space-x-2">
                     {b.subType && (
-                      <span className="px-2 py-0.5 rounded text-[10px] bg-stone-800 text-stone-300">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-300 border border-zinc-700">
                         {b.subType}
                       </span>
                     )}
                     {onDeleteEquipment && (
                       <button
                         onClick={() => onDeleteEquipment(b.id)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-stone-500 hover:text-red-400 cursor-pointer"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-zinc-500 hover:text-red-400 cursor-pointer"
                         title={`Delete ${b.model}`}
                         aria-label={`Delete ${b.model}`}
                       >
@@ -152,8 +159,8 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                     )}
                   </div>
                 </div>
-                <h4 className="text-base font-bold text-stone-100 mt-1">{b.model}</h4>
-                {b.notes && <p className="text-xs text-stone-400 mt-2">{b.notes}</p>}
+                <h4 className="text-base font-bold text-zinc-100 mt-1">{b.model}</h4>
+                {b.notes && <p className="text-xs text-zinc-400 mt-2">{b.notes}</p>}
               </div>
             ))}
           </div>
@@ -163,30 +170,35 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       {/* Scales Section */}
       <div>
         <div className="flex items-center space-x-2 mb-4">
-          <Scale className="w-5 h-5 text-amber-400" />
-          <h3 className="text-lg font-bold text-stone-200">Precision Scales ({scales.length})</h3>
+          <Scale className="w-5 h-5 text-[#d97736]" />
+          <h3 className="text-lg font-bold text-zinc-100">Precision Scales ({scales.length})</h3>
         </div>
 
         {scales.length === 0 ? (
-          <div className="p-6 rounded-2xl bg-stone-900/40 border border-dashed border-stone-800 text-center text-xs text-stone-500">
+          <div className="p-6 rounded-2xl bg-[#18181b]/50 border border-dashed border-zinc-800 text-center text-xs text-zinc-500">
             No scales logged yet. Add your brew scale to track 0.1g dose and flow rate.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {scales.map((s) => (
-              <div key={s.id} className="relative group p-4 rounded-2xl bg-stone-900/60 border border-stone-800 backdrop-blur-md">
+              <div
+                key={s.id}
+                className="relative group p-4 rounded-2xl bg-[#18181b] border border-zinc-800 hover:border-zinc-700 transition-colors shadow-sm"
+              >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">{s.brand}</span>
+                  <span className="text-xs font-bold text-[#d97736] uppercase tracking-wider font-mono">
+                    {s.brand}
+                  </span>
                   <div className="flex items-center space-x-2">
                     {s.subType && (
-                      <span className="px-2 py-0.5 rounded text-[10px] bg-stone-800 text-stone-300">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-300 border border-zinc-700">
                         {s.subType}
                       </span>
                     )}
                     {onDeleteEquipment && (
                       <button
                         onClick={() => onDeleteEquipment(s.id)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-stone-500 hover:text-red-400 cursor-pointer"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-zinc-500 hover:text-red-400 cursor-pointer"
                         title={`Delete ${s.model}`}
                         aria-label={`Delete ${s.model}`}
                       >
@@ -195,8 +207,8 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                     )}
                   </div>
                 </div>
-                <h4 className="text-base font-bold text-stone-100 mt-1">{s.model}</h4>
-                {s.notes && <p className="text-xs text-stone-400 mt-2">{s.notes}</p>}
+                <h4 className="text-base font-bold text-zinc-100 mt-1">{s.model}</h4>
+                {s.notes && <p className="text-xs text-zinc-400 mt-2">{s.notes}</p>}
               </div>
             ))}
           </div>
@@ -206,30 +218,35 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       {/* Kettles Section */}
       <div>
         <div className="flex items-center space-x-2 mb-4">
-          <Flame className="w-5 h-5 text-amber-400" />
-          <h3 className="text-lg font-bold text-stone-200">Kettles & Water Gear ({kettles.length})</h3>
+          <Flame className="w-5 h-5 text-[#d97736]" />
+          <h3 className="text-lg font-bold text-zinc-100">Kettles & Water Gear ({kettles.length})</h3>
         </div>
 
         {kettles.length === 0 ? (
-          <div className="p-6 rounded-2xl bg-stone-900/40 border border-dashed border-stone-800 text-center text-xs text-stone-500">
+          <div className="p-6 rounded-2xl bg-[#18181b]/50 border border-dashed border-zinc-800 text-center text-xs text-zinc-500">
             No kettles logged yet. Add your gooseneck or temperature kettle.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {kettles.map((k) => (
-              <div key={k.id} className="relative group p-4 rounded-2xl bg-stone-900/60 border border-stone-800 backdrop-blur-md">
+              <div
+                key={k.id}
+                className="relative group p-4 rounded-2xl bg-[#18181b] border border-zinc-800 hover:border-zinc-700 transition-colors shadow-sm"
+              >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">{k.brand}</span>
+                  <span className="text-xs font-bold text-[#d97736] uppercase tracking-wider font-mono">
+                    {k.brand}
+                  </span>
                   <div className="flex items-center space-x-2">
                     {k.subType && (
-                      <span className="px-2 py-0.5 rounded text-[10px] bg-stone-800 text-stone-300">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-300 border border-zinc-700">
                         {k.subType}
                       </span>
                     )}
                     {onDeleteEquipment && (
                       <button
                         onClick={() => onDeleteEquipment(k.id)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-stone-500 hover:text-red-400 cursor-pointer"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-zinc-500 hover:text-red-400 cursor-pointer"
                         title={`Delete ${k.model}`}
                         aria-label={`Delete ${k.model}`}
                       >
@@ -238,8 +255,8 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                     )}
                   </div>
                 </div>
-                <h4 className="text-base font-bold text-stone-100 mt-1">{k.model}</h4>
-                {k.notes && <p className="text-xs text-stone-400 mt-2">{k.notes}</p>}
+                <h4 className="text-base font-bold text-zinc-100 mt-1">{k.model}</h4>
+                {k.notes && <p className="text-xs text-zinc-400 mt-2">{k.notes}</p>}
               </div>
             ))}
           </div>
@@ -248,27 +265,53 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
 
       {/* Add Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md p-6 rounded-3xl bg-stone-900 border border-stone-800 shadow-2xl space-y-4">
-            <h3 className="text-lg font-bold text-stone-100">Add Equipment</h3>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="add-equipment-modal-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsModalOpen(false);
+            }
+          }}
+        >
+          <div className="w-full max-w-md p-6 rounded-2xl bg-[#18181b] border border-zinc-800 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-1 border-b border-zinc-800">
+              <h3 id="add-equipment-modal-title" className="text-lg font-bold text-zinc-100">
+                Add Equipment
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="text-zinc-400 hover:text-zinc-200 text-sm p-1 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer"
+                aria-label="Close dialog"
+              >
+                ✕
+              </button>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-3 text-sm">
               <div>
-                <label className="block text-xs font-medium text-stone-300 mb-1">Equipment Category</label>
+                <label className="block text-xs font-medium text-zinc-300 mb-1">
+                  Equipment Category
+                </label>
                 <select
                   value={type}
                   onChange={(e) => setType(e.target.value as EquipmentType)}
-                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-300 focus:outline-none focus:border-amber-500 cursor-pointer"
+                  className="w-full px-3 py-2 rounded-xl bg-[#202024] border border-zinc-800 text-zinc-100 text-sm focus:outline-none focus:border-[#d97736] transition-colors cursor-pointer"
                 >
-                  <option value="grinder">Grinder</option>
-                  <option value="brewer">Brewer / Dripper</option>
-                  <option value="scale">Precision Scale</option>
-                  <option value="kettle">Kettle</option>
+                  <option value="grinder" className="bg-[#202024] text-zinc-100">Grinder</option>
+                  <option value="brewer" className="bg-[#202024] text-zinc-100">Brewer / Dripper</option>
+                  <option value="scale" className="bg-[#202024] text-zinc-100">Precision Scale</option>
+                  <option value="kettle" className="bg-[#202024] text-zinc-100">Kettle</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-stone-300 mb-1">Brand Name *</label>
+                <label className="block text-xs font-medium text-zinc-300 mb-1">
+                  Brand Name <span className="text-[#d97736] font-bold">*</span>
+                </label>
                 <input
                   type="text"
                   required
@@ -283,12 +326,14 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                   }
                   value={brand}
                   onChange={(e) => setBrand(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
+                  className="w-full px-3 py-2 rounded-xl bg-[#202024] border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-[#d97736] transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-stone-300 mb-1">Model Name *</label>
+                <label className="block text-xs font-medium text-zinc-300 mb-1">
+                  Model Name <span className="text-[#d97736] font-bold">*</span>
+                </label>
                 <input
                   type="text"
                   required
@@ -303,12 +348,12 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                   }
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
+                  className="w-full px-3 py-2 rounded-xl bg-[#202024] border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-[#d97736] transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-stone-300 mb-1">
+                <label className="block text-xs font-medium text-zinc-300 mb-1">
                   {type === "grinder"
                     ? "Burr / Mechanism Type"
                     : type === "brewer"
@@ -330,47 +375,49 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                   }
                   value={subType}
                   onChange={(e) => setSubType(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
+                  className="w-full px-3 py-2 rounded-xl bg-[#202024] border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-[#d97736] transition-colors"
                 />
               </div>
 
               {type === "grinder" && (
                 <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-1">Dial Setting Format</label>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    Dial Setting Format
+                  </label>
                   <select
                     value={settingScaleType}
                     onChange={(e) => setSettingScaleType(e.target.value as any)}
-                    className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-300 focus:outline-none focus:border-amber-500 cursor-pointer"
+                    className="w-full px-3 py-2 rounded-xl bg-[#202024] border border-zinc-800 text-zinc-100 text-sm focus:outline-none focus:border-[#d97736] transition-colors cursor-pointer"
                   >
-                    <option value="stepped-numbers">Stepped Numbers (e.g. 4.1, 5.2)</option>
-                    <option value="clicks">Clicks from Zero (e.g. 24 clicks)</option>
-                    <option value="stepless">Stepless Dial</option>
+                    <option value="stepped-numbers" className="bg-[#202024] text-zinc-100">Stepped Numbers (e.g. 4.1, 5.2)</option>
+                    <option value="clicks" className="bg-[#202024] text-zinc-100">Clicks from Zero (e.g. 24 clicks)</option>
+                    <option value="stepless" className="bg-[#202024] text-zinc-100">Stepless Dial</option>
                   </select>
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-medium text-stone-300 mb-1">Notes</label>
+                <label className="block text-xs font-medium text-zinc-300 mb-1">Notes</label>
                 <input
                   type="text"
                   placeholder="e.g. Preferred settings, accessories, or calibration notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
+                  className="w-full px-3 py-2 rounded-xl bg-[#202024] border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-[#d97736] transition-colors"
                 />
               </div>
 
-              <div className="flex justify-end space-x-3 pt-3">
+              <div className="flex justify-end space-x-3 pt-3 border-t border-zinc-800/80">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-stone-800 text-stone-300 hover:bg-stone-700 cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-zinc-100 text-sm font-semibold transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold shadow-md shadow-amber-500/20 cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-[#d97736] hover:bg-[#e88344] text-zinc-950 font-bold text-sm shadow-sm transition-colors cursor-pointer"
                 >
                   Save Equipment
                 </button>
