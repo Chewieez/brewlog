@@ -237,7 +237,10 @@ describe("Brew Calculator Math", () => {
     it("should return positive days between roast date and today (default reference)", () => {
       const pastDate = new Date();
       pastDate.setDate(pastDate.getDate() - 14);
-      const roastDateStr = pastDate.toISOString().split("T")[0];
+      const year = pastDate.getFullYear();
+      const month = String(pastDate.getMonth() + 1).padStart(2, "0");
+      const day = String(pastDate.getDate()).padStart(2, "0");
+      const roastDateStr = `${year}-${month}-${day}`;
 
       const days = calculateDaysOffRoast(roastDateStr);
       // Calendar day diff is exactly 14
@@ -245,12 +248,14 @@ describe("Brew Calculator Math", () => {
     });
 
     it("should return 0 for today or future dates", () => {
-      const todayStr = new Date().toISOString().split("T")[0];
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
       expect(calculateDaysOffRoast(todayStr)).toBe(0);
 
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 5);
-      expect(calculateDaysOffRoast(futureDate.toISOString().split("T")[0])).toBe(0);
+      const futureStr = `${futureDate.getFullYear()}-${String(futureDate.getMonth() + 1).padStart(2, "0")}-${String(futureDate.getDate()).padStart(2, "0")}`;
+      expect(calculateDaysOffRoast(futureStr)).toBe(0);
     });
 
     it("should return 0 for invalid date strings or empty input", () => {
