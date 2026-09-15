@@ -154,7 +154,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
           <div className="py-2 select-none">
             <div className="text-8xl sm:text-9xl font-['Outfit'] font-light tabular-nums text-text-primary leading-none tracking-tight flex items-center">
               <span>{Math.floor(elapsedSeconds / 60)}</span>
-              <span className="inline-block relative -top-[0.06em] px-1 text-text-muted/80">:</span>
+              <span className="inline-block px-1 text-text-muted/80 select-none" style={{ transform: 'translateY(-0.137em)' }}>:</span>
               <span>{String(elapsedSeconds % 60).padStart(2, '0')}</span>
             </div>
           </div>
