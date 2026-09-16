@@ -104,12 +104,23 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
       </div>
 
       {/* Dose Rescaler Slider */}
-      <div className="p-4 rounded-xl bg-panel-recessed border border-border-subtle space-y-2.5">
+      <div className="p-4 rounded-xl bg-panel-recessed border border-border-subtle space-y-3">
         <div className="flex items-center justify-between text-xs">
           <span className="text-zinc-400 font-medium font-mono uppercase tracking-wider text-[11px]">Coffee Dose</span>
-          <span className="text-zinc-100 font-light text-lg tabular-nums">
-            {customDose}g
-          </span>
+          <div className="flex items-center space-x-2">
+            {customDose !== recipe.coffeeDoseGrams && (
+              <button
+                type="button"
+                onClick={() => setCustomDose(recipe.coffeeDoseGrams)}
+                className="text-[10px] font-mono text-accent hover:underline cursor-pointer"
+              >
+                Reset ({recipe.coffeeDoseGrams}g)
+              </button>
+            )}
+            <span className="text-zinc-100 font-light text-lg tabular-nums">
+              {customDose}g
+            </span>
+          </div>
         </div>
         <input
           type="range"
@@ -121,11 +132,41 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           onChange={(e) => setCustomDose(parseFloat(e.target.value))}
           className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-accent focus:outline-none"
         />
-        <div className="flex justify-between text-[10px] text-zinc-500 font-mono">
+        {/* Linear scale marks matching min=10, max=60 with 20% intervals */}
+        <div className="flex justify-between text-[10px] text-zinc-500 font-mono px-0.5">
           <span>10g</span>
-          <span>Single cup (15-18g)</span>
-          <span>Server (30g)</span>
+          <span>20g</span>
+          <span>30g</span>
+          <span>40g</span>
+          <span>50g</span>
           <span>60g</span>
+        </div>
+
+        {/* Quick Dose Presets */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+          <span className="text-[10px] font-mono text-zinc-500 uppercase mr-1">Presets:</span>
+          {[
+            { label: 'Single (15g)', dose: 15 },
+            { label: 'Standard (18g)', dose: 18 },
+            { label: 'Server (30g)', dose: 30 },
+            { label: 'Batch (45g)', dose: 45 },
+          ].map(({ label, dose }) => {
+            const isActive = customDose === dose;
+            return (
+              <button
+                key={dose}
+                type="button"
+                onClick={() => setCustomDose(dose)}
+                className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors cursor-pointer border ${
+                  isActive
+                    ? 'bg-accent/15 border-accent text-accent font-medium'
+                    : 'bg-panel border-border-subtle hover:border-border-active text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
