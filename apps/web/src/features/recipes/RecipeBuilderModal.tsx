@@ -471,9 +471,9 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                   type="number"
                   min="5"
                   max="120"
-                  step="0.5"
+                  step="1"
                   value={coffeeDoseGrams}
-                  onChange={(e) => handleDoseChange(Number(e.target.value))}
+                  onChange={(e) => handleDoseChange(Math.round(Number(e.target.value)))}
                   className="w-full px-3 py-2 rounded bg-panel border border-border-subtle text-accent text-base font-light tabular-nums focus:outline-none focus:border-accent"
                 />
               </div>

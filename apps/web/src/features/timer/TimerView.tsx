@@ -145,8 +145,9 @@ export const TimerView: React.FC<TimerViewProps> = ({
               type="number"
               min="5"
               max="100"
+              step="1"
               value={doseGrams}
-              onChange={(e) => setDoseGrams(Math.max(5, Math.min(100, Number(e.target.value) || 0)))}
+              onChange={(e) => setDoseGrams(Math.max(5, Math.min(100, Math.round(Number(e.target.value)) || 0)))}
               className="w-10 bg-transparent text-sm font-light tabular-nums text-text-primary focus:outline-none text-right"
               aria-label="Coffee dose in grams"
             />

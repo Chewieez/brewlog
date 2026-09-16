@@ -25,12 +25,12 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
   onDeleteRecipe,
   showMobileBackButton = false,
 }) => {
-  const [customDose, setCustomDose] = useState<number>(recipe.coffeeDoseGrams);
+  const [customDose, setCustomDose] = useState<number>(Math.round(recipe.coffeeDoseGrams));
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Sync dose when recipe changes
   useEffect(() => {
-    setCustomDose(recipe.coffeeDoseGrams);
+    setCustomDose(Math.round(recipe.coffeeDoseGrams));
   }, [recipe.id, recipe.coffeeDoseGrams]);
 
   const scaledRecipe = rescaleRecipeDose(recipe, customDose);
@@ -127,9 +127,9 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           aria-label="Coffee Dose"
           min={10}
           max={60}
-          step={0.5}
+          step={1}
           value={customDose}
-          onChange={(e) => setCustomDose(parseFloat(e.target.value))}
+          onChange={(e) => setCustomDose(Math.round(parseFloat(e.target.value)))}
           className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-accent focus:outline-none"
         />
         {/* Linear scale marks matching min=10, max=60 with 20% intervals */}
