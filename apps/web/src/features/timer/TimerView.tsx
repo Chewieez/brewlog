@@ -39,6 +39,8 @@ export const TimerView: React.FC<TimerViewProps> = ({
     toggleTimer,
     reset: resetTimer,
     toggleMute,
+    startTimeRef,
+    accumulatedMsRef,
   } = useBrewTimer(recipe);
 
   const formatTime = (totalSeconds: number) => {
@@ -47,12 +49,48 @@ export const TimerView: React.FC<TimerViewProps> = ({
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
+  const progressBarRef = useRef<HTMLDivElement | null>(null);
   const [isResetting, setIsResetting] = useState(false);
   const handleReset = () => {
     resetTimer();
     setIsResetting(true);
     setTimeout(() => setIsResetting(false), 500);
   };
+
+  // Continuous 60fps/120fps progress bar animation via requestAnimationFrame
+  // Eliminates 1-second stepped jumps and backward pause drift
+  useEffect(() => {
+    if (!progressBarRef.current) return;
+
+    const totalMs = recipe.totalTimeSeconds * 1000;
+    if (totalMs <= 0) {
+      progressBarRef.current.style.width = '0%';
+      return;
+    }
+
+    if (!isRunning) {
+      const currentMs = accumulatedMsRef.current;
+      const progress = Math.min(100, Math.max(0, (currentMs / totalMs) * 100));
+      progressBarRef.current.style.width = `${progress}%`;
+      return;
+    }
+
+    let animationFrameId: number;
+    const updateBar = () => {
+      const now = performance.now();
+      const elapsedMs = now - startTimeRef.current;
+      const progress = Math.min(100, Math.max(0, (elapsedMs / totalMs) * 100));
+      if (progressBarRef.current) {
+        progressBarRef.current.style.width = `${progress}%`;
+      }
+      if (progress < 100) {
+        animationFrameId = requestAnimationFrame(updateBar);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(updateBar);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isRunning, elapsedSeconds === 0, recipe.totalTimeSeconds, startTimeRef, accumulatedMsRef]);
 
   // Linear extraction progress calculation
   const totalProgressPercent = Math.min(100, Math.round((elapsedSeconds / recipe.totalTimeSeconds) * 100));
@@ -144,7 +182,8 @@ export const TimerView: React.FC<TimerViewProps> = ({
             {/* Sleek linear progress line on chassis */}
             <div className="w-full h-1 bg-panel-recessed overflow-hidden rounded-full">
               <div
-                className="h-full bg-accent transition-all duration-300 ease-out"
+                ref={progressBarRef}
+                className={`h-full bg-accent ${isResetting ? 'transition-all duration-300 ease-out' : ''}`}
                 style={{ width: `${totalProgressPercent}%` }}
               />
             </div>
