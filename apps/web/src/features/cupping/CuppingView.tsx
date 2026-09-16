@@ -280,10 +280,10 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
 
             <div className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-panel border border-border-subtle self-start sm:self-auto shadow-sm">
               <Award className="w-5 h-5 text-accent shrink-0" />
-              <span className="text-2xl font-light font-['Outfit'] text-text-primary tabular-nums">
+              <span className="text-2xl font-light text-text-primary tabular-nums">
                 {scaScore.toFixed(1)}
               </span>
-              <span className="text-xs font-light font-['Outfit'] text-text-muted">/ 100</span>
+              <span className="text-xs font-light text-text-muted">/ 100</span>
               <span className="text-border-active">|</span>
               <span className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${getScaClassification(scaScore).color}`}>
                 {getScaClassification(scaScore).label}
@@ -455,7 +455,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                       <span className="font-medium text-zinc-200">{label}</span>
                       <span className="text-[10px] text-zinc-500 ml-1.5 hidden sm:inline">({hint})</span>
                     </div>
-                    <span className="font-['Outfit'] font-light text-sm text-accent tabular-nums">
+                    <span className="font-light text-sm text-accent tabular-nums">
                       {(scores[key] ?? 0).toFixed(1)}
                     </span>
                   </div>
@@ -495,7 +495,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                       <span className="font-medium text-zinc-200">{label}</span>
                       <span className="text-[10px] text-zinc-500 ml-1.5 hidden sm:inline">({hint})</span>
                     </div>
-                    <span className="font-['Outfit'] font-light text-sm text-accent tabular-nums">
+                    <span className="font-light text-sm text-accent tabular-nums">
                       {(scores[key] ?? 0).toFixed(1)}
                     </span>
                   </div>
@@ -548,7 +548,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                     />
                   </button>
                 ))}
-                <span className="text-xs font-['Outfit'] font-light text-accent ml-1 tabular-nums">
+                <span className="text-xs font-light text-accent ml-1 tabular-nums">
                   {rating.toFixed(1)}
                 </span>
               </div>
@@ -761,9 +761,9 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                 </div>
 
                 <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-3 sm:pt-0 border-zinc-800">
-                  <div className="text-xl font-light font-['Outfit'] tabular-nums text-accent">
+                  <div className="text-xl font-light tabular-nums text-accent">
                     {log.calculatedScaScore}{' '}
-                    <span className="text-xs text-text-muted font-sans">SCA pts</span>
+                    <span className="text-xs text-text-muted">SCA pts</span>
                   </div>
                   <div className="text-xs font-mono text-zinc-400 mt-0.5">
                     {log.coffeeDoseGrams}g : {log.waterAmountGrams}g ({log.actualTimeSeconds}s)

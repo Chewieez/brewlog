@@ -131,7 +131,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                     {r.description || 'No description provided.'}
                   </p>
 
-                  <div className="mt-3 flex items-center space-x-3 text-xs font-['Outfit'] font-light text-zinc-300 tabular-nums">
+                  <div className="mt-3 flex items-center space-x-3 text-xs font-light text-zinc-300 tabular-nums">
                     <span>1:{r.ratio}</span>
                     <span className="text-zinc-600">•</span>
                     <span>
