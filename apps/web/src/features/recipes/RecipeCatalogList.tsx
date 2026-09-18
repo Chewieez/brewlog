@@ -43,8 +43,8 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
             onClick={() => onSelectMethodFilter(method)}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
               selectedMethodFilter === method
-                ? 'bg-amber-500 text-stone-950 shadow-md shadow-amber-500/20'
-                : 'bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200'
+                ? 'bg-panel-recessed border border-accent text-accent'
+                : 'bg-zinc-800/90 border border-zinc-700 text-zinc-300 hover:text-zinc-100 hover:border-zinc-600'
             }`}
           >
             {method.replace('-', ' ')}
@@ -55,7 +55,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
       {/* Recipe Cards List */}
       <div className="space-y-3">
         {filteredRecipes.length === 0 ? (
-          <div className="p-8 rounded-2xl bg-stone-900/40 border border-dashed border-stone-800 text-center text-xs text-stone-500">
+          <div className="p-8 rounded-2xl bg-panel border border-dashed border-border-subtle text-center text-xs text-zinc-500">
             No recipes found for this brew method.
           </div>
         ) : (
@@ -66,31 +66,36 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
             return (
               <div
                 key={r.id}
-                className={`p-4 rounded-2xl border transition-all duration-200 relative group ${
+                className={`p-4 rounded-2xl border transition-all duration-200 relative group overflow-hidden ${
                   isSelected
-                    ? 'bg-amber-500/15 border-amber-500/50 shadow-lg shadow-amber-500/10'
-                    : 'bg-stone-900/60 border-stone-800/80 hover:border-stone-700'
+                    ? 'bg-panel-recessed border-zinc-600'
+                    : 'bg-panel border-border-subtle hover:border-zinc-700'
                 }`}
               >
+                {/* Active Copper Indicator */}
+                {isSelected && (
+                  <div className="absolute left-0 top-3.5 bottom-3.5 w-1 bg-accent rounded-r" />
+                )}
+
                 {/* Overlay Link for navigation and accessible card click */}
                 <Link
                   to={`/recipes/${r.id}`}
                   aria-label={r.name}
                   onClick={() => onSelectRecipe?.(r)}
-                  className="absolute inset-0 rounded-2xl z-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  className="absolute inset-0 rounded-2xl z-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent/50"
                 />
 
                 <div className="relative z-10 flex items-center justify-between pointer-events-none">
                   <div className="flex items-center space-x-2">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-stone-800 text-amber-400 border border-amber-500/20">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-zinc-800 text-zinc-300 border border-zinc-700">
                       {r.brewMethod}
                     </span>
                     {isCustom ? (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-accent/10 text-accent border border-accent/30">
                         Custom
                       </span>
                     ) : (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-zinc-800 text-zinc-300 border border-zinc-700">
                         Preset
                       </span>
                     )}
@@ -98,7 +103,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
 
                   <div className="flex items-center space-x-2">
                     {r.author && (
-                      <span className="text-xs text-stone-400 truncate max-w-[120px]">
+                      <span className="text-xs text-zinc-400 font-mono truncate max-w-[120px]">
                         {r.author}
                       </span>
                     )}
@@ -110,7 +115,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                           e.stopPropagation();
                           setRecipeToDelete(r);
                         }}
-                        className="pointer-events-auto p-1 rounded text-stone-500 hover:text-red-400 hover:bg-stone-800/80 transition-colors cursor-pointer"
+                        className="pointer-events-auto p-1 rounded text-zinc-500 hover:text-red-400 hover:bg-zinc-800 transition-colors cursor-pointer"
                         title="Delete Recipe"
                         aria-label={`Delete custom recipe ${r.name}`}
                       >
@@ -121,18 +126,18 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                 </div>
 
                 <div className="relative z-10 pointer-events-none">
-                  <h3 className="text-base font-bold text-stone-100 mt-2">{r.name}</h3>
-                  <p className="text-xs text-stone-400 mt-1 line-clamp-2">
+                  <h3 className="text-base font-bold text-zinc-100 mt-2">{r.name}</h3>
+                  <p className="text-xs text-zinc-400 mt-1 line-clamp-2">
                     {r.description || 'No description provided.'}
                   </p>
 
-                  <div className="mt-3 flex items-center space-x-4 text-xs font-mono text-stone-300">
+                  <div className="mt-3 flex items-center space-x-3 text-xs font-light text-zinc-300 tabular-nums">
                     <span>1:{r.ratio}</span>
-                    <span>•</span>
+                    <span className="text-zinc-600">•</span>
                     <span>
                       {r.coffeeDoseGrams}g : {r.waterAmountGrams}g
                     </span>
-                    <span>•</span>
+                    <span className="text-zinc-600">•</span>
                     <span>
                       {`${Math.floor(r.totalTimeSeconds / 60)}m ${(r.totalTimeSeconds % 60).toString().padStart(2, '0')}s`}
                     </span>
@@ -151,7 +156,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
         message={
           <>
             Are you sure you want to delete{' '}
-            <strong className="text-stone-200">"{recipeToDelete?.name}"</strong>? This
+            <strong className="text-zinc-200">"{recipeToDelete?.name}"</strong>? This
             action cannot be undone.
           </>
         }

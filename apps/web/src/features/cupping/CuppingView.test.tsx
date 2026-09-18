@@ -1,9 +1,13 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+/** @vitest-environment jsdom */
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
 import { CuppingView } from './CuppingView';
 import { INITIAL_BEANS } from '../../lib/sampleData';
 
 describe('CuppingView', () => {
+  afterEach(() => {
+    cleanup();
+  });
   it('renders all 10 official SCA attribute sliders with their labels', () => {
     render(<CuppingView logs={[]} beans={INITIAL_BEANS} onAddTastingLog={vi.fn()} />);
 

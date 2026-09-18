@@ -7,7 +7,7 @@ import { useBeans } from '../features/stash/useBeans';
 import { useTastingLogs } from '../features/cupping/useTastingLogs';
 import { useEquipment } from '../features/equipment/useEquipment';
 import { useRecipes } from '../features/recipes/useRecipes';
-import { Bean, Equipment, BrewRecipe, TastingLog, DEFAULT_PRESET_RECIPES } from '@brewlog/core';
+import { Bean, Equipment, BrewRecipe, TastingLog, DEFAULT_PRESET_RECIPES, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { INITIAL_BEANS } from '../lib/sampleData';
 import { PendingBrewSession } from '../features/cupping/CuppingView';
 
@@ -39,6 +39,14 @@ export const RootLayout: React.FC = () => {
   const { recipes, addRecipe, deleteRecipe } = useRecipes();
   const { isPasswordRecovery, authUrlError } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    Object.entries(INDUSTRIAL_PRECISION_THEME.colors).forEach(([key, value]) => {
+      const kebab = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+      root.style.setProperty(`--color-${kebab}`, value);
+    });
+  }, []);
 
   useEffect(() => {
     if (isPasswordRecovery || authUrlError) {
@@ -133,7 +141,7 @@ export const RootLayout: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-canvas text-text-primary flex flex-col font-sans selection:bg-accent/30 selection:text-text-primary">
       <Header
         beanCount={beans.length}
         brewCount={tastingLogs.length}

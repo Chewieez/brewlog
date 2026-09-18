@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+/** @vitest-environment jsdom */
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, Outlet, useLocation } from 'react-router';
 import { DEFAULT_PRESET_RECIPES, BrewRecipe } from '@brewlog/core';
 import { RecipeDetailRoute } from './RecipeDetailRoute';
@@ -45,6 +46,10 @@ const renderWithContext = (initialPath: string) => {
 };
 
 describe('RecipeDetailRoute', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   beforeEach(() => {
     mockContext = {
       recipes: [mockCustomRecipe, ...DEFAULT_PRESET_RECIPES],
@@ -101,6 +106,10 @@ describe('RecipeDetailRoute', () => {
 });
 
 describe('RecipeIndexRoute', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   beforeEach(() => {
     mockContext = {
       recipes: DEFAULT_PRESET_RECIPES,

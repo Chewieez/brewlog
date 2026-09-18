@@ -1,11 +1,16 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+/** @vitest-environment jsdom */
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { DEFAULT_PRESET_RECIPES, BrewRecipe } from '@brewlog/core';
 import { RecipeDetailPane } from './RecipeDetailPane';
 
 describe('RecipeDetailPane', () => {
   const recipe = DEFAULT_PRESET_RECIPES[0];
+
+  afterEach(() => {
+    cleanup();
+  });
 
   it('renders recipe title, author, specs, and steps', () => {
     render(
@@ -135,5 +140,28 @@ describe('RecipeDetailPane', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Delete Recipe' }));
     expect(onDelete).toHaveBeenCalledTimes(1);
     expect(onDelete).toHaveBeenCalledWith(customRecipe);
+  });
+
+  it('adapts slider min and max bounds dynamically for recipes outside 10-60g range', () => {
+    const largeBatchRecipe: BrewRecipe = {
+      ...recipe,
+      id: 'batch-brew',
+      name: 'Cold Brew Batch',
+      coffeeDoseGrams: 85,
+    };
+
+    render(
+      <MemoryRouter>
+        <RecipeDetailPane
+          recipe={largeBatchRecipe}
+          onSelectRecipeForTimer={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+
+    const slider = screen.getByRole('slider', { name: /coffee dose/i });
+    expect(slider.getAttribute('min')).toBe('10');
+    expect(slider.getAttribute('max')).toBe('85');
+    expect(screen.getAllByText('85g').length).toBeGreaterThanOrEqual(2);
   });
 });

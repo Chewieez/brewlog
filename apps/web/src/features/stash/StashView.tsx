@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Bean, calculateDaysOffRoast, getRestingStatus, ProcessMethod, RoastLevel } from '@brewlog/core';
-import { Plus, Search, Star, Calendar, Flame, MapPin, Tag, Sparkles, Filter } from 'lucide-react';
+import { Plus, Search, Star, Calendar, MapPin } from 'lucide-react';
 
 interface StashViewProps {
   beans: Bean[];
@@ -66,20 +66,33 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
     setFlavorNotesStr('');
   };
 
+  const getRestingStatusBadgeClass = (status: "resting" | "peak" | "aging" | "past-peak") => {
+    switch (status) {
+      case 'peak':
+        return 'bg-emerald-500 text-zinc-950';
+      case 'resting':
+      case 'aging':
+        return 'bg-amber-500 text-zinc-950';
+      case 'past-peak':
+      default:
+        return 'bg-slate-600 text-zinc-100';
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-stone-100">Coffee Bean Stash</h2>
-          <p className="text-sm text-stone-400 mt-0.5">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Coffee Bean Stash</h2>
+          <p className="text-sm text-zinc-400 mt-0.5">
             Track origins, roast dates, and peak resting windows for your whole beans.
           </p>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold shadow-lg shadow-amber-500/20 transition-colors"
+          className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-bold text-sm shadow-sm transition-colors cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Add Coffee Bean</span>
@@ -89,127 +102,147 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
       {/* Search & Filter Bar */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-3 w-4 h-4 text-stone-500" />
+          <Search className="absolute left-3.5 top-3 w-4 h-4 text-zinc-500" />
           <input
             type="text"
             placeholder="Search by coffee name, roaster, or country..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-stone-900/80 border border-stone-800 text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-500/50"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-panel border border-border-subtle text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-accent/60 transition-colors"
           />
         </div>
 
         <select
           value={selectedProcess}
           onChange={(e) => setSelectedProcess(e.target.value)}
-          className="px-3.5 py-2.5 rounded-xl bg-stone-900/80 border border-stone-800 text-sm text-stone-300 focus:outline-none focus:border-amber-500/50"
+          className="px-3.5 py-2.5 rounded-xl bg-panel border border-border-subtle text-sm text-zinc-100 focus:outline-none focus:border-accent/60 transition-colors cursor-pointer"
         >
-          <option value="all">All Processes</option>
-          <option value="washed">Washed</option>
-          <option value="natural">Natural</option>
-          <option value="honey">Honey</option>
-          <option value="anaerobic-natural">Anaerobic Natural</option>
-          <option value="experimental">Experimental</option>
+          <option value="all" className="bg-panel text-zinc-100">All Processes</option>
+          <option value="washed" className="bg-panel text-zinc-100">Washed</option>
+          <option value="natural" className="bg-panel text-zinc-100">Natural</option>
+          <option value="honey" className="bg-panel text-zinc-100">Honey</option>
+          <option value="anaerobic-natural" className="bg-panel text-zinc-100">Anaerobic Natural</option>
+          <option value="experimental" className="bg-panel text-zinc-100">Experimental</option>
         </select>
       </div>
 
       {/* Beans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filteredBeans.map((bean) => {
-          const daysOffRoast = calculateDaysOffRoast(bean.roastDate || new Date().toISOString().split("T")[0]);
-          const restInfo = getRestingStatus(daysOffRoast);
+      {filteredBeans.length === 0 ? (
+        <div className="p-8 rounded-2xl bg-panel border border-dashed border-border-subtle text-center text-xs text-zinc-500 font-mono">
+          No coffee beans found matching your search.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filteredBeans.map((bean) => {
+            const daysOffRoast = calculateDaysOffRoast(bean.roastDate || new Date().toISOString().split("T")[0]);
+            const restInfo = getRestingStatus(daysOffRoast);
 
-          return (
-            <div
-              key={bean.id}
-              className="p-5 rounded-2xl bg-stone-900/60 border border-stone-800/80 hover:border-amber-500/40 backdrop-blur-md transition-all duration-200 flex flex-col justify-between group shadow-lg"
-            >
-              <div>
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
-                      {bean.roaster}
-                    </span>
-                    <h3 className="text-lg font-bold text-stone-100 group-hover:text-amber-200 transition-colors mt-0.5">
-                      {bean.name}
-                    </h3>
+            return (
+              <div
+                key={bean.id}
+                className="p-5 rounded-2xl bg-panel border border-border-subtle hover:border-zinc-700 transition-all duration-200 flex flex-col justify-between group shadow-sm"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <span className="text-xs font-bold text-accent uppercase tracking-wider font-mono">
+                        {bean.roaster}
+                      </span>
+                      <h3 className="text-lg font-bold text-zinc-100 group-hover:text-accent transition-colors mt-0.5 tracking-tight">
+                        {bean.name}
+                      </h3>
+                    </div>
+
+                    {bean.rating && (
+                      <div className="flex items-center space-x-1 px-2 py-0.5 rounded-md bg-panel-recessed text-accent text-xs font-mono font-bold border border-border-subtle">
+                        <Star className="w-3 h-3 fill-accent text-accent" />
+                        <span>{bean.rating}</span>
+                      </div>
+                    )}
                   </div>
 
-                  {bean.rating && (
-                    <div className="flex items-center space-x-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 text-xs font-bold border border-amber-500/20">
-                      <Star className="w-3 h-3 fill-current" />
-                      <span>{bean.rating}</span>
+                  <div className="flex items-center space-x-2 text-xs text-zinc-400 mt-2">
+                    <div className="flex items-center space-x-1">
+                      <MapPin className="w-3.5 h-3.5 text-zinc-500" />
+                      <span>{bean.originCountry}{bean.region ? `, ${bean.region}` : ''}</span>
+                    </div>
+                    <span className="text-zinc-600">•</span>
+                    <span className="capitalize font-mono text-[11px] text-zinc-300">{(bean.process || "washed").replace('-', ' ')}</span>
+                  </div>
+
+                  {/* Resting Status Badge */}
+                  <div className="mt-4 p-2.5 rounded-xl bg-panel-recessed flex items-center justify-between">
+                    <div className="flex items-center space-x-2 font-mono text-xs text-zinc-300">
+                      <Calendar className="w-3.5 h-3.5 text-zinc-400" />
+                      <span>
+                        {daysOffRoast} days off roast
+                      </span>
+                    </div>
+                    <span
+                      className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${getRestingStatusBadgeClass(
+                        restInfo.status
+                      )}`}
+                    >
+                      {restInfo.label}
+                    </span>
+                  </div>
+
+                  {/* Flavor Notes */}
+                  {bean.flavorNotes.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {bean.flavorNotes.map((note, i) => (
+                        <span
+                          key={i}
+                          className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-zinc-800 text-zinc-300 border border-zinc-700"
+                        >
+                          {note}
+                        </span>
+                      ))}
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-center space-x-3 text-xs text-stone-400 mt-2">
-                  <div className="flex items-center space-x-1">
-                    <MapPin className="w-3.5 h-3.5 text-stone-500" />
-                    <span>{bean.originCountry}{bean.region ? `, ${bean.region}` : ''}</span>
-                  </div>
-                  <span>•</span>
-                  <span className="capitalize">{(bean.process || "washed").replace('-', ' ')}</span>
-                </div>
-
-                {/* Resting Status Badge */}
-                <div className="mt-4 p-2.5 rounded-xl bg-stone-950/70 border border-stone-800/80 flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Calendar className="w-3.5 h-3.5 text-stone-400" />
-                    <span className="text-xs text-stone-300">
-                      {daysOffRoast} days off roast
-                    </span>
-                  </div>
-                  <span
-                    className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
-                    style={{ backgroundColor: `${restInfo.color}20`, color: restInfo.color }}
-                  >
-                    {restInfo.label}
+                {/* Bottom Card Action */}
+                <div className="mt-5 pt-3 border-t border-zinc-800 flex items-center justify-between">
+                  <span className="text-xs font-mono text-zinc-400">
+                    {bean.bagWeightOz ? `${bean.bagWeightOz} oz` : bean.bagWeightGrams ? `${(bean.bagWeightGrams / 28.3495).toFixed(1)} oz` : '12 oz'}
                   </span>
+
+                  <button
+                    onClick={() => onSelectBeanForBrew(bean)}
+                    className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 text-xs font-semibold transition-colors cursor-pointer shadow-sm"
+                  >
+                    Brew This Bean →
+                  </button>
                 </div>
-
-                {/* Flavor Notes */}
-                {bean.flavorNotes.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {bean.flavorNotes.map((note, i) => (
-                      <span
-                        key={i}
-                        className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-stone-800/80 text-stone-300 border border-stone-700/50"
-                      >
-                        {note}
-                      </span>
-                    ))}
-                  </div>
-                )}
               </div>
-
-              {/* Bottom Card Action */}
-              <div className="mt-5 pt-3 border-t border-stone-800/60 flex items-center justify-between">
-                <span className="text-xs text-stone-400">
-                  {bean.bagWeightOz ? `${bean.bagWeightOz} oz` : bean.bagWeightGrams ? `${(bean.bagWeightGrams / 28.3495).toFixed(1)} oz` : '12 oz'}
-                </span>
-
-                <button
-                  onClick={() => onSelectBeanForBrew(bean)}
-                  className="px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 text-xs font-semibold border border-amber-500/30 transition-colors cursor-pointer"
-                >
-                  Brew This Bean →
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Add Bean Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg p-6 rounded-3xl bg-stone-900 border border-stone-800 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-stone-100">Add New Whole Bean</h3>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="add-bean-modal-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsModalOpen(false);
+            }
+          }}
+        >
+          <div className="w-full max-w-lg p-6 rounded-2xl bg-panel border border-border-subtle shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-1 border-b border-zinc-800">
+              <h3 id="add-bean-modal-title" className="text-lg font-bold text-zinc-100">
+                Add New Whole Bean
+              </h3>
               <button
+                type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="text-stone-400 hover:text-stone-200 text-sm cursor-pointer"
+                className="text-zinc-400 hover:text-zinc-200 text-sm p-1 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer"
                 aria-label="Close dialog"
               >
                 ✕
@@ -218,104 +251,119 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
 
             <form onSubmit={handleSubmitNewBean} className="space-y-3 text-sm">
               <div>
-                <label className="block text-xs font-medium text-stone-300 mb-1">Roaster Name <span className="text-amber-400 font-bold">*</span></label>
+                <label className="block text-xs font-medium text-zinc-300 mb-1">
+                  Roaster Name <span className="text-accent font-bold">*</span>
+                </label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Sey Coffee, Onyx, Tim Wendelboe"
                   value={roaster}
                   onChange={(e) => setRoaster(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
+                  className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-stone-300 mb-1">Coffee / Lot Name <span className="text-amber-400 font-bold">*</span></label>
+                <label className="block text-xs font-medium text-zinc-300 mb-1">
+                  Coffee / Lot Name <span className="text-accent font-bold">*</span>
+                </label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Worka Sakaro, Southern Weather"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
+                  className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-1">Origin Country</label>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    Origin Country
+                  </label>
                   <input
                     type="text"
                     placeholder="e.g. Ethiopia, Colombia"
                     value={originCountry}
                     onChange={(e) => setOriginCountry(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
+                    className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-accent transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-1">Process Method</label>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    Process Method
+                  </label>
                   <select
                     value={process}
                     onChange={(e) => setProcess(e.target.value as ProcessMethod)}
-                    className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-300 focus:outline-none focus:border-amber-500"
+                    className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-zinc-100 text-sm focus:outline-none focus:border-accent transition-colors cursor-pointer"
                   >
-                    <option value="">Select process...</option>
-                    <option value="washed">Washed</option>
-                    <option value="natural">Natural</option>
-                    <option value="honey">Honey</option>
-                    <option value="anaerobic-natural">Anaerobic Natural</option>
-                    <option value="experimental">Experimental</option>
+                    <option value="" className="bg-panel-recessed text-zinc-100">Select process...</option>
+                    <option value="washed" className="bg-panel-recessed text-zinc-100">Washed</option>
+                    <option value="natural" className="bg-panel-recessed text-zinc-100">Natural</option>
+                    <option value="honey" className="bg-panel-recessed text-zinc-100">Honey</option>
+                    <option value="anaerobic-natural" className="bg-panel-recessed text-zinc-100">Anaerobic Natural</option>
+                    <option value="experimental" className="bg-panel-recessed text-zinc-100">Experimental</option>
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-1">Roast Date</label>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    Roast Date
+                  </label>
                   <input
                     type="date"
                     value={roastDate}
                     onChange={(e) => setRoastDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
+                    className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-zinc-100 text-sm focus:outline-none focus:border-accent transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-stone-300 mb-1">Bag Weight (oz)</label>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    Bag Weight (oz)
+                  </label>
                   <input
                     type="number"
                     step="0.1"
                     placeholder="12"
                     value={bagWeightOz}
                     onChange={(e) => setBagWeightOz(e.target.value === "" ? "" : Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
+                    className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-accent transition-colors"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-stone-300 mb-1">Flavor Notes (Comma separated)</label>
+                <label className="block text-xs font-medium text-zinc-300 mb-1">
+                  Flavor Notes (Comma separated)
+                </label>
                 <input
                   type="text"
                   placeholder="e.g. Jasmine, Peach, Bergamot, Honey"
                   value={flavorNotesStr}
                   onChange={(e) => setFlavorNotesStr(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-stone-950 border border-stone-800 text-stone-100 focus:outline-none focus:border-amber-500"
+                  className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
 
-              <div className="flex justify-end space-x-3 pt-3">
+              <div className="flex justify-end space-x-3 pt-3 border-t border-zinc-800/80">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-stone-800 text-stone-300 hover:bg-stone-700"
+                  className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-zinc-100 text-sm font-semibold transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold shadow-md shadow-amber-500/20"
+                  disabled={isSaving}
+                  className="px-5 py-2 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-bold text-sm shadow-sm transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {isSaving ? "Saving..." : "Save Bean"}
                 </button>

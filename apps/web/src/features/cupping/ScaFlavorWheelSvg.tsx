@@ -376,7 +376,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                   {inspectedItem.category}
                 </span>
 
-                <span className="text-xs sm:text-sm font-bold text-stone-100 mt-1 leading-tight line-clamp-2">
+                <span className="text-xs sm:text-sm font-bold text-text-primary mt-1 leading-tight line-clamp-2">
                   {inspectedItem.name}
                 </span>
 
@@ -390,20 +390,20 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                     setAnnouncement(`${inspectedItem.name}, ${willBe ? 'selected' : 'removed'}`);
                   }}
                   aria-label={`${inspectedItem.isSelected ? 'Remove' : 'Add'} ${inspectedItem.name}`}
-                  className={`pointer-events-auto mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center space-x-1 transition-all shadow-md active:scale-95 cursor-pointer ${
+                  className={`pointer-events-auto mt-1 px-2.5 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider font-bold flex items-center space-x-1 transition-all shadow-sm active:scale-95 cursor-pointer ${
                     inspectedItem.isSelected
-                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30'
-                      : 'bg-stone-800 text-stone-300 border border-stone-700 hover:bg-stone-700 hover:text-white'
+                      ? 'bg-accent text-zinc-950'
+                      : 'bg-panel-recessed text-text-secondary border border-border-subtle hover:bg-zinc-800 hover:text-text-primary'
                   }`}
                 >
                   {inspectedItem.isSelected ? (
                     <>
-                      <Check className="w-2.5 h-2.5 text-amber-400" />
+                      <Check className="w-2.5 h-2.5 text-zinc-950 stroke-[3]" />
                       <span>Selected</span>
                     </>
                   ) : (
                     <>
-                      <Plus className="w-2.5 h-2.5 text-stone-400" />
+                      <Plus className="w-2.5 h-2.5 text-text-muted" />
                       <span>Add Note</span>
                     </>
                   )}
@@ -411,7 +411,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center max-w-[130px]">
-                <span className="text-[9px] uppercase font-mono tracking-widest text-stone-400">
+                <span className="text-[9px] uppercase font-mono tracking-widest text-text-muted">
                   Category
                 </span>
                 <span
@@ -420,24 +420,24 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                 >
                   {inspectedItem.name}
                 </span>
-                <span className="text-[10px] text-stone-300 font-mono mt-1">
+                <span className="text-[10px] text-text-secondary font-mono mt-1">
                   {inspectedItem.selectedCount}/{inspectedItem.totalCount} selected
                 </span>
-                <span className="text-[8px] text-stone-400 mt-0.5">
+                <span className="text-[8px] text-text-muted mt-0.5">
                   Tap outer ring to pick
                 </span>
               </div>
             )
           ) : (
             <div className="flex flex-col items-center justify-center max-w-[120px]">
-              <span className="text-[9px] uppercase font-mono tracking-widest text-stone-400">
+              <span className="text-[9px] uppercase font-mono tracking-widest text-text-muted">
                 SCA
               </span>
-              <span className="text-xs font-bold text-amber-400 mt-0.5">
+              <span className="text-xs font-bold font-mono text-accent mt-0.5">
                 Sensory Wheel
               </span>
-              <div className="flex items-center space-x-1 mt-1 text-[10px] text-stone-300">
-                <Tag className="w-2.5 h-2.5 text-amber-400" />
+              <div className="flex items-center space-x-1 mt-1 text-[10px] text-text-secondary">
+                <Tag className="w-2.5 h-2.5 text-accent" />
                 <span className="font-mono font-semibold">{selectedTags.length} active</span>
               </div>
             </div>
@@ -445,8 +445,8 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
         </div>
       </div>
 
-      <p className="text-[11px] text-stone-400 mt-2 text-center max-w-sm">
-        Use <kbd className="px-1 py-0.5 bg-stone-800 rounded text-[10px] font-mono text-amber-400 border border-stone-700">←</kbd> <kbd className="px-1 py-0.5 bg-stone-800 rounded text-[10px] font-mono text-amber-400 border border-stone-700">→</kbd> to rotate, <kbd className="px-1.5 py-0.5 bg-stone-800 rounded text-[10px] font-mono text-amber-400 border border-stone-700">Space</kbd> to toggle, or tap any sensory note.
+      <p className="text-[11px] text-text-muted mt-2 text-center max-w-sm font-mono">
+        Use <kbd className="px-1 py-0.5 bg-panel-recessed rounded text-[10px] font-mono text-accent border border-border-subtle">←</kbd> <kbd className="px-1 py-0.5 bg-panel-recessed rounded text-[10px] font-mono text-accent border border-border-subtle">→</kbd> to rotate, <kbd className="px-1.5 py-0.5 bg-panel-recessed rounded text-[10px] font-mono text-accent border border-border-subtle">Space</kbd> to toggle, or tap any sensory note.
       </p>
     </div>
   );

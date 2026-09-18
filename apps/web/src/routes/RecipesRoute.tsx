@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Outlet, useOutletContext, useParams, useNavigate } from 'react-router';
 import { BrewRecipe } from '@brewlog/core';
-import { Sparkles, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useRootOutletContext } from '../layouts/RootLayout';
 import { RecipeCatalogList } from '../features/recipes/RecipeCatalogList';
 import { RecipeBuilderModal } from '../features/recipes/RecipeBuilderModal';
@@ -65,13 +65,10 @@ export const RecipesRoute: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2">
-            <Sparkles className="w-5 h-5 text-amber-400" />
-            <h2 className="text-2xl font-bold tracking-tight text-stone-100">
-              Recipe Studio
-            </h2>
-          </div>
-          <p className="text-sm text-stone-400 mt-1">
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
+            Recipe Studio
+          </h2>
+          <p className="text-sm text-zinc-400 mt-1">
             World Champion & Expert brew profiles alongside your custom dialed-in recipes.
           </p>
         </div>
@@ -80,7 +77,7 @@ export const RecipesRoute: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsBuilderModalOpen(true)}
-            className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold shadow-lg shadow-amber-500/20 cursor-pointer transition-colors text-sm"
+            className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-bold cursor-pointer transition-colors text-sm shadow-sm"
           >
             <Plus className="w-4 h-4" />
             <span>Build Custom Recipe</span>

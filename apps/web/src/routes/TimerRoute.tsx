@@ -29,6 +29,7 @@ export const TimerRoute: React.FC = () => {
 
   return (
     <TimerView
+      key={selectedRecipe.id}
       recipe={selectedRecipe}
       selectedBean={selectedBean}
       beans={beans}
