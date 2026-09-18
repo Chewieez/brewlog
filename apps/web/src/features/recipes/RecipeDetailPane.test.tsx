@@ -141,4 +141,27 @@ describe('RecipeDetailPane', () => {
     expect(onDelete).toHaveBeenCalledTimes(1);
     expect(onDelete).toHaveBeenCalledWith(customRecipe);
   });
+
+  it('adapts slider min and max bounds dynamically for recipes outside 10-60g range', () => {
+    const largeBatchRecipe: BrewRecipe = {
+      ...recipe,
+      id: 'batch-brew',
+      name: 'Cold Brew Batch',
+      coffeeDoseGrams: 85,
+    };
+
+    render(
+      <MemoryRouter>
+        <RecipeDetailPane
+          recipe={largeBatchRecipe}
+          onSelectRecipeForTimer={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+
+    const slider = screen.getByRole('slider', { name: /coffee dose/i });
+    expect(slider.getAttribute('min')).toBe('10');
+    expect(slider.getAttribute('max')).toBe('85');
+    expect(screen.getAllByText('85g').length).toBeGreaterThanOrEqual(2);
+  });
 });

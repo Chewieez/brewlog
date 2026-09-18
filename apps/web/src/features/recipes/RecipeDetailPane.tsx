@@ -37,6 +37,19 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
   const isCustom = !recipe.isPreset && !recipe.id.startsWith('preset-');
   const stages = scaledRecipe.stages || (scaledRecipe as unknown as { steps: typeof scaledRecipe.stages }).steps || [];
 
+  const minDose = Math.min(10, Math.floor(recipe.coffeeDoseGrams));
+  const maxDose = Math.max(60, Math.ceil(recipe.coffeeDoseGrams));
+  const scaleMarks = minDose === 10 && maxDose === 60
+    ? [10, 20, 30, 40, 50, 60]
+    : [
+        minDose,
+        Math.round(minDose + (maxDose - minDose) * 0.2),
+        Math.round(minDose + (maxDose - minDose) * 0.4),
+        Math.round(minDose + (maxDose - minDose) * 0.6),
+        Math.round(minDose + (maxDose - minDose) * 0.8),
+        maxDose,
+      ];
+
   return (
     <div className="p-6 rounded-2xl bg-panel border border-border-subtle space-y-6">
       {/* Mobile Back Button */}
@@ -125,21 +138,18 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
         <input
           type="range"
           aria-label="Coffee Dose"
-          min={10}
-          max={60}
+          min={minDose}
+          max={maxDose}
           step={1}
           value={customDose}
           onChange={(e) => setCustomDose(Math.round(parseFloat(e.target.value)))}
           className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-accent focus:outline-none"
         />
-        {/* Linear scale marks matching min=10, max=60 with 20% intervals */}
+        {/* Linear scale marks matching min and max with 20% intervals */}
         <div className="flex justify-between text-[10px] text-zinc-500 font-mono px-0.5">
-          <span>10g</span>
-          <span>20g</span>
-          <span>30g</span>
-          <span>40g</span>
-          <span>50g</span>
-          <span>60g</span>
+          {scaleMarks.map((mark, i) => (
+            <span key={i}>{mark}g</span>
+          ))}
         </div>
 
         {/* Quick Dose Presets */}
