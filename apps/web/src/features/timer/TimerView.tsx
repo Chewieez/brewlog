@@ -59,6 +59,9 @@ export const TimerView: React.FC<TimerViewProps> = ({
   const handleReset = () => {
     resetTimer();
     setIsResetting(true);
+    if (progressBarRef.current) {
+      progressBarRef.current.style.width = '0%';
+    }
     setTimeout(() => setIsResetting(false), 500);
   };
 
@@ -190,7 +193,6 @@ export const TimerView: React.FC<TimerViewProps> = ({
               <div
                 ref={progressBarRef}
                 className={`h-full bg-accent ${isResetting ? 'transition-all duration-300 ease-out' : ''}`}
-                style={{ width: `${totalProgressPercent}%` }}
               />
             </div>
           </div>
