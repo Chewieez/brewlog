@@ -23,6 +23,11 @@ export const TimerView: React.FC<TimerViewProps> = ({
   const [doseGrams, setDoseGrams] = useState(initialRecipe.coffeeDoseGrams);
   const [recipe, setRecipe] = useState<BrewRecipe>(initialRecipe);
 
+  // Reset dose when initial recipe changes
+  useEffect(() => {
+    setDoseGrams(initialRecipe.coffeeDoseGrams);
+  }, [initialRecipe.id, initialRecipe.coffeeDoseGrams]);
+
   // Sync recipe when initial recipe or dose changes
   useEffect(() => {
     setRecipe(rescaleRecipeDose(initialRecipe, doseGrams));
