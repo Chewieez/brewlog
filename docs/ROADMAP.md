@@ -32,6 +32,16 @@ This document tracks upcoming milestones, architectural refactors, and technical
 - Created dedicated tab screens for Recipes catalog (`app/(tabs)/recipes.tsx`), Stash (`app/(tabs)/stash.tsx`), Equipment (`app/(tabs)/equipment.tsx`), and Cupping (`app/(tabs)/cupping.tsx`).
 - Verified zero errors across 21/21 `npx expo-doctor` checks, 132/132 monorepo unit tests, and production Metro bundling for both iOS (3,089 modules) and Android (3,234 modules).
 
+### Phase 3B: Mobile App — Interactive Brew Timer Subsystem (Complete ✅)
+- Implemented drift-free precision timing hook `useMobileBrewTimer` using `performance.now()` wall-clock delta calculation and integer-second state dispatches to eliminate 60fps bridge re-renders.
+- 1-to-1 visual continuity with web app instrument faceplate (`TimerView.tsx`): oversized tabular monospaced clock (`MM:SS`), sleek linear progress bar, 3-column chassis metrics grid (`COFFEE DOSE`, `WATER TARGET`, `POUR TO` in accent orange), hairline dividers, and unified START BREW / PAUSE / RESUME / RESET / MUTE hardware controls.
+- Integrated tactile feedback (`expo-haptics`) for 3-2-1 countdown ticks, stage transitions, brew completion, and button presses, with graceful fallback on simulators.
+- Integrated audio chimes (`expo-audio`) with header mute toggle.
+- Built quick-start method pills (`MethodPills`) for instant preset switching (`V60`, `Chemex`, `Aeropress`, `French Press`).
+- Retained standalone ratio calculator in an accordion card (`CollapsibleCalculator`) defaulting to collapsed with live summary badge.
+- Built active stage guidance card (`ActiveStageCard`) and vertical step timeline (`StageTimeline`).
+- Verified 6/6 unit tests in `apps/mobile`, 14/14 test suites monorepo-wide, zero TypeScript errors, and production Metro bundling for both iOS (3,099 modules) and Android (3,244 modules).
+
 ---
 
 ## 📋 Technical Debt & Component Refactoring (TODO)
@@ -63,12 +73,12 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
 ## 🚀 Upcoming Project Milestones
 
 ### Phase 3 Mobile App (Next Slices)
-- [ ] **Phase 3B: Supabase Auth & Secure Storage**:
+- [ ] **Phase 3C: Supabase Auth & Secure Storage**:
   - Implement `createBrewlogClient` with `expo-secure-store` / `LargeSecureStore` for mobile session persistence.
   - Mobile authentication sheet/modal.
-- [ ] **Phase 3C: Mobile Feature Parity**:
-  - Mobile interactive timer with native audio/haptics (`expo-haptics`).
+- [ ] **Phase 3D: Mobile Feature Parity**:
   - Recipe studio and stash manager on native.
+  - Native cupping session logging flow.
 
 ### Wearable Companions
 - **Phase 4**: WearOS companion app and tile (Jetpack Compose, Wearable DataLayer).
