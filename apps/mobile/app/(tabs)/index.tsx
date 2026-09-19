@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   ScrollView,
+  Pressable,
   StyleSheet,
   Platform,
 } from 'react-native';
@@ -11,10 +12,9 @@ import Constants from 'expo-constants';
 import {
   INDUSTRIAL_PRECISION_THEME,
   calculateWaterAmount,
-  DEFAULT_PRESET_RECIPES,
 } from '@brewlog/core';
 
-export default function SmokeScreen() {
+export default function TimerScreen() {
   const [dose, setDose] = useState('18');
   const [ratio, setRatio] = useState('16');
 
@@ -26,20 +26,20 @@ export default function SmokeScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* 1. Header Card: Environment Verification */}
+      {/* 1. Status Card: Environment & Profile */}
       <View style={styles.card}>
-        <Text style={styles.cardEyebrow}>ENVIRONMENT CHECK</Text>
-        <Text style={styles.cardTitle}>Mobile Foundation Ready</Text>
+        <Text style={styles.cardEyebrow}>TIMER & BREW ASSISTANT</Text>
+        <Text style={styles.cardTitle}>Mobile Station Ready</Text>
         <Text style={styles.cardBody}>
-          Expo SDK {Constants.expoConfig?.version ?? '57'} running on {Platform.OS}.
-          Workspace link active with @brewlog/core.
+          Expo SDK {Constants.expoConfig?.version ?? '57'} on {Platform.OS}.
+          Connected to @brewlog/core domain engine.
         </Text>
       </View>
 
-      {/* 2. Interactive Calculator Card: Domain Math Verification */}
+      {/* 2. Interactive Calculator Card: Domain Math */}
       <View style={styles.card}>
-        <Text style={styles.cardEyebrow}>DOMAIN LOGIC PROOF</Text>
-        <Text style={styles.cardTitle}>Water Ratio Calculator</Text>
+        <Text style={styles.cardEyebrow}>WATER RATIO CALCULATOR</Text>
+        <Text style={styles.cardTitle}>Dose to Yield</Text>
 
         <View style={styles.inputRow}>
           <View style={styles.inputGroup}>
@@ -70,22 +70,17 @@ export default function SmokeScreen() {
         </View>
       </View>
 
-      {/* 3. Preset Recipes List: Data Models Verification */}
-      <View style={styles.card}>
-        <Text style={styles.cardEyebrow}>SHARED DATA MODELS</Text>
-        <Text style={styles.cardTitle}>Core Recipe Presets</Text>
-        {DEFAULT_PRESET_RECIPES.map((recipe) => (
-          <View key={recipe.id} style={styles.recipeRow}>
-            <View>
-              <Text style={styles.recipeName}>{recipe.name}</Text>
-              <Text style={styles.recipeMethod}>
-                {recipe.brewMethod.toUpperCase()} • 1:{recipe.ratio}
-              </Text>
-            </View>
-            <Text style={styles.recipeDose}>{recipe.coffeeDoseGrams}g</Text>
-          </View>
-        ))}
-      </View>
+      {/* 3. Quick Action: Start Brew */}
+      <Pressable
+        style={({ pressed }) => [
+          styles.actionButton,
+          pressed && styles.actionButtonPressed,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel="Start Brew Session"
+      >
+        <Text style={styles.actionButtonText}>Start Brew Session</Text>
+      </Pressable>
     </ScrollView>
   );
 }
@@ -171,27 +166,20 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.accent,
   },
-  recipeRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  actionButton: {
+    backgroundColor: colors.accent,
+    paddingVertical: 14,
+    borderRadius: 8,
     alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderSubtle,
+    justifyContent: 'center',
   },
-  recipeName: {
-    fontSize: 15,
-    fontWeight: '600',
+  actionButtonPressed: {
+    opacity: 0.85,
+  },
+  actionButtonText: {
     color: colors.textPrimary,
-  },
-  recipeMethod: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  recipeDose: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
-    color: colors.textSecondary,
+    letterSpacing: 0.5,
   },
 });
