@@ -24,6 +24,14 @@ This document tracks upcoming milestones, architectural refactors, and technical
 - Built educational Smoke Screen (`app/index.tsx`) demonstrating native primitives (`ScrollView`, `View`, `Text`, `TextInput`) and `StyleSheet.create` consuming `INDUSTRIAL_PRECISION_THEME` tokens.
 - Verified domain logic integration (`calculateWaterAmount`, `DEFAULT_PRESET_RECIPES`) and verified bundling on iOS and Android.
 
+### Phase 3A: Mobile App — Bottom Tab Navigation Shell (Complete ✅)
+- Implemented Expo Router `app/(tabs)/_layout.tsx` native bottom tabs navigator.
+- Integrated `react-native-svg` and `lucide-react-native` for 1-to-1 visual icon parity with the web app (`Timer`, `BookOpen`, `Coffee`, `Wrench`, `Award`).
+- Styled tab bar, screen headers, and panel cards strictly with `INDUSTRIAL_PRECISION_THEME.colors` (zero hardcoded hex values).
+- Migrated interactive smoke features to default tab route `/` (`app/(tabs)/index.tsx`).
+- Created dedicated tab screens for Recipes catalog (`app/(tabs)/recipes.tsx`), Stash (`app/(tabs)/stash.tsx`), Equipment (`app/(tabs)/equipment.tsx`), and Cupping (`app/(tabs)/cupping.tsx`).
+- Verified zero errors across 21/21 `npx expo-doctor` checks, 132/132 monorepo unit tests, and production Metro bundling for both iOS (3,089 modules) and Android (3,234 modules).
+
 ---
 
 ## 📋 Technical Debt & Component Refactoring (TODO)
@@ -55,9 +63,6 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
 ## 🚀 Upcoming Project Milestones
 
 ### Phase 3 Mobile App (Next Slices)
-- [ ] **Phase 3A: Bottom Tab Navigation Shell**:
-  - Scaffold `(tabs)/_layout.tsx` with native tab bar icons (Timer, Recipes, Stash, Equipment, Cupping).
-  - Add initial tab screens styled with industrial theme tokens.
 - [ ] **Phase 3B: Supabase Auth & Secure Storage**:
   - Implement `createBrewlogClient` with `expo-secure-store` / `LargeSecureStore` for mobile session persistence.
   - Mobile authentication sheet/modal.
