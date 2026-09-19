@@ -17,6 +17,13 @@ This document tracks upcoming milestones, architectural refactors, and technical
 - Direct deep-linking and URL synchronization.
 - 404 fallback for invalid recipe IDs.
 
+### Phase 3: Mobile App (React Native Expo) — Foundation & Smoke Screen (Complete ✅)
+- Initialized `apps/mobile` with Expo SDK 57, React Native 0.86, and React 19.2.8.
+- Configured Metro bundler automatic monorepo workspace resolution (`metro.config.js`).
+- Implemented Expo Router root stack layout (`app/_layout.tsx`) with dark status bar and safe area context.
+- Built educational Smoke Screen (`app/index.tsx`) demonstrating native primitives (`ScrollView`, `View`, `Text`, `TextInput`) and `StyleSheet.create` consuming `INDUSTRIAL_PRECISION_THEME` tokens.
+- Verified domain logic integration (`calculateWaterAmount`, `DEFAULT_PRESET_RECIPES`) and verified bundling on iOS and Android.
+
 ---
 
 ## 📋 Technical Debt & Component Refactoring (TODO)
@@ -47,6 +54,17 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
 
 ## 🚀 Upcoming Project Milestones
 
-- **Phase 3**: Mobile App (React Native Expo) feature parity and shared domain integration.
+### Phase 3 Mobile App (Next Slices)
+- [ ] **Phase 3A: Bottom Tab Navigation Shell**:
+  - Scaffold `(tabs)/_layout.tsx` with native tab bar icons (Timer, Recipes, Stash, Equipment, Cupping).
+  - Add initial tab screens styled with industrial theme tokens.
+- [ ] **Phase 3B: Supabase Auth & Secure Storage**:
+  - Implement `createBrewlogClient` with `expo-secure-store` / `LargeSecureStore` for mobile session persistence.
+  - Mobile authentication sheet/modal.
+- [ ] **Phase 3C: Mobile Feature Parity**:
+  - Mobile interactive timer with native audio/haptics (`expo-haptics`).
+  - Recipe studio and stash manager on native.
+
+### Wearable Companions
 - **Phase 4**: WearOS companion app and tile (Jetpack Compose, Wearable DataLayer).
 - **Phase 5**: watchOS companion app and complications (SwiftUI, WatchConnectivity).
