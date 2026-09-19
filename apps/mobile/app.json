@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "BrewLog",
+    "slug": "brewlog",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "brewlog",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#121214"
+      }
+    },
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}
