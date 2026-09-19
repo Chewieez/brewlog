@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { CheckCircle2, CircleDot, Circle } from 'lucide-react-native';
 import { INDUSTRIAL_PRECISION_THEME, BrewStage } from '@brewlog/core';
+import { FONTS } from '../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -68,8 +69,7 @@ const styles = StyleSheet.create({
   title: {
     color: colors.textMuted,
     fontSize: 10,
-    fontFamily: 'Courier',
-    fontWeight: '700',
+    fontFamily: FONTS.monoBold,
     letterSpacing: 1.5,
   },
   timelineList: {
@@ -93,10 +93,11 @@ const styles = StyleSheet.create({
   stepName: {
     color: colors.textSecondary,
     fontSize: 13,
+    fontFamily: FONTS.sansRegular,
   },
   stepNameActive: {
     color: colors.accent,
-    fontWeight: '700',
+    fontFamily: FONTS.sansSemiBold,
   },
   stepNameDone: {
     color: colors.textMuted,
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
   stepMeta: {
     color: colors.textMuted,
     fontSize: 11,
-    fontFamily: 'Courier',
+    fontFamily: FONTS.monoRegular,
   },
 });
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { INDUSTRIAL_PRECISION_THEME, BrewStage } from '@brewlog/core';
+import { FONTS } from '../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -19,9 +20,6 @@ export const ActiveStageCard: React.FC<ActiveStageCardProps> = ({
 }) => {
   const stageEndSecond = stage.startSecond + stage.durationSeconds;
   const secondsLeftInStage = Math.max(0, stageEndSecond - elapsedSeconds);
-  const descriptionText =
-    stage.instruction ||
-    (stage as unknown as { description?: string }).description;
 
   return (
     <View style={styles.card}>
@@ -35,14 +33,14 @@ export const ActiveStageCard: React.FC<ActiveStageCardProps> = ({
       </View>
 
       <Text style={styles.stageName}>{stage.name}</Text>
-
+      
       <View style={styles.targetRow}>
         <Text style={styles.targetWaterLabel}>POUR TARGET</Text>
         <Text style={styles.targetWaterValue}>{stage.targetWaterWeightGrams}g</Text>
       </View>
 
-      {descriptionText ? (
-        <Text style={styles.description}>{descriptionText}</Text>
+      {stage.instruction ? (
+        <Text style={styles.description}>{stage.instruction}</Text>
       ) : null}
     </View>
   );
@@ -66,21 +64,19 @@ const styles = StyleSheet.create({
   stepBadge: {
     color: colors.accent,
     fontSize: 10,
-    fontFamily: 'Courier',
-    fontWeight: '700',
+    fontFamily: FONTS.monoBold,
     letterSpacing: 1.2,
   },
   countdownText: {
     color: colors.textMuted,
     fontSize: 10,
-    fontFamily: 'Courier',
-    fontWeight: '700',
+    fontFamily: FONTS.monoBold,
     letterSpacing: 1,
   },
   stageName: {
     color: colors.textPrimary,
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 17,
+    fontFamily: FONTS.sansSemiBold,
   },
   targetRow: {
     flexDirection: 'row',
@@ -94,20 +90,20 @@ const styles = StyleSheet.create({
   targetWaterLabel: {
     color: colors.textMuted,
     fontSize: 10,
-    fontFamily: 'Courier',
-    fontWeight: '700',
+    fontFamily: FONTS.monoBold,
     letterSpacing: 1,
   },
   targetWaterValue: {
     color: colors.accent,
-    fontSize: 18,
-    fontFamily: 'Courier',
-    fontWeight: '700',
+    fontSize: 22,
+    fontFamily: FONTS.displayLight,
+    fontVariant: ['tabular-nums'],
   },
   description: {
     color: colors.textSecondary,
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 13,
+    fontFamily: FONTS.sansRegular,
+    lineHeight: 19,
   },
 });
 

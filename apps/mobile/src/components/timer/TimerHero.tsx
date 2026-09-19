@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react-native';
 import { INDUSTRIAL_PRECISION_THEME, BrewRecipe } from '@brewlog/core';
+import { FONTS } from '../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -32,30 +33,15 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
 }) => {
   const mins = Math.floor(elapsedSeconds / 60);
   const secs = elapsedSeconds % 60;
-  const timeFormatted = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 
   return (
     <View style={styles.chassis}>
-      {/* Recipe Title & Specs Header */}
+      {/* Recipe Title & Specs Header (Single Mute Button is below in controls, matching web) */}
       <View style={styles.recipeHeader}>
-        <View style={styles.recipeHeaderTitles}>
-          <Text style={styles.recipeSubtitle}>
-            {recipe.brewMethod.toUpperCase()} · 1:{recipe.ratio}
-          </Text>
-          <Text style={styles.recipeTitle}>{recipe.name}</Text>
-        </View>
-        <Pressable
-          onPress={onToggleMute}
-          style={styles.hardwareIconButton}
-          accessibilityRole="button"
-          accessibilityLabel={isMuted ? 'Unmute Audio' : 'Mute Audio'}
-        >
-          {isMuted ? (
-            <VolumeX size={16} color={colors.textMuted} />
-          ) : (
-            <Volume2 size={16} color={colors.accent} />
-          )}
-        </Pressable>
+        <Text style={styles.recipeSubtitle}>
+          {recipe.brewMethod.toUpperCase()} · 1:{recipe.ratio}
+        </Text>
+        <Text style={styles.recipeTitle}>{recipe.name}</Text>
       </View>
 
       {/* Linear Progress Line */}
@@ -63,9 +49,11 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
         <View style={[styles.progressFill, { width: `${totalProgress}%` }]} />
       </View>
 
-      {/* Oversized Tabular Digital Clock */}
+      {/* Oversized Tabular Digital Clock — Appliance Light with optically centered colon */}
       <View style={styles.clockContainer}>
-        <Text style={styles.clockText}>{timeFormatted}</Text>
+        <Text style={styles.clockDigit}>{mins}</Text>
+        <Text style={styles.clockColon}>:</Text>
+        <Text style={styles.clockDigit}>{String(secs).padStart(2, '0')}</Text>
       </View>
 
       {/* Hairline Divider */}
@@ -137,7 +125,7 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
           onPress={onToggleMute}
           style={styles.hardwareIconButton}
           accessibilityRole="button"
-          accessibilityLabel={isMuted ? 'Unmute' : 'Mute'}
+          accessibilityLabel={isMuted ? 'Unmute Audio' : 'Mute Audio'}
         >
           {isMuted ? (
             <VolumeX size={16} color={colors.textMuted} />
@@ -157,26 +145,18 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   recipeHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  recipeHeaderTitles: {
-    flex: 1,
-    paddingRight: 12,
+    gap: 2,
   },
   recipeSubtitle: {
     color: colors.accent,
     fontSize: 10,
-    fontFamily: 'Courier',
-    fontWeight: '700',
+    fontFamily: FONTS.monoBold,
     letterSpacing: 1.5,
   },
   recipeTitle: {
     color: colors.textPrimary,
-    fontSize: 16,
-    fontWeight: '600',
-    marginTop: 2,
+    fontSize: 17,
+    fontFamily: FONTS.sansSemiBold,
   },
   progressTrack: {
     height: 3,
@@ -189,16 +169,25 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accent,
   },
   clockContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 4,
   },
-  clockText: {
-    fontSize: 72,
-    fontFamily: 'Courier',
-    fontWeight: '300',
+  clockDigit: {
+    fontSize: 84,
+    fontFamily: FONTS.displayLight,
     color: colors.textPrimary,
-    letterSpacing: -2,
+    fontVariant: ['tabular-nums'],
+    includeFontPadding: false,
+  },
+  clockColon: {
+    fontSize: 74,
+    fontFamily: FONTS.displayLight,
+    color: colors.textMuted,
+    paddingHorizontal: 3,
+    transform: [{ translateY: -6 }],
+    includeFontPadding: false,
   },
   hairline: {
     height: 1,
@@ -212,22 +201,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   metricLabel: {
-    fontSize: 9,
-    fontFamily: 'Courier',
-    fontWeight: '700',
+    fontSize: 10,
+    fontFamily: FONTS.monoBold,
     color: colors.textMuted,
     letterSpacing: 1.2,
   },
   metricValue: {
-    fontSize: 22,
-    fontFamily: 'Courier',
-    fontWeight: '300',
+    fontSize: 26,
+    fontFamily: FONTS.displayLight,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
     marginTop: 2,
   },
   metricValueAccent: {
     color: colors.accent,
-    fontWeight: '600',
   },
   controlsRow: {
     flexDirection: 'row',
@@ -252,8 +239,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: colors.canvas,
     fontSize: 12,
-    fontFamily: 'Courier',
-    fontWeight: '800',
+    fontFamily: FONTS.monoBold,
     letterSpacing: 1.5,
   },
   hardwareIconButton: {

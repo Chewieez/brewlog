@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { ChevronDown, ChevronUp, Calculator } from 'lucide-react-native';
 import { INDUSTRIAL_PRECISION_THEME, calculateWaterAmount } from '@brewlog/core';
+import { FONTS } from '../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -109,15 +110,14 @@ const styles = StyleSheet.create({
   title: {
     color: colors.textMuted,
     fontSize: 10,
-    fontFamily: 'Courier',
-    fontWeight: '700',
+    fontFamily: FONTS.monoBold,
     letterSpacing: 1.2,
   },
   summaryBadge: {
     color: colors.textPrimary,
     fontSize: 11,
-    fontFamily: 'Courier',
-    fontWeight: '600',
+    fontFamily: FONTS.monoRegular,
+    fontWeight: '500',
   },
   body: {
     paddingHorizontal: 14,
@@ -138,8 +138,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     color: colors.textMuted,
     fontSize: 10,
-    fontFamily: 'Courier',
-    fontWeight: '700',
+    fontFamily: FONTS.monoBold,
     letterSpacing: 1,
   },
   input: {
@@ -149,7 +148,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     color: colors.textPrimary,
     fontSize: 15,
-    fontFamily: 'Courier',
+    fontFamily: FONTS.monoRegular,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
@@ -169,15 +168,14 @@ const styles = StyleSheet.create({
   targetLabel: {
     color: colors.textMuted,
     fontSize: 11,
-    fontFamily: 'Courier',
-    fontWeight: '700',
+    fontFamily: FONTS.monoBold,
     letterSpacing: 1,
   },
   targetValue: {
     color: colors.accent,
-    fontSize: 18,
-    fontFamily: 'Courier',
-    fontWeight: '700',
+    fontSize: 20,
+    fontFamily: FONTS.displayLight,
+    fontVariant: ['tabular-nums'],
   },
 });
 

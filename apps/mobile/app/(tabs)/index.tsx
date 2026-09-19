@@ -13,6 +13,7 @@ import { CollapsibleCalculator } from '../../src/components/timer/CollapsibleCal
 import { TimerHero } from '../../src/components/timer/TimerHero';
 import { ActiveStageCard } from '../../src/components/timer/ActiveStageCard';
 import { StageTimeline } from '../../src/components/timer/StageTimeline';
+import { FONTS } from '../../src/theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -145,13 +146,13 @@ const styles = StyleSheet.create({
   finishedTitle: {
     color: colors.accent,
     fontSize: 14,
-    fontFamily: 'Courier',
-    fontWeight: '800',
+    fontFamily: FONTS.monoBold,
     letterSpacing: 2,
   },
   finishedSubtitle: {
     color: colors.textSecondary,
     fontSize: 13,
+    fontFamily: FONTS.sansRegular,
   },
   logButton: {
     marginTop: 8,
@@ -163,8 +164,7 @@ const styles = StyleSheet.create({
   logButtonText: {
     color: colors.canvas,
     fontSize: 11,
-    fontFamily: 'Courier',
-    fontWeight: '800',
+    fontFamily: FONTS.monoBold,
     letterSpacing: 1.2,
   },
 });
