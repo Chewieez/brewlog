@@ -12,24 +12,13 @@ export default function RootLayout() {
       <StatusBar style="light" />
       <Stack
         screenOptions={{
-          headerStyle: {
-            backgroundColor: colors.panel,
-          },
-          headerTintColor: colors.textPrimary,
-          headerTitleStyle: {
-            fontWeight: '700',
-          },
+          headerShown: false,
           contentStyle: {
             backgroundColor: colors.canvas,
           },
         }}
       >
-        <Stack.Screen
-          name="index"
-          options={{
-            title: 'BrewLog Mobile',
-          }}
-        />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     </SafeAreaProvider>
   );
