@@ -1,185 +1,170 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  ScrollView,
-  Pressable,
-  StyleSheet,
-  Platform,
-} from 'react-native';
-import Constants from 'expo-constants';
+import { View, ScrollView, StyleSheet, Text, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 import {
   INDUSTRIAL_PRECISION_THEME,
-  calculateWaterAmount,
+  DEFAULT_PRESET_RECIPES,
+  BrewRecipe,
+  rescaleRecipeDose,
 } from '@brewlog/core';
+import { useMobileBrewTimer } from '../../src/hooks/useMobileBrewTimer';
+import { MethodPills } from '../../src/components/timer/MethodPills';
+import { CollapsibleCalculator } from '../../src/components/timer/CollapsibleCalculator';
+import { TimerHero } from '../../src/components/timer/TimerHero';
+import { ActiveStageCard } from '../../src/components/timer/ActiveStageCard';
+import { StageTimeline } from '../../src/components/timer/StageTimeline';
+
+const { colors } = INDUSTRIAL_PRECISION_THEME;
+
+const AVAILABLE_METHODS = ['V60', 'Chemex', 'Aeropress', 'French Press'];
 
 export default function TimerScreen() {
-  const [dose, setDose] = useState('18');
-  const [ratio, setRatio] = useState('16');
+  const router = useRouter();
+  const [selectedRecipe, setSelectedRecipe] = useState<BrewRecipe>(
+    DEFAULT_PRESET_RECIPES[0]
+  );
+  const [doseGrams, setDoseGrams] = useState(
+    DEFAULT_PRESET_RECIPES[0].coffeeDoseGrams
+  );
 
-  const doseNum = parseFloat(dose) || 0;
-  const ratioNum = parseFloat(ratio) || 0;
-  const targetWater = calculateWaterAmount(doseNum, ratioNum);
+  const activeRecipe = rescaleRecipeDose(selectedRecipe, doseGrams);
 
-  const { colors } = INDUSTRIAL_PRECISION_THEME;
+  const {
+    elapsedSeconds,
+    isRunning,
+    isFinished,
+    isMuted,
+    currentStageIndex,
+    currentStage,
+    totalProgress,
+    toggleTimer,
+    reset,
+    toggleMute,
+  } = useMobileBrewTimer(activeRecipe);
+
+  const handleSelectMethod = (methodName: string) => {
+    const match = DEFAULT_PRESET_RECIPES.find(
+      (r) => r.brewMethod.toLowerCase() === methodName.toLowerCase()
+    );
+    if (match) {
+      reset();
+      setSelectedRecipe(match);
+      setDoseGrams(match.coffeeDoseGrams);
+    }
+  };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* 1. Status Card: Environment & Profile */}
-      <View style={styles.card}>
-        <Text style={styles.cardEyebrow}>TIMER & BREW ASSISTANT</Text>
-        <Text style={styles.cardTitle}>Mobile Station Ready</Text>
-        <Text style={styles.cardBody}>
-          Expo SDK {Constants.expoConfig?.version ?? '57'} on {Platform.OS}.
-          Connected to @brewlog/core domain engine.
-        </Text>
-      </View>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Quick-Start Method Pills */}
+      <MethodPills
+        selectedMethod={activeRecipe.brewMethod}
+        onSelectMethod={handleSelectMethod}
+        methods={AVAILABLE_METHODS}
+      />
 
-      {/* 2. Interactive Calculator Card: Domain Math */}
-      <View style={styles.card}>
-        <Text style={styles.cardEyebrow}>WATER RATIO CALCULATOR</Text>
-        <Text style={styles.cardTitle}>Dose to Yield</Text>
+      {/* Standalone Collapsible Calculator (Default Collapsed) */}
+      <CollapsibleCalculator
+        initialDose={doseGrams}
+        initialRatio={activeRecipe.ratio}
+      />
 
-        <View style={styles.inputRow}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>DOSE (G)</Text>
-            <TextInput
-              style={styles.input}
-              value={dose}
-              onChangeText={setDose}
-              keyboardType="numeric"
-              placeholderTextColor={colors.textMuted}
-            />
-          </View>
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>RATIO (1:X)</Text>
-            <TextInput
-              style={styles.input}
-              value={ratio}
-              onChangeText={setRatio}
-              keyboardType="numeric"
-              placeholderTextColor={colors.textMuted}
-            />
-          </View>
+      {/* Web-Parity Instrument Faceplate */}
+      <TimerHero
+        recipe={activeRecipe}
+        elapsedSeconds={elapsedSeconds}
+        isRunning={isRunning}
+        isMuted={isMuted}
+        currentStageTargetWater={currentStage.targetWaterWeightGrams}
+        doseGrams={doseGrams}
+        onToggleTimer={toggleTimer}
+        onReset={reset}
+        onToggleMute={toggleMute}
+        totalProgress={totalProgress}
+      />
+
+      {/* Finished Banner */}
+      {isFinished ? (
+        <View style={styles.finishedBanner}>
+          <Text style={styles.finishedTitle}>BREW COMPLETE</Text>
+          <Text style={styles.finishedSubtitle}>
+            Completed in {Math.floor(elapsedSeconds / 60)}m {elapsedSeconds % 60}s
+          </Text>
+          <Pressable
+            onPress={() => router.push('/cupping')}
+            style={styles.logButton}
+            accessibilityRole="button"
+            accessibilityLabel="Log to Cupping Journal"
+          >
+            <Text style={styles.logButtonText}>LOG TO CUPPING JOURNAL</Text>
+          </Pressable>
         </View>
+      ) : (
+        <>
+          {/* Active Pour Guidance */}
+          <ActiveStageCard
+            stage={currentStage}
+            stageIndex={currentStageIndex}
+            totalStages={activeRecipe.stages.length}
+            elapsedSeconds={elapsedSeconds}
+          />
 
-        <View style={styles.resultBox}>
-          <Text style={styles.resultLabel}>TARGET WATER</Text>
-          <Text style={styles.resultValue}>{targetWater.toFixed(1)}g</Text>
-        </View>
-      </View>
-
-      {/* 3. Quick Action: Start Brew */}
-      <Pressable
-        style={({ pressed }) => [
-          styles.actionButton,
-          pressed && styles.actionButtonPressed,
-        ]}
-        accessibilityRole="button"
-        accessibilityLabel="Start Brew Session"
-      >
-        <Text style={styles.actionButtonText}>Start Brew Session</Text>
-      </Pressable>
+          {/* Timeline of Stages */}
+          <StageTimeline
+            stages={activeRecipe.stages}
+            currentStageIndex={currentStageIndex}
+          />
+        </>
+      )}
     </ScrollView>
   );
 }
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.canvas,
   },
-  content: {
-    padding: 16,
-    gap: 16,
+  contentContainer: {
+    paddingBottom: 32,
   },
-  card: {
+  finishedBanner: {
+    marginHorizontal: 16,
+    marginVertical: 12,
     backgroundColor: colors.panel,
-    borderRadius: 8,
+    borderColor: colors.accent,
     borderWidth: 1,
-    borderColor: colors.borderSubtle,
+    borderRadius: 8,
     padding: 16,
+    alignItems: 'center',
+    gap: 8,
   },
-  cardEyebrow: {
-    fontSize: 11,
-    fontWeight: '700',
+  finishedTitle: {
     color: colors.accent,
-    letterSpacing: 1.2,
-    marginBottom: 4,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    marginBottom: 8,
-  },
-  cardBody: {
     fontSize: 14,
-    color: colors.textSecondary,
-    lineHeight: 20,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-  },
-  inputGroup: {
-    flex: 1,
-  },
-  inputLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    marginBottom: 4,
-  },
-  input: {
-    backgroundColor: colors.panelRecessed,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    borderRadius: 6,
-    color: colors.textPrimary,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 16,
-  },
-  resultBox: {
-    marginTop: 12,
-    padding: 12,
-    backgroundColor: colors.panelRecessed,
-    borderRadius: 6,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.accent,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  resultLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.textSecondary,
-  },
-  resultValue: {
-    fontSize: 20,
+    fontFamily: 'Courier',
     fontWeight: '800',
-    color: colors.accent,
+    letterSpacing: 2,
   },
-  actionButton: {
+  finishedSubtitle: {
+    color: colors.textSecondary,
+    fontSize: 13,
+  },
+  logButton: {
+    marginTop: 8,
     backgroundColor: colors.accent,
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 6,
   },
-  actionButtonPressed: {
-    opacity: 0.85,
-  },
-  actionButtonText: {
-    color: colors.textPrimary,
-    fontSize: 16,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+  logButtonText: {
+    color: colors.canvas,
+    fontSize: 11,
+    fontFamily: 'Courier',
+    fontWeight: '800',
+    letterSpacing: 1.2,
   },
 });
