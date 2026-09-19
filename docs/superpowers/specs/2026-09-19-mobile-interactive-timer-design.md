@@ -41,8 +41,15 @@ This design specification details the mobile interactive brew timer subsystem, s
      - Subtle audio cues on stage start and countdown.
      - Header mute toggle button (`Volume2` / `VolumeX`) allows silencing audio immediately while keeping haptics active.
 
-5. **Visual Contract & File Hygiene**:
+5. **Visual Contract & Hardware Faceplate Continuity**:
    - 100% adherence to `INDUSTRIAL_PRECISION_THEME.colors` from `@brewlog/core` (zero raw hex codes).
+   - **Direct Parity with Web App Instrument Faceplate (`TimerView.tsx`)**:
+     - **Primary Action Button (`Start Brew` / `Pause` / `Resume`)**: Matches web styling with uppercase bold monospaced typography, solid filled `Play`/`Pause` Lucide icons, and state-based styling:
+       - Idle/Paused: High-contrast light button (`colors.text` background, dark text `#09090B`).
+       - Active/Running: Accent orange button (`colors.accent` background, dark text `#09090B`).
+     - **Physical Instrument Buttons (`Reset` & `Mute`)**: Framed square-rounded buttons with `colors.borderSubtle` and `colors.surface` background, matching web's hardware buttons. Reset turns accent orange when active; Mute uses `Volume2` in `colors.accent` (unmuted) and `VolumeX` in `colors.textMuted` (muted).
+     - **Oversized Digital Time Readout**: High-contrast tabular numbers (`MM:SS`) in `colors.text` with centered colon.
+     - **Chassis Metrics Grid**: Three-column hardware readout (`COFFEE DOSE`, `WATER TARGET`, `POUR TO`) with uppercase micro-labels and values directly on the chassis separated by hairline dividers (`colors.borderSubtle`).
    - Every modified or created file ends with exactly one trailing newline.
    - Pure native `StyleSheet.create` styling.
 
