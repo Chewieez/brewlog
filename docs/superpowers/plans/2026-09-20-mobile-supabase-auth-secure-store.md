@@ -838,6 +838,8 @@ import { INDUSTRIAL_PRECISION_THEME } from "@brewlog/core";
 import { FONTS } from "../../theme/fonts";
 import { useAuth } from "./AuthContext";
 
+const { colors } = INDUSTRIAL_PRECISION_THEME;
+
 export interface ProfileHeaderButtonProps {
   onPress: () => void;
 }
@@ -851,7 +853,6 @@ function getInitials(nameOrEmail: string): string {
 }
 
 export const ProfileHeaderButton: React.FC<ProfileHeaderButtonProps> = ({ onPress }) => {
-  const { colors } = INDUSTRIAL_PRECISION_THEME;
   const { user } = useAuth();
 
   const displayName = user?.user_metadata?.display_name || user?.email;
@@ -866,28 +867,9 @@ export const ProfileHeaderButton: React.FC<ProfileHeaderButtonProps> = ({ onPres
       style={styles.container}
     >
       {initials ? (
-        <View
-          style={[
-            styles.avatarBadge,
-            {
-              backgroundColor: colors.panelRecessed,
-              borderColor: colors.borderSubtle,
-            },
-          ]}
-        >
-          <Text style={[styles.initialsText, { color: colors.textPrimary }]}>
-            {initials}
-          </Text>
-          <View
-            testID="connection-dot"
-            style={[
-              styles.connectionDot,
-              {
-                backgroundColor: colors.statusSuccess,
-                borderColor: colors.panel,
-              },
-            ]}
-          />
+        <View style={styles.avatarBadge}>
+          <Text style={styles.initialsText}>{initials}</Text>
+          <View testID="connection-dot" style={styles.connectionDot} />
         </View>
       ) : (
         <View style={styles.iconWrapper}>
@@ -918,6 +900,8 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    backgroundColor: colors.panelRecessed,
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
@@ -926,6 +910,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 11,
     fontWeight: "700",
+    color: colors.textPrimary,
   },
   connectionDot: {
     position: "absolute",
@@ -934,7 +919,9 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
+    backgroundColor: colors.statusSuccess,
     borderWidth: 1.5,
+    borderColor: colors.panel,
   },
 });
 ```
@@ -1091,6 +1078,8 @@ import { INDUSTRIAL_PRECISION_THEME } from "@brewlog/core";
 import { FONTS } from "../../theme/fonts";
 import { useAuth } from "./AuthContext";
 
+const { colors } = INDUSTRIAL_PRECISION_THEME;
+
 export interface AuthSheetProps {
   visible: boolean;
   onClose: () => void;
@@ -1099,7 +1088,6 @@ export interface AuthSheetProps {
 type AuthMode = "signin" | "signup" | "forgot";
 
 export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
-  const { colors } = INDUSTRIAL_PRECISION_THEME;
   const {
     user,
     isConfigured,
@@ -1212,13 +1200,10 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
           <TouchableWithoutFeedback>
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
-              style={[
-                styles.sheetContainer,
-                { backgroundColor: colors.panel, borderColor: colors.borderSubtle },
-              ]}
+              style={styles.sheetContainer}
             >
               {/* Grabber Handle */}
-              <View style={[styles.grabber, { backgroundColor: colors.borderSubtle }]} />
+              <View style={styles.grabber} />
 
               <ScrollView
                 contentContainerStyle={styles.scrollContent}
@@ -1228,7 +1213,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                 <View style={styles.header}>
                   <View style={styles.headerLeft}>
                     <Sparkles size={18} color={colors.accent} />
-                    <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
+                    <Text style={styles.headerTitle}>
                       {user ? "BARISTA PROFILE" : mode === "forgot" ? "RESET PASSWORD" : "BREWLOG CLOUD"}
                     </Text>
                   </View>
@@ -1237,32 +1222,27 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                     hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                     accessibilityLabel="Close sheet"
                   >
-                    <Text style={[styles.closeText, { color: colors.textMuted }]}>✕</Text>
+                    <Text style={styles.closeText}>✕</Text>
                   </TouchableOpacity>
                 </View>
 
                 {/* Logged In View */}
                 {user ? (
                   <View style={styles.profileSection}>
-                    <View
-                      style={[
-                        styles.statusCard,
-                        { backgroundColor: colors.panelRecessed, borderColor: colors.borderSubtle },
-                      ]}
-                    >
+                    <View style={styles.statusCard}>
                       <View style={styles.statusRow}>
-                        <View style={[styles.statusDot, { backgroundColor: colors.statusSuccess }]} />
-                        <Text style={[styles.statusText, { color: colors.statusSuccess }]}>
+                        <View style={styles.statusDot} />
+                        <Text style={styles.statusText}>
                           CLOUD CONNECTED
                         </Text>
                       </View>
-                      <Text style={[styles.profileName, { color: colors.textPrimary }]}>
+                      <Text style={styles.profileName}>
                         {user.user_metadata?.display_name || "Barista"}
                       </Text>
-                      <Text style={[styles.profileEmail, { color: colors.textMuted }]}>
+                      <Text style={styles.profileEmail}>
                         {user.email}
                       </Text>
-                      <Text style={[styles.profileId, { color: colors.textMuted }]}>
+                      <Text style={styles.profileId}>
                         ID: {user.id.substring(0, 18)}...
                       </Text>
                     </View>
@@ -1270,13 +1250,10 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                     <TouchableOpacity
                       onPress={handleSignOut}
                       activeOpacity={0.8}
-                      style={[
-                        styles.signOutButton,
-                        { borderColor: colors.statusError + "66", backgroundColor: colors.statusError + "1a" },
-                      ]}
+                      style={styles.signOutButton}
                     >
                       <LogOut size={16} color={colors.statusError} />
-                      <Text style={[styles.signOutText, { color: colors.statusError }]}>SIGN OUT</Text>
+                      <Text style={styles.signOutText}>SIGN OUT</Text>
                     </TouchableOpacity>
                   </View>
                 ) : (
@@ -1284,14 +1261,9 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                   <View style={styles.formSection}>
                     {/* Unconfigured Alert */}
                     {!isConfigured && (
-                      <View
-                        style={[
-                          styles.alertBanner,
-                          { backgroundColor: "rgba(245, 158, 11, 0.1)", borderColor: "rgba(245, 158, 11, 0.3)" },
-                        ]}
-                      >
+                      <View style={styles.alertBanner}>
                         <AlertCircle size={16} color={colors.accent} />
-                        <Text style={[styles.alertText, { color: colors.accent }]}>
+                        <Text style={styles.alertText}>
                           Supabase credentials not detected in .env. Running in offline mode.
                         </Text>
                       </View>
@@ -1299,23 +1271,18 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
 
                     {/* Mode Toggle */}
                     {mode !== "forgot" && (
-                      <View
-                        style={[
-                          styles.modeToggleContainer,
-                          { backgroundColor: colors.panelRecessed, borderColor: colors.borderSubtle },
-                        ]}
-                      >
+                      <View style={styles.modeToggleContainer}>
                         <TouchableOpacity
                           onPress={() => switchMode("signin")}
                           style={[
                             styles.toggleTab,
-                            mode === "signin" && [styles.activeTab, { backgroundColor: colors.accent }],
+                            mode === "signin" && styles.activeTab,
                           ]}
                         >
                           <Text
                             style={[
                               styles.toggleTabText,
-                              { color: mode === "signin" ? colors.canvas : colors.textMuted },
+                              mode === "signin" && styles.activeToggleTabText,
                             ]}
                           >
                             SIGN IN
@@ -1326,13 +1293,13 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                           onPress={() => switchMode("signup")}
                           style={[
                             styles.toggleTab,
-                            mode === "signup" && [styles.activeTab, { backgroundColor: colors.accent }],
+                            mode === "signup" && styles.activeTab,
                           ]}
                         >
                           <Text
                             style={[
                               styles.toggleTabText,
-                              { color: mode === "signup" ? colors.canvas : colors.textMuted },
+                              mode === "signup" && styles.activeToggleTabText,
                             ]}
                           >
                             CREATE ACCOUNT
@@ -1343,38 +1310,33 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
 
                     {/* Error / Success Feedback */}
                     {errorMessage && (
-                      <View style={[styles.errorBanner, { backgroundColor: colors.statusError + "1a", borderColor: colors.statusError + "4d" }]}>
+                      <View style={styles.errorBanner}>
                         <AlertCircle size={15} color={colors.statusError} />
-                        <Text style={[styles.errorText, { color: colors.statusError }]}>{errorMessage}</Text>
+                        <Text style={styles.errorText}>{errorMessage}</Text>
                       </View>
                     )}
 
                     {successMessage && (
-                      <View style={[styles.successBanner, { backgroundColor: colors.statusSuccess + "1a", borderColor: colors.statusSuccess + "4d" }]}>
+                      <View style={styles.successBanner}>
                         <CheckCircle2 size={15} color={colors.statusSuccess} />
-                        <Text style={[styles.successText, { color: colors.statusSuccess }]}>{successMessage}</Text>
+                        <Text style={styles.successText}>{successMessage}</Text>
                       </View>
                     )}
 
                     {/* Form Inputs */}
                     {mode === "signup" && (
                       <View style={styles.inputGroup}>
-                        <Text style={[styles.inputLabel, { color: colors.textMuted }]}>
+                        <Text style={styles.inputLabel}>
                           BARISTA TAG / NAME
                         </Text>
-                        <View
-                          style={[
-                            styles.inputWrapper,
-                            { backgroundColor: colors.panelRecessed, borderColor: colors.borderSubtle },
-                          ]}
-                        >
+                        <View style={styles.inputWrapper}>
                           <UserIcon size={16} color={colors.textMuted} />
                           <TextInput
                             value={displayName}
                             onChangeText={setDisplayName}
                             placeholder="e.g. Greg"
                             placeholderTextColor={colors.textMuted}
-                            style={[styles.input, { color: colors.textPrimary }]}
+                            style={styles.input}
                             autoCapitalize="words"
                           />
                         </View>
@@ -1382,15 +1344,10 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                     )}
 
                     <View style={styles.inputGroup}>
-                      <Text style={[styles.inputLabel, { color: colors.textMuted }]}>
+                      <Text style={styles.inputLabel}>
                         EMAIL ADDRESS
                       </Text>
-                      <View
-                        style={[
-                          styles.inputWrapper,
-                          { backgroundColor: colors.panelRecessed, borderColor: colors.borderSubtle },
-                        ]}
-                      >
+                      <View style={styles.inputWrapper}>
                         <Mail size={16} color={colors.textMuted} />
                         <TextInput
                           value={email}
@@ -1401,7 +1358,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                           textContentType="emailAddress"
                           autoCapitalize="none"
                           autoCorrect={false}
-                          style={[styles.input, { color: colors.textPrimary }]}
+                          style={styles.input}
                         />
                       </View>
                     </View>
@@ -1409,23 +1366,18 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                     {mode !== "forgot" && (
                       <View style={styles.inputGroup}>
                         <View style={styles.inputLabelRow}>
-                          <Text style={[styles.inputLabel, { color: colors.textMuted }]}>
+                          <Text style={styles.inputLabel}>
                             PASSWORD
                           </Text>
                           {mode === "signin" && (
                             <TouchableOpacity onPress={() => switchMode("forgot")}>
-                              <Text style={[styles.forgotLink, { color: colors.accent }]}>
+                              <Text style={styles.forgotLink}>
                                 Forgot password?
                               </Text>
                             </TouchableOpacity>
                           )}
                         </View>
-                        <View
-                          style={[
-                            styles.inputWrapper,
-                            { backgroundColor: colors.panelRecessed, borderColor: colors.borderSubtle },
-                          ]}
-                        >
+                        <View style={styles.inputWrapper}>
                           <Lock size={16} color={colors.textMuted} />
                           <TextInput
                             value={password}
@@ -1437,7 +1389,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                             autoCapitalize="none"
                             autoCorrect={false}
                             spellCheck={false}
-                            style={[styles.input, { color: colors.textPrimary }]}
+                            style={styles.input}
                           />
                         </View>
                       </View>
@@ -1450,13 +1402,13 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                       activeOpacity={0.8}
                       style={[
                         styles.submitButton,
-                        { backgroundColor: colors.accent, opacity: submitting ? 0.6 : 1 },
+                        submitting && styles.submitButtonDisabled,
                       ]}
                     >
                       {submitting ? (
                         <ActivityIndicator color={colors.canvas} size="small" />
                       ) : (
-                        <Text style={[styles.submitButtonText, { color: colors.canvas }]}>
+                        <Text style={styles.submitButtonText}>
                           {mode === "signin"
                             ? "SIGN IN"
                             : mode === "signup"
@@ -1471,7 +1423,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                         onPress={() => switchMode("signin")}
                         style={styles.backButton}
                       >
-                        <Text style={[styles.backButtonText, { color: colors.textMuted }]}>
+                        <Text style={styles.backButtonText}>
                           ← Back to Sign In
                         </Text>
                       </TouchableOpacity>
@@ -1494,6 +1446,8 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   sheetContainer: {
+    backgroundColor: colors.panel,
+    borderColor: colors.borderSubtle,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     borderTopWidth: 1,
@@ -1504,6 +1458,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 4,
     borderRadius: 2,
+    backgroundColor: colors.borderSubtle,
     alignSelf: "center",
     marginTop: 10,
     marginBottom: 8,
@@ -1528,10 +1483,12 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 14,
     letterSpacing: 0.5,
+    color: colors.textPrimary,
   },
   closeText: {
     fontSize: 18,
     paddingHorizontal: 4,
+    color: colors.textMuted,
   },
   profileSection: {
     gap: 16,
@@ -1539,6 +1496,8 @@ const styles = StyleSheet.create({
   statusCard: {
     borderRadius: 12,
     borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    backgroundColor: colors.panelRecessed,
     padding: 16,
     gap: 8,
   },
@@ -1551,23 +1510,28 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
+    backgroundColor: colors.statusSuccess,
   },
   statusText: {
     fontFamily: FONTS.monoBold,
     fontSize: 10,
     letterSpacing: 0.8,
+    color: colors.statusSuccess,
   },
   profileName: {
     fontFamily: FONTS.sansBold,
     fontSize: 20,
+    color: colors.textPrimary,
   },
   profileEmail: {
     fontFamily: FONTS.monoRegular,
     fontSize: 12,
+    color: colors.textMuted,
   },
   profileId: {
     fontFamily: FONTS.monoRegular,
     fontSize: 10,
+    color: colors.textMuted,
   },
   signOutButton: {
     flexDirection: "row",
@@ -1577,11 +1541,14 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 8,
     borderWidth: 1,
+    borderColor: colors.statusError + "66",
+    backgroundColor: colors.statusError + "1a",
   },
   signOutText: {
     fontFamily: FONTS.monoBold,
     fontSize: 12,
     letterSpacing: 0.5,
+    color: colors.statusError,
   },
   formSection: {
     gap: 14,
@@ -1593,16 +1560,21 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
+    backgroundColor: colors.statusWarning + "1a",
+    borderColor: colors.statusWarning + "4d",
   },
   alertText: {
     flex: 1,
     fontFamily: FONTS.monoRegular,
     fontSize: 11,
+    color: colors.statusWarning,
   },
   modeToggleContainer: {
     flexDirection: "row",
     borderRadius: 8,
     borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    backgroundColor: colors.panelRecessed,
     padding: 3,
   },
   toggleTab: {
@@ -1612,6 +1584,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   activeTab: {
+    backgroundColor: colors.accent,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
@@ -1622,6 +1595,10 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 11,
     letterSpacing: 0.5,
+    color: colors.textMuted,
+  },
+  activeToggleTabText: {
+    color: colors.canvas,
   },
   errorBanner: {
     flexDirection: "row",
@@ -1630,11 +1607,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     borderRadius: 8,
+    backgroundColor: colors.statusError + "1a",
+    borderColor: colors.statusError + "4d",
   },
   errorText: {
     fontFamily: FONTS.monoRegular,
     fontSize: 11,
     flex: 1,
+    color: colors.statusError,
   },
   successBanner: {
     flexDirection: "row",
@@ -1643,11 +1623,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     borderRadius: 8,
+    backgroundColor: colors.statusSuccess + "1a",
+    borderColor: colors.statusSuccess + "4d",
   },
   successText: {
     fontFamily: FONTS.monoRegular,
     fontSize: 11,
     flex: 1,
+    color: colors.statusSuccess,
   },
   inputGroup: {
     gap: 6,
@@ -1661,10 +1644,12 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 10,
     letterSpacing: 0.5,
+    color: colors.textMuted,
   },
   forgotLink: {
     fontFamily: FONTS.monoRegular,
     fontSize: 10,
+    color: colors.accent,
   },
   inputWrapper: {
     flexDirection: "row",
@@ -1672,6 +1657,8 @@ const styles = StyleSheet.create({
     gap: 10,
     borderRadius: 8,
     borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    backgroundColor: colors.panelRecessed,
     paddingHorizontal: 12,
     height: 44,
   },
@@ -1680,6 +1667,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoRegular,
     fontSize: 13,
     height: "100%",
+    color: colors.textPrimary,
   },
   submitButton: {
     height: 44,
@@ -1687,11 +1675,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 6,
+    backgroundColor: colors.accent,
+  },
+  submitButtonDisabled: {
+    opacity: 0.6,
   },
   submitButtonText: {
     fontFamily: FONTS.monoBold,
     fontSize: 12,
     letterSpacing: 0.8,
+    color: colors.canvas,
   },
   backButton: {
     alignItems: "center",
@@ -1700,6 +1693,7 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontFamily: FONTS.monoRegular,
     fontSize: 11,
+    color: colors.textMuted,
   },
 });
 ```
