@@ -12,7 +12,7 @@ Multi-platform specialty coffee tracking, custom recipe studio, interactive brew
 brewlog/
 ├── apps/
 │   ├── web/               # React 19 + Tailwind CSS v4 + Vite
-│   ├── mobile/            # React Native (Expo SDK) + TypeScript
+│   ├── mobile/            # React Native (Expo SDK 57) + TypeScript
 │   ├── wearos/            # (Phase 4) WearOS Companion App & Tile (Jetpack Compose)
 │   └── watchos/           # (Phase 5) Apple watchOS Companion App & Complications (SwiftUI)
 ├── packages/
@@ -30,7 +30,7 @@ brewlog/
 * **🫘 Coffee Stash Manager**: Track origins, processing methods (Washed, Natural, Anaerobic), roast dates, resting/freshness windows, and remaining weight.
 * **⚙️ Equipment & Gear Tracking**: Log your grinders (burr type, dial settings), brewers (V60, AeroPress, Flair 58, Chemex), and gear settings.
 * **📖 Interactive Recipe Studio**: Build and scale multi-stage recipes (bloom, pours, agitation, drawdown target) with real-time auto-scaling.
-* **⏱️ Interactive Brew Assistant**: Live visual stage timer with target weight indicators, synthesized Web Audio bell chimes, and pause/restart controls.
+* **⏱️ Interactive Brew Assistant**: Live visual stage timer with target weight indicators, synthesized bell chimes (Web Audio on web, `expo-audio` on mobile), tactile haptics (`expo-haptics`), dynamic method selector, inline dose scaling, and full hardware faceplate controls across web and mobile.
 * **📝 SCA Cupping Logbook & Flavor Wheel**: Score fragrance/aroma, flavor, aftertaste, acidity, body, balance, uniformity, clean cup, sweetness, and overall impression with interactive flavor tags to calculate authentic 0–100 SCA scores.
 * **☁️ Cloud Sync & Multi-User**: Supabase PostgreSQL backend with Row Level Security (RLS).
 * **⌚ Wearable Companion Roadmap**:

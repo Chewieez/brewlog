@@ -34,13 +34,15 @@ This document tracks upcoming milestones, architectural refactors, and technical
 
 ### Phase 3B: Mobile App — Interactive Brew Timer Subsystem (Complete ✅)
 - Implemented drift-free precision timing hook `useMobileBrewTimer` using `performance.now()` wall-clock delta calculation and integer-second state dispatches to eliminate 60fps bridge re-renders.
-- 1-to-1 visual continuity with web app instrument faceplate (`TimerView.tsx`): oversized tabular monospaced clock (`MM:SS`), sleek linear progress bar, 3-column chassis metrics grid (`COFFEE DOSE`, `WATER TARGET`, `POUR TO` in accent orange), hairline dividers, and unified START BREW / PAUSE / RESUME / RESET / MUTE hardware controls.
-- Integrated tactile feedback (`expo-haptics`) for 3-2-1 countdown ticks, stage transitions, brew completion, and button presses, with graceful fallback on simulators.
-- Integrated audio chimes (`expo-audio`) with header mute toggle.
-- Built quick-start method pills (`MethodPills`) for instant preset switching (`V60`, `Chemex`, `Aeropress`, `French Press`).
-- Retained standalone ratio calculator in an accordion card (`CollapsibleCalculator`) defaulting to collapsed with live summary badge.
+- 1-to-1 visual continuity with web app instrument faceplate (`TimerView.tsx`): oversized 84pt tabular monospaced clock (`MM:SS`) with centered colon, sleek linear progress bar, 3-column chassis metrics grid (`COFFEE DOSE`, `WATER TARGET`, `POUR TO` in accent orange), hairline dividers, and unified `START BREW` / `PAUSE` / `RESUME` controls transitioning smoothly to `RESET` with `RotateCcw` upon completion.
+- Direct inline tap-to-edit dose input on the faceplate (`COFFEE DOSE`) with boundary validation (1g–100g) and real-time recipe water target rescaling via `rescaleRecipeDose`, locked to read-only during active brews.
+- Dynamic quick-start method selector (`MethodPills`) dynamically derived from preset recipes (`DEFAULT_PRESET_RECIPES`) with touch targets meeting/exceeding Apple HIG 44px minimum and an `Alert.alert` confirmation guard against accidental mid-brew wipes.
+- Integrated tactile feedback (`expo-haptics`) for 3-2-1 countdown ticks, stage transitions, brew completion, and dose apply confirmation, with graceful fallback on simulators.
+- Integrated audio chime cue playback (`expo-audio`) with bundled sound asset (`assets/sounds/chime.wav`, matching web's staggered C5 major arpeggio), respecting the faceplate mute toggle.
+- Retained standalone ratio calculator in an accordion card (`CollapsibleCalculator`) defaulting to collapsed with live summary badge, decimal-pad numeric inputs with accessibility labels, and bidirectional dose synchronization with visual/tactile apply feedback.
+- Unified typography across iOS and Android with Google Fonts `Outfit` (Light 300) and `JetBrains Mono` (Bold 700 / Medium 500 / Regular 400) via `expo-font`, eliminating Android font-family system fallbacks via dedicated `FONTS.monoMedium`.
 - Built active stage guidance card (`ActiveStageCard`) and vertical step timeline (`StageTimeline`).
-- Verified 6/6 unit tests in `apps/mobile`, 14/14 test suites monorepo-wide, zero TypeScript errors, and production Metro bundling for both iOS (3,099 modules) and Android (3,244 modules).
+- Comprehensive unit test coverage: 7 test suites / 49 tests in `apps/mobile` (including `TimerHero`, `MethodPills`, `CollapsibleCalculator`, `ActiveStageCard`, `StageTimeline`, `useMobileBrewTimer`, and tab integration), bringing monorepo totals to 24/24 test suites passed (146 tests total), zero TypeScript errors, and clean Metro production bundles (iOS: 3,156 modules, Android: 3,278 modules).
 
 ---
 
