@@ -2,7 +2,7 @@
 import React from "react";
 import { describe, it, expect, vi } from "vitest";
 import { render } from "@testing-library/react";
-import TabLayout from "./_layout";
+import TabLayout from "../../app/(tabs)/_layout";
 import { AuthProvider } from "../../src/features/auth/AuthContext";
 
 vi.mock("react-native", () => ({
@@ -73,6 +73,7 @@ vi.mock("lucide-react-native", () => ({
 vi.mock("../../src/lib/supabase", () => ({
   isSupabaseConfigured: false,
   supabase: null,
+  createSessionFromUrl: vi.fn(),
 }));
 
 vi.mock("expo-haptics", () => ({
