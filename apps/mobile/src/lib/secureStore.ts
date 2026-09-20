@@ -68,7 +68,7 @@ export class LargeSecureStore {
   async getItem(key: string): Promise<string | null> {
     try {
       const encrypted = await this.asyncStorage.getItem(key);
-      if (!encrypted) {
+      if (encrypted === null) {
         return null;
       }
       return await this._decrypt(key, encrypted);

@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import React from "react";
-import { describe, it, expect, vi } from "vitest";
-import { render } from "@testing-library/react";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { render, fireEvent, cleanup } from "@testing-library/react";
 import TabLayout from "../../app/(tabs)/_layout";
 import { AuthProvider } from "../../src/features/auth/AuthContext";
 
@@ -19,6 +19,7 @@ vi.mock("react-native", () => ({
     accessibilityRole,
     style,
     activeOpacity,
+    hitSlop,
     ...props
   }: any) => (
     <button
@@ -40,7 +41,18 @@ vi.mock("react-native", () => ({
   },
   Modal: ({ visible, children }: any) =>
     visible ? <div data-testid="modal">{children}</div> : null,
-  TextInput: ({ ...props }: any) => <input {...props} />,
+  TextInput: ({
+    value,
+    onChangeText,
+    placeholderTextColor,
+    keyboardType,
+    textContentType,
+    autoCorrect,
+    autoCapitalize,
+    spellCheck,
+    secureTextEntry,
+    ...props
+  }: any) => <input value={value} readOnly {...props} />,
   TouchableWithoutFeedback: ({ children, onPress }: any) => (
     <div onClick={onPress}>{children}</div>
   ),
@@ -102,6 +114,10 @@ vi.mock("expo-router", () => {
 });
 
 describe("TabLayout Integration", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   it("mounts Tabs with ProfileHeaderButton in headerRight", () => {
     const { getByTestId, getByLabelText } = render(
       <AuthProvider>
@@ -111,5 +127,17 @@ describe("TabLayout Integration", () => {
 
     expect(getByTestId("tabs-mock")).toBeDefined();
     expect(getByLabelText("Account profile")).toBeDefined();
+  });
+
+  it("opens AuthSheet when ProfileHeaderButton is clicked", () => {
+    const { getByLabelText, queryByTestId } = render(
+      <AuthProvider>
+        <TabLayout />
+      </AuthProvider>
+    );
+
+    expect(queryByTestId("modal")).toBeNull();
+    fireEvent.click(getByLabelText("Account profile"));
+    expect(queryByTestId("modal")).not.toBeNull();
   });
 });

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { AppState, AppStateStatus } from "react-native";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const signInWithEmail = async (email: string, pass: string) => {
+  const signInWithEmail = useCallback(async (email: string, pass: string) => {
     if (!supabase) {
       return { error: new Error("Supabase is not configured yet in .env.") };
     }
@@ -85,53 +85,67 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       password: pass,
     });
     return { error: sanitizeAuthError(error) };
-  };
+  }, []);
 
-  const signUpWithEmail = async (email: string, pass: string, displayName?: string) => {
-    if (!supabase) {
-      return { error: new Error("Supabase is not configured yet in .env.") };
-    }
-    const { error } = await supabase.auth.signUp({
-      email: email.trim(),
-      password: pass,
-      options: {
-        data: {
-          display_name: displayName?.trim() || email.split("@")[0],
+  const signUpWithEmail = useCallback(
+    async (email: string, pass: string, displayName?: string) => {
+      if (!supabase) {
+        return { error: new Error("Supabase is not configured yet in .env.") };
+      }
+      const { error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password: pass,
+        options: {
+          data: {
+            display_name: displayName?.trim() || email.split("@")[0],
+          },
         },
-      },
-    });
-    return { error: sanitizeAuthError(error) };
-  };
+      });
+      return { error: sanitizeAuthError(error) };
+    },
+    []
+  );
 
-  const resetPasswordForEmail = async (email: string) => {
+  const resetPasswordForEmail = useCallback(async (email: string) => {
     if (!supabase) {
       return { error: new Error("Supabase is not configured yet in .env.") };
     }
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
     return { error: sanitizeAuthError(error) };
-  };
+  }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     if (supabase) {
       await supabase.auth.signOut();
     }
     setUser(null);
     setSession(null);
-  };
+  }, []);
+
+  const value = useMemo<MobileAuthContextType>(
+    () => ({
+      user,
+      session,
+      loading,
+      isConfigured: isSupabaseConfigured,
+      signInWithEmail,
+      signUpWithEmail,
+      resetPasswordForEmail,
+      signOut,
+    }),
+    [
+      user,
+      session,
+      loading,
+      signInWithEmail,
+      signUpWithEmail,
+      resetPasswordForEmail,
+      signOut,
+    ]
+  );
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        session,
-        loading,
-        isConfigured: isSupabaseConfigured,
-        signInWithEmail,
-        signUpWithEmail,
-        resetPasswordForEmail,
-        signOut,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

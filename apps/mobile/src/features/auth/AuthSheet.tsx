@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Modal,
   View,
@@ -53,9 +53,19 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (visible) {
+      setMode("signin");
       setErrorMessage(null);
       setSuccessMessage(null);
       setSubmitting(false);
@@ -96,7 +106,10 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
         } else {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
           setSuccessMessage("Signed in successfully!");
-          setTimeout(() => onClose(), 600);
+          if (closeTimerRef.current) {
+            clearTimeout(closeTimerRef.current);
+          }
+          closeTimerRef.current = setTimeout(() => onClose(), 600);
         }
       } else if (mode === "signup") {
         const { error } = await signUpWithEmail(email, password, displayName);
@@ -117,6 +130,9 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
           setSuccessMessage("Password reset email sent!");
         }
       }
+    } catch (err: any) {
+      setErrorMessage(err?.message || "An unexpected error occurred. Please try again.");
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
     } finally {
       setSubmitting(false);
     }

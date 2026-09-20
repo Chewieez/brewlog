@@ -16,6 +16,7 @@ describe("createBrewlogClient", () => {
 
     expect(client).toBeDefined();
     expect(client.auth).toBeDefined();
+    expect(mockStorage.getItem).toHaveBeenCalled();
   });
 
   it("supports legacy direct storage parameter for backwards compatibility", () => {
@@ -29,6 +30,7 @@ describe("createBrewlogClient", () => {
 
     expect(client).toBeDefined();
     expect(client.auth).toBeDefined();
+    expect(mockStorage.getItem).toHaveBeenCalled();
   });
 
   it("initializes supabase client with empty options object ({})", () => {

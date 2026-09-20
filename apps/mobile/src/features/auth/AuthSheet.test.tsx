@@ -610,4 +610,82 @@ describe("AuthSheet", () => {
 
     expect(queryByTestId("modal")).toBeNull();
   });
+
+  it("catches unexpected exceptions during submit and displays error message", async () => {
+    mockSignIn.mockRejectedValueOnce(new Error("Fatal network crash"));
+
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    const { getAllByText, getByPlaceholderText, findByText } = render(
+      <AuthSheet visible={true} onClose={vi.fn()} />
+    );
+
+    fireEvent.change(getByPlaceholderText("you@example.com"), {
+      target: { value: "barista@brewlog.dev" },
+    });
+    fireEvent.change(getByPlaceholderText("••••••••"), {
+      target: { value: "password123" },
+    });
+
+    const signInButtons = getAllByText("SIGN IN");
+    await fireEvent.click(signInButtons[signInButtons.length - 1]);
+
+    expect(await findByText("Fatal network crash")).toBeDefined();
+  });
+
+  it("resets mode to signin when modal becomes visible again", () => {
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    const { getByText, queryByPlaceholderText, rerender } = render(
+      <AuthSheet visible={true} onClose={vi.fn()} />
+    );
+
+    // Switch to forgot mode
+    fireEvent.click(getByText("Forgot password?"));
+    expect(queryByPlaceholderText("••••••••")).toBeNull();
+
+    // Close and reopen sheet
+    rerender(<AuthSheet visible={false} onClose={vi.fn()} />);
+    rerender(<AuthSheet visible={true} onClose={vi.fn()} />);
+
+    // Expect signin mode to be restored (password input present)
+    expect(queryByPlaceholderText("••••••••")).not.toBeNull();
+  });
+
+  it("clears close timer on unmount without throwing", () => {
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    const { unmount } = render(
+      <AuthSheet visible={true} onClose={vi.fn()} />
+    );
+
+    expect(() => unmount()).not.toThrow();
+  });
 });

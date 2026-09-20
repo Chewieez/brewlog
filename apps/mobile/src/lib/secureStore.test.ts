@@ -101,8 +101,7 @@ describe("LargeSecureStore", () => {
     mockAsyncMap["corrupt-payload"] = "not-valid-encrypted-data";
     mockSecureMap["corrupt-payload"] = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
     const result = await store.getItem("corrupt-payload");
-    // Should gracefully return null or decrypted error fallback
-    expect(result === null || typeof result === "string").toBe(true);
+    expect(result).toBeNull();
   });
 
   it("returns null gracefully if AsyncStorage driver throws on getItem", async () => {
