@@ -30,4 +30,12 @@ describe("createBrewlogClient", () => {
     expect(client).toBeDefined();
     expect(client.auth).toBeDefined();
   });
+
+  it("initializes supabase client with empty options object ({})", () => {
+    const client = createBrewlogClient("https://example.supabase.co", "test-anon-key", {});
+
+    expect(client).toBeDefined();
+    expect(client.auth).toBeDefined();
+  });
 });
+

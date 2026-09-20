@@ -14,14 +14,22 @@ export function createBrewlogClient(
   supabaseAnonKey: string,
   optionsOrStorage?: BrewlogClientOptions | any
 ): SupabaseClient<Database> {
-  const isOptionsObject =
+  const isDirectStorage =
     optionsOrStorage &&
     typeof optionsOrStorage === "object" &&
-    ("storage" in optionsOrStorage || "detectSessionInUrl" in optionsOrStorage);
+    typeof optionsOrStorage.getItem === "function";
 
-  const storage = isOptionsObject ? optionsOrStorage.storage : optionsOrStorage;
+  const storage = isDirectStorage
+    ? optionsOrStorage
+    : optionsOrStorage && typeof optionsOrStorage === "object"
+      ? optionsOrStorage.storage ?? undefined
+      : undefined;
+
   const detectSessionInUrl =
-    isOptionsObject && typeof optionsOrStorage.detectSessionInUrl === "boolean"
+    !isDirectStorage &&
+    optionsOrStorage &&
+    typeof optionsOrStorage === "object" &&
+    typeof optionsOrStorage.detectSessionInUrl === "boolean"
       ? optionsOrStorage.detectSessionInUrl
       : typeof window !== "undefined";
 
