@@ -17,6 +17,7 @@ describe('theme tokens', () => {
     expect(INDUSTRIAL_PRECISION_THEME.colors.textMuted).toBe('#71717a');
     expect(INDUSTRIAL_PRECISION_THEME.colors.statusSuccess).toBe('#22c55e');
     expect(INDUSTRIAL_PRECISION_THEME.colors.statusWarning).toBe('#f59e0b');
+    expect(INDUSTRIAL_PRECISION_THEME.colors.statusError).toBe('#ef4444');
   });
 
   it('includes INDUSTRIAL_PRECISION_THEME in THEMES map', () => {

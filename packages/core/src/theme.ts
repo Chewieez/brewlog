@@ -11,6 +11,7 @@ export interface ThemeColors {
   textMuted: string;
   statusSuccess: string;
   statusWarning: string;
+  statusError: string;
 }
 
 export interface ThemeTokens {
@@ -37,6 +38,7 @@ export const INDUSTRIAL_PRECISION_THEME: ThemeTokens = {
     textMuted: '#71717a',
     statusSuccess: '#22c55e',
     statusWarning: '#f59e0b',
+    statusError: '#ef4444',
   },
 };
 

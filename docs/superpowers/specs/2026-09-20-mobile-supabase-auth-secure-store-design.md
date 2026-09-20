@@ -32,8 +32,8 @@ This design specification details **Phase 3C: Supabase Auth & Secure Storage**. 
    - Authenticated User Profile & Session Overview (Email, Barista Tag, Connection status badge, User ID preview, and Sign Out action with confirmation).
 
 4. **Design System & Typography**:
-   - 100% adherence to `INDUSTRIAL_PRECISION_THEME.colors` (`colors.canvas`, `colors.panel`, `colors.panelRecessed`, `colors.accent`, `colors.textPrimary`, `colors.textMuted`, `colors.borderSubtle`).
-   - Monospace typography via `JetBrains Mono` (`JetBrainsMono_400Regular`, `JetBrainsMono_700Bold`) and display headings in `Outfit` (`Outfit_700Bold`).
+   - 100% adherence to `INDUSTRIAL_PRECISION_THEME.colors` (`colors.canvas`, `colors.panel`, `colors.panelRecessed`, `colors.accent`, `colors.textPrimary`, `colors.textMuted`, `colors.borderSubtle`, `colors.statusSuccess`, `colors.statusWarning`, `colors.statusError`). Zero hardcoded hex colors.
+   - 100% adherence to centralized font tokens `FONTS` (`FONTS.monoRegular`, `FONTS.monoBold`, `FONTS.sansBold`) from `apps/mobile/src/theme/fonts.ts`. Zero raw font family strings.
 
 ---
 

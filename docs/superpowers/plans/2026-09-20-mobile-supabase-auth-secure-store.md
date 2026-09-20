@@ -835,6 +835,7 @@ import React from "react";
 import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
 import { User as UserIcon } from "lucide-react-native";
 import { INDUSTRIAL_PRECISION_THEME } from "@brewlog/core";
+import { FONTS } from "../../theme/fonts";
 import { useAuth } from "./AuthContext";
 
 export interface ProfileHeaderButtonProps {
@@ -865,9 +866,28 @@ export const ProfileHeaderButton: React.FC<ProfileHeaderButtonProps> = ({ onPres
       style={styles.container}
     >
       {initials ? (
-        <View style={[styles.avatarBadge, { backgroundColor: colors.panelRecessed, borderColor: colors.borderSubtle }]}>
-          <Text style={[styles.initialsText, { color: colors.textPrimary }]}>{initials}</Text>
-          <View testID="connection-dot" style={styles.connectionDot} />
+        <View
+          style={[
+            styles.avatarBadge,
+            {
+              backgroundColor: colors.panelRecessed,
+              borderColor: colors.borderSubtle,
+            },
+          ]}
+        >
+          <Text style={[styles.initialsText, { color: colors.textPrimary }]}>
+            {initials}
+          </Text>
+          <View
+            testID="connection-dot"
+            style={[
+              styles.connectionDot,
+              {
+                backgroundColor: colors.statusSuccess,
+                borderColor: colors.panel,
+              },
+            ]}
+          />
         </View>
       ) : (
         <View style={styles.iconWrapper}>
@@ -903,7 +923,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   initialsText: {
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: FONTS.monoBold,
     fontSize: 11,
     fontWeight: "700",
   },
@@ -914,9 +934,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#10b981",
     borderWidth: 1.5,
-    borderColor: "#18181b",
   },
 });
 ```
@@ -1070,6 +1088,7 @@ import {
   User as UserIcon,
 } from "lucide-react-native";
 import { INDUSTRIAL_PRECISION_THEME } from "@brewlog/core";
+import { FONTS } from "../../theme/fonts";
 import { useAuth } from "./AuthContext";
 
 export interface AuthSheetProps {
@@ -1232,8 +1251,8 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                       ]}
                     >
                       <View style={styles.statusRow}>
-                        <View style={styles.statusDot} />
-                        <Text style={[styles.statusText, { color: "#10b981" }]}>
+                        <View style={[styles.statusDot, { backgroundColor: colors.statusSuccess }]} />
+                        <Text style={[styles.statusText, { color: colors.statusSuccess }]}>
                           CLOUD CONNECTED
                         </Text>
                       </View>
@@ -1253,11 +1272,11 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                       activeOpacity={0.8}
                       style={[
                         styles.signOutButton,
-                        { borderColor: "rgba(239, 68, 68, 0.4)", backgroundColor: "rgba(239, 68, 68, 0.1)" },
+                        { borderColor: colors.statusError + "66", backgroundColor: colors.statusError + "1a" },
                       ]}
                     >
-                      <LogOut size={16} color="#ef4444" />
-                      <Text style={styles.signOutText}>SIGN OUT</Text>
+                      <LogOut size={16} color={colors.statusError} />
+                      <Text style={[styles.signOutText, { color: colors.statusError }]}>SIGN OUT</Text>
                     </TouchableOpacity>
                   </View>
                 ) : (
@@ -1296,7 +1315,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                           <Text
                             style={[
                               styles.toggleTabText,
-                              { color: mode === "signin" ? "#09090b" : colors.textMuted },
+                              { color: mode === "signin" ? colors.canvas : colors.textMuted },
                             ]}
                           >
                             SIGN IN
@@ -1313,7 +1332,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                           <Text
                             style={[
                               styles.toggleTabText,
-                              { color: mode === "signup" ? "#09090b" : colors.textMuted },
+                              { color: mode === "signup" ? colors.canvas : colors.textMuted },
                             ]}
                           >
                             CREATE ACCOUNT
@@ -1324,16 +1343,16 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
 
                     {/* Error / Success Feedback */}
                     {errorMessage && (
-                      <View style={styles.errorBanner}>
-                        <AlertCircle size={15} color="#ef4444" />
-                        <Text style={styles.errorText}>{errorMessage}</Text>
+                      <View style={[styles.errorBanner, { backgroundColor: colors.statusError + "1a", borderColor: colors.statusError + "4d" }]}>
+                        <AlertCircle size={15} color={colors.statusError} />
+                        <Text style={[styles.errorText, { color: colors.statusError }]}>{errorMessage}</Text>
                       </View>
                     )}
 
                     {successMessage && (
-                      <View style={styles.successBanner}>
-                        <CheckCircle2 size={15} color="#10b981" />
-                        <Text style={styles.successText}>{successMessage}</Text>
+                      <View style={[styles.successBanner, { backgroundColor: colors.statusSuccess + "1a", borderColor: colors.statusSuccess + "4d" }]}>
+                        <CheckCircle2 size={15} color={colors.statusSuccess} />
+                        <Text style={[styles.successText, { color: colors.statusSuccess }]}>{successMessage}</Text>
                       </View>
                     )}
 
@@ -1435,9 +1454,9 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                       ]}
                     >
                       {submitting ? (
-                        <ActivityIndicator color="#09090b" size="small" />
+                        <ActivityIndicator color={colors.canvas} size="small" />
                       ) : (
-                        <Text style={styles.submitButtonText}>
+                        <Text style={[styles.submitButtonText, { color: colors.canvas }]}>
                           {mode === "signin"
                             ? "SIGN IN"
                             : mode === "signup"
@@ -1506,7 +1525,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerTitle: {
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: FONTS.monoBold,
     fontSize: 14,
     letterSpacing: 0.5,
   },
@@ -1532,23 +1551,22 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#10b981",
   },
   statusText: {
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: FONTS.monoBold,
     fontSize: 10,
     letterSpacing: 0.8,
   },
   profileName: {
-    fontFamily: "Outfit_700Bold",
+    fontFamily: FONTS.sansBold,
     fontSize: 20,
   },
   profileEmail: {
-    fontFamily: "JetBrainsMono_400Regular",
+    fontFamily: FONTS.monoRegular,
     fontSize: 12,
   },
   profileId: {
-    fontFamily: "JetBrainsMono_400Regular",
+    fontFamily: FONTS.monoRegular,
     fontSize: 10,
   },
   signOutButton: {
@@ -1561,8 +1579,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   signOutText: {
-    color: "#ef4444",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: FONTS.monoBold,
     fontSize: 12,
     letterSpacing: 0.5,
   },
@@ -1579,7 +1596,7 @@ const styles = StyleSheet.create({
   },
   alertText: {
     flex: 1,
-    fontFamily: "JetBrainsMono_400Regular",
+    fontFamily: FONTS.monoRegular,
     fontSize: 11,
   },
   modeToggleContainer: {
@@ -1602,7 +1619,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   toggleTabText: {
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: FONTS.monoBold,
     fontSize: 11,
     letterSpacing: 0.5,
   },
@@ -1610,15 +1627,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(239, 68, 68, 0.1)",
-    borderColor: "rgba(239, 68, 68, 0.3)",
     borderWidth: 1,
     padding: 10,
     borderRadius: 8,
   },
   errorText: {
-    color: "#f87171",
-    fontFamily: "JetBrainsMono_400Regular",
+    fontFamily: FONTS.monoRegular,
     fontSize: 11,
     flex: 1,
   },
@@ -1626,15 +1640,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
-    borderColor: "rgba(16, 185, 129, 0.3)",
     borderWidth: 1,
     padding: 10,
     borderRadius: 8,
   },
   successText: {
-    color: "#34d399",
-    fontFamily: "JetBrainsMono_400Regular",
+    fontFamily: FONTS.monoRegular,
     fontSize: 11,
     flex: 1,
   },
@@ -1647,12 +1658,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   inputLabel: {
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: FONTS.monoBold,
     fontSize: 10,
     letterSpacing: 0.5,
   },
   forgotLink: {
-    fontFamily: "JetBrainsMono_400Regular",
+    fontFamily: FONTS.monoRegular,
     fontSize: 10,
   },
   inputWrapper: {
@@ -1666,7 +1677,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontFamily: "JetBrainsMono_400Regular",
+    fontFamily: FONTS.monoRegular,
     fontSize: 13,
     height: "100%",
   },
@@ -1678,8 +1689,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   submitButtonText: {
-    color: "#09090b",
-    fontFamily: "JetBrainsMono_700Bold",
+    fontFamily: FONTS.monoBold,
     fontSize: 12,
     letterSpacing: 0.8,
   },
@@ -1688,7 +1698,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   backButtonText: {
-    fontFamily: "JetBrainsMono_400Regular",
+    fontFamily: FONTS.monoRegular,
     fontSize: 11,
   },
 });
