@@ -5,6 +5,27 @@ import React from 'react';
 vi.mock('react-native', () => ({
   View: ({ children, style, ...props }: any) => <div {...props}>{children}</div>,
   Text: ({ children, style, ...props }: any) => <span {...props}>{children}</span>,
+  TextInput: ({
+    onChangeText,
+    onBlur,
+    onSubmitEditing,
+    value,
+    accessibilityLabel,
+    editable = true,
+    ...props
+  }: any) => (
+    <input
+      value={value}
+      aria-label={accessibilityLabel}
+      onChange={(e) => onChangeText?.(e.target.value)}
+      onBlur={onBlur}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') onSubmitEditing?.();
+      }}
+      disabled={!editable}
+      {...props}
+    />
+  ),
   Pressable: ({
     children,
     onPress,
@@ -37,8 +58,6 @@ vi.mock('lucide-react-native', () => ({
   RotateCcw: () => null,
   Volume2: () => null,
   VolumeX: () => null,
-  Minus: () => null,
-  Plus: () => null,
 }));
 
 import { render, fireEvent, cleanup } from '@testing-library/react';
@@ -52,7 +71,7 @@ describe('TimerHero Component', () => {
 
   const baseRecipe = DEFAULT_PRESET_RECIPES[0];
 
-  it('renders recipe info, formatted clock, and chassis metrics', () => {
+  it('renders recipe info, formatted clock, and chassis metrics (read-only when no onChangeDose)', () => {
     const { getByText } = render(
       <TimerHero
         recipe={baseRecipe}
@@ -77,9 +96,8 @@ describe('TimerHero Component', () => {
     expect(getByText('300g')).toBeDefined();
   });
 
-  it('handles dose stepper increment and decrement when provided', () => {
-    const onIncrement = vi.fn();
-    const onDecrement = vi.fn();
+  it('allows inline editing of dose and calls onChangeDose on commit (blur or submit)', () => {
+    const onChangeDose = vi.fn();
 
     const { getByLabelText } = render(
       <TimerHero
@@ -93,26 +111,118 @@ describe('TimerHero Component', () => {
         onReset={vi.fn()}
         onToggleMute={vi.fn()}
         totalProgress={0}
-        onIncrementDose={onIncrement}
-        onDecrementDose={onDecrement}
+        onChangeDose={onChangeDose}
       />
     );
 
-    const increaseBtn = getByLabelText('Increase dose');
-    const decreaseBtn = getByLabelText('Decrease dose');
+    const doseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
+    expect(doseInput.value).toBe('18');
 
-    fireEvent.click(increaseBtn);
-    expect(onIncrement).toHaveBeenCalledTimes(1);
+    fireEvent.change(doseInput, { target: { value: '20.5' } });
+    expect(doseInput.value).toBe('20.5');
+    // Not committed yet before blur/submit
+    expect(onChangeDose).not.toHaveBeenCalled();
 
-    fireEvent.click(decreaseBtn);
-    expect(onDecrement).toHaveBeenCalledTimes(1);
+    fireEvent.blur(doseInput);
+    expect(onChangeDose).toHaveBeenCalledWith(20.5);
   });
 
-  it('disables stepper buttons during active timer run', () => {
-    const onIncrement = vi.fn();
-    const onDecrement = vi.fn();
+  it('calls onChangeDose on Enter key submit', () => {
+    const onChangeDose = vi.fn();
 
     const { getByLabelText } = render(
+      <TimerHero
+        recipe={baseRecipe}
+        elapsedSeconds={0}
+        isRunning={false}
+        isMuted={false}
+        currentStageTargetWater={60}
+        doseGrams={18}
+        onToggleTimer={vi.fn()}
+        onReset={vi.fn()}
+        onToggleMute={vi.fn()}
+        totalProgress={0}
+        onChangeDose={onChangeDose}
+      />
+    );
+
+    const doseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
+    fireEvent.change(doseInput, { target: { value: '22' } });
+    fireEvent.keyDown(doseInput, { key: 'Enter' });
+    expect(onChangeDose).toHaveBeenCalledWith(22);
+  });
+
+  it('resets to current dose if empty or non-positive input is blurred', () => {
+    const onChangeDose = vi.fn();
+
+    const { getByLabelText } = render(
+      <TimerHero
+        recipe={baseRecipe}
+        elapsedSeconds={0}
+        isRunning={false}
+        isMuted={false}
+        currentStageTargetWater={60}
+        doseGrams={18}
+        onToggleTimer={vi.fn()}
+        onReset={vi.fn()}
+        onToggleMute={vi.fn()}
+        totalProgress={0}
+        onChangeDose={onChangeDose}
+      />
+    );
+
+    const doseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
+    fireEvent.change(doseInput, { target: { value: '' } });
+    fireEvent.blur(doseInput);
+
+    expect(doseInput.value).toBe('18');
+    expect(onChangeDose).not.toHaveBeenCalled();
+
+    fireEvent.change(doseInput, { target: { value: '-5' } });
+    fireEvent.blur(doseInput);
+
+    expect(doseInput.value).toBe('18');
+    expect(onChangeDose).not.toHaveBeenCalled();
+  });
+
+  it('clamps input within limits (1g - 100g) on commit', () => {
+    const onChangeDose = vi.fn();
+
+    const { getByLabelText } = render(
+      <TimerHero
+        recipe={baseRecipe}
+        elapsedSeconds={0}
+        isRunning={false}
+        isMuted={false}
+        currentStageTargetWater={60}
+        doseGrams={18}
+        onToggleTimer={vi.fn()}
+        onReset={vi.fn()}
+        onToggleMute={vi.fn()}
+        totalProgress={0}
+        onChangeDose={onChangeDose}
+      />
+    );
+
+    const doseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
+
+    // Test upper bound clamp
+    fireEvent.change(doseInput, { target: { value: '150' } });
+    fireEvent.blur(doseInput);
+    expect(onChangeDose).toHaveBeenCalledWith(100);
+    expect(doseInput.value).toBe('100');
+
+    // Test lower bound clamp
+    fireEvent.change(doseInput, { target: { value: '0.2' } });
+    fireEvent.blur(doseInput);
+    expect(onChangeDose).toHaveBeenCalledWith(1);
+    expect(doseInput.value).toBe('1');
+  });
+
+  it('locks dose to read-only when timer is running', () => {
+    const onChangeDose = vi.fn();
+
+    const { getByText, queryByLabelText } = render(
       <TimerHero
         recipe={baseRecipe}
         elapsedSeconds={10}
@@ -124,72 +234,20 @@ describe('TimerHero Component', () => {
         onReset={vi.fn()}
         onToggleMute={vi.fn()}
         totalProgress={10}
-        onIncrementDose={onIncrement}
-        onDecrementDose={onDecrement}
+        onChangeDose={onChangeDose}
       />
     );
 
-    const increaseBtn = getByLabelText('Increase dose') as HTMLButtonElement;
-    const decreaseBtn = getByLabelText('Decrease dose') as HTMLButtonElement;
-
-    expect(increaseBtn.disabled).toBe(true);
-    expect(decreaseBtn.disabled).toBe(true);
-
-    fireEvent.click(increaseBtn);
-    expect(onIncrement).not.toHaveBeenCalled();
+    expect(queryByLabelText('Timer coffee dose in grams')).toBeNull();
+    expect(getByText('18g')).toBeDefined();
   });
 
-  it('disables boundary limits (dose <= 1 disables decrement, dose >= 100 disables increment)', () => {
-    const onIncrement = vi.fn();
-    const onDecrement = vi.fn();
-
-    const { getByLabelText, rerender } = render(
-      <TimerHero
-        recipe={baseRecipe}
-        elapsedSeconds={0}
-        isRunning={false}
-        isMuted={false}
-        currentStageTargetWater={60}
-        doseGrams={1}
-        onToggleTimer={vi.fn()}
-        onReset={vi.fn()}
-        onToggleMute={vi.fn()}
-        totalProgress={0}
-        onIncrementDose={onIncrement}
-        onDecrementDose={onDecrement}
-      />
-    );
-
-    expect((getByLabelText('Decrease dose') as HTMLButtonElement).disabled).toBe(true);
-    expect((getByLabelText('Increase dose') as HTMLButtonElement).disabled).toBe(false);
-
-    rerender(
-      <TimerHero
-        recipe={baseRecipe}
-        elapsedSeconds={0}
-        isRunning={false}
-        isMuted={false}
-        currentStageTargetWater={60}
-        doseGrams={100}
-        onToggleTimer={vi.fn()}
-        onReset={vi.fn()}
-        onToggleMute={vi.fn()}
-        totalProgress={0}
-        onIncrementDose={onIncrement}
-        onDecrementDose={onDecrement}
-      />
-    );
-
-    expect((getByLabelText('Increase dose') as HTMLButtonElement).disabled).toBe(true);
-    expect((getByLabelText('Decrease dose') as HTMLButtonElement).disabled).toBe(false);
-  });
-
-  it('displays RESET on primary button and disables stepper when isFinished is true', () => {
+  it('locks dose to read-only and displays RESET on primary button when isFinished is true', () => {
     const onToggleTimer = vi.fn();
     const onReset = vi.fn();
-    const onIncrement = vi.fn();
+    const onChangeDose = vi.fn();
 
-    const { getByText, getByLabelText, queryByText } = render(
+    const { getByText, getByLabelText, queryByText, queryByLabelText } = render(
       <TimerHero
         recipe={baseRecipe}
         elapsedSeconds={210}
@@ -202,8 +260,7 @@ describe('TimerHero Component', () => {
         onReset={onReset}
         onToggleMute={vi.fn()}
         totalProgress={100}
-        onIncrementDose={onIncrement}
-        onDecrementDose={vi.fn()}
+        onChangeDose={onChangeDose}
       />
     );
 
@@ -217,10 +274,47 @@ describe('TimerHero Component', () => {
     expect(onReset).toHaveBeenCalledTimes(1);
     expect(onToggleTimer).not.toHaveBeenCalled();
 
-    // Steppers must be disabled when finished
-    const increaseBtn = getByLabelText('Increase dose') as HTMLButtonElement;
-    expect(increaseBtn.disabled).toBe(true);
-    fireEvent.click(increaseBtn);
-    expect(onIncrement).not.toHaveBeenCalled();
+    // Dose is read-only when finished
+    expect(queryByLabelText('Timer coffee dose in grams')).toBeNull();
+    expect(getByText('30g')).toBeDefined();
+  });
+
+  it('syncs local input text when doseGrams prop updates externally', () => {
+    const { getByLabelText, rerender } = render(
+      <TimerHero
+        recipe={baseRecipe}
+        elapsedSeconds={0}
+        isRunning={false}
+        isMuted={false}
+        currentStageTargetWater={60}
+        doseGrams={15}
+        onToggleTimer={vi.fn()}
+        onReset={vi.fn()}
+        onToggleMute={vi.fn()}
+        totalProgress={0}
+        onChangeDose={vi.fn()}
+      />
+    );
+
+    const doseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
+    expect(doseInput.value).toBe('15');
+
+    rerender(
+      <TimerHero
+        recipe={baseRecipe}
+        elapsedSeconds={0}
+        isRunning={false}
+        isMuted={false}
+        currentStageTargetWater={60}
+        doseGrams={22}
+        onToggleTimer={vi.fn()}
+        onReset={vi.fn()}
+        onToggleMute={vi.fn()}
+        totalProgress={0}
+        onChangeDose={vi.fn()}
+      />
+    );
+
+    expect(doseInput.value).toBe('22');
   });
 });

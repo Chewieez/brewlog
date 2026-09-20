@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Minus, Plus } from 'lucide-react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, Pressable, TextInput, StyleSheet } from 'react-native';
+import { Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react-native';
 import { INDUSTRIAL_PRECISION_THEME, BrewRecipe } from '@brewlog/core';
 import { FONTS } from '../../theme/fonts';
 
@@ -18,8 +18,7 @@ export interface TimerHeroProps {
   onReset: () => void;
   onToggleMute: () => void;
   totalProgress: number;
-  onIncrementDose?: () => void;
-  onDecrementDose?: () => void;
+  onChangeDose?: (newDose: number) => void;
 }
 
 export const TimerHero: React.FC<TimerHeroProps> = ({
@@ -34,11 +33,34 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
   onReset,
   onToggleMute,
   totalProgress,
-  onIncrementDose,
-  onDecrementDose,
+  onChangeDose,
 }) => {
   const mins = Math.floor(elapsedSeconds / 60);
   const secs = elapsedSeconds % 60;
+
+  const [textDose, setTextDose] = useState(String(doseGrams));
+  const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    setTextDose(String(doseGrams));
+  }, [doseGrams]);
+
+  const handleCommitDose = () => {
+    setIsFocused(false);
+    const parsed = parseFloat(textDose);
+    if (isNaN(parsed) || parsed <= 0) {
+      setTextDose(String(doseGrams));
+      return;
+    }
+    const clamped = Math.max(1, Math.min(100, Math.round(parsed * 10) / 10));
+    setTextDose(String(clamped));
+    if (clamped !== doseGrams && onChangeDose) {
+      onChangeDose(clamped);
+    }
+  };
+
+  const isDoseEditable = !isRunning && !isFinished && Boolean(onChangeDose);
 
   return (
     <View style={styles.chassis}>
@@ -69,55 +91,36 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
       <View style={styles.metricsGrid}>
         <View style={styles.metricItem}>
           <Text style={styles.metricLabel}>COFFEE DOSE</Text>
-          <View style={styles.doseRow}>
-            <Text style={styles.metricValue}>{doseGrams}g</Text>
-            {onIncrementDose && onDecrementDose && (
-              <View style={styles.stepperContainer}>
-                <Pressable
-                  onPress={onDecrementDose}
-                  disabled={isRunning || isFinished || doseGrams <= 1}
-                  hitSlop={6}
-                  style={[
-                    styles.stepperButton,
-                    (isRunning || isFinished || doseGrams <= 1) &&
-                      styles.stepperButtonDisabled,
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityLabel="Decrease dose"
-                >
-                  <Minus
-                    size={11}
-                    color={
-                      isRunning || isFinished || doseGrams <= 1
-                        ? colors.textMuted
-                        : colors.textPrimary
-                    }
-                  />
-                </Pressable>
-                <Pressable
-                  onPress={onIncrementDose}
-                  disabled={isRunning || isFinished || doseGrams >= 100}
-                  hitSlop={6}
-                  style={[
-                    styles.stepperButton,
-                    (isRunning || isFinished || doseGrams >= 100) &&
-                      styles.stepperButtonDisabled,
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityLabel="Increase dose"
-                >
-                  <Plus
-                    size={11}
-                    color={
-                      isRunning || isFinished || doseGrams >= 100
-                        ? colors.textMuted
-                        : colors.textPrimary
-                    }
-                  />
-                </Pressable>
-              </View>
-            )}
-          </View>
+          {isDoseEditable ? (
+            <Pressable
+              onPress={() => inputRef.current?.focus()}
+              hitSlop={{ top: 8, bottom: 8, left: 4, right: 8 }}
+              style={[
+                styles.doseInputWrapper,
+                isFocused && styles.doseInputWrapperFocused,
+              ]}
+              accessibilityRole="none"
+            >
+              <TextInput
+                ref={inputRef}
+                value={textDose}
+                onChangeText={setTextDose}
+                onFocus={() => setIsFocused(true)}
+                onBlur={handleCommitDose}
+                onSubmitEditing={handleCommitDose}
+                keyboardType="decimal-pad"
+                returnKeyType="done"
+                selectTextOnFocus
+                style={styles.doseInput}
+                accessibilityLabel="Timer coffee dose in grams"
+              />
+              <Text style={styles.doseUnit}>g</Text>
+            </Pressable>
+          ) : (
+            <View style={styles.doseDisplayRow}>
+              <Text style={styles.metricValue}>{doseGrams}g</Text>
+            </View>
+          )}
         </View>
         <View style={styles.metricItem}>
           <Text style={styles.metricLabel}>WATER TARGET</Text>
@@ -274,28 +277,35 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
     marginTop: 2,
   },
-  doseRow: {
+  doseDisplayRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+    alignItems: 'baseline',
   },
-  stepperContainer: {
+  doseInputWrapper: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
+    alignItems: 'baseline',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderSubtle,
+    marginTop: 2,
+    alignSelf: 'flex-start',
   },
-  stepperButton: {
-    width: 22,
-    height: 22,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    backgroundColor: colors.panelRecessed,
-    alignItems: 'center',
-    justifyContent: 'center',
+  doseInputWrapperFocused: {
+    borderBottomColor: colors.accent,
   },
-  stepperButtonDisabled: {
-    opacity: 0.35,
+  doseInput: {
+    fontSize: 26,
+    fontFamily: FONTS.displayLight,
+    color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+    minWidth: 32,
+  },
+  doseUnit: {
+    fontSize: 20,
+    fontFamily: FONTS.displayLight,
+    color: colors.textMuted,
+    marginLeft: 2,
   },
   metricValueAccent: {
     color: colors.accent,

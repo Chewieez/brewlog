@@ -79,16 +79,6 @@ export default function TimerScreen() {
     setDoseGrams(match.coffeeDoseGrams);
   };
 
-  const handleIncrementDose = () => {
-    if (isRunning || isFinished) return;
-    setDoseGrams((prev) => Math.min(100, Math.round(prev + 1)));
-  };
-
-  const handleDecrementDose = () => {
-    if (isRunning || isFinished) return;
-    setDoseGrams((prev) => Math.max(1, Math.round(prev - 1)));
-  };
-
   const handleApplyDose = (newDose: number) => {
     if (isRunning || isFinished) return;
     if (newDose > 0) {
@@ -129,8 +119,7 @@ export default function TimerScreen() {
         onReset={reset}
         onToggleMute={toggleMute}
         totalProgress={totalProgress}
-        onIncrementDose={handleIncrementDose}
-        onDecrementDose={handleDecrementDose}
+        onChangeDose={handleApplyDose}
       />
 
       {/* Finished Banner */}

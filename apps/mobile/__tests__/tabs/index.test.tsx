@@ -29,11 +29,22 @@ vi.mock('react-native', () => ({
       {children}
     </button>
   ),
-  TextInput: ({ onChangeText, value, accessibilityLabel, ...props }: any) => (
+  TextInput: ({
+    onChangeText,
+    onBlur,
+    onSubmitEditing,
+    value,
+    accessibilityLabel,
+    ...props
+  }: any) => (
     <input
       value={value}
       aria-label={accessibilityLabel}
       onChange={(e) => onChangeText?.(e.target.value)}
+      onBlur={onBlur}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') onSubmitEditing?.();
+      }}
       {...props}
     />
   ),
@@ -180,47 +191,36 @@ describe('TimerScreen - Method Pill Tap & Active Brew Guard', () => {
     expect(mockAlert).not.toHaveBeenCalled();
   });
 
-  it('increments and decrements dose via stepper and rescales recipe water target', () => {
+  it('adjusts dose via inline timer input and rescales recipe water target', () => {
     const { getByLabelText, getByText } = render(<TimerScreen />);
 
     // Initial V60: 30g coffee, 500g water
-    expect(getByText('30g')).toBeDefined();
     expect(getByText('500g')).toBeDefined();
 
-    // Increment dose: 30g -> 31g
-    const increaseBtn = getByLabelText('Increase dose');
-    fireEvent.click(increaseBtn);
+    // Change dose via inline input: 30g -> 20g
+    const timerDoseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
+    expect(timerDoseInput.value).toBe('30');
 
-    expect(getByText('31g')).toBeDefined();
-    expect(getByText('517g')).toBeDefined();
+    fireEvent.change(timerDoseInput, { target: { value: '20' } });
+    fireEvent.blur(timerDoseInput);
 
-    // Decrement dose: 31g -> 30g -> 29g
-    const decreaseBtn = getByLabelText('Decrease dose');
-    fireEvent.click(decreaseBtn);
-    expect(getByText('30g')).toBeDefined();
-    expect(getByText('500g')).toBeDefined();
-
-    fireEvent.click(decreaseBtn);
-    expect(getByText('29g')).toBeDefined();
-    expect(getByText('483g')).toBeDefined();
+    expect(timerDoseInput.value).toBe('20');
+    expect(getByText('333g')).toBeDefined();
   });
 
-  it('disables stepper buttons while timer is running', () => {
-    const { getByLabelText, getByText } = render(<TimerScreen />);
+  it('locks dose input to read-only while timer is running', () => {
+    const { getByLabelText, getByText, queryByLabelText } = render(<TimerScreen />);
 
     const startButton = getByLabelText('Start brew timer');
     fireEvent.click(startButton);
 
-    const increaseBtn = getByLabelText('Increase dose');
-    expect(increaseBtn).toHaveProperty('disabled', true);
-
-    // Clicking does not increment dose while running
-    fireEvent.click(increaseBtn);
+    // Dose input is locked to read-only static text while running
+    expect(queryByLabelText('Timer coffee dose in grams')).toBeNull();
     expect(getByText('30g')).toBeDefined();
   });
 
   it('applies custom dose from CollapsibleCalculator to timer and rescales recipe', () => {
-    const { getByLabelText, getByText, getByPlaceholderText } = render(<TimerScreen />);
+    const { getByLabelText, getByText } = render(<TimerScreen />);
 
     // Open calculator
     const calcToggle = getByLabelText('Toggle Ratio Calculator');
@@ -234,8 +234,9 @@ describe('TimerScreen - Method Pill Tap & Active Brew Guard', () => {
     const applyBtn = getByLabelText('Apply dose to timer');
     fireEvent.click(applyBtn);
 
-    // TimerHero should now show 20g dose and 333g water target
-    expect(getByText('20g')).toBeDefined();
+    // TimerHero should now show 20g dose in input and 333g water target
+    const heroDoseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
+    expect(heroDoseInput.value).toBe('20');
     expect(getByText('333g')).toBeDefined();
   });
 });
