@@ -81,6 +81,10 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
 - [ ] **Phase 3D: Mobile Feature Parity**:
   - Recipe studio and stash manager on native.
   - Native cupping session logging flow.
+- [ ] **Phase 3E: Platform-Adaptive Navigation & Native Design Systems**:
+  - **iOS Liquid Glass Navigation**: Implement native translucent headers and floating tab bar materials (`headerTransparent`, `headerBlurEffect`, under-content scrolling) for iOS 26/27 while preserving solid core theme tokens for cross-platform stability.
+  - **Android Material 3 Support with Expo UI**: Implement first-class Material Design 3 navigation chrome and components via Expo UI / Jetpack Compose primitives (tonal elevation, surface container scrolling, native predictive back gesture integration, and dynamic theme tokens).
+
 
 ### Wearable Companions
 - **Phase 4**: WearOS companion app and tile (Jetpack Compose, Wearable DataLayer).
