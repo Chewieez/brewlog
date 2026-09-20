@@ -1,4 +1,8 @@
 import * as Haptics from 'expo-haptics';
+import { createAudioPlayer, setAudioModeAsync, AudioPlayer } from 'expo-audio';
+
+let chimePlayer: AudioPlayer | null = null;
+let isAudioConfigured = false;
 
 export const mobileFeedback = {
   triggerHapticCountdown: async (): Promise<void> => {
@@ -36,9 +40,17 @@ export const mobileFeedback = {
   playChime: async (isMuted: boolean): Promise<void> => {
     if (isMuted) return;
     try {
-      // Audio chime cue
+      if (!isAudioConfigured) {
+        await setAudioModeAsync({ playsInSilentMode: true }).catch(() => {});
+        isAudioConfigured = true;
+      }
+      if (!chimePlayer) {
+        chimePlayer = createAudioPlayer(require('../../assets/sounds/chime.wav'));
+      }
+      await chimePlayer.seekTo(0).catch(() => {});
+      chimePlayer.play();
     } catch {
-      // Degrades gracefully
+      // Degrades gracefully on simulators or environments without audio capabilities
     }
   },
 };

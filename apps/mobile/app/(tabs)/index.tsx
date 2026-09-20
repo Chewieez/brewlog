@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, Text, Pressable } from 'react-native';
+import { View, ScrollView, StyleSheet, Text, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
   INDUSTRIAL_PRECISION_THEME,
@@ -14,10 +14,9 @@ import { TimerHero } from '../../src/components/timer/TimerHero';
 import { ActiveStageCard } from '../../src/components/timer/ActiveStageCard';
 import { StageTimeline } from '../../src/components/timer/StageTimeline';
 import { FONTS } from '../../src/theme/fonts';
+import { AVAILABLE_METHODS } from '../../src/utils/recipeUtils';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
-
-const AVAILABLE_METHODS = ['V60', 'Chemex', 'Aeropress', 'French Press'];
 
 export default function TimerScreen() {
   const router = useRouter();
@@ -44,13 +43,56 @@ export default function TimerScreen() {
   } = useMobileBrewTimer(activeRecipe);
 
   const handleSelectMethod = (methodName: string) => {
+    if (activeRecipe.brewMethod.toLowerCase() === methodName.toLowerCase()) {
+      return;
+    }
+
     const match = DEFAULT_PRESET_RECIPES.find(
       (r) => r.brewMethod.toLowerCase() === methodName.toLowerCase()
     );
-    if (match) {
-      reset();
-      setSelectedRecipe(match);
-      setDoseGrams(match.coffeeDoseGrams);
+    if (!match) return;
+
+    const isBrewActive = isRunning || (elapsedSeconds > 0 && !isFinished);
+
+    if (isBrewActive) {
+      Alert.alert(
+        'Switch Brew Method?',
+        'A brew is currently in progress. Switching methods will reset your timer.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Reset & Switch',
+            style: 'destructive',
+            onPress: () => {
+              reset();
+              setSelectedRecipe(match);
+              setDoseGrams(match.coffeeDoseGrams);
+            },
+          },
+        ]
+      );
+      return;
+    }
+
+    reset();
+    setSelectedRecipe(match);
+    setDoseGrams(match.coffeeDoseGrams);
+  };
+
+  const handleIncrementDose = () => {
+    if (isRunning || isFinished) return;
+    setDoseGrams((prev) => Math.min(100, Math.round(prev + 1)));
+  };
+
+  const handleDecrementDose = () => {
+    if (isRunning || isFinished) return;
+    setDoseGrams((prev) => Math.max(1, Math.round(prev - 1)));
+  };
+
+  const handleApplyDose = (newDose: number) => {
+    if (isRunning || isFinished) return;
+    if (newDose > 0) {
+      setDoseGrams(Math.round(newDose * 10) / 10);
     }
   };
 
@@ -71,6 +113,7 @@ export default function TimerScreen() {
       <CollapsibleCalculator
         initialDose={doseGrams}
         initialRatio={activeRecipe.ratio}
+        onApplyDose={handleApplyDose}
       />
 
       {/* Web-Parity Instrument Faceplate */}
@@ -78,6 +121,7 @@ export default function TimerScreen() {
         recipe={activeRecipe}
         elapsedSeconds={elapsedSeconds}
         isRunning={isRunning}
+        isFinished={isFinished}
         isMuted={isMuted}
         currentStageTargetWater={currentStage.targetWaterWeightGrams}
         doseGrams={doseGrams}
@@ -85,6 +129,8 @@ export default function TimerScreen() {
         onReset={reset}
         onToggleMute={toggleMute}
         totalProgress={totalProgress}
+        onIncrementDose={handleIncrementDose}
+        onDecrementDose={handleDecrementDose}
       />
 
       {/* Finished Banner */}

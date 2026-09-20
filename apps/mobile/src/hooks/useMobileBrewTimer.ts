@@ -160,10 +160,12 @@ export const useMobileBrewTimer = (recipe: BrewRecipe): UseMobileBrewTimerReturn
   const toggleTimer = useCallback(() => {
     if (isRunning) {
       pause();
+    } else if (isFinished) {
+      reset();
     } else {
       start();
     }
-  }, [isRunning, pause, start]);
+  }, [isRunning, isFinished, pause, reset, start]);
 
   const toggleMute = useCallback(() => {
     mobileFeedback.triggerHapticTap();

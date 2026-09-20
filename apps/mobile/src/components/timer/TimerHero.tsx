@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react-native';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, Minus, Plus } from 'lucide-react-native';
 import { INDUSTRIAL_PRECISION_THEME, BrewRecipe } from '@brewlog/core';
 import { FONTS } from '../../theme/fonts';
 
@@ -10,6 +10,7 @@ export interface TimerHeroProps {
   recipe: BrewRecipe;
   elapsedSeconds: number;
   isRunning: boolean;
+  isFinished?: boolean;
   isMuted: boolean;
   currentStageTargetWater: number;
   doseGrams: number;
@@ -17,12 +18,15 @@ export interface TimerHeroProps {
   onReset: () => void;
   onToggleMute: () => void;
   totalProgress: number;
+  onIncrementDose?: () => void;
+  onDecrementDose?: () => void;
 }
 
 export const TimerHero: React.FC<TimerHeroProps> = ({
   recipe,
   elapsedSeconds,
   isRunning,
+  isFinished = false,
   isMuted,
   currentStageTargetWater,
   doseGrams,
@@ -30,6 +34,8 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
   onReset,
   onToggleMute,
   totalProgress,
+  onIncrementDose,
+  onDecrementDose,
 }) => {
   const mins = Math.floor(elapsedSeconds / 60);
   const secs = elapsedSeconds % 60;
@@ -63,7 +69,55 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
       <View style={styles.metricsGrid}>
         <View style={styles.metricItem}>
           <Text style={styles.metricLabel}>COFFEE DOSE</Text>
-          <Text style={styles.metricValue}>{doseGrams}g</Text>
+          <View style={styles.doseRow}>
+            <Text style={styles.metricValue}>{doseGrams}g</Text>
+            {onIncrementDose && onDecrementDose && (
+              <View style={styles.stepperContainer}>
+                <Pressable
+                  onPress={onDecrementDose}
+                  disabled={isRunning || isFinished || doseGrams <= 1}
+                  hitSlop={6}
+                  style={[
+                    styles.stepperButton,
+                    (isRunning || isFinished || doseGrams <= 1) &&
+                      styles.stepperButtonDisabled,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Decrease dose"
+                >
+                  <Minus
+                    size={11}
+                    color={
+                      isRunning || isFinished || doseGrams <= 1
+                        ? colors.textMuted
+                        : colors.textPrimary
+                    }
+                  />
+                </Pressable>
+                <Pressable
+                  onPress={onIncrementDose}
+                  disabled={isRunning || isFinished || doseGrams >= 100}
+                  hitSlop={6}
+                  style={[
+                    styles.stepperButton,
+                    (isRunning || isFinished || doseGrams >= 100) &&
+                      styles.stepperButtonDisabled,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Increase dose"
+                >
+                  <Plus
+                    size={11}
+                    color={
+                      isRunning || isFinished || doseGrams >= 100
+                        ? colors.textMuted
+                        : colors.textPrimary
+                    }
+                  />
+                </Pressable>
+              </View>
+            )}
+          </View>
         </View>
         <View style={styles.metricItem}>
           <Text style={styles.metricLabel}>WATER TARGET</Text>
@@ -83,21 +137,28 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
       {/* Controls Row */}
       <View style={styles.controlsRow}>
         <Pressable
-          onPress={onToggleTimer}
+          onPress={isFinished ? onReset : onToggleTimer}
           style={[
             styles.primaryButton,
             isRunning ? styles.primaryButtonRunning : styles.primaryButtonIdle,
           ]}
           accessibilityRole="button"
           accessibilityLabel={
-            isRunning
-              ? 'Pause timer'
-              : elapsedSeconds > 0
-                ? 'Resume timer'
-                : 'Start brew timer'
+            isFinished
+              ? 'Reset brew timer'
+              : isRunning
+                ? 'Pause timer'
+                : elapsedSeconds > 0
+                  ? 'Resume timer'
+                  : 'Start brew timer'
           }
         >
-          {isRunning ? (
+          {isFinished ? (
+            <>
+              <RotateCcw size={16} color={colors.canvas} />
+              <Text style={styles.primaryButtonText}>RESET</Text>
+            </>
+          ) : isRunning ? (
             <>
               <Pause size={16} color={colors.canvas} fill={colors.canvas} />
               <Text style={styles.primaryButtonText}>PAUSE</Text>
@@ -212,6 +273,29 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontVariant: ['tabular-nums'],
     marginTop: 2,
+  },
+  doseRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  stepperContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  stepperButton: {
+    width: 22,
+    height: 22,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    backgroundColor: colors.panelRecessed,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepperButtonDisabled: {
+    opacity: 0.35,
   },
   metricValueAccent: {
     color: colors.accent,

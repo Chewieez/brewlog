@@ -25,17 +25,19 @@ export const MethodPills: React.FC<MethodPillsProps> = ({
       >
         {methods.map((method) => {
           const isSelected = selectedMethod.toLowerCase() === method.toLowerCase();
+          const displayName = method.replace(/-/g, ' ').toUpperCase();
           return (
             <Pressable
               key={method}
               onPress={() => onSelectMethod(method)}
+              hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
               style={[
                 styles.pill,
                 isSelected ? styles.pillActive : styles.pillInactive,
               ]}
               accessibilityRole="button"
               accessibilityState={{ selected: isSelected }}
-              accessibilityLabel={`${method.toUpperCase()} brew method`}
+              accessibilityLabel={`${displayName} brew method`}
             >
               <Text
                 style={[
@@ -43,7 +45,7 @@ export const MethodPills: React.FC<MethodPillsProps> = ({
                   isSelected ? styles.pillTextActive : styles.pillTextInactive,
                 ]}
               >
-                {method.toUpperCase()}
+                {displayName}
               </Text>
             </Pressable>
           );
@@ -63,7 +65,9 @@ const styles = StyleSheet.create({
   },
   pill: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
+    minHeight: 36,
+    justifyContent: 'center',
     borderRadius: 6,
     borderWidth: 1,
   },

@@ -189,4 +189,24 @@ describe('useMobileBrewTimer', () => {
     });
     expect(result.current.isMuted).toBe(false);
   });
+
+  it('resets timer on toggleTimer when isFinished is true', () => {
+    const { result } = renderHook(() => useMobileBrewTimer(recipe));
+
+    act(() => {
+      result.current.start();
+    });
+    act(() => {
+      vi.advanceTimersByTime(recipe.totalTimeSeconds * 1000);
+    });
+    expect(result.current.isFinished).toBe(true);
+
+    // Calling toggleTimer while finished should reset
+    act(() => {
+      result.current.toggleTimer();
+    });
+    expect(result.current.isFinished).toBe(false);
+    expect(result.current.elapsedSeconds).toBe(0);
+    expect(result.current.isRunning).toBe(false);
+  });
 });
