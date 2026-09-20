@@ -3,6 +3,7 @@ import { Database } from "./database.types";
 
 export * from "./database.types";
 export * from "./mappers";
+export { SupabaseClient } from "@supabase/supabase-js";
 
 export interface BrewlogClientOptions {
   storage?: any;

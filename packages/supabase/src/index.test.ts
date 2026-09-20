@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { createBrewlogClient } from "./index";
+import { createBrewlogClient, SupabaseClient } from "./index";
 
 describe("createBrewlogClient", () => {
   it("initializes supabase client with custom storage and detectSessionInUrl option", () => {
@@ -37,5 +37,8 @@ describe("createBrewlogClient", () => {
     expect(client).toBeDefined();
     expect(client.auth).toBeDefined();
   });
-});
 
+  it("exports SupabaseClient class from package index", () => {
+    expect(SupabaseClient).toBeDefined();
+  });
+});
