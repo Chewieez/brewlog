@@ -88,7 +88,7 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
 - [ ] **Phase 4: Mobile Recipe Studio & Catalog Integration** *(Design Approved — see [spec](file:///Users/greglawrence/Projects/brewlog/docs/superpowers/specs/2026-09-20-phase-4-recipe-studio-design.md))*:
   - Native stack and modal navigation (`app/recipe/[id].tsx`, `app/recipe/builder.tsx`).
   - Full recipe lifecycle on mobile: create, edit, fork/duplicate, and delete.
-  - Bidirectional timer parameter handoff ("Brew with this Recipe" CTA and quick-picker sheet on the timer).
+  - Timer parameter handoff ("Brew with this Recipe" CTA from detail to active timer).
   - Dynamic method pills and offline-first cloud synchronization via Supabase.
 - [ ] **Phase 5: Stash Manager & Cellar Inventory**:
   - Native bean cellar and bag inventory management (`app/(tabs)/stash.tsx`).

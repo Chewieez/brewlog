@@ -29,10 +29,10 @@ This design specification details **Phase 4: Mobile Recipe Studio & Catalog Inte
    - **Duplicate/Fork**: Duplicate any recipe (presets or custom) to seed the builder with an existing profile for rapid tweaking.
    - **Delete**: Remove custom recipes with confirmation guard (presets are immutable).
 
-3. **Timer Integration & Dual-Access Pattern**:
-   - **"Brew with this Recipe" CTA**: Rescales the recipe to the user's selected dose in Recipe Detail, passes it to the active timer via `RecipeContext`, and navigates to the Timer tab.
-   - **Timer Screen Picker**: Extends the horizontal `MethodPills` bar on `app/(tabs)/index.tsx` with a "Custom Recipes" selector opening a quick bottom sheet (`CustomRecipePickerSheet`), allowing baristas to switch between custom brews without leaving the Timer tab.
-   - **Active Brew Interruption Guard**: Prompts an `Alert.alert` before resetting an in-progress brew.
+3. **Timer Integration & Parameter Handoff**:
+   - **"Brew with this Recipe" CTA**: Rescales the recipe to the user's selected dose in Recipe Detail, passes it to the active timer via `RecipeContext`, and navigates to the Timer tab (`router.replace('/(tabs)')`).
+   - **Instrument Faceplate Continuity**: The loaded recipe's name, brew method, ratio, dose, and water specs immediately display on the `TimerHero` faceplate.
+   - **Active Brew Interruption Guard**: Prompts an `Alert.alert` before resetting an in-progress brew if a new recipe is loaded or a method pill is tapped.
 
 4. **Dynamic Method Filter Bar**:
    - Filter pills dynamically derive from the currently available recipes (`['all', 'custom', ...dynamicMethodsPresent]`), ensuring users never hit empty dead-end screens.
@@ -130,9 +130,7 @@ apps/mobile
             │   ├── DoseRescaler.tsx         # Steppers, direct input, and quick presets
             │   ├── DoseRescaler.test.tsx
             │   ├── StagesTimeline.tsx       # Vertical stage sequence with step badges
-            │   ├── StagesTimeline.test.tsx
-            │   ├── CustomRecipePickerSheet.tsx # Timer custom recipe selector bottom sheet
-            │   └── CustomRecipePickerSheet.test.tsx
+            │   └── StagesTimeline.test.tsx
             └── utils
                 ├── timingUtils.ts           # Sequential startSecond & totalTime recalculator
                 └── timingUtils.test.ts
@@ -194,9 +192,9 @@ apps/mobile
 
 ### 5.4 Timer Integration (`app/(tabs)/index.tsx`)
 - Reads `activeTimerRecipe` and `activeTimerDose` from `RecipeContext`.
-- Keeps horizontal `MethodPills` for standard presets, appending a `CUSTOM RECIPES` pill.
-- Tapping `CUSTOM RECIPES` opens `CustomRecipePickerSheet.tsx` (modal bottom sheet) displaying user custom recipes with quick-select cards.
-- If a brew is actively ticking when switching recipes (via handoff or picker), prompts `Alert.alert`:
+- Keeps horizontal `MethodPills` strictly brew-method focused (`v60`, `aeropress`, `chemex`, `french-press`) for standard presets.
+- When a recipe is loaded via **"Brew with this Recipe"**, `TimerHero` reflects the recipe name, method, ratio, and rescaled metrics.
+- If a brew is actively ticking when switching recipes (via handoff or tapping a method pill), prompts `Alert.alert`:
   > *"A brew is currently in progress. Switching recipes will reset your timer."*
   > Buttons: `[Cancel]` | `[Reset & Switch]`
 
@@ -242,7 +240,6 @@ apps/mobile
 - `RecipeCard.test.tsx`: Tests rendering of badges, specs, and navigation on press.
 - `DoseRescaler.test.tsx`: Tests stepper clicks, direct input, and quick preset buttons rescaling dose.
 - `SpecsGrid.test.tsx` & `StagesTimeline.test.tsx`: Tests specs and timeline formatting.
-- `CustomRecipePickerSheet.test.tsx`: Tests custom recipe listing and selection.
 - Screen Integration Tests:
   - `RecipesCatalog.test.tsx` (Catalog screen)
   - `RecipeDetail.test.tsx` (Detail screen)
