@@ -73,8 +73,9 @@ export class LargeSecureStore {
       let ivBytes: Uint8Array;
       let cipherBytes: Uint8Array;
 
-      if (stored.includes(":") && stored.indexOf(":") === 32) {
-        const [ivHex, cipherHex] = stored.split(":");
+      if (stored.length > 33 && stored.charAt(32) === ":") {
+        const ivHex = stored.substring(0, 32);
+        const cipherHex = stored.substring(33);
         ivBytes = aesjs.utils.hex.toBytes(ivHex);
         cipherBytes = aesjs.utils.hex.toBytes(cipherHex);
       } else {
