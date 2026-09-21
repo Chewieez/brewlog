@@ -13,8 +13,8 @@ brewlog/
 ├── apps/
 │   ├── web/               # React 19 + Tailwind CSS v4 + Vite
 │   ├── mobile/            # React Native (Expo SDK 57) + TypeScript
-│   ├── wearos/            # (Phase 4) WearOS Companion App & Tile (Jetpack Compose)
-│   └── watchos/           # (Phase 5) Apple watchOS Companion App & Complications (SwiftUI)
+│   ├── wearos/            # WearOS Companion App & Tile (Jetpack Compose)
+│   └── watchos/           # Apple watchOS Companion App & Complications (SwiftUI)
 ├── packages/
 │   ├── core/              # Shared types, brew math, presets & SCA flavor wheel
 │   └── supabase/          # Shared database schema, client & RLS policies
@@ -33,16 +33,22 @@ brewlog/
 * **⏱️ Interactive Brew Assistant**: Live visual stage timer with target weight indicators, synthesized bell chimes (Web Audio on web, `expo-audio` on mobile), tactile haptics (`expo-haptics`), dynamic method selector, inline dose scaling, and full hardware faceplate controls across web and mobile.
 * **📝 SCA Cupping Logbook & Flavor Wheel**: Score fragrance/aroma, flavor, aftertaste, acidity, body, balance, uniformity, clean cup, sweetness, and overall impression with interactive flavor tags to calculate authentic 0–100 SCA scores.
 * **☁️ Cloud Sync, Multi-User & Secure Storage**: Supabase PostgreSQL backend with Row Level Security (RLS), cross-platform authentication (`AuthSheet` modal bottom sheet with sign-in/up/reset, `ProfileHeaderButton` avatar indicator), and hardware-secured session storage (`LargeSecureStore` AES-256 CTR hybrid encryption backed by `expo-secure-store` with `WHEN_UNLOCKED_THIS_DEVICE_ONLY` keychain accessibility).
-* **📱 Mobile App (React Native Expo) Status**:
-  - **Phase 3 (Foundation & Monorepo Setup)**: Complete ✅ (Expo SDK 57, React Native 0.86, industrial precision dark theme tokens).
-  - **Phase 3A (Bottom Tab Navigation Shell)**: Complete ✅ (5-tab navigation with Lucide vector icons).
-  - **Phase 3B (Interactive Brew Timer Subsystem)**: Complete ✅ (Drift-free delta timer, inline dose scaling, tactile haptics, synthesized chimes).
+* **📱 Active Project Milestones & Roadmap**:
+  - **Phase 1 (Web App Core Routing)**: Complete ✅ (Declarative client routing, 404 handler, persistent shell).
+  - **Phase 2 (Dynamic Recipe Routing)**: Complete ✅ (Master-detail layout, `/recipes/:id`, URL synchronization).
+  - **Phase 3 (Mobile App Foundation & Shell)**: Complete ✅ (Expo SDK 57, 5-tab shell, drift-free timer).
   - **Phase 3C (Supabase Auth & Secure Storage)**: Complete ✅ (Hardware-backed `LargeSecureStore`, `AuthContext` / `useAuth`, `ProfileHeaderButton`, and `AuthSheet` modal).
-  - **Phase 3D (Native Feature Parity & Sync)**: Upcoming ⏳ (Recipe studio, stash manager, and offline sync on native).
-  - **Phase 3E (Platform-Adaptive Navigation)**: Upcoming ⏳ (iOS Liquid Glass materials & Android Material Design 3 via Expo UI).
-* **⌚ Wearable Companion Roadmap**:
-  - **Phase 4 (WearOS)**: Android Wear OS wrist timer with haptic pour alerts via Wearable DataLayer.
-  - **Phase 5 (watchOS)**: Apple Watch companion app built with SwiftUI & WatchConnectivity.
+  - **Phase 4 (Mobile Recipe Studio & Catalog)**: In Progress ⏳ (Native stack/modal navigation, recipe builder lifecycle, bidirectional timer handoff).
+  - **Phase 5 (Stash Manager & Inventory)**: Upcoming ⏳ (Native bean cellar, roast resting status indicators).
+  - **Phase 6 (Free Brew Timer & Ratio Translator)**: Upcoming ⏳ (Stopwatch mode, nested ratio translator).
+  - **Phase 7 (User Preferences & Settings Subsystem)**: Upcoming ⏳ (Cross-platform Supabase `user_settings`, default timer mode).
+  - **Phase 8 (Native Cupping Session Logging)**: Upcoming ⏳ (SCA 10-attribute scoring protocol).
+  - **Phase 9 (Platform-Adaptive Navigation)**: Upcoming ⏳ (iOS Liquid Glass & Android Material Design 3).
+* **⌚ Companion Platforms & Wearables**:
+  - **WearOS Companion**: Android Wear OS wrist timer with haptic pour alerts via Wearable DataLayer.
+  - **watchOS Companion**: Apple Watch companion app built with SwiftUI & WatchConnectivity.
+
+> See [docs/ROADMAP.md](docs/ROADMAP.md) for detailed technical deliverables, component refactoring tasks, and architecture decision records.
 
 ---
 

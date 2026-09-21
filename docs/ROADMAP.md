@@ -84,17 +84,36 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
 
 ## 🚀 Upcoming Project Milestones
 
-### Phase 3 Mobile App (Next Slices)
-- [x] **Phase 3C: Supabase Auth & Secure Storage (Complete ✅)**:
-  - Deliverables: `LargeSecureStore` AES-256 CTR hybrid storage adapter with `WHEN_UNLOCKED_THIS_DEVICE_ONLY`, `createBrewlogClient` options (`storage`, `detectSessionInUrl`), `AuthContext` / `useAuth` hook, `ProfileHeaderButton`, and `AuthSheet` modal.
-- [ ] **Phase 3D: Mobile Feature Parity**:
-  - Recipe studio and stash manager on native.
-  - Native cupping session logging flow.
-- [ ] **Phase 3E: Platform-Adaptive Navigation & Native Design Systems**:
+### Core Platform & Mobile Milestones
+- [ ] **Phase 4: Mobile Recipe Studio & Catalog Integration** *(Design Approved — see [spec](file:///Users/greglawrence/Projects/brewlog/docs/superpowers/specs/2026-09-20-phase-3d1-recipe-studio-design.md))*:
+  - Native stack and modal navigation (`app/recipe/[id].tsx`, `app/recipe/builder.tsx`).
+  - Full recipe lifecycle on mobile: create, edit, fork/duplicate, and delete.
+  - Bidirectional timer parameter handoff ("Brew with this Recipe" CTA and quick-picker sheet on the timer).
+  - Dynamic method pills and offline-first cloud synchronization via Supabase.
+- [ ] **Phase 5: Stash Manager & Cellar Inventory**:
+  - Native bean cellar and bag inventory management (`app/(tabs)/stash.tsx`).
+  - Roast date age calculation with resting status indicators (Needs Rest, Peak, Aging, Past Peak).
+  - Quick bean selection link to active brew sessions.
+- [ ] **Phase 6: Free Brew (Manual Timer) & Nested Ratio Translator**:
+  - **Core Domain Math (`@brewlog/core`)**: Expand `calculator.ts` with bidirectional proportional calculation helpers (`calculateRatio`, target water/coffee proportional scaling from locked ratio). Comprehensive unit tests covering decimal rounding, edge cases, and zero states.
+  - **Nested Ratio Translator (`CollapsibleCalculator`)**: Nested collapsible drawer inside the existing calculator card. Enter source coffee:water values (or direct ratio) to establish a baseline, then solve for target coffee or water dynamically with one-tap dose application to the active timer.
+  - **Free Brew Mode (Timer Subsystem)**: Dedicated recipe-free mode directly on the Timer screen (web and mobile). Replaces structured recipe stages and water progression with an open-ended precision stopwatch, manual split/lap markers (bloom, first pour, draw-down), and immediate ratio translator access without cluttering the mobile 5-tab bar.
+- [ ] **Phase 7: User Preferences & Settings Subsystem (Cross-Platform)**:
+  - **Supabase Cloud Schema (`@brewlog/supabase`)**: `user_settings` table keyed to `user_id` with Row-Level Security (RLS) policies and offline-first local cache fallback. Initial schema stores `default_timer_mode` (`'recipe'` | `'manual'`), architected to scale for future preferences (temperature units `°C`/`°F`, haptic/audio cues, default brew method).
+  - **Settings UI & Navigation**:
+    - **Mobile**: Settings entry button situated in the slide-up account tray (`AuthSheet` opened via `ProfileHeaderButton`), preserving Apple HIG 5-tab ergonomics.
+    - **Web**: Settings option in the account dropdown menu routing to `/settings`.
+  - **Boot Lifecycle**: Hydrates user settings on startup and automatically initializes the Timer into the barista's preferred default state (`recipe` vs. `manual`).
+- [ ] **Phase 8: Native Cupping Session Logging Flow**:
+  - Complete SCA 10-attribute scoring protocol form on native (`app/(tabs)/cupping.tsx`).
+  - Radar chart visualization and spider graphs for sensory profiles.
+  - Session history and exportable cupping sheets.
+- [ ] **Phase 9: Platform-Adaptive Navigation & Native Design Systems**:
   - **iOS Liquid Glass Navigation**: Implement native translucent headers and floating tab bar materials (`headerTransparent`, `headerBlurEffect`, under-content scrolling) for iOS 26/27 while preserving solid core theme tokens for cross-platform stability.
   - **Android Material 3 Support with Expo UI**: Implement first-class Material Design 3 navigation chrome and components via Expo UI / Jetpack Compose primitives (tonal elevation, surface container scrolling, native predictive back gesture integration, and dynamic theme tokens).
 
+---
 
-### Wearable Companions
-- **Phase 4**: WearOS companion app and tile (Jetpack Compose, Wearable DataLayer).
-- **Phase 5**: watchOS companion app and complications (SwiftUI, WatchConnectivity).
+### ⌚ Companion Platforms & Wearables
+- **WearOS Companion**: Standalone wearable companion app and watch tile for glanceable brew timing, countdown alerts, and pour cues (Jetpack Compose, Wearable DataLayer).
+- **watchOS Companion**: Standalone Apple Watch companion app and Lock Screen / Smart Stack complications for active brew progress (SwiftUI, WatchConnectivity).
