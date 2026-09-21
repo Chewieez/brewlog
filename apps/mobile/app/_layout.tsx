@@ -19,6 +19,7 @@ import {
 } from '@expo-google-fonts/jetbrains-mono';
 import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { AuthProvider } from '../src/features/auth/AuthContext';
+import { RecipeProvider } from '../src/features/recipes/RecipeContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -49,17 +50,37 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <StatusBar style="light" />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: {
-              backgroundColor: colors.canvas,
-            },
-          }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Stack>
+        <RecipeProvider>
+          <StatusBar style="light" />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: {
+                backgroundColor: colors.canvas,
+              },
+            }}
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="recipe/[id]"
+              options={{
+                headerShown: true,
+                title: 'Recipe Details',
+                headerBackTitle: 'Back',
+                headerStyle: { backgroundColor: colors.panel },
+                headerTintColor: colors.textPrimary,
+                headerTitleStyle: { fontWeight: '700' },
+              }}
+            />
+            <Stack.Screen
+              name="recipe/builder"
+              options={{
+                headerShown: false,
+                presentation: 'modal',
+              }}
+            />
+          </Stack>
+        </RecipeProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );
