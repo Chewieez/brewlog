@@ -1,26 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
+import { useLocalSearchParams } from 'expo-router';
+import { RecipeDetailScreen } from '../../src/features/recipes/screens/RecipeDetailScreen';
 
 export default function RecipeDetailRoute() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.placeholderText}>Recipe Detail</Text>
-    </View>
-  );
+  const { id } = useLocalSearchParams<{ id: string }>();
+  return <RecipeDetailScreen recipeId={id || ''} />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.canvas,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  placeholderText: {
-    color: colors.textPrimary,
-    fontSize: 16,
-  },
-});
