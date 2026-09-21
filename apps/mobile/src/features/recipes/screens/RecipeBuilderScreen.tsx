@@ -40,6 +40,15 @@ const METHODS: { label: string; value: BrewMethodType }[] = [
   { label: 'Custom', value: 'custom' },
 ];
 
+const STAGE_TYPES: { label: string; value: StageType }[] = [
+  { label: 'Bloom', value: 'bloom' },
+  { label: 'Pour', value: 'pour' },
+  { label: 'Agitation', value: 'agitation' },
+  { label: 'Drawdown', value: 'drawdown' },
+  { label: 'Press', value: 'press' },
+  { label: 'Other', value: 'other' },
+];
+
 const RATIO_PRESETS = [15, 16, 16.67, 17];
 
 const DEFAULT_STAGES: BrewStage[] = [
@@ -97,15 +106,19 @@ export const RecipeBuilderScreen: React.FC = () => {
   const [brewMethod, setBrewMethod] = useState<BrewMethodType>(
     sourceRecipe?.brewMethod || 'v60'
   );
-  const [coffeeDoseGrams, setCoffeeDoseGrams] = useState<number>(
-    sourceRecipe?.coffeeDoseGrams || 15
+
+  // Use string state for numeric inputs to avoid snapping decimal keystrokes (e.g. "15." or "16.5")
+  const [doseText, setDoseText] = useState<string>(
+    sourceRecipe ? String(sourceRecipe.coffeeDoseGrams) : '15'
   );
-  const [ratio, setRatio] = useState<number>(sourceRecipe?.ratio || 16.67);
+  const [ratioText, setRatioText] = useState<string>(
+    sourceRecipe ? String(sourceRecipe.ratio) : '16.67'
+  );
   const [grindSize, setGrindSize] = useState<string>(
     sourceRecipe?.grindSize || 'Medium-Fine'
   );
-  const [waterTempCelsius, setWaterTempCelsius] = useState<number>(
-    sourceRecipe?.waterTempCelsius || 93
+  const [waterTempText, setWaterTempText] = useState<string>(
+    sourceRecipe ? String(sourceRecipe.waterTempCelsius) : '93'
   );
   const [description, setDescription] = useState<string>(
     sourceRecipe?.description || ''
@@ -116,6 +129,10 @@ export const RecipeBuilderScreen: React.FC = () => {
   );
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const coffeeDoseGrams = parseFloat(doseText) || 0;
+  const ratio = parseFloat(ratioText) || 0;
+  const waterTempCelsius = parseInt(waterTempText, 10) || 0;
 
   const calculatedWater = calculateWaterAmount(coffeeDoseGrams, ratio);
   const totalBrewTime = calculateTotalBrewTime(stages);
@@ -155,20 +172,20 @@ export const RecipeBuilderScreen: React.FC = () => {
 
   const handleSave = async () => {
     const trimmedName = name.trim();
-    if (!trimmedName) {
-      setErrorMessage('Recipe name is required');
+    if (trimmedName.length === 0) {
+      setErrorMessage('Recipe name is required.');
       return;
     }
-    if (coffeeDoseGrams <= 0) {
-      setErrorMessage('Coffee dose must be greater than 0g');
+    if (coffeeDoseGrams < 1 || coffeeDoseGrams > 100) {
+      setErrorMessage('Coffee dose must be between 1g and 100g.');
       return;
     }
-    if (ratio <= 0 || calculatedWater <= 0) {
-      setErrorMessage('Brew ratio must be greater than 0');
+    if (ratio < 1 || ratio > 30) {
+      setErrorMessage('Brew ratio must be between 1:1 and 1:30.');
       return;
     }
-    if (stages.length === 0) {
-      setErrorMessage('At least one brew stage is required');
+    if (stages.length === 0 || !stages.some((s) => s.durationSeconds > 0)) {
+      setErrorMessage('Recipe must have at least one stage with a duration greater than 0s.');
       return;
     }
 
@@ -189,12 +206,18 @@ export const RecipeBuilderScreen: React.FC = () => {
       stages,
     };
 
-    if (editId) {
-      await updateRecipe(editId, payload);
-      router.back();
-    } else {
-      const created = await addRecipe(payload);
-      router.replace(`/recipe/${created.id}`);
+    try {
+      if (editId) {
+        await updateRecipe(editId, payload);
+        router.back();
+      } else {
+        const created = await addRecipe(payload);
+        router.replace(`/recipe/${created.id}`);
+      }
+    } catch (err: any) {
+      const msg = err?.message || 'An unexpected error occurred while saving the recipe.';
+      setErrorMessage(msg);
+      Alert.alert('Save Failed', msg);
     }
   };
 
@@ -210,7 +233,11 @@ export const RecipeBuilderScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+    >
       <View style={styles.navHeader}>
         <Pressable
           onPress={handleCancel}
@@ -272,6 +299,7 @@ export const RecipeBuilderScreen: React.FC = () => {
                 onPress={() => setBrewMethod(m.value)}
                 style={[styles.methodPill, isSelected ? styles.methodPillActive : styles.methodPillInactive]}
                 accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
                 accessibilityLabel={`Select brew method ${m.label}`}
               >
                 <Text style={[styles.methodPillText, isSelected ? styles.methodPillTextActive : styles.methodPillTextInactive]}>
@@ -291,6 +319,16 @@ export const RecipeBuilderScreen: React.FC = () => {
           multiline
           style={[styles.textInput, styles.multilineInput]}
         />
+
+        <Text style={styles.fieldLabel}>NOTES</Text>
+        <TextInput
+          value={notes}
+          onChangeText={setNotes}
+          placeholder="Personal notes, water specs, grinder settings..."
+          placeholderTextColor={colors.textMuted}
+          multiline
+          style={[styles.textInput, styles.multilineInput]}
+        />
       </View>
 
       {/* Section 2: Dose & Ratio */}
@@ -301,8 +339,8 @@ export const RecipeBuilderScreen: React.FC = () => {
           <View style={styles.halfField}>
             <Text style={styles.fieldLabel}>DOSE (G)</Text>
             <TextInput
-              value={String(coffeeDoseGrams)}
-              onChangeText={(val) => setCoffeeDoseGrams(parseFloat(val) || 0)}
+              value={doseText}
+              onChangeText={setDoseText}
               keyboardType="decimal-pad"
               style={styles.textInput}
             />
@@ -310,8 +348,8 @@ export const RecipeBuilderScreen: React.FC = () => {
           <View style={styles.halfField}>
             <Text style={styles.fieldLabel}>RATIO (1:X)</Text>
             <TextInput
-              value={String(ratio)}
-              onChangeText={(val) => setRatio(parseFloat(val) || 0)}
+              value={ratioText}
+              onChangeText={setRatioText}
               keyboardType="decimal-pad"
               style={styles.textInput}
             />
@@ -319,19 +357,23 @@ export const RecipeBuilderScreen: React.FC = () => {
         </View>
 
         <View style={styles.ratioPillsRow}>
-          {RATIO_PRESETS.map((r) => (
-            <Pressable
-              key={r}
-              onPress={() => setRatio(r)}
-              style={[styles.ratioPill, ratio === r ? styles.ratioPillActive : styles.ratioPillInactive]}
-              accessibilityRole="button"
-              accessibilityLabel={`Select ratio 1 to ${r}`}
-            >
-              <Text style={[styles.ratioPillText, ratio === r ? styles.ratioPillTextActive : styles.ratioPillTextInactive]}>
-                1:{r}
-              </Text>
-            </Pressable>
-          ))}
+          {RATIO_PRESETS.map((r) => {
+            const isRatioSelected = Math.abs(ratio - r) < 0.01;
+            return (
+              <Pressable
+                key={r}
+                onPress={() => setRatioText(String(r))}
+                style={[styles.ratioPill, isRatioSelected ? styles.ratioPillActive : styles.ratioPillInactive]}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isRatioSelected }}
+                accessibilityLabel={`Select ratio 1 to ${r}`}
+              >
+                <Text style={[styles.ratioPillText, isRatioSelected ? styles.ratioPillTextActive : styles.ratioPillTextInactive]}>
+                  1:{r}
+                </Text>
+              </Pressable>
+            );
+          })}
         </View>
 
         <View style={styles.waterSummaryRow}>
@@ -358,8 +400,8 @@ export const RecipeBuilderScreen: React.FC = () => {
           <View style={styles.halfField}>
             <Text style={styles.fieldLabel}>WATER TEMP (°C)</Text>
             <TextInput
-              value={String(waterTempCelsius)}
-              onChangeText={(val) => setWaterTempCelsius(parseInt(val, 10) || 0)}
+              value={waterTempText}
+              onChangeText={setWaterTempText}
               keyboardType="number-pad"
               style={styles.textInput}
             />
@@ -417,6 +459,39 @@ export const RecipeBuilderScreen: React.FC = () => {
               placeholderTextColor={colors.textMuted}
               style={styles.textInput}
             />
+
+            <Text style={styles.fieldLabel}>STAGE TYPE</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.stageTypeRow}
+            >
+              {STAGE_TYPES.map((stType) => {
+                const isTypeSelected = st.stageType === stType.value;
+                return (
+                  <Pressable
+                    key={stType.value}
+                    onPress={() => handleUpdateStage(idx, { stageType: stType.value })}
+                    style={[
+                      styles.stageTypePill,
+                      isTypeSelected ? styles.stageTypePillActive : styles.stageTypePillInactive,
+                    ]}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: isTypeSelected }}
+                    accessibilityLabel={`Step ${idx + 1} stage type ${stType.label}`}
+                  >
+                    <Text
+                      style={[
+                        styles.stageTypePillText,
+                        isTypeSelected ? styles.stageTypePillTextActive : styles.stageTypePillTextInactive,
+                      ]}
+                    >
+                      {stType.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
 
             <View style={styles.row}>
               <View style={styles.halfField}>
@@ -495,6 +570,7 @@ const styles = StyleSheet.create({
     gap: 4,
     backgroundColor: colors.accent,
     minHeight: 44,
+    minWidth: 44,
     paddingHorizontal: 14,
     borderRadius: 6,
   },
@@ -578,6 +654,7 @@ const styles = StyleSheet.create({
   methodPill: {
     paddingHorizontal: 12,
     minHeight: 44,
+    minWidth: 44,
     borderRadius: 6,
     borderWidth: 1,
     alignItems: 'center',
@@ -609,6 +686,7 @@ const styles = StyleSheet.create({
   ratioPill: {
     paddingHorizontal: 10,
     minHeight: 44,
+    minWidth: 44,
     borderRadius: 6,
     borderWidth: 1,
     alignItems: 'center',
@@ -677,11 +755,44 @@ const styles = StyleSheet.create({
   miniButton: {
     width: 44,
     height: 44,
+    minWidth: 44,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
   miniButtonDisabled: {
     opacity: 0.3,
+  },
+  stageTypeRow: {
+    gap: 6,
+    paddingVertical: 4,
+  },
+  stageTypePill: {
+    paddingHorizontal: 10,
+    minHeight: 44,
+    minWidth: 44,
+    borderRadius: 6,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stageTypePillActive: {
+    backgroundColor: colors.panel,
+    borderColor: colors.accent,
+  },
+  stageTypePillInactive: {
+    backgroundColor: colors.panel,
+    borderColor: colors.borderSubtle,
+  },
+  stageTypePillText: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 10,
+  },
+  stageTypePillTextActive: {
+    color: colors.accent,
+  },
+  stageTypePillTextInactive: {
+    color: colors.textSecondary,
   },
   addStageButton: {
     flexDirection: 'row',

@@ -15,6 +15,7 @@ vi.mock('react-native', () => ({
     horizontal,
     showsHorizontalScrollIndicator,
     contentContainerStyle,
+    keyboardShouldPersistTaps: _keyboardShouldPersistTaps,
     ...props
   }: any) => <div {...props}>{children}</div>,
   Pressable: ({
@@ -128,13 +129,15 @@ describe('RecipeBuilderScreen', () => {
     cleanup();
   });
 
-  it('renders form fields: name, method pills, dose, ratio, grind, temp, and stages', () => {
+  it('renders form fields: name, method pills, dose, ratio, grind, temp, notes, and stages', () => {
     const { getByText, getByPlaceholderText } = render(<RecipeBuilderScreen />);
 
     expect(getByText('New Recipe')).toBeDefined();
     expect(getByPlaceholderText('e.g. My Morning V60')).toBeDefined();
     expect(getByText('BREW METHOD')).toBeDefined();
     expect(getByText('DOSE & WATER RATIO')).toBeDefined();
+    expect(getByText('NOTES')).toBeDefined();
+    expect(getByPlaceholderText('Personal notes, water specs, grinder settings...')).toBeDefined();
     expect(getByText('BREW STAGES')).toBeDefined();
   });
 
@@ -143,42 +146,50 @@ describe('RecipeBuilderScreen', () => {
     fireEvent.click(getByText('Save Recipe'));
 
     expect(mockAddRecipe).not.toHaveBeenCalled();
-    expect(getByText('Recipe name is required')).toBeDefined();
+    expect(getByText('Recipe name is required.')).toBeDefined();
   });
 
-  it('validates non-positive dose on save', async () => {
+  it('validates dose bounds (< 1g or > 100g) on save', async () => {
     const { getByText, getByPlaceholderText } = render(<RecipeBuilderScreen />);
 
     const nameInput = getByPlaceholderText('e.g. My Morning V60');
     fireEvent.change(nameInput, { target: { value: 'Valid Name' } });
 
+    // Dose = 0
     const doseInput = document.querySelector('input[value="15"]') as HTMLInputElement;
-    expect(doseInput).toBeDefined();
     fireEvent.change(doseInput, { target: { value: '0' } });
-
     fireEvent.click(getByText('Save Recipe'));
 
     expect(mockAddRecipe).not.toHaveBeenCalled();
-    expect(getByText('Coffee dose must be greater than 0g')).toBeDefined();
+    expect(getByText('Coffee dose must be between 1g and 100g.')).toBeDefined();
+
+    // Dose = 105
+    fireEvent.change(doseInput, { target: { value: '105' } });
+    fireEvent.click(getByText('Save Recipe'));
+    expect(getByText('Coffee dose must be between 1g and 100g.')).toBeDefined();
   });
 
-  it('validates non-positive ratio on save', async () => {
+  it('validates ratio bounds (< 1:1 or > 1:30) on save', async () => {
     const { getByText, getByPlaceholderText } = render(<RecipeBuilderScreen />);
 
     const nameInput = getByPlaceholderText('e.g. My Morning V60');
     fireEvent.change(nameInput, { target: { value: 'Valid Name' } });
 
+    // Ratio = 0.5
     const ratioInput = document.querySelector('input[value="16.67"]') as HTMLInputElement;
-    expect(ratioInput).toBeDefined();
-    fireEvent.change(ratioInput, { target: { value: '0' } });
-
+    fireEvent.change(ratioInput, { target: { value: '0.5' } });
     fireEvent.click(getByText('Save Recipe'));
 
     expect(mockAddRecipe).not.toHaveBeenCalled();
-    expect(getByText('Brew ratio must be greater than 0')).toBeDefined();
+    expect(getByText('Brew ratio must be between 1:1 and 1:30.')).toBeDefined();
+
+    // Ratio = 35
+    fireEvent.change(ratioInput, { target: { value: '35' } });
+    fireEvent.click(getByText('Save Recipe'));
+    expect(getByText('Brew ratio must be between 1:1 and 1:30.')).toBeDefined();
   });
 
-  it('validates empty stages when all stages are removed', async () => {
+  it('validates empty stages or stages with 0 duration', async () => {
     const { getByText, getByPlaceholderText, getByLabelText } = render(<RecipeBuilderScreen />);
 
     const nameInput = getByPlaceholderText('e.g. My Morning V60');
@@ -192,22 +203,75 @@ describe('RecipeBuilderScreen', () => {
     fireEvent.click(getByText('Save Recipe'));
 
     expect(mockAddRecipe).not.toHaveBeenCalled();
-    expect(getByText('At least one brew stage is required')).toBeDefined();
+    expect(
+      getByText('Recipe must have at least one stage with a duration greater than 0s.')
+    ).toBeDefined();
   });
 
-  it('adds, removes, and saves recipe stages', async () => {
+  it('preserves decimal inputs like "15." or "16.5" without stripping', () => {
+    const { getByPlaceholderText } = render(<RecipeBuilderScreen />);
+
+    const doseInput = document.querySelector('input[value="15"]') as HTMLInputElement;
+    fireEvent.change(doseInput, { target: { value: '15.' } });
+    expect(doseInput.value).toBe('15.');
+
+    fireEvent.change(doseInput, { target: { value: '15.5' } });
+    expect(doseInput.value).toBe('15.5');
+  });
+
+  it('allows selecting stageType for any stage card and updates accessibilityState', () => {
+    const { getByLabelText } = render(<RecipeBuilderScreen />);
+
+    // Step 1 defaults to Bloom
+    const bloomPill = getByLabelText('Step 1 stage type Bloom');
+    expect(bloomPill.getAttribute('aria-selected')).toBe('true');
+
+    // Select Press for Step 1
+    const pressPill = getByLabelText('Step 1 stage type Press');
+    expect(pressPill.getAttribute('aria-selected')).toBe('false');
+
+    fireEvent.click(pressPill);
+    expect(pressPill.getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('adds, removes, and saves recipe stages including notes and stageType', async () => {
     const { getByText, getByPlaceholderText } = render(<RecipeBuilderScreen />);
 
     const nameInput = getByPlaceholderText('e.g. My Morning V60');
     fireEvent.change(nameInput, { target: { value: 'Awesome Aeropress' } });
 
+    const notesInput = getByPlaceholderText('Personal notes, water specs, grinder settings...');
+    fireEvent.change(notesInput, { target: { value: 'Ground with Comandante 24 clicks' } });
+
     fireEvent.click(getByText('+ Add Brew Stage'));
     fireEvent.click(getByText('Save Recipe'));
 
     await waitFor(() => {
-      expect(mockAddRecipe).toHaveBeenCalled();
+      expect(mockAddRecipe).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Awesome Aeropress',
+          notes: 'Ground with Comandante 24 clicks',
+        })
+      );
     });
     expect(mockReplace).toHaveBeenCalledWith('/recipe/new-rec-1');
+  });
+
+  it('handles save error gracefully with Alert.alert and error banner', async () => {
+    const alertSpy = vi.spyOn(Alert, 'alert');
+    mockAddRecipe.mockRejectedValueOnce(new Error('Network error writing to database'));
+
+    const { getByText, getByPlaceholderText } = render(<RecipeBuilderScreen />);
+
+    const nameInput = getByPlaceholderText('e.g. My Morning V60');
+    fireEvent.change(nameInput, { target: { value: 'Valid Recipe' } });
+
+    fireEvent.click(getByText('Save Recipe'));
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith('Save Failed', 'Network error writing to database');
+    });
+    expect(getByText('Network error writing to database')).toBeDefined();
   });
 
   it('supports reordering stages up and down and updates timing', () => {
@@ -220,7 +284,7 @@ describe('RecipeBuilderScreen', () => {
     // Move step 2 up to become step 1
     fireEvent.click(getByLabelText('Move stage 2 up'));
 
-    // Main Pour is now step 1 (0s), Bloom is now step 2 (45s)
+    // Timing recalculated
     expect(getByText('Step 1 (0s)')).toBeDefined();
   });
 
@@ -282,22 +346,27 @@ describe('RecipeBuilderScreen', () => {
   });
 
   it('updates ratio and calculates water amount when ratio preset pill is pressed', () => {
-    const { getByText } = render(<RecipeBuilderScreen />);
+    const { getByText, getByLabelText } = render(<RecipeBuilderScreen />);
 
     // Default dose is 15, default ratio is 16.67 -> water is 250g
     expect(getByText('250g')).toBeDefined();
 
     // Click 1:15 ratio preset
-    fireEvent.click(getByText('1:15'));
+    const ratioPill = getByLabelText('Select ratio 1 to 15');
+    fireEvent.click(ratioPill);
 
     // 15g * 15 = 225g
     expect(getByText('225g')).toBeDefined();
+    expect(ratioPill.getAttribute('aria-selected')).toBe('true');
   });
 
-  it('allows selecting different brew methods', () => {
+  it('allows selecting different brew methods and updates accessibilityState', () => {
     const { getByLabelText } = render(<RecipeBuilderScreen />);
 
-    fireEvent.click(getByLabelText('Select brew method AeroPress'));
-    // Successfully updates without errors
+    const aeropressPill = getByLabelText('Select brew method AeroPress');
+    expect(aeropressPill.getAttribute('aria-selected')).toBe('false');
+
+    fireEvent.click(aeropressPill);
+    expect(aeropressPill.getAttribute('aria-selected')).toBe('true');
   });
 });
