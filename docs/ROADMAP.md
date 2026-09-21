@@ -44,6 +44,16 @@ This document tracks upcoming milestones, architectural refactors, and technical
 - Built active stage guidance card (`ActiveStageCard`) and vertical step timeline (`StageTimeline`).
 - Comprehensive unit test coverage: 7 test suites / 49 tests in `apps/mobile` (including `TimerHero`, `MethodPills`, `CollapsibleCalculator`, `ActiveStageCard`, `StageTimeline`, `useMobileBrewTimer`, and tab integration), bringing monorepo totals to 24/24 test suites passed (146 tests total), zero TypeScript errors, and clean Metro production bundles (iOS: 3,156 modules, Android: 3,278 modules).
 
+### Phase 3C: Mobile App — Supabase Auth & Secure Storage (Complete ✅)
+- Enhanced `createBrewlogClient` in `@brewlog/supabase` with `BrewlogClientOptions` supporting custom storage adapters and `detectSessionInUrl: false` override to prevent browser window/DOM crashes in native React Native runtimes.
+- Implemented `LargeSecureStore` AES-256 CTR hybrid storage adapter: bypasses the Android Keystore 2048-byte value limit by generating cryptographic 256-bit AES keys stored in hardware-backed `expo-secure-store` (`WHEN_UNLOCKED_THIS_DEVICE_ONLY` keychain accessibility) while persisting encrypted ciphertext in `@react-native-async-storage/async-storage`.
+- Configured iOS App Store export compliance in `apps/mobile/app.json` (`ios.config.usesNonExemptEncryption: false`), exempting the app under US EAR ECCN 5D992.c for standard auth/storage data protection.
+- Built native `AuthContext` and `useAuth` hook with real-time Supabase auth state change listener, auto-refresh lifecycle hooks on `AppState` transitions, and sanitized user-facing error messaging.
+- Created `ProfileHeaderButton` navigation component positioned in the top-right header across all tab screens (`apps/mobile/app/(tabs)/_layout.tsx`), displaying Barista avatar initials badge when signed in and outline user icon when unauthenticated, with Apple HIG-compliant >= 44pt touch targets.
+- Implemented `AuthSheet` modal bottom sheet with industrial precision theme styling, segmented mode switcher (Sign In, Create Account, Forgot Password), email/password validation, clear error/success banners, and tactile feedback (`expo-haptics`).
+- Relocated test files outside the Expo Router `app/` hierarchy to prevent Vite/Vitest development artifacts from leaking into production bundles.
+- Maintained 100% test pass rate across 33 test suites (226 tests passing monorepo-wide), 21/21 clean `expo-doctor` diagnostic checks, zero TypeScript errors, and production Metro bundling for iOS (3,222 modules, 5.3MB) and Android (3,356 modules, 5.7MB).
+
 ---
 
 ## 📋 Technical Debt & Component Refactoring (TODO)
@@ -75,9 +85,8 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
 ## 🚀 Upcoming Project Milestones
 
 ### Phase 3 Mobile App (Next Slices)
-- [ ] **Phase 3C: Supabase Auth & Secure Storage**:
-  - Implement `createBrewlogClient` with `expo-secure-store` / `LargeSecureStore` for mobile session persistence.
-  - Mobile authentication sheet/modal.
+- [x] **Phase 3C: Supabase Auth & Secure Storage (Complete ✅)**:
+  - Deliverables: `LargeSecureStore` AES-256 CTR hybrid storage adapter with `WHEN_UNLOCKED_THIS_DEVICE_ONLY`, `createBrewlogClient` options (`storage`, `detectSessionInUrl`), `AuthContext` / `useAuth` hook, `ProfileHeaderButton`, and `AuthSheet` modal.
 - [ ] **Phase 3D: Mobile Feature Parity**:
   - Recipe studio and stash manager on native.
   - Native cupping session logging flow.

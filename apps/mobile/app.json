@@ -2,23 +2,27 @@
   "expo": {
     "name": "BrewLog",
     "slug": "brewlog",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "dark",
     "scheme": "brewlog",
+    "userInterfaceStyle": "dark",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.brewlog.app",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#121214"
-      }
+        "backgroundColor": "#09090b"
+      },
+      "package": "com.brewlog.app"
     },
     "plugins": [
       "expo-router",
-      "expo-audio",
       "expo-font",
-      "expo-splash-screen"
+      "expo-secure-store"
     ]
   }
 }
