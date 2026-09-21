@@ -121,6 +121,63 @@ describe("LargeSecureStore", () => {
     expect(mockAsyncStorage.removeItem).toHaveBeenCalledWith("key-to-delete");
     expect(await store.getItem("key-to-delete")).toBeNull();
   });
+
+  it("reuses stable key in SecureStore and formats AsyncStorage payload with an IV delimiter", async () => {
+    const key = "reused-key-record";
+    await store.setItem(key, "payload-1");
+
+    expect(mockSecureStore.setItemAsync).toHaveBeenCalledTimes(1);
+    // Payload should be formatted as <32-hex-iv>:<cipher-hex>
+    expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
+      key,
+      expect.stringMatching(/^[0-9a-f]{32}:[0-9a-f]+$/i)
+    );
+
+    // Second write to the same key should NOT rewrite SecureStore
+    await store.setItem(key, "payload-2");
+    expect(mockSecureStore.setItemAsync).toHaveBeenCalledTimes(1);
+
+    expect(await store.getItem(key)).toBe("payload-2");
+  });
+
+  it("decrypts legacy payloads stored without an IV delimiter using Counter(1)", async () => {
+    // Generate key and legacy ciphertext using Counter(1)
+    const rawKey = new Uint8Array(32);
+    rawKey.fill(7);
+    const rawKeyHex = Array.from(rawKey)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    const aesjsModule = await import("aes-js");
+    const cipher = new aesjsModule.ModeOfOperation.ctr(rawKey, new aesjsModule.Counter(1));
+    const legacyEncrypted = cipher.encrypt(aesjsModule.utils.utf8.toBytes("legacy-session-data"));
+    const legacyEncryptedHex = aesjsModule.utils.hex.fromBytes(legacyEncrypted);
+
+    mockSecureMap["legacy-record"] = rawKeyHex;
+    mockAsyncMap["legacy-record"] = legacyEncryptedHex; // No ':' separator
+
+    const decrypted = await store.getItem("legacy-record");
+    expect(decrypted).toBe("legacy-session-data");
+  });
+
+  it("preserves previous session decryptability if AsyncStorage.setItem fails during an update", async () => {
+    const key = "session-update-guard";
+    await store.setItem(key, "session-v1");
+
+    expect(await store.getItem(key)).toBe("session-v1");
+    expect(mockSecureStore.setItemAsync).toHaveBeenCalledTimes(1);
+
+    // Simulate disk failure on subsequent write
+    mockAsyncStorage.setItem = vi.fn().mockRejectedValueOnce(new Error("Disk full"));
+
+    await expect(store.setItem(key, "session-v2")).rejects.toThrow("Disk full");
+
+    // SecureStore was NOT updated with a new key
+    expect(mockSecureStore.setItemAsync).toHaveBeenCalledTimes(1);
+
+    // Previous session is still completely decryptable
+    expect(await store.getItem(key)).toBe("session-v1");
+  });
 });
 
 describe("supabase mobile singleton", () => {

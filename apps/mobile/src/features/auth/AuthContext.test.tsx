@@ -164,7 +164,7 @@ describe("AuthContext", () => {
 
     let response: { error: Error | null } | undefined;
     await act(async () => {
-      response = await result.current.signUpWithEmail("specialty_brewer@brewlog.dev", "secret123");
+      response = await result.current.signUpWithEmail("  specialty_brewer@brewlog.dev  ", "secret123");
     });
 
     expect(mockSignUp).toHaveBeenCalledWith({
@@ -225,6 +225,28 @@ describe("AuthContext", () => {
 
     await act(async () => {
       await result.current.signOut();
+    });
+
+    expect(mockSignOut).toHaveBeenCalled();
+    expect(result.current.user).toBeNull();
+    expect(result.current.session).toBeNull();
+  });
+
+  it("guarantees local state eviction when signOut throws an error", async () => {
+    mockSignOut.mockRejectedValueOnce(new Error("Supabase network error"));
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.user).not.toBeNull();
+    expect(result.current.session).not.toBeNull();
+
+    await act(async () => {
+      try {
+        await result.current.signOut();
+      } catch (err: any) {
+        expect(err.message).toBe("Supabase network error");
+      }
     });
 
     expect(mockSignOut).toHaveBeenCalled();

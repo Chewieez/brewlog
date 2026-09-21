@@ -137,4 +137,26 @@ describe("ProfileHeaderButton", () => {
 
     expect(getByTestId("user-icon")).toBeDefined();
   });
+
+  it("trims whitespace-only display_name and falls back to email initials", () => {
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: {
+        id: "123",
+        email: "pourover@brewlog.dev",
+        user_metadata: { display_name: "   " },
+      } as any,
+      session: { access_token: "token" } as any,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const { getByText, getByTestId } = render(<ProfileHeaderButton onPress={vi.fn()} />);
+
+    expect(getByText("PO")).toBeDefined();
+    expect(getByTestId("connection-dot")).toBeDefined();
+  });
 });

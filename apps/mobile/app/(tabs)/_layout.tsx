@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Tabs } from 'expo-router';
 import {
   Timer,
@@ -15,6 +15,19 @@ export default function TabLayout() {
   const { colors } = INDUSTRIAL_PRECISION_THEME;
   const [authSheetVisible, setAuthSheetVisible] = useState(false);
 
+  const handleOpenAuthSheet = useCallback(() => {
+    setAuthSheetVisible(true);
+  }, []);
+
+  const handleCloseAuthSheet = useCallback(() => {
+    setAuthSheetVisible(false);
+  }, []);
+
+  const renderHeaderRight = useCallback(
+    () => <ProfileHeaderButton onPress={handleOpenAuthSheet} />,
+    [handleOpenAuthSheet]
+  );
+
   return (
     <>
       <Tabs
@@ -26,9 +39,7 @@ export default function TabLayout() {
           headerTitleStyle: {
             fontWeight: '700',
           },
-          headerRight: () => (
-            <ProfileHeaderButton onPress={() => setAuthSheetVisible(true)} />
-          ),
+          headerRight: renderHeaderRight,
           tabBarStyle: {
             backgroundColor: colors.panel,
             borderTopColor: colors.borderSubtle,
@@ -91,7 +102,7 @@ export default function TabLayout() {
 
       <AuthSheet
         visible={authSheetVisible}
-        onClose={() => setAuthSheetVisible(false)}
+        onClose={handleCloseAuthSheet}
       />
     </>
   );

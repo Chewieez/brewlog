@@ -12,17 +12,24 @@ export interface ProfileHeaderButtonProps {
 }
 
 function getInitials(nameOrEmail: string): string {
-  const parts = nameOrEmail.trim().split(/\s+/);
-  if (parts.length >= 2) {
+  const trimmed = nameOrEmail.trim();
+  if (!trimmed) {
+    return "";
+  }
+  const parts = trimmed.split(/\s+/);
+  if (parts.length >= 2 && parts[0] && parts[1]) {
     return (parts[0][0] + parts[1][0]).toUpperCase();
   }
-  return (nameOrEmail.substring(0, 2)).toUpperCase();
+  return trimmed.substring(0, 2).toUpperCase();
 }
 
 export const ProfileHeaderButton: React.FC<ProfileHeaderButtonProps> = ({ onPress }) => {
   const { user } = useAuth();
 
-  const displayName = user?.user_metadata?.display_name || user?.email;
+  const rawDisplayName = user?.user_metadata?.display_name;
+  const trimmedName = typeof rawDisplayName === "string" ? rawDisplayName.trim() : "";
+  const trimmedEmail = typeof user?.email === "string" ? user.email.trim() : "";
+  const displayName = trimmedName || trimmedEmail;
   const initials = displayName ? getInitials(displayName) : null;
 
   return (

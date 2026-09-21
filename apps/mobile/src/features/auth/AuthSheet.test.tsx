@@ -304,7 +304,7 @@ describe("AuthSheet", () => {
     expect(mockSignIn).not.toHaveBeenCalled();
   });
 
-  it("submits sign in successfully and closes sheet after delay", async () => {
+  it("submits sign in successfully and closes sheet immediately", async () => {
     mockSignIn.mockResolvedValueOnce({ error: null });
 
     vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
@@ -319,7 +319,7 @@ describe("AuthSheet", () => {
     });
 
     const onClose = vi.fn();
-    const { getAllByText, getByPlaceholderText, findByText } = render(
+    const { getAllByText, getByPlaceholderText } = render(
       <AuthSheet visible={true} onClose={onClose} />
     );
 
@@ -331,17 +331,12 @@ describe("AuthSheet", () => {
     });
 
     const signInButtons = getAllByText("SIGN IN");
-    fireEvent.click(signInButtons[signInButtons.length - 1]);
+    await fireEvent.click(signInButtons[signInButtons.length - 1]);
 
-    expect(await findByText("Signed in successfully!")).toBeDefined();
-    expect(mockSignIn).toHaveBeenCalledWith("barista@brewlog.dev", "password123");
-
-    await waitFor(
-      () => {
-        expect(onClose).toHaveBeenCalledTimes(1);
-      },
-      { timeout: 1500 }
-    );
+    await waitFor(() => {
+      expect(mockSignIn).toHaveBeenCalledWith("barista@brewlog.dev", "password123");
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("displays error message when sign in fails", async () => {
@@ -421,6 +416,7 @@ describe("AuthSheet", () => {
         "Greg Lawrence"
       );
       expect(getByText("Check your inbox for the confirmation link!")).toBeDefined();
+      expect((getByPlaceholderText("••••••••") as HTMLInputElement).value).toBe("");
     });
   });
 
@@ -592,6 +588,48 @@ describe("AuthSheet", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it("disables backdrop dismissal and close button while submitting is active", async () => {
+    let resolveSignIn: any;
+    mockSignIn.mockImplementation(
+      () => new Promise((resolve) => { resolveSignIn = resolve; })
+    );
+
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    const onClose = vi.fn();
+    const { getAllByText, getByPlaceholderText, getByLabelText } = render(
+      <AuthSheet visible={true} onClose={onClose} />
+    );
+
+    fireEvent.change(getByPlaceholderText("you@example.com"), {
+      target: { value: "barista@brewlog.dev" },
+    });
+    fireEvent.change(getByPlaceholderText("••••••••"), {
+      target: { value: "password123" },
+    });
+
+    const signInButtons = getAllByText("SIGN IN");
+    fireEvent.click(signInButtons[signInButtons.length - 1]);
+
+    // Close button should be disabled
+    const closeBtn = getByLabelText("Close sheet");
+    fireEvent.click(closeBtn);
+    expect(onClose).not.toHaveBeenCalled();
+
+    // Resolve submission
+    resolveSignIn?.({ error: null });
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
+  });
+
   it("does not render contents when visible is false", () => {
     vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
       user: null,
@@ -670,7 +708,77 @@ describe("AuthSheet", () => {
     expect(queryByPlaceholderText("••••••••")).not.toBeNull();
   });
 
-  it("clears close timer on unmount without throwing", () => {
+  it("resets password input when modal visibility changes", () => {
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    const { getByPlaceholderText, rerender } = render(
+      <AuthSheet visible={true} onClose={vi.fn()} />
+    );
+
+    const passwordInput = getByPlaceholderText("••••••••");
+    fireEvent.change(passwordInput, { target: { value: "supersecret" } });
+    expect((passwordInput as HTMLInputElement).value).toBe("supersecret");
+
+    // Close and reopen sheet
+    rerender(<AuthSheet visible={false} onClose={vi.fn()} />);
+    rerender(<AuthSheet visible={true} onClose={vi.fn()} />);
+
+    const reopenedPasswordInput = getByPlaceholderText("••••••••");
+    expect((reopenedPasswordInput as HTMLInputElement).value).toBe("");
+  });
+
+  it("clears credentials and inputs on sign out", async () => {
+    let currentUser: any = {
+      id: "usr-1234",
+      email: "signedin@brewlog.dev",
+    };
+
+    mockSignOut.mockImplementation(async () => {
+      currentUser = null;
+    });
+
+    vi.spyOn(AuthContextModule, "useAuth").mockImplementation(() => ({
+      user: currentUser,
+      session: currentUser ? ({ access_token: "token" } as any) : null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    }));
+
+    const onClose = vi.fn();
+    const { getByText, getByPlaceholderText, rerender } = render(
+      <AuthSheet visible={true} onClose={onClose} />
+    );
+
+    fireEvent.click(getByText("SIGN OUT"));
+    const alertButtons = mockAlert.mock.calls[0][2];
+    const signOutBtn = alertButtons.find((b: any) => b.text === "Sign Out");
+    await signOutBtn.onPress();
+
+    expect(mockSignOut).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    // Reopen sheet as logged out user
+    rerender(<AuthSheet visible={true} onClose={onClose} />);
+    const emailInput = getByPlaceholderText("you@example.com");
+    const passwordInput = getByPlaceholderText("••••••••");
+    expect((emailInput as HTMLInputElement).value).toBe("");
+    expect((passwordInput as HTMLInputElement).value).toBe("");
+  });
+
+  it("unmounts cleanly without throwing", () => {
     vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
       user: null,
       session: null,

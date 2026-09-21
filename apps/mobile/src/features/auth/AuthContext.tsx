@@ -92,12 +92,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!supabase) {
         return { error: new Error("Supabase is not configured yet in .env.") };
       }
+      const trimmedEmail = email.trim();
       const { error } = await supabase.auth.signUp({
-        email: email.trim(),
+        email: trimmedEmail,
         password: pass,
         options: {
           data: {
-            display_name: displayName?.trim() || email.split("@")[0],
+            display_name: displayName?.trim() || trimmedEmail.split("@")[0],
           },
         },
       });
@@ -115,11 +116,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signOut = useCallback(async () => {
-    if (supabase) {
-      await supabase.auth.signOut();
+    try {
+      if (supabase) {
+        await supabase.auth.signOut();
+      }
+    } finally {
+      setUser(null);
+      setSession(null);
     }
-    setUser(null);
-    setSession(null);
   }, []);
 
   const value = useMemo<MobileAuthContextType>(

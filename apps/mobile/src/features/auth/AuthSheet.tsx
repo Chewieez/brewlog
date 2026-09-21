@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   View,
@@ -53,17 +53,9 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    return () => {
-      if (closeTimerRef.current) {
-        clearTimeout(closeTimerRef.current);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
+    setPassword("");
     if (visible) {
       setMode("signin");
       setErrorMessage(null);
@@ -105,11 +97,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
         } else {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-          setSuccessMessage("Signed in successfully!");
-          if (closeTimerRef.current) {
-            clearTimeout(closeTimerRef.current);
-          }
-          closeTimerRef.current = setTimeout(() => onClose(), 600);
+          onClose();
         }
       } else if (mode === "signup") {
         const { error } = await signUpWithEmail(email, password, displayName);
@@ -118,6 +106,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
         } else {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+          setPassword("");
           setSuccessMessage("Check your inbox for the confirmation link!");
         }
       } else if (mode === "forgot") {
@@ -145,7 +134,14 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
         text: "Sign Out",
         style: "destructive",
         onPress: async () => {
-          await signOut();
+          try {
+            await signOut();
+          } catch {
+            // Proceed with local cleanup even if remote sign-out rejects
+          }
+          setEmail("");
+          setPassword("");
+          setDisplayName("");
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
           onClose();
         },
@@ -158,9 +154,9 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
       visible={visible}
       animationType="slide"
       transparent={true}
-      onRequestClose={onClose}
+      onRequestClose={submitting ? undefined : onClose}
     >
-      <TouchableWithoutFeedback onPress={onClose}>
+      <TouchableWithoutFeedback onPress={submitting ? undefined : onClose}>
         <View style={styles.backdrop}>
           <TouchableWithoutFeedback>
             <KeyboardAvoidingView
@@ -183,7 +179,8 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                     </Text>
                   </View>
                   <TouchableOpacity
-                    onPress={onClose}
+                    onPress={submitting ? undefined : onClose}
+                    disabled={submitting}
                     hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                     accessibilityLabel="Close sheet"
                     style={styles.closeButton}
@@ -209,7 +206,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                         {user.email}
                       </Text>
                       <Text style={styles.profileId}>
-                        ID: {user.id.substring(0, 18)}...
+                        ID: {user.id.length > 18 ? `${user.id.substring(0, 18)}...` : user.id}
                       </Text>
                     </View>
 
@@ -563,7 +560,7 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     backgroundColor: colors.accent,
-    shadowColor: "#000",
+    shadowColor: colors.canvas,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 1.5,

@@ -31,13 +31,14 @@ export class LargeSecureStore {
     this.asyncStorage = asyncStorage;
   }
 
-  private async _encrypt(key: string, value: string): Promise<string> {
+  private async _getOrCreateKey(key: string): Promise<Uint8Array> {
+    const existingKeyHex = await this.secureStore.getItemAsync(key, SECURE_STORE_OPTIONS);
+    if (existingKeyHex && existingKeyHex.length === 64) {
+      return aesjs.utils.hex.toBytes(existingKeyHex);
+    }
+
     const rawKey = new Uint8Array(256 / 8);
     crypto.getRandomValues(rawKey);
-
-    const cipher = new aesjs.ModeOfOperation.ctr(rawKey, new aesjs.Counter(1));
-    const textBytes = aesjs.utils.utf8.toBytes(value);
-    const encryptedBytes = cipher.encrypt(textBytes);
 
     await this.secureStore.setItemAsync(
       key,
@@ -45,20 +46,47 @@ export class LargeSecureStore {
       SECURE_STORE_OPTIONS
     );
 
-    return aesjs.utils.hex.fromBytes(encryptedBytes);
+    return rawKey;
   }
 
-  private async _decrypt(key: string, encryptedHex: string): Promise<string | null> {
+  private _encrypt(rawKey: Uint8Array, value: string): string {
+    const iv = new Uint8Array(16);
+    crypto.getRandomValues(iv);
+
+    const cipher = new aesjs.ModeOfOperation.ctr(rawKey, new aesjs.Counter(iv));
+    const textBytes = aesjs.utils.utf8.toBytes(value);
+    const encryptedBytes = cipher.encrypt(textBytes);
+
+    const ivHex = aesjs.utils.hex.fromBytes(iv);
+    const encryptedHex = aesjs.utils.hex.fromBytes(encryptedBytes);
+    return `${ivHex}:${encryptedHex}`;
+  }
+
+  private async _decrypt(key: string, stored: string): Promise<string | null> {
     const keyHex = await this.secureStore.getItemAsync(key, SECURE_STORE_OPTIONS);
-    if (!keyHex) {
+    if (!keyHex || keyHex.length !== 64) {
       return null;
     }
 
     try {
       const rawKey = aesjs.utils.hex.toBytes(keyHex);
-      const cipher = new aesjs.ModeOfOperation.ctr(rawKey, new aesjs.Counter(1));
-      const encryptedBytes = aesjs.utils.hex.toBytes(encryptedHex);
-      const decryptedBytes = cipher.decrypt(encryptedBytes);
+      let ivBytes: Uint8Array;
+      let cipherBytes: Uint8Array;
+
+      if (stored.includes(":") && stored.indexOf(":") === 32) {
+        const [ivHex, cipherHex] = stored.split(":");
+        ivBytes = aesjs.utils.hex.toBytes(ivHex);
+        cipherBytes = aesjs.utils.hex.toBytes(cipherHex);
+      } else {
+        // Backwards compatibility with legacy records encrypted with static Counter(1)
+        const legacyCounter = new Uint8Array(16);
+        legacyCounter[15] = 1;
+        ivBytes = legacyCounter;
+        cipherBytes = aesjs.utils.hex.toBytes(stored);
+      }
+
+      const cipher = new aesjs.ModeOfOperation.ctr(rawKey, new aesjs.Counter(ivBytes));
+      const decryptedBytes = cipher.decrypt(cipherBytes);
       return aesjs.utils.utf8.fromBytes(decryptedBytes);
     } catch {
       return null;
@@ -78,8 +106,9 @@ export class LargeSecureStore {
   }
 
   async setItem(key: string, value: string): Promise<void> {
-    const encryptedHex = await this._encrypt(key, value);
-    await this.asyncStorage.setItem(key, encryptedHex);
+    const rawKey = await this._getOrCreateKey(key);
+    const payload = this._encrypt(rawKey, value);
+    await this.asyncStorage.setItem(key, payload);
   }
 
   async removeItem(key: string): Promise<void> {
