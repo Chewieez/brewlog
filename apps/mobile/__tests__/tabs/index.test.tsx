@@ -1,6 +1,7 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
+import { DEFAULT_PRESET_RECIPES } from '@brewlog/core';
 
 const mockAlert = vi.fn();
 
@@ -58,6 +59,27 @@ vi.mock('react-native', () => ({
 
 vi.mock('expo-router', () => ({
   useRouter: () => ({ push: vi.fn() }),
+}));
+
+vi.mock('../../src/features/recipes/RecipeContext', () => ({
+  useRecipes: () => {
+    const [activeTimerRecipe, setActiveRecipe] = React.useState(DEFAULT_PRESET_RECIPES[0]);
+    const [activeTimerDose, setActiveDose] = React.useState(
+      DEFAULT_PRESET_RECIPES[0].coffeeDoseGrams
+    );
+    return {
+      recipes: DEFAULT_PRESET_RECIPES,
+      customRecipes: [],
+      presets: DEFAULT_PRESET_RECIPES,
+      loading: false,
+      activeTimerRecipe,
+      activeTimerDose,
+      setActiveTimerRecipe: (recipe: any, dose?: number) => {
+        setActiveRecipe(recipe);
+        setActiveDose(dose !== undefined && dose > 0 ? dose : recipe.coffeeDoseGrams);
+      },
+    };
+  },
 }));
 
 vi.mock('../../src/lib/mobileFeedback', () => ({
