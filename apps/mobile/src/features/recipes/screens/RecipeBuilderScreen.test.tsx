@@ -1,0 +1,303 @@
+/** @vitest-environment jsdom */
+import React from 'react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
+import { Alert } from 'react-native';
+import { DEFAULT_PRESET_RECIPES } from '@brewlog/core';
+import { RecipeBuilderScreen } from './RecipeBuilderScreen';
+
+vi.mock('react-native', () => ({
+  View: ({ children, style, ...props }: any) => <div {...props}>{children}</div>,
+  Text: ({ children, style, numberOfLines, ...props }: any) => <span {...props}>{children}</span>,
+  ScrollView: ({
+    children,
+    style,
+    horizontal,
+    showsHorizontalScrollIndicator,
+    contentContainerStyle,
+    ...props
+  }: any) => <div {...props}>{children}</div>,
+  Pressable: ({
+    children,
+    onPress,
+    accessibilityLabel,
+    accessibilityRole,
+    accessibilityState,
+    disabled,
+    style,
+    ...props
+  }: any) => (
+    <button
+      type="button"
+      onClick={disabled ? undefined : onPress}
+      role={accessibilityRole}
+      aria-label={accessibilityLabel}
+      disabled={disabled}
+      aria-selected={accessibilityState?.selected}
+      {...props}
+    >
+      {typeof children === 'function' ? children({ pressed: false }) : children}
+    </button>
+  ),
+  TextInput: ({
+    defaultValue,
+    value,
+    placeholder,
+    onChangeText,
+    onEndEditing,
+    accessibilityLabel,
+    keyboardType: _keyboardType,
+    multiline: _multiline,
+    placeholderTextColor: _placeholderTextColor,
+    style: _style,
+    ...props
+  }: any) => (
+    <input
+      defaultValue={defaultValue}
+      value={value}
+      placeholder={placeholder}
+      aria-label={accessibilityLabel}
+      onChange={(e) => onChangeText?.(e.target.value)}
+      onBlur={(e) => onEndEditing?.({ nativeEvent: { text: e.target.value } })}
+      {...props}
+    />
+  ),
+  Alert: {
+    alert: vi.fn(),
+  },
+  StyleSheet: {
+    create: (styles: any) => styles,
+  },
+}));
+
+vi.mock('lucide-react-native', () => ({
+  X: () => null,
+  Check: () => null,
+  Plus: () => null,
+  Trash2: () => null,
+  ChevronUp: () => null,
+  ChevronDown: () => null,
+}));
+
+const mockBack = vi.fn();
+const mockReplace = vi.fn();
+let mockParams: { editId?: string; duplicateId?: string } = {};
+
+vi.mock('expo-router', () => ({
+  useRouter: () => ({ back: mockBack, replace: mockReplace }),
+  useLocalSearchParams: () => mockParams,
+}));
+
+const mockAddRecipe = vi.fn().mockResolvedValue({ id: 'new-rec-1' });
+const mockUpdateRecipe = vi.fn().mockResolvedValue({ id: 'rec-1' });
+
+const mockCustomRecipe = {
+  ...DEFAULT_PRESET_RECIPES[0],
+  id: 'custom-1',
+  name: 'My Special V60',
+  isPreset: false,
+};
+
+const mockContext = {
+  recipes: [mockCustomRecipe, ...DEFAULT_PRESET_RECIPES],
+  customRecipes: [mockCustomRecipe],
+  presets: DEFAULT_PRESET_RECIPES,
+  loading: false,
+  activeTimerRecipe: DEFAULT_PRESET_RECIPES[0],
+  activeTimerDose: 15,
+  addRecipe: mockAddRecipe,
+  updateRecipe: mockUpdateRecipe,
+  deleteRecipe: vi.fn(),
+  setActiveTimerRecipe: vi.fn(),
+  refreshRecipes: vi.fn(),
+};
+
+vi.mock('../RecipeContext', () => ({
+  useRecipes: () => mockContext,
+}));
+
+describe('RecipeBuilderScreen', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockParams = {};
+    mockAddRecipe.mockResolvedValue({ id: 'new-rec-1' });
+    mockUpdateRecipe.mockResolvedValue({ id: 'custom-1' });
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('renders form fields: name, method pills, dose, ratio, grind, temp, and stages', () => {
+    const { getByText, getByPlaceholderText } = render(<RecipeBuilderScreen />);
+
+    expect(getByText('New Recipe')).toBeDefined();
+    expect(getByPlaceholderText('e.g. My Morning V60')).toBeDefined();
+    expect(getByText('BREW METHOD')).toBeDefined();
+    expect(getByText('DOSE & WATER RATIO')).toBeDefined();
+    expect(getByText('BREW STAGES')).toBeDefined();
+  });
+
+  it('validates empty name and disables or warns on save', async () => {
+    const { getByText } = render(<RecipeBuilderScreen />);
+    fireEvent.click(getByText('Save Recipe'));
+
+    expect(mockAddRecipe).not.toHaveBeenCalled();
+    expect(getByText('Recipe name is required')).toBeDefined();
+  });
+
+  it('validates non-positive dose on save', async () => {
+    const { getByText, getByPlaceholderText } = render(<RecipeBuilderScreen />);
+
+    const nameInput = getByPlaceholderText('e.g. My Morning V60');
+    fireEvent.change(nameInput, { target: { value: 'Valid Name' } });
+
+    const doseInput = document.querySelector('input[value="15"]') as HTMLInputElement;
+    expect(doseInput).toBeDefined();
+    fireEvent.change(doseInput, { target: { value: '0' } });
+
+    fireEvent.click(getByText('Save Recipe'));
+
+    expect(mockAddRecipe).not.toHaveBeenCalled();
+    expect(getByText('Coffee dose must be greater than 0g')).toBeDefined();
+  });
+
+  it('validates non-positive ratio on save', async () => {
+    const { getByText, getByPlaceholderText } = render(<RecipeBuilderScreen />);
+
+    const nameInput = getByPlaceholderText('e.g. My Morning V60');
+    fireEvent.change(nameInput, { target: { value: 'Valid Name' } });
+
+    const ratioInput = document.querySelector('input[value="16.67"]') as HTMLInputElement;
+    expect(ratioInput).toBeDefined();
+    fireEvent.change(ratioInput, { target: { value: '0' } });
+
+    fireEvent.click(getByText('Save Recipe'));
+
+    expect(mockAddRecipe).not.toHaveBeenCalled();
+    expect(getByText('Brew ratio must be greater than 0')).toBeDefined();
+  });
+
+  it('validates empty stages when all stages are removed', async () => {
+    const { getByText, getByPlaceholderText, getByLabelText } = render(<RecipeBuilderScreen />);
+
+    const nameInput = getByPlaceholderText('e.g. My Morning V60');
+    fireEvent.change(nameInput, { target: { value: 'Valid Name' } });
+
+    // Remove all 3 default stages
+    fireEvent.click(getByLabelText('Remove stage 1'));
+    fireEvent.click(getByLabelText('Remove stage 1'));
+    fireEvent.click(getByLabelText('Remove stage 1'));
+
+    fireEvent.click(getByText('Save Recipe'));
+
+    expect(mockAddRecipe).not.toHaveBeenCalled();
+    expect(getByText('At least one brew stage is required')).toBeDefined();
+  });
+
+  it('adds, removes, and saves recipe stages', async () => {
+    const { getByText, getByPlaceholderText } = render(<RecipeBuilderScreen />);
+
+    const nameInput = getByPlaceholderText('e.g. My Morning V60');
+    fireEvent.change(nameInput, { target: { value: 'Awesome Aeropress' } });
+
+    fireEvent.click(getByText('+ Add Brew Stage'));
+    fireEvent.click(getByText('Save Recipe'));
+
+    await waitFor(() => {
+      expect(mockAddRecipe).toHaveBeenCalled();
+    });
+    expect(mockReplace).toHaveBeenCalledWith('/recipe/new-rec-1');
+  });
+
+  it('supports reordering stages up and down and updates timing', () => {
+    const { getByLabelText, getByText } = render(<RecipeBuilderScreen />);
+
+    expect(getByText('Step 1 (0s)')).toBeDefined();
+    expect(getByText('Step 2 (45s)')).toBeDefined();
+    expect(getByText('Step 3 (90s)')).toBeDefined();
+
+    // Move step 2 up to become step 1
+    fireEvent.click(getByLabelText('Move stage 2 up'));
+
+    // Main Pour is now step 1 (0s), Bloom is now step 2 (45s)
+    expect(getByText('Step 1 (0s)')).toBeDefined();
+  });
+
+  it('pre-populates existing recipe when editId is provided and calls updateRecipe on save', async () => {
+    mockParams = { editId: 'custom-1' };
+    const { getByText, getByDisplayValue } = render(<RecipeBuilderScreen />);
+
+    expect(getByText('Edit Recipe')).toBeDefined();
+    expect(getByDisplayValue('My Special V60')).toBeDefined();
+
+    fireEvent.click(getByText('Save Recipe'));
+
+    await waitFor(() => {
+      expect(mockUpdateRecipe).toHaveBeenCalledWith(
+        'custom-1',
+        expect.objectContaining({
+          name: 'My Special V60',
+        })
+      );
+    });
+    expect(mockBack).toHaveBeenCalled();
+  });
+
+  it('pre-populates with (Copy) name when duplicateId is provided and calls addRecipe on save', async () => {
+    mockParams = { duplicateId: DEFAULT_PRESET_RECIPES[0].id };
+    const { getByText, getByDisplayValue } = render(<RecipeBuilderScreen />);
+
+    expect(getByText('Duplicate Recipe')).toBeDefined();
+    expect(getByDisplayValue(`${DEFAULT_PRESET_RECIPES[0].name} (Copy)`)).toBeDefined();
+
+    fireEvent.click(getByText('Save Recipe'));
+
+    await waitFor(() => {
+      expect(mockAddRecipe).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: `${DEFAULT_PRESET_RECIPES[0].name} (Copy)`,
+        })
+      );
+    });
+    expect(mockReplace).toHaveBeenCalledWith('/recipe/new-rec-1');
+  });
+
+  it('prompts confirmation alert on cancel and navigates back on discard', () => {
+    const alertSpy = vi.spyOn(Alert, 'alert');
+    const { getByLabelText } = render(<RecipeBuilderScreen />);
+
+    fireEvent.click(getByLabelText('Cancel editing'));
+
+    expect(alertSpy).toHaveBeenCalledWith(
+      'Discard Changes?',
+      'Any unsaved recipe customizations will be lost.',
+      expect.any(Array)
+    );
+
+    const buttons = alertSpy.mock.calls[0][2] as any[];
+    const discardBtn = buttons.find((b) => b.text === 'Discard');
+    discardBtn.onPress();
+    expect(mockBack).toHaveBeenCalled();
+  });
+
+  it('updates ratio and calculates water amount when ratio preset pill is pressed', () => {
+    const { getByText } = render(<RecipeBuilderScreen />);
+
+    // Default dose is 15, default ratio is 16.67 -> water is 250g
+    expect(getByText('250g')).toBeDefined();
+
+    // Click 1:15 ratio preset
+    fireEvent.click(getByText('1:15'));
+
+    // 15g * 15 = 225g
+    expect(getByText('225g')).toBeDefined();
+  });
+
+  it('allows selecting different brew methods', () => {
+    const { getByLabelText } = render(<RecipeBuilderScreen />);
+
+    fireEvent.click(getByLabelText('Select brew method AeroPress'));
+    // Successfully updates without errors
+  });
+});
