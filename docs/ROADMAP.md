@@ -85,7 +85,7 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
 ## 🚀 Upcoming Project Milestones
 
 ### Core Platform & Mobile Milestones
-- [ ] **Phase 4: Mobile Recipe Studio & Catalog Integration** *(Design Approved — see [spec](file:///Users/greglawrence/Projects/brewlog/docs/superpowers/specs/2026-09-20-phase-3d1-recipe-studio-design.md))*:
+- [ ] **Phase 4: Mobile Recipe Studio & Catalog Integration** *(Design Approved — see [spec](file:///Users/greglawrence/Projects/brewlog/docs/superpowers/specs/2026-09-20-phase-4-recipe-studio-design.md))*:
   - Native stack and modal navigation (`app/recipe/[id].tsx`, `app/recipe/builder.tsx`).
   - Full recipe lifecycle on mobile: create, edit, fork/duplicate, and delete.
   - Bidirectional timer parameter handoff ("Brew with this Recipe" CTA and quick-picker sheet on the timer).

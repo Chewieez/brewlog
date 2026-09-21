@@ -2,20 +2,17 @@
 
 **Date:** 2026-09-20  
 **Status:** Approved  
-**Topic:** Phase 3D.1 — Mobile Recipe Studio, Catalog & Timer Integration (`apps/mobile`)  
+**Topic:** Phase 4 — Mobile Recipe Studio & Catalog Integration (`apps/mobile`)  
 
 ---
 
 ## 1. Overview & Context
 
-In Phase 3B and Phase 3C, BrewLog Mobile implemented its interactive brew timer subsystem and enterprise Supabase authentication with hybrid hardware-backed secure storage. However, the recipes tab (`apps/mobile/app/(tabs)/recipes.tsx`) currently displays a static list of default presets with no detail view, custom creation, cloud synchronization, or timer handoff.
+In Phase 3 (Foundation, Navigation Shell, Interactive Timer) and Phase 3C (Supabase Authentication & Secure Storage), BrewLog Mobile established its core client shell, local precision brew timer, and hardware-secured session persistence. However, the recipes tab (`apps/mobile/app/(tabs)/recipes.tsx`) currently displays a static list of default presets with no detail view, custom creation, cloud synchronization, or timer handoff.
 
-Per the [ROADMAP.md](file:///Users/greglawrence/Projects/brewlog/docs/ROADMAP.md), **Phase 3D (Mobile Feature Parity)** encompasses three major subsystems:
-1. **Phase 3D.1**: Recipe Studio, Catalog & Timer Integration (this specification)
-2. **Phase 3D.2**: Stash Manager (Coffee bean cellar & inventory)
-3. **Phase 3D.3**: Cupping Session Logging Flow (SCA 10-attribute scoring form)
+Per [ROADMAP.md](file:///Users/greglawrence/Projects/brewlog/docs/ROADMAP.md), **Phase 4: Mobile Recipe Studio & Catalog Integration** brings complete recipe authoring and discovery parity to native mobile. Subsequent milestones will address the Stash Manager (Phase 5), Free Brew & Nested Ratio Translator (Phase 6), Preferences (Phase 7), Cupping Session Logging (Phase 8), and Platform-Adaptive Navigation (Phase 9).
 
-This design specification details **Phase 3D.1: Recipe Studio & Catalog**. It establishes reactive recipe state management, offline-first persistence with Supabase cloud synchronization, native stack/modal navigation, a full-lifecycle recipe builder (create, edit, duplicate), and bidirectional parameter handoff with the brew timer.
+This design specification details **Phase 4: Mobile Recipe Studio & Catalog Integration**. It establishes reactive recipe state management, offline-first persistence with Supabase cloud synchronization, native stack/modal navigation, a full-lifecycle recipe builder (create, edit, duplicate), dynamic method filtering, and bidirectional parameter handoff with the brew timer.
 
 ---
 
