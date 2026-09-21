@@ -73,14 +73,16 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setLoading(true);
     try {
       const local = await loadCachedRecipes();
+      setCustomRecipes(local);
 
       if (!supabase || !user) {
-        setCustomRecipes(local);
         return;
       }
 
       // Auto-sync unsynced local recipes
       const unsynced = local.filter((r) => r.id.startsWith('local-rec-'));
+      const syncedIds = new Set<string>();
+
       if (unsynced.length > 0) {
         for (const item of unsynced) {
           try {
@@ -91,11 +93,14 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
               .select()
               .single();
 
-            if (!recErr && recData && item.stages && item.stages.length > 0) {
-              const stagePayloads = item.stages.map((stage, idx) =>
-                mapRecipeStageDomainToInsert(stage, recData.id, idx)
-              );
-              await supabase.from('recipe_stages').insert(stagePayloads);
+            if (!recErr && recData) {
+              syncedIds.add(item.id);
+              if (item.stages && item.stages.length > 0) {
+                const stagePayloads = item.stages.map((stage, idx) =>
+                  mapRecipeStageDomainToInsert(stage, recData.id, idx)
+                );
+                await supabase.from('recipe_stages').insert(stagePayloads);
+              }
             }
           } catch (syncErr) {
             console.error('Failed to sync offline recipe:', item.name, syncErr);
@@ -113,10 +118,12 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         const mapped: BrewRecipe[] = data.map((row: any) =>
           mapRecipeRowToDomain(row, row.recipe_stages || [])
         );
-        setCustomRecipes(mapped);
-        await persistCachedRecipes(mapped);
-      } else {
-        setCustomRecipes(local);
+        const remainingUnsynced = local.filter(
+          (r) => r.id.startsWith('local-rec-') && !syncedIds.has(r.id)
+        );
+        const merged = [...remainingUnsynced, ...mapped];
+        setCustomRecipes(merged);
+        await persistCachedRecipes(merged);
       }
     } catch (err) {
       console.error('fetchRecipes error:', err);
@@ -146,11 +153,9 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       };
 
       if (!supabase || !user) {
-        setCustomRecipes((prev) => {
-          const updated = [fallback, ...prev];
-          persistCachedRecipes(updated);
-          return updated;
-        });
+        const nextRecipes = [fallback, ...customRecipes];
+        setCustomRecipes(nextRecipes);
+        await persistCachedRecipes(nextRecipes);
         return fallback;
       }
 
@@ -163,11 +168,9 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           .single();
 
         if (recError || !recData) {
-          setCustomRecipes((prev) => {
-            const updated = [fallback, ...prev];
-            persistCachedRecipes(updated);
-            return updated;
-          });
+          const nextRecipes = [fallback, ...customRecipes];
+          setCustomRecipes(nextRecipes);
+          await persistCachedRecipes(nextRecipes);
           return fallback;
         }
 
@@ -184,23 +187,19 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
 
         const created = mapRecipeRowToDomain(recData, createdStages);
-        setCustomRecipes((prev) => {
-          const updated = [created, ...prev.filter((r) => r.id !== localId)];
-          persistCachedRecipes(updated);
-          return updated;
-        });
+        const nextRecipes = [created, ...customRecipes.filter((r) => r.id !== localId)];
+        setCustomRecipes(nextRecipes);
+        await persistCachedRecipes(nextRecipes);
         return created;
       } catch (err) {
         console.error('addRecipe exception:', err);
-        setCustomRecipes((prev) => {
-          const updated = [fallback, ...prev];
-          persistCachedRecipes(updated);
-          return updated;
-        });
+        const nextRecipes = [fallback, ...customRecipes];
+        setCustomRecipes(nextRecipes);
+        await persistCachedRecipes(nextRecipes);
         return fallback;
       }
     },
-    [user]
+    [user, customRecipes]
   );
 
   const updateRecipe = useCallback(
@@ -211,24 +210,20 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         return existing!;
       }
 
-      let updatedTarget: BrewRecipe | null = null;
+      const existing = customRecipes.find((r) => r.id === id);
+      if (!existing) {
+        console.warn('Cannot find recipe to update:', id);
+        throw new Error(`Recipe with id ${id} not found`);
+      }
 
-      setCustomRecipes((prev) => {
-        const updated = prev.map((item) => {
-          if (item.id === id) {
-            updatedTarget = { ...item, ...updates };
-            return updatedTarget;
-          }
-          return item;
-        });
-        persistCachedRecipes(updated);
-        return updated;
-      });
+      const updatedTarget: BrewRecipe = { ...existing, ...updates };
+      const nextRecipes = customRecipes.map((item) => (item.id === id ? updatedTarget : item));
+      setCustomRecipes(nextRecipes);
+      await persistCachedRecipes(nextRecipes);
 
-      if (supabase && user && !id.startsWith('local-rec-') && updatedTarget) {
+      if (supabase && user && !id.startsWith('local-rec-')) {
         try {
-          const target = updatedTarget as BrewRecipe;
-          const payload = mapRecipeDomainToInsert(target, user.id);
+          const payload = mapRecipeDomainToInsert(updatedTarget, user.id);
           await supabase.from('recipes').update(payload).eq('id', id);
 
           if (updates.stages) {
@@ -243,9 +238,9 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
       }
 
-      return updatedTarget!;
+      return updatedTarget;
     },
-    [user]
+    [user, customRecipes]
   );
 
   const deleteRecipe = useCallback(
@@ -255,11 +250,9 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         return;
       }
 
-      setCustomRecipes((prev) => {
-        const updated = prev.filter((r) => r.id !== id);
-        persistCachedRecipes(updated);
-        return updated;
-      });
+      const nextRecipes = customRecipes.filter((r) => r.id !== id);
+      setCustomRecipes(nextRecipes);
+      await persistCachedRecipes(nextRecipes);
 
       if (supabase && user && !id.startsWith('local-rec-')) {
         try {
@@ -269,7 +262,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
       }
     },
-    [user]
+    [user, customRecipes]
   );
 
   const setActiveTimerRecipe = useCallback((recipe: BrewRecipe, dose?: number) => {
