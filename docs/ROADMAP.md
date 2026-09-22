@@ -54,6 +54,16 @@ This document tracks upcoming milestones, architectural refactors, and technical
 - Relocated test files outside the Expo Router `app/` hierarchy to prevent Vite/Vitest development artifacts from leaking into production bundles.
 - Maintained 100% test pass rate across 33 test suites (226 tests passing monorepo-wide), 21/21 clean `expo-doctor` diagnostic checks, zero TypeScript errors, and production Metro bundling for iOS (3,222 modules, 5.3MB) and Android (3,356 modules, 5.7MB).
 
+### Phase 4: Mobile App — Recipe Studio & Catalog Integration (Complete ✅)
+- Implemented offline-first `RecipeContext` with immediate AsyncStorage hydration (`@brewlog/mobile:recipes_cache`) and automated Supabase cloud sync for authenticated users.
+- Built dynamic horizontal `MethodFilterBar` and `RecipeCard` with method badges, ratio summaries, and Apple HIG-compliant >= 44pt touch targets.
+- Created `RecipesCatalogScreen` and connected to `app/(tabs)/recipes.tsx` with search filtering and direct routing to the recipe builder.
+- Designed comprehensive `RecipeDetailScreen` (`app/recipe/[id].tsx`) combining 4-card `SpecsGrid`, tactile `DoseRescaler` (-/+ 1g steppers and quick dose presets), ordered `StagesTimeline`, and one-tap "BREW WITH THIS RECIPE" timer parameter handoff.
+- Implemented modal `RecipeBuilderScreen` (`app/recipe/builder.tsx`) supporting full CRUD lifecycle (create, edit in-place, duplicate fork), interactive stage management with automatic sequential timing recalculation (`timingUtils.ts`), stage type pills, notes, and strict validation guards.
+- Protected official presets (`preset-*`) against mutation and accidental deletion.
+- Integrated `TimerScreen` (`app/(tabs)/index.tsx`) with `RecipeContext` and added an active brew confirmation guard (`Alert.alert`) to prevent mid-brew state wipes.
+- Maintained 100% test pass rate across 43 test suites (248 tests passing monorepo-wide), zero TypeScript errors, zero inline styles, and production Metro bundling for iOS (3,234 modules, 5.4MB) and Android (3,368 modules, 5.7MB).
+
 ---
 
 ## 📋 Technical Debt & Component Refactoring (TODO)
@@ -85,10 +95,10 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
 ## 🚀 Upcoming Project Milestones
 
 ### Core Platform & Mobile Milestones
-- [ ] **Phase 4: Mobile Recipe Studio & Catalog Integration** *(Design Approved — see [spec](file:///Users/greglawrence/Projects/brewlog/docs/superpowers/specs/2026-09-20-phase-3d1-recipe-studio-design.md))*:
+- [x] **Phase 4: Mobile Recipe Studio & Catalog Integration (Complete ✅)** *(Design Spec: [docs/superpowers/specs/2026-09-20-phase-4-recipe-studio-design.md](file:///Users/greglawrence/Projects/brewlog/docs/superpowers/specs/2026-09-20-phase-4-recipe-studio-design.md))*:
   - Native stack and modal navigation (`app/recipe/[id].tsx`, `app/recipe/builder.tsx`).
   - Full recipe lifecycle on mobile: create, edit, fork/duplicate, and delete.
-  - Bidirectional timer parameter handoff ("Brew with this Recipe" CTA and quick-picker sheet on the timer).
+  - Timer parameter handoff ("Brew with this Recipe" CTA from detail to active timer).
   - Dynamic method pills and offline-first cloud synchronization via Supabase.
 - [ ] **Phase 5: Stash Manager & Cellar Inventory**:
   - Native bean cellar and bag inventory management (`app/(tabs)/stash.tsx`).

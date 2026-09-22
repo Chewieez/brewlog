@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, ScrollView, StyleSheet, Text, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
   INDUSTRIAL_PRECISION_THEME,
   DEFAULT_PRESET_RECIPES,
-  BrewRecipe,
   rescaleRecipeDose,
 } from '@brewlog/core';
+import { useRecipes } from '../../src/features/recipes/RecipeContext';
 import { useMobileBrewTimer } from '../../src/hooks/useMobileBrewTimer';
 import { MethodPills } from '../../src/components/timer/MethodPills';
 import { CollapsibleCalculator } from '../../src/components/timer/CollapsibleCalculator';
@@ -20,14 +20,9 @@ const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export default function TimerScreen() {
   const router = useRouter();
-  const [selectedRecipe, setSelectedRecipe] = useState<BrewRecipe>(
-    DEFAULT_PRESET_RECIPES[0]
-  );
-  const [doseGrams, setDoseGrams] = useState(
-    DEFAULT_PRESET_RECIPES[0].coffeeDoseGrams
-  );
+  const { activeTimerRecipe, activeTimerDose, setActiveTimerRecipe } = useRecipes();
 
-  const activeRecipe = rescaleRecipeDose(selectedRecipe, doseGrams);
+  const activeRecipe = rescaleRecipeDose(activeTimerRecipe, activeTimerDose);
 
   const {
     elapsedSeconds,
@@ -65,8 +60,7 @@ export default function TimerScreen() {
             style: 'destructive',
             onPress: () => {
               reset();
-              setSelectedRecipe(match);
-              setDoseGrams(match.coffeeDoseGrams);
+              setActiveTimerRecipe(match, match.coffeeDoseGrams);
             },
           },
         ]
@@ -75,14 +69,13 @@ export default function TimerScreen() {
     }
 
     reset();
-    setSelectedRecipe(match);
-    setDoseGrams(match.coffeeDoseGrams);
+    setActiveTimerRecipe(match, match.coffeeDoseGrams);
   };
 
   const handleApplyDose = (newDose: number) => {
     if (isRunning || isFinished) return;
     if (newDose > 0) {
-      setDoseGrams(Math.round(newDose * 10) / 10);
+      setActiveTimerRecipe(activeTimerRecipe, Math.round(newDose * 10) / 10);
     }
   };
 
@@ -99,9 +92,9 @@ export default function TimerScreen() {
         methods={AVAILABLE_METHODS}
       />
 
-      {/* Standalone Collapsible Calculator (Default Collapsed) */}
+      {/* Standalone Collapsible Calculator */}
       <CollapsibleCalculator
-        initialDose={doseGrams}
+        initialDose={activeTimerDose}
         initialRatio={activeRecipe.ratio}
         onApplyDose={handleApplyDose}
       />
@@ -113,8 +106,8 @@ export default function TimerScreen() {
         isRunning={isRunning}
         isFinished={isFinished}
         isMuted={isMuted}
-        currentStageTargetWater={currentStage.targetWaterWeightGrams}
-        doseGrams={doseGrams}
+        currentStageTargetWater={currentStage?.targetWaterWeightGrams || 0}
+        doseGrams={activeTimerDose}
         onToggleTimer={toggleTimer}
         onReset={reset}
         onToggleMute={toggleMute}
@@ -141,12 +134,14 @@ export default function TimerScreen() {
       ) : (
         <>
           {/* Active Pour Guidance */}
-          <ActiveStageCard
-            stage={currentStage}
-            stageIndex={currentStageIndex}
-            totalStages={activeRecipe.stages.length}
-            elapsedSeconds={elapsedSeconds}
-          />
+          {currentStage ? (
+            <ActiveStageCard
+              stage={currentStage}
+              stageIndex={currentStageIndex}
+              totalStages={activeRecipe.stages.length}
+              elapsedSeconds={elapsedSeconds}
+            />
+          ) : null}
 
           {/* Timeline of Stages */}
           <StageTimeline
@@ -192,9 +187,11 @@ const styles = StyleSheet.create({
   logButton: {
     marginTop: 8,
     backgroundColor: colors.accent,
+    minHeight: 44,
     paddingHorizontal: 20,
-    paddingVertical: 10,
     borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   logButtonText: {
     color: colors.canvas,
