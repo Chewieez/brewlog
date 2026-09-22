@@ -13,8 +13,8 @@ brewlog/
 ├── apps/
 │   ├── web/               # React 19 + Tailwind CSS v4 + Vite
 │   ├── mobile/            # React Native (Expo SDK 57) + TypeScript
-│   ├── wearos/            # WearOS Companion App & Tile (Jetpack Compose)
-│   └── watchos/           # Apple watchOS Companion App & Complications (SwiftUI)
+│   ├── wearos/            # (Planned) WearOS Companion App & Tile (Jetpack Compose)
+│   └── watchos/           # (Planned) Apple watchOS Companion App & Complications (SwiftUI)
 ├── packages/
 │   ├── core/              # Shared types, brew math, presets & SCA flavor wheel
 │   └── supabase/          # Shared database schema, client & RLS policies
@@ -54,15 +54,94 @@ brewlog/
 
 ## 🛠️ Getting Started
 
+### Prerequisites
+
+* **Node.js**: `v20.x` or later (LTS recommended)
+* **npm**: `v10.x` or later (supports npm workspaces)
+* **Mobile Tooling** (Optional, for mobile testing):
+  * **Physical Device**: [Expo Go](https://expo.dev/go) installed from the iOS App Store or Google Play Store (device must be on the same local Wi-Fi network).
+  * **iOS Simulator** (macOS only): Xcode with Command Line Tools (`xcode-select --install`).
+  * **Android Emulator**: Android Studio with an Android Virtual Device (AVD) configured and running.
+
+---
+
+### 1. Installation & Environment Setup
+
 ```bash
-# Install dependencies
+# Clone repository
+git clone https://github.com/Chewieez/brewlog.git
+cd brewlog
+
+# Install monorepo dependencies across all workspaces
 npm install
+```
 
-# Run web app (React 19 + Tailwind v4)
+#### Environment Variables (Optional for Offline / Demo Mode)
+
+Both the web and mobile applications run out-of-the-box in local offline mode with mock fallbacks. To connect to a live Supabase backend for user authentication, cloud sync, and custom recipe persistence:
+
+```bash
+# Web application environment
+cp apps/web/.env.example apps/web/.env
+
+# Mobile application environment
+cp apps/mobile/.env.example apps/mobile/.env
+```
+
+Open each `.env` file and provide your project URL and public anon key:
+* `apps/web/.env`: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
+* `apps/mobile/.env`: `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+
+---
+
+### 2. Running the Web Application
+
+```bash
+# Start Vite development server
 npm run dev:web
+```
 
-# Run mobile app (Expo)
+Open [http://localhost:5173](http://localhost:5173) in your browser to view the application.
+
+---
+
+### 3. Running the Mobile Application (Expo SDK 57)
+
+```bash
+# Start interactive Metro bundler on port 8081
 npm run dev:mobile
+```
+
+Once Metro is running in your terminal, choose your testing target:
+
+* **Physical Device (Expo Go)**:
+  * **iOS**: Open the native Camera app and scan the QR code displayed in the terminal.
+  * **Android**: Open the Expo Go app and tap "Scan QR code".
+* **iOS Simulator**: Press <kbd>i</kbd> in the terminal (or run `npm run ios --workspace=@brewlog/mobile`).
+* **Android Emulator**: Press <kbd>a</kbd> in the terminal (or run `npm run android --workspace=@brewlog/mobile`).
+* **Mobile Web Preview**: Press <kbd>w</kbd> in the terminal (or run `npm run web --workspace=@brewlog/mobile`).
+
+> [!TIP]
+> **Metro Cache Reset**: When switching branches or after making changes to shared monorepo packages (`@brewlog/core`, `@brewlog/supabase`), start Metro with a clean cache:
+> ```bash
+> npm run dev:mobile -- -c
+> ```
+
+---
+
+### 4. Quality Checks & Verification
+
+Run project-wide validation across all workspaces from the monorepo root:
+
+```bash
+# Run TypeScript strict typechecking across all workspaces
+npm run typecheck
+
+# Run Vitest test suites across core, web, and mobile
+npm test
+
+# Build production artifacts
+npm run build
 ```
 
 ---
