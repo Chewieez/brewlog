@@ -90,6 +90,17 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
 - [ ] Implement Approach B (single component route with `useParams`) for `/stash/:beanId` to explore the alternative dynamic routing pattern.
 - [ ] Create dedicated bean detail view / modal route.
 
+### 🔤 Typography & Font Auditing (Eliminate Serif Lowercase Fonts)
+- [ ] **Purge Serif / Fallback Lowercase Fonts**:
+  - Audit all typography across mobile (`apps/mobile`) and web (`apps/web`) to eliminate any accidental serif fonts or unstyled browser serif fallbacks (e.g. default browser Times New Roman rendering in lowercase).
+  - Enforce consistent industrial sans-serif (`Outfit`, system sans) and monospaced (`JetBrains Mono`) font stacks across all headers, body text, form labels, and badge pills.
+  - Ensure web font fallbacks always specify `sans-serif` or `monospace` generic font families to prevent browser default serif degradation before custom web fonts hydrate.
+
+### 📅 Mobile Date Picker Integration
+- [ ] **Native Date Picker (`@react-native-community/datetimepicker`)**:
+  - Replace manual text date input for Roast Date in `BeanModalScreen.tsx` with a native calendar / date wheel modal.
+  - Automatically respects user device locale (e.g. Month/Day/Year in US, Day/Month/Year in UK/EU) and eliminates manual typing and punctuation keystrokes.
+
 ---
 
 ## 🚀 Upcoming Project Milestones
@@ -109,11 +120,11 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
   - **Nested Ratio Translator (`CollapsibleCalculator`)**: Nested collapsible drawer inside the existing calculator card. Enter source coffee:water values (or direct ratio) to establish a baseline, then solve for target coffee or water dynamically with one-tap dose application to the active timer.
   - **Free Brew Mode (Timer Subsystem)**: Dedicated recipe-free mode directly on the Timer screen (web and mobile). Replaces structured recipe stages and water progression with an open-ended precision stopwatch, manual split/lap markers (bloom, first pour, draw-down), and immediate ratio translator access without cluttering the mobile 5-tab bar.
 - [ ] **Phase 7: User Preferences & Settings Subsystem (Cross-Platform)**:
-  - **Supabase Cloud Schema (`@brewlog/supabase`)**: `user_settings` table keyed to `user_id` with Row-Level Security (RLS) policies and offline-first local cache fallback. Initial schema stores `default_timer_mode` (`'recipe'` | `'manual'`), architected to scale for future preferences (temperature units `°C`/`°F`, haptic/audio cues, default brew method).
+  - **Supabase Cloud Schema (`@brewlog/supabase`)**: `user_settings` table keyed to `user_id` with Row-Level Security (RLS) policies and offline-first local cache fallback. Initial schema stores `default_timer_mode` (`'recipe'` | `'manual'`), `date_format` (`'locale'` | `'MM/DD/YYYY'` | `'DD/MM/YYYY'` | `'YYYY-MM-DD'`), `weight_unit` (`'metric'` [grams/g] | `'imperial'` [ounces/oz, pounds/lb]), and `temperature_unit` (`'celsius'` | `'fahrenheit'`), architected to scale for future preferences (haptic/audio cues, default brew method).
   - **Settings UI & Navigation**:
-    - **Mobile**: Settings entry button situated in the slide-up account tray (`AuthSheet` opened via `ProfileHeaderButton`), preserving Apple HIG 5-tab ergonomics.
+    - **Mobile**: Settings entry button situated in the slide-up account tray (`AuthSheet` opened via `ProfileHeaderButton`), preserving Apple HIG 5-tab ergonomics. Includes selectors for weight scale (metric/imperial), temperature units, and date format.
     - **Web**: Settings option in the account dropdown menu routing to `/settings`.
-  - **Boot Lifecycle**: Hydrates user settings on startup and automatically initializes the Timer into the barista's preferred default state (`recipe` vs. `manual`).
+  - **Boot Lifecycle & Domain Converters**: Hydrates user settings on startup and automatically initializes the Timer, Stash bag weights, and Recipe spec displays with localized conversion helpers (`g` ↔ `oz`, `°C` ↔ `°F`) while preserving canonical metric units in core domain stores.
 - [ ] **Phase 8: Native Cupping Session Logging Flow**:
   - Complete SCA 10-attribute scoring protocol form on native (`app/(tabs)/cupping.tsx`).
   - Radar chart visualization and spider graphs for sensory profiles.
@@ -121,6 +132,15 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
 - [ ] **Phase 9: Platform-Adaptive Navigation & Native Design Systems**:
   - **iOS Liquid Glass Navigation**: Implement native translucent headers and floating tab bar materials (`headerTransparent`, `headerBlurEffect`, under-content scrolling) for iOS 26/27 while preserving solid core theme tokens for cross-platform stability.
   - **Android Material 3 Support with Expo UI**: Implement first-class Material Design 3 navigation chrome and components via Expo UI / Jetpack Compose primitives (tonal elevation, surface container scrolling, native predictive back gesture integration, and dynamic theme tokens).
+- [ ] **Phase 10: Responsive Adaptive Layouts (Landscape, Foldables & Tablets)**:
+  - **Dynamic Breakpoints & Orientation**: Implement `useDeviceLayout` consuming `useWindowDimensions` and device orientation to handle compact phones, landscape mode, foldables (unfolded 600dp–840dp), and large tablets (>840dp).
+  - **Landscape Brew Station Layout**:
+    - Dual-column chassis for the Timer view (`app/(tabs)/index.tsx`): oversized stopwatch and brew controls pinned to the left; active stage guidance, vertical timeline, and dose calculator on the right.
+    - Eliminates vertical scrolling during active pour-overs when mounted or rested horizontally on a coffee bar stand.
+  - **Foldable & Tablet Master-Detail Adaptation**:
+    - Adaptive multi-column grid layout for Stash (`app/(tabs)/stash.tsx`) and Recipe catalog (`app/(tabs)/recipes.tsx`).
+    - Two-pane Master-Detail view on tablets and unfolded foldables (catalog list on the left, full detail/editor pane on the right).
+  - **Tabletop / Flex Mode Posture Awareness**: Support half-folded postures (Pixel Fold, Galaxy Z Fold) placing the active timer hero on the upper screen half and tactile controls/metrics on the bottom surface.
 
 ---
 
