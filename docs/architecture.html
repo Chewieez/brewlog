@@ -157,7 +157,8 @@
       <span class="subtitle">Drag nodes, scroll to zoom, click any node to inspect details</span>
     </div>
     <div class="controls">
-      <a href="http://localhost:3000/" style="text-decoration: none;" class="btn active">☕ Open Web App (localhost:3000)</a>
+      <a href="http://localhost:3000/" style="text-decoration: none;" class="btn active">☕ Web App (localhost:3000)</a>
+      <a href="http://localhost:8081/" style="text-decoration: none;" class="btn">📱 Mobile Metro (localhost:8081)</a>
       <button class="btn" onclick="network.fit({animation: true})">⟲ Reset View</button>
       <button class="btn" onclick="network.zoomBy(0.3)">➕ Zoom In</button>
       <button class="btn" onclick="network.zoomBy(-0.3)">➖ Zoom Out</button>
@@ -188,50 +189,71 @@
 
   <script>
     const nodes = new vis.DataSet([
-      // Root & Entry
-      { id: 1, label: 'main.tsx\n(Vite Entry)', group: 'root', shape: 'box', level: 0, info: { title: 'main.tsx', type: 'Application Entrypoint', desc: 'Bootstraps the React 19 application, imports index.css theme tokens, and renders the App component.', file: 'apps/web/src/main.tsx' } },
+      // Web Root & Entry
+      { id: 1, label: 'main.tsx\n(Web Vite Entry)', group: 'root', shape: 'box', level: 0, info: { title: 'main.tsx', type: 'Application Entrypoint', desc: 'Bootstraps the React 19 web application, imports index.css theme tokens, and renders the App component.', file: 'apps/web/src/main.tsx' } },
       { id: 2, label: 'App.tsx\n(React Router v8)', group: 'root', shape: 'box', level: 1, info: { title: 'App.tsx', type: 'Declarative Router', desc: 'Configures React Router v8 BrowserRouter, Routes, RootLayout shell, and route tree.', file: 'apps/web/src/App.tsx' } },
-      { id: 3, label: 'AuthProvider\n(AuthContext.tsx)', group: 'auth', shape: 'box', level: 1, info: { title: 'AuthProvider', type: 'React Context', desc: 'Listens to live Supabase auth state changes, manages user JWT tokens, signIn, and signUp.', file: 'apps/web/src/features/auth/AuthContext.tsx' } },
-      { id: 8, label: 'RootLayout.tsx\n(Shell & Outlet)', group: 'root', shape: 'box', level: 2, info: { title: 'RootLayout.tsx', type: 'App Shell Layout', desc: 'Mounts shared data hooks, provides persistent Header and AuthModal, and renders <Outlet context={contextValue} />.', file: 'apps/web/src/layouts/RootLayout.tsx' } },
+      { id: 3, label: 'AuthProvider\n(Web AuthContext.tsx)', group: 'auth', shape: 'box', level: 1, info: { title: 'AuthProvider', type: 'React Context', desc: 'Listens to live Supabase auth state changes, manages user JWT tokens, signIn, and signUp.', file: 'apps/web/src/features/auth/AuthContext.tsx' } },
+      { id: 8, label: 'RootLayout.tsx\n(Web Shell & Outlet)', group: 'root', shape: 'box', level: 2, info: { title: 'RootLayout.tsx', type: 'App Shell Layout', desc: 'Mounts shared data hooks, provides persistent Header and AuthModal, and renders <Outlet context={contextValue} />.', file: 'apps/web/src/layouts/RootLayout.tsx' } },
 
-      // Header & Navigation
+      // Mobile Root & Shell
+      { id: 100, label: '_layout.tsx\n(Mobile Expo Root Stack)', group: 'root', shape: 'box', level: 0, info: { title: '_layout.tsx', type: 'Mobile Application Root', desc: 'Expo Router root layout wrapping the app with GestureHandler, SafeAreaProvider, AuthProvider, RecipeProvider, and StashProvider.', file: 'apps/mobile/app/_layout.tsx' } },
+      { id: 101, label: 'Mobile AuthProvider\n(AuthContext.tsx)', group: 'auth', shape: 'box', level: 1, info: { title: 'Mobile AuthContext', type: 'Mobile Auth Provider', desc: 'Manages user session, auto-refresh lifecycle, and credentials using LargeSecureStore AES-256 encryption.', file: 'apps/mobile/src/features/auth/AuthContext.tsx' } },
+      { id: 102, label: 'RecipeProvider\n(RecipeContext.tsx)', group: 'hook', shape: 'box', level: 1, info: { title: 'RecipeContext', type: 'React Context & Offline Cache', desc: 'Offline-first recipe state hydrated from AsyncStorage (@brewlog/mobile:recipes_cache) and synced with Supabase recipes and recipe_stages.', file: 'apps/mobile/src/features/recipes/RecipeContext.tsx' } },
+      { id: 103, label: 'StashProvider\n(StashContext.tsx)', group: 'hook', shape: 'box', level: 1, info: { title: 'StashContext', type: 'React Context & Offline Cache', desc: 'Offline-first coffee bean cellar with AsyncStorage caching (@brewlog/mobile:stash_cache), shelf partitioning (active/frozen/archived), dose deduction, and Supabase cloud sync.', file: 'apps/mobile/src/features/stash/StashContext.tsx' } },
+      { id: 104, label: 'Mobile Bottom Tabs\n((tabs)/_layout.tsx)', group: 'shared', shape: 'box', level: 2, info: { title: '(tabs)/_layout.tsx', type: 'Mobile Tabs Navigator', desc: '5-tab bottom navigation with custom Industrial Precision styling, Lucide icons, and 44pt touch targets.', file: 'apps/mobile/app/(tabs)/_layout.tsx' } },
+
+      // Web Header & Navigation
       { id: 4, label: 'Header.tsx\n(NavLink Nav)', group: 'shared', shape: 'box', level: 3, info: { title: 'Header.tsx', type: 'Navigation Component', desc: 'Uses NavLink for URL-based active link styling, badge counters, and barista profile avatar.', file: 'apps/web/src/components/shared/Header.tsx' } },
       { id: 5, label: 'UserMenu.tsx\n(Profile & Sign Out)', group: 'shared', shape: 'box', level: 4, info: { title: 'UserMenu.tsx', type: 'User Profile Menu', desc: 'Shows active barista initials avatar badge with dropdown to Sign Out or view database settings.', file: 'apps/web/src/features/auth/UserMenu.tsx' } },
 
-      // Modals & 404
+      // Web Modals & 404
       { id: 6, label: 'AuthModal.tsx\n(Login / Signup)', group: 'modal', shape: 'box', level: 3, info: { title: 'AuthModal.tsx', type: 'Authentication Modal', desc: 'Sign In and Create Account dialog with email verification alerts and error banners.', file: 'apps/web/src/features/auth/AuthModal.tsx' } },
       { id: 9, label: 'NotFoundRoute.tsx\n(404 Fallback)', group: 'feature', shape: 'box', level: 3, info: { title: 'NotFoundRoute.tsx', type: 'Catch-All Route', desc: 'Coffee-themed 404 page for unmatched URLs with Return to Timer button.', file: 'apps/web/src/routes/NotFoundRoute.tsx' } },
 
-      // Feature Routes & Views
+      // Web Feature Routes & Views
       { id: 10, label: 'TimerRoute.tsx\n(/timer)', group: 'feature', shape: 'box', level: 3, info: { title: 'TimerRoute.tsx', type: 'Route Adapter', desc: 'Connects RootLayout outlet context to TimerView for interactive brew timing.', file: 'apps/web/src/routes/TimerRoute.tsx' } },
       { id: 11, label: 'StashRoute.tsx\n(/stash)', group: 'feature', shape: 'box', level: 3, info: { title: 'StashRoute.tsx', type: 'Route Adapter', desc: 'Whole bean tracking in ounces (oz) with resting window badges and add-bean modal.', file: 'apps/web/src/routes/StashRoute.tsx' } },
       { id: 12, label: 'RecipesRoute.tsx\n(/recipes & :recipeId)', group: 'feature', shape: 'box', level: 3, info: { title: 'RecipesRoute.tsx', type: 'Route Adapter', desc: 'Master-detail recipe studio: catalog list on desktop, nested child route <Outlet /> for recipe details.', file: 'apps/web/src/routes/RecipesRoute.tsx' } },
       { id: 13, label: 'EquipmentRoute.tsx\n(/equipment)', group: 'feature', shape: 'box', level: 3, info: { title: 'EquipmentRoute.tsx', type: 'Route Adapter', desc: 'Grinder burr settings calibration (clicks, microns, stepped numbers) and brewer management.', file: 'apps/web/src/routes/EquipmentRoute.tsx' } },
       { id: 14, label: 'CuppingRoute.tsx\n(/cupping)', group: 'feature', shape: 'box', level: 3, info: { title: 'CuppingRoute.tsx', type: 'Route Adapter', desc: 'SCA 0-100 cupping scoring sheet and interactive flavor wheel tag selector.', file: 'apps/web/src/routes/CuppingRoute.tsx' } },
 
-      // Sub-Components
-      { id: 20, label: 'ScaFlavorWheelSvg.tsx\n(Pure Polar SVG Wheel)', group: 'subcomp', shape: 'ellipse', level: 3, info: { title: 'ScaFlavorWheelSvg.tsx', type: 'Interactive Vector Graphic', desc: 'Pure React + SVG polar trigonometry rendering 7 concentric categories and outer descriptors with live hover inspection.', file: 'apps/web/src/features/cupping/ScaFlavorWheelSvg.tsx' } },
-      { id: 21, label: 'ScrollFadeContainer.tsx\n(Dynamic Mask)', group: 'subcomp', shape: 'ellipse', level: 3, info: { title: 'ScrollFadeContainer.tsx', type: 'UI Primitive', desc: 'Observes scroll metrics with ResizeObserver and dynamically hides gradient fade at top/bottom.', file: 'apps/web/src/components/shared/ScrollFadeContainer.tsx' } },
+      // Mobile Feature Screens & Modals
+      { id: 105, label: 'Mobile Timer\n(app/(tabs)/index.tsx)', group: 'feature', shape: 'box', level: 3, info: { title: 'TimerScreen (Mobile)', type: 'Primary Instrument Tab', desc: 'Interactive brew timer with ActiveBeanPill, recipe stages, haptic chime cues, and post-brew 1-tap dose deduction card.', file: 'apps/mobile/app/(tabs)/index.tsx' } },
+      { id: 106, label: 'Stash Tab\n(StashCatalogScreen.tsx)', group: 'feature', shape: 'box', level: 3, info: { title: 'StashCatalogScreen', type: 'Cellar Catalog Screen', desc: 'Browses whole bean inventory across Active Cellar, Deep Freeze, and Archive shelves with search, method filters, and empty state guides.', file: 'apps/mobile/src/features/stash/screens/StashCatalogScreen.tsx' } },
+      { id: 107, label: 'Recipes Tab\n(RecipesCatalogScreen.tsx)', group: 'feature', shape: 'box', level: 3, info: { title: 'RecipesCatalogScreen', type: 'Recipe Catalog Screen', desc: 'Browses preset and custom brew recipes with method pills and builder CTA.', file: 'apps/mobile/src/features/recipes/screens/RecipesCatalogScreen.tsx' } },
+      { id: 108, label: 'BeanDetailScreen.tsx\n(app/stash/[id].tsx)', group: 'feature', shape: 'box', level: 3, info: { title: 'BeanDetailScreen', type: 'Dynamic Detail Route', desc: 'Displays origin info, roast date, remaining weight, resting timeline with stage highlights, grinder calibration steppers, and Brew with this Bean button.', file: 'apps/mobile/src/features/stash/screens/BeanDetailScreen.tsx' } },
+      { id: 109, label: 'BeanModalScreen.tsx\n(app/stash/modal.tsx)', group: 'modal', shape: 'box', level: 3, info: { title: 'BeanModalScreen', type: 'Modal Bag Creator / Editor', desc: 'Full-featured modal with weight presets, custom rest days, roast date input with automatic American format normalization, and Android punch-hole safe area.', file: 'apps/mobile/src/features/stash/screens/BeanModalScreen.tsx' } },
 
-      // Hooks Layer
-      { id: 30, label: 'useAuth.ts\n(Session Hook)', group: 'hook', shape: 'diamond', level: 3, info: { title: 'useAuth.ts', type: 'Custom React Hook', desc: 'Exposes active user object, session, and signIn / signUp methods.', file: 'apps/web/src/features/auth/AuthContext.tsx' } },
-      { id: 31, label: 'useBeans.ts\n(Cloud Stash Hook)', group: 'hook', shape: 'diamond', level: 3, info: { title: 'useBeans.ts', type: 'Custom React Hook', desc: 'Performs real-time CRUD on public.beans in Supabase PostgreSQL with optimistic local updates.', file: 'apps/web/src/features/stash/useBeans.ts' } },
-      { id: 32, label: 'useTastingLogs.ts\n(Cupping Hook)', group: 'hook', shape: 'diamond', level: 3, info: { title: 'useTastingLogs.ts', type: 'Custom React Hook', desc: 'Fetches and saves completed brew logs and SCA scores to public.tasting_logs.', file: 'apps/web/src/features/cupping/useTastingLogs.ts' } },
+      // Web Sub-Components
+      { id: 20, label: 'ScaFlavorWheelSvg.tsx\n(Pure Polar SVG Wheel)', group: 'subcomp', shape: 'ellipse', level: 4, info: { title: 'ScaFlavorWheelSvg.tsx', type: 'Interactive Vector Graphic', desc: 'Pure React + SVG polar trigonometry rendering 7 concentric categories and outer descriptors with live hover inspection.', file: 'apps/web/src/features/cupping/ScaFlavorWheelSvg.tsx' } },
+      { id: 21, label: 'ScrollFadeContainer.tsx\n(Dynamic Mask)', group: 'subcomp', shape: 'ellipse', level: 4, info: { title: 'ScrollFadeContainer.tsx', type: 'UI Primitive', desc: 'Observes scroll metrics with ResizeObserver and dynamically hides gradient fade at top/bottom.', file: 'apps/web/src/components/shared/ScrollFadeContainer.tsx' } },
 
-      // Core Monorepo Package (@brewlog/core)
-      { id: 40, label: 'calculator.ts\n(Dose Scaler & Scores)', group: 'core', shape: 'hexagon', level: 4, info: { title: 'calculator.ts', type: 'Domain Algorithms', desc: 'Pure math: brew ratios, Hoffman dose scaling, official SCA 0-100 cupping formula, days-off-roast status.', file: 'packages/core/src/calculator.ts' } },
-      { id: 41, label: 'flavorWheel.ts\n(SCA Hierarchy)', group: 'core', shape: 'hexagon', level: 4, info: { title: 'flavorWheel.ts', type: 'Domain Data', desc: 'Official SCA Coffee Taster Flavor Wheel dataset with concentric categories, notes, and hex colors.', file: 'packages/core/src/flavorWheel.ts' } },
-      { id: 42, label: 'presets.ts\n(Expert Recipes)', group: 'core', shape: 'hexagon', level: 4, info: { title: 'presets.ts', type: 'Domain Data', desc: 'Standard recipes: Hoffmann V60, Kasuya 4:6, Inverted AeroPress, Flair 58 Lever Espresso.', file: 'packages/core/src/presets.ts' } },
-      { id: 43, label: 'types.ts\n(TypeScript Models)', group: 'core', shape: 'hexagon', level: 4, info: { title: 'types.ts', type: 'Shared Type Definitions', desc: 'Domain models for Bean, Equipment, BrewRecipe, BrewStage, TastingLog, CuppingAttributes.', file: 'packages/core/src/types.ts' } },
+      // Mobile Sub-Components & Storage
+      { id: 110, label: 'BeanCard.tsx\n(Cellar Card & Badges)', group: 'subcomp', shape: 'ellipse', level: 4, info: { title: 'BeanCard.tsx', type: 'Cellar UI Component', desc: 'Renders bean metadata, roast resting status badges with indicator dots, remaining weight progress bar, and 44pt touch targets.', file: 'apps/mobile/src/features/stash/components/BeanCard.tsx' } },
+      { id: 111, label: 'CellarSummaryBar.tsx\n(Inventory Stats)', group: 'subcomp', shape: 'ellipse', level: 4, info: { title: 'CellarSummaryBar.tsx', type: 'Cellar UI Component', desc: 'Industrial summary displaying total active bags, total cellared mass in grams/oz, and unique roaster count.', file: 'apps/mobile/src/features/stash/components/CellarSummaryBar.tsx' } },
+      { id: 112, label: 'ActiveBeanPill.tsx\n(Timer Pill & Detach)', group: 'subcomp', shape: 'ellipse', level: 4, info: { title: 'ActiveBeanPill.tsx', type: 'Timer UI Component', desc: 'Compact industrial chassis pill atop TimerHero displaying roaster, bean name, remaining weight, and detach action.', file: 'apps/mobile/src/features/stash/components/ActiveBeanPill.tsx' } },
+      { id: 114, label: 'AsyncStorage Cache\n(@brewlog/mobile:stash_cache)', group: 'backend', shape: 'box', level: 4, info: { title: 'AsyncStorage Stash Cache', type: 'Local Cache Store', desc: 'Zero-latency offline persistence layer storing serialized JSON array of beans for instant launch hydration.', file: '@react-native-async-storage/async-storage' } },
+
+      // Web Hooks Layer
+      { id: 30, label: 'useAuth.ts\n(Session Hook)', group: 'hook', shape: 'diamond', level: 4, info: { title: 'useAuth.ts', type: 'Custom React Hook', desc: 'Exposes active user object, session, and signIn / signUp methods.', file: 'apps/web/src/features/auth/AuthContext.tsx' } },
+      { id: 31, label: 'useBeans.ts\n(Cloud Stash Hook)', group: 'hook', shape: 'diamond', level: 4, info: { title: 'useBeans.ts', type: 'Custom React Hook', desc: 'Performs real-time CRUD on public.beans in Supabase PostgreSQL with optimistic local updates.', file: 'apps/web/src/features/stash/useBeans.ts' } },
+      { id: 32, label: 'useTastingLogs.ts\n(Cupping Hook)', group: 'hook', shape: 'diamond', level: 4, info: { title: 'useTastingLogs.ts', type: 'Custom React Hook', desc: 'Fetches and saves completed brew logs and SCA scores to public.tasting_logs.', file: 'apps/web/src/features/cupping/useTastingLogs.ts' } },
+
+      // Core Monorepo Package (@brewlog/core) & Domain Utilities
+      { id: 40, label: 'calculator.ts\n(Dose Scaler & Scores)', group: 'core', shape: 'hexagon', level: 5, info: { title: 'calculator.ts', type: 'Domain Algorithms', desc: 'Pure math: brew ratios, Hoffman dose scaling, official SCA 0-100 cupping formula, days-off-roast status.', file: 'packages/core/src/calculator.ts' } },
+      { id: 41, label: 'flavorWheel.ts\n(SCA Hierarchy)', group: 'core', shape: 'hexagon', level: 5, info: { title: 'flavorWheel.ts', type: 'Domain Data', desc: 'Official SCA Coffee Taster Flavor Wheel dataset with concentric categories, notes, and hex colors.', file: 'packages/core/src/flavorWheel.ts' } },
+      { id: 42, label: 'presets.ts\n(Expert Recipes)', group: 'core', shape: 'hexagon', level: 5, info: { title: 'presets.ts', type: 'Domain Data', desc: 'Standard recipes: Hoffmann V60, Kasuya 4:6, Inverted AeroPress, Flair 58 Lever Espresso.', file: 'packages/core/src/presets.ts' } },
+      { id: 43, label: 'types.ts\n(TypeScript Models)', group: 'core', shape: 'hexagon', level: 5, info: { title: 'types.ts', type: 'Shared Type Definitions', desc: 'Domain models for Bean, Equipment, BrewRecipe, BrewStage, TastingLog, CuppingAttributes.', file: 'packages/core/src/types.ts' } },
+      { id: 113, label: 'restingUtils.ts\n(Resting Engine Math)', group: 'core', shape: 'hexagon', level: 5, info: { title: 'restingUtils.ts', type: 'Pure Domain Algorithms', desc: 'Timezone-safe days off roast calculation, freezer preservation pause math, and adaptive resting curves (Needs Rest, Peak, Aging, Past Peak, Frozen).', file: 'apps/mobile/src/utils/restingUtils.ts' } },
 
       // Hardware & Cloud Backend
-      { id: 50, label: 'audio.ts\n(Web Audio API)', group: 'backend', shape: 'box', level: 3, info: { title: 'audio.ts', type: 'Hardware Synthesizer', desc: 'Zero-asset Web Audio API oscillator synthesizing pure acoustic bell tones and 3-2-1 countdown ticks.', file: 'apps/web/src/lib/audio.ts' } },
-      { id: 51, label: 'lib/supabase.ts\n(Typed Client)', group: 'backend', shape: 'box', level: 4, info: { title: 'lib/supabase.ts', type: 'Database Client', desc: 'SupabaseClient typed with Database schema from @brewlog/supabase and .env credentials.', file: 'apps/web/src/lib/supabase.ts' } },
-      { id: 52, label: 'PostgreSQL Cloud DB\n(Row Level Security)', group: 'cloud', shape: 'database', level: 5, info: { title: 'PostgreSQL Database', type: 'Cloud Backend', desc: 'Supabase PostgreSQL database storing profiles, beans, equipment, recipes, stages, and tasting_logs with RLS.', file: 'packages/supabase/migrations/001_initial_schema.sql' } },
+      { id: 50, label: 'audio.ts\n(Web Audio API)', group: 'backend', shape: 'box', level: 4, info: { title: 'audio.ts', type: 'Hardware Synthesizer', desc: 'Zero-asset Web Audio API oscillator synthesizing pure acoustic bell tones and 3-2-1 countdown ticks.', file: 'apps/web/src/lib/audio.ts' } },
+      { id: 51, label: 'lib/supabase.ts\n(Typed Client)', group: 'backend', shape: 'box', level: 5, info: { title: 'lib/supabase.ts', type: 'Database Client', desc: 'SupabaseClient typed with Database schema from @brewlog/supabase and .env credentials.', file: 'apps/web/src/lib/supabase.ts' } },
+      { id: 52, label: 'PostgreSQL Cloud DB\n(Row Level Security)', group: 'cloud', shape: 'database', level: 6, info: { title: 'PostgreSQL Database', type: 'Cloud Backend', desc: 'Supabase PostgreSQL database storing profiles, beans, equipment, recipes, stages, and tasting_logs with RLS.', file: 'packages/supabase/migrations/003_add_bean_resting_and_freezer_columns.sql' } },
     ]);
 
     const edges = new vis.DataSet([
-      // App Tree & Router
+      // Web App Tree & Router
       { from: 1, to: 2, arrows: 'to' },
       { from: 2, to: 3, arrows: 'to' },
       { from: 2, to: 8, arrows: 'to', label: '<RootLayout />' },
@@ -239,7 +261,7 @@
       { from: 4, to: 5, arrows: 'to' },
       { from: 8, to: 6, arrows: 'to' },
 
-      // Declarative Routes
+      // Web Declarative Routes
       { from: 8, to: 10, arrows: 'to', label: '/timer' },
       { from: 8, to: 11, arrows: 'to', label: '/stash' },
       { from: 8, to: 12, arrows: 'to', label: '/recipes' },
@@ -247,16 +269,47 @@
       { from: 8, to: 14, arrows: 'to', label: '/cupping' },
       { from: 8, to: 9, arrows: 'to', label: '* (404)' },
 
-      // Sub-Components
+      // Web Sub-Components
       { from: 10, to: 21, arrows: 'to' },
       { from: 14, to: 21, arrows: 'to' },
       { from: 14, to: 20, arrows: 'to' },
 
-      // Layout Shell to Data Hooks
+      // Web Layout Shell to Data Hooks
       { from: 8, to: 30, arrows: 'to' },
       { from: 8, to: 31, arrows: 'to' },
       { from: 8, to: 32, arrows: 'to' },
       { from: 10, to: 50, arrows: 'to' },
+
+      // Mobile Root Stack to Providers & Shell
+      { from: 100, to: 101, arrows: 'to', label: '<AuthProvider>' },
+      { from: 100, to: 102, arrows: 'to', label: '<RecipeProvider>' },
+      { from: 100, to: 103, arrows: 'to', label: '<StashProvider>' },
+      { from: 100, to: 104, arrows: 'to', label: '<Tabs />' },
+      { from: 100, to: 108, arrows: 'to', label: 'app/stash/[id]' },
+      { from: 100, to: 109, arrows: 'to', label: 'app/stash/modal' },
+
+      // Mobile Tabs to Screens
+      { from: 104, to: 105, arrows: 'to', label: 'tab: timer' },
+      { from: 104, to: 106, arrows: 'to', label: 'tab: stash' },
+      { from: 104, to: 107, arrows: 'to', label: 'tab: recipes' },
+
+      // Mobile Sub-Components & Screens
+      { from: 106, to: 110, arrows: 'to' },
+      { from: 106, to: 111, arrows: 'to' },
+      { from: 105, to: 112, arrows: 'to' },
+      { from: 105, to: 103, arrows: 'to', label: 'Deduct Dose' },
+      { from: 108, to: 103, arrows: 'to', label: 'Archive/Freeze/Brew' },
+      { from: 109, to: 103, arrows: 'to', label: 'Save Bean' },
+
+      // Domain Utilities to Screens & Cards
+      { from: 108, to: 113, dashes: true, arrows: 'to' },
+      { from: 110, to: 113, dashes: true, arrows: 'to' },
+      { from: 113, to: 43, dashes: true, arrows: 'to' },
+
+      // Mobile Storage & Cloud Sync
+      { from: 103, to: 114, arrows: 'to', label: 'Offline Cache' },
+      { from: 103, to: 51, arrows: 'to', label: 'Supabase Sync' },
+      { from: 103, to: 43, dashes: true, arrows: 'to' },
 
       // Hooks to Supabase Client
       { from: 30, to: 51, arrows: 'to' },

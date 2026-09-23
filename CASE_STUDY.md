@@ -23,6 +23,9 @@ Interactive timers leverage performance timing APIs combined with synthesized We
 ### 5. Declarative Client-Side Routing & Master-Detail Architecture
 `@brewlog/web` employs React Router v8 library mode for deep-linkable URLs and browser history traversal while avoiding Node runtime overhead. A persistent `<RootLayout>` shell with `<Outlet />` ensures authentication modals and shared application state persist across route transitions, while nested child routes (`/recipes/:recipeId`) power responsive master-detail layouts across desktop and mobile breakpoints.
 
+### 6. Offline-First Stash Inventory & Biochemical Resting Engine
+Mobile baristas manage roasted bean cellar inventory with instant local responsiveness via `@brewlog/mobile:stash_cache`. A pure mathematical resting engine calculates roast freshness curves and pauses degradation during deep-freeze vault storage, seamlessly bridging into the active brew timer for one-tap dose deduction upon extraction completion.
+
 ---
 
 ## 📈 Learning Roadmap & Architecture Decision Records
@@ -30,4 +33,5 @@ Interactive timers leverage performance timing APIs combined with synthesized We
 - [`docs/adr/002-database-choice-and-supabase-rls.md`](./docs/adr/002-database-choice-and-supabase-rls.md) — Database Choice & Supabase RLS
 - [`docs/adr/003-supabase-typescript-multiplatform-best-practices.md`](./docs/adr/003-supabase-typescript-multiplatform-best-practices.md) — Multi-Platform Supabase TypeScript Patterns
 - [`docs/adr/004-client-side-declarative-routing.md`](./docs/adr/004-client-side-declarative-routing.md) — Declarative Routing via React Router v8
+- [`docs/adr/005-offline-stash-management-and-resting-engine.md`](./docs/adr/005-offline-stash-management-and-resting-engine.md) — Offline-First Stash Management & Resting Engine
 - [`docs/ROADMAP.md`](./docs/ROADMAP.md) — Macro Milestones & Technical Debt Tracker
