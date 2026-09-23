@@ -92,6 +92,13 @@ export default function RootLayout() {
                   headerTitleStyle: { fontWeight: '700' },
                 }}
               />
+              <Stack.Screen
+                name="stash/modal"
+                options={{
+                  presentation: 'modal',
+                  headerShown: false,
+                }}
+              />
             </Stack>
           </StashProvider>
         </RecipeProvider>
