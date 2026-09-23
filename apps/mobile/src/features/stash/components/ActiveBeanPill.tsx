@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Bean, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
-import { useStash } from '../StashContext';
+import { useOptionalStash } from '../StashContext';
 import { FONTS } from '../../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
@@ -15,19 +15,12 @@ export const ActiveBeanPill: React.FC<ActiveBeanPillProps> = ({
   bean: propBean,
   onDetach: propOnDetach,
 }) => {
-  let contextBean: Bean | null = null;
-  let contextDetach: (() => void) | undefined;
-
-  try {
-    const stash = useStash();
-    contextBean = stash.activeBrewBean;
-    contextDetach = () => stash.setActiveBrewBean(null);
-  } catch {
-    // Gracefully handle renders outside StashProvider
-  }
-
-  const bean = propBean !== undefined ? propBean : contextBean;
-  const handleDetach = propOnDetach ?? contextDetach ?? (() => {});
+  const stash = useOptionalStash();
+  const bean = propBean !== undefined ? propBean : stash?.activeBrewBean ?? null;
+  const handleDetach =
+    propOnDetach !== undefined
+      ? propOnDetach
+      : () => stash?.setActiveBrewBean(null);
 
   if (!bean) return null;
 
@@ -90,9 +83,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     marginRight: 4,
-  },
-  emoji: {
-    fontSize: 14,
   },
   textContainer: {
     flex: 1,

@@ -420,6 +420,10 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   return <StashContext.Provider value={value}>{children}</StashContext.Provider>;
 };
 
+export const useOptionalStash = (): StashContextValue | null => {
+  return useContext(StashContext);
+};
+
 export const useStash = (): StashContextValue => {
   const context = useContext(StashContext);
   if (!context) {

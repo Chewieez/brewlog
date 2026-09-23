@@ -160,14 +160,6 @@ const fireEvent = {
 };
 
 describe('Timer & Stash Integration', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  afterEach(() => {
-    cleanup();
-  });
-
   const activeBean: Bean = {
     id: 'bean-1',
     roaster: 'Sey',
@@ -182,7 +174,7 @@ describe('Timer & Stash Integration', () => {
     activeBeans: [activeBean],
     frozenBeans: [],
     archivedBeans: [],
-    activeBrewBean: activeBean,
+    activeBrewBean: { ...activeBean },
     loading: false,
     addBean: vi.fn(),
     updateBean: vi.fn(),
@@ -192,9 +184,25 @@ describe('Timer & Stash Integration', () => {
     archiveBean: vi.fn(),
     unarchiveBean: vi.fn(),
     setActiveBrewBean: vi.fn(),
-    deductBeanDose: vi.fn().mockResolvedValue(undefined),
+    deductBeanDose: vi.fn().mockImplementation(async (id: string, dose: number) => {
+      if (mockStash.activeBrewBean && mockStash.activeBrewBean.id === id) {
+        mockStash.activeBrewBean = {
+          ...mockStash.activeBrewBean,
+          remainingGrams: Math.max(0, (mockStash.activeBrewBean.remainingGrams ?? 0) - dose),
+        };
+      }
+    }),
     refreshBeans: vi.fn(),
   };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockStash.activeBrewBean = { ...activeBean };
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
 
   const mockRecipes: RecipeContextValue = {
     recipes: DEFAULT_PRESET_RECIPES,

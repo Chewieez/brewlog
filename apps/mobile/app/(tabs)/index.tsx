@@ -3,7 +3,7 @@ import { View, ScrollView, StyleSheet, Text, Pressable, Alert } from 'react-nati
 import { useRouter } from 'expo-router';
 import { Bean, INDUSTRIAL_PRECISION_THEME, DEFAULT_PRESET_RECIPES, rescaleRecipeDose } from '@brewlog/core';
 import { useRecipes } from '../../src/features/recipes/RecipeContext';
-import { useStash } from '../../src/features/stash/StashContext';
+import { useOptionalStash } from '../../src/features/stash/StashContext';
 import { ActiveBeanPill } from '../../src/features/stash/components/ActiveBeanPill';
 import { useMobileBrewTimer } from '../../src/hooks/useMobileBrewTimer';
 import { MethodPills } from '../../src/components/timer/MethodPills';
@@ -21,18 +21,10 @@ export default function TimerScreen() {
   const router = useRouter();
   const { activeTimerRecipe, activeTimerDose, setActiveTimerRecipe } = useRecipes();
 
-  let activeBrewBean: Bean | null = null;
-  let setActiveBrewBean: (bean: Bean | null) => void = () => {};
-  let deductBeanDose: (id: string, doseGrams: number) => Promise<void> = async () => {};
-
-  try {
-    const stash = useStash();
-    activeBrewBean = stash.activeBrewBean;
-    setActiveBrewBean = stash.setActiveBrewBean;
-    deductBeanDose = stash.deductBeanDose;
-  } catch {
-    // Gracefully handle renders outside StashProvider in unit tests
-  }
+  const stash = useOptionalStash();
+  const activeBrewBean = stash?.activeBrewBean ?? null;
+  const setActiveBrewBean = stash?.setActiveBrewBean ?? (() => {});
+  const deductBeanDose = stash?.deductBeanDose ?? (async () => {});
 
   const [isDeducted, setIsDeducted] = React.useState<boolean>(false);
   const [isDeducting, setIsDeducting] = React.useState<boolean>(false);
@@ -67,8 +59,6 @@ export default function TimerScreen() {
       ? activeBrewBean.remainingGrams
       : activeBrewBean.bagWeightGrams ?? 0
     : 0;
-
-  const remainingAfterDeduction = Math.max(0, currentBeanRemaining - activeTimerDose);
 
   const handleDeductDose = async () => {
     if (!activeBrewBean || isDeducted || isDeducting) return;
@@ -199,7 +189,7 @@ export default function TimerScreen() {
               ) : (
                 <View style={styles.deductedBanner}>
                   <Text style={styles.deductedText}>
-                    ✓ DEDUCTED {activeTimerDose}g • Updated: {remainingAfterDeduction}g left
+                    ✓ DEDUCTED {activeTimerDose}g • Updated: {currentBeanRemaining}g left
                   </Text>
                 </View>
               )}
