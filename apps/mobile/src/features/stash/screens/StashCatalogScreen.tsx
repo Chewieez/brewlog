@@ -311,7 +311,7 @@ export const StashCatalogScreen: React.FC = () => {
       </View>
 
       {/* Shelf Selector Segmented Pills */}
-      <View style={styles.shelfSelectorContainer}>
+      <View style={styles.shelfSelectorContainer} accessibilityRole="tablist">
         {SHELVES.map((shelf) => {
           const isSelected = activeShelf === shelf.id;
           return (

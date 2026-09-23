@@ -105,4 +105,48 @@ describe("beanMappers", () => {
     expect(insert.frozen_date).toBeNull();
     expect(insert.is_archived).toBe(false);
   });
+
+  it("strictly preserves remainingGrams === 0 in both domain and insert payloads", () => {
+    const row: BeanRow = {
+      id: "bean-zero",
+      user_id: "user-1",
+      roaster: "Sey",
+      name: "Empty Bag",
+      origin_country: null,
+      region: null,
+      farm: null,
+      variety: null,
+      altitude_meters: null,
+      process: null,
+      roast_level: null,
+      roast_date: null,
+      recommended_rest_days: null,
+      flavor_notes: [],
+      rating: null,
+      bag_weight_grams: 250,
+      remaining_grams: 0,
+      price: null,
+      is_favorite: false,
+      is_frozen: false,
+      frozen_date: null,
+      is_archived: true,
+      notes: null,
+      created_at: "2026-09-01T00:00:00Z",
+      updated_at: "2026-09-01T00:00:00Z",
+    };
+
+    const domain = mapBeanRowToDomain(row);
+    expect(domain.remainingGrams).toBe(0);
+
+    const bean: Omit<Bean, "id" | "createdAt"> = {
+      roaster: "Sey",
+      name: "Empty Bag",
+      bagWeightGrams: 250,
+      remainingGrams: 0,
+      flavorNotes: [],
+    };
+
+    const insert = mapBeanDomainToInsert(bean, "user-1");
+    expect(insert.remaining_grams).toBe(0);
+  });
 });

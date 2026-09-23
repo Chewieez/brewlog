@@ -21,7 +21,7 @@ export const BeanCard: React.FC<BeanCardProps> = ({
   onToggleFavorite,
 }) => {
   const restingInfo = calculateBeanRestingInfo(bean);
-  const remaining = bean.remainingGrams ?? 0;
+  const remaining = bean.remainingGrams ?? bean.bagWeightGrams ?? 0;
   const totalBag = bean.bagWeightGrams ?? remaining;
   const isLowWeight = bean.remainingGrams !== undefined && bean.remainingGrams < 40;
   const progressPercent =
@@ -60,6 +60,8 @@ export const BeanCard: React.FC<BeanCardProps> = ({
 
         <Pressable
           onPress={() => onToggleFavorite?.(bean)}
+          disabled={!onToggleFavorite}
+          accessibilityState={{ disabled: !onToggleFavorite }}
           style={({ pressed }) => [
             styles.favoriteButton,
             pressed && styles.buttonPressed,

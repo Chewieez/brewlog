@@ -279,12 +279,13 @@ describe('StashCatalogScreen', () => {
   };
 
   it('renders active cellar beans by default and switches to freezer vault', () => {
-    const { getByText, queryByText } = render(
+    const { getByText, queryByText, getByRole } = render(
       <StashContext.Provider value={mockValue}>
         <StashCatalogScreen />
       </StashContext.Provider>
     );
 
+    expect(getByRole('tablist')).toBeTruthy();
     expect(getByText('Worka')).toBeTruthy();
     expect(queryByText('Heza')).toBeNull();
 

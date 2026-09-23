@@ -41,6 +41,7 @@ vi.mock('react-native', () => ({
     onPress,
     accessibilityLabel,
     accessibilityRole,
+    accessibilityState,
     style,
     disabled,
     hitSlop,
@@ -167,5 +168,27 @@ describe('BeanCard', () => {
     );
 
     expect(getByText(/22g \/ 250g/)).toBeDefined();
+  });
+
+  it('renders unopened bag with undefined remainingGrams at full weight (100%)', () => {
+    const unopenedBean: Bean = {
+      ...bean,
+      remainingGrams: undefined,
+      bagWeightGrams: 250,
+    };
+    const { getByText } = render(
+      <BeanCard bean={unopenedBean} onPress={() => {}} onBrew={() => {}} onToggleFavorite={() => {}} />
+    );
+
+    expect(getByText('250g / 250g')).toBeDefined();
+  });
+
+  it('disables favorite button when onToggleFavorite is not provided', () => {
+    const { getByLabelText } = render(
+      <BeanCard bean={bean} onPress={() => {}} onBrew={() => {}} />
+    );
+
+    const favButton = getByLabelText('Add to favorites');
+    expect(favButton.getAttribute('aria-disabled')).toBe('true');
   });
 });

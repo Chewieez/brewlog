@@ -106,9 +106,12 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
   - `RecipeCard.tsx` — Individual recipe card with method badges, ratio summary, and selection/delete actions.
   - `MethodFilterTabs.tsx` — Reusable brew method filter buttons.
 
-### 🫘 Coffee Stash Deep-Linking (Phase 2B)
-- [ ] Implement Approach B (single component route with `useParams`) for `/stash/:beanId` to explore the alternative dynamic routing pattern.
-- [ ] Create dedicated bean detail view / modal route.
+### 🫘 Coffee Stash Deep-Linking (Phase 2B - Web Only `@brewlog/web`)
+> [!NOTE]
+> Coffee Stash deep-linking and dedicated screens are already fully implemented on mobile (`@brewlog/mobile`) via Expo Router routes `app/stash/[id].tsx` and `app/stash/modal.tsx`. The items below represent technical debt specific to the web client (`apps/web`).
+
+- [ ] *(Web Only)* Implement Approach B (single component route with `useParams`) for `/stash/:beanId` to explore the alternative dynamic routing pattern in `@brewlog/web`.
+- [ ] *(Web Only)* Create dedicated bean detail view / modal route on web.
 
 ---
 

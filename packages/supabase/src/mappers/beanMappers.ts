@@ -20,7 +20,10 @@ export const mapBeanRowToDomain = (b: BeanRow): Bean => ({
   bagWeightOz: b.bag_weight_grams
     ? Number((b.bag_weight_grams / 28.3495).toFixed(1))
     : undefined,
-  remainingGrams: b.remaining_grams ? Number(b.remaining_grams) : undefined,
+  remainingGrams:
+    b.remaining_grams !== null && b.remaining_grams !== undefined
+      ? Number(b.remaining_grams)
+      : undefined,
   price: b.price ? Number(b.price) : undefined,
   isFavorite: b.is_favorite,
   recommendedRestDays: b.recommended_rest_days ?? undefined,
@@ -48,7 +51,10 @@ export const mapBeanDomainToInsert = (
   roast_date: bean.roastDate || null,
   flavor_notes: bean.flavorNotes || [],
   bag_weight_grams: bean.bagWeightGrams || 340,
-  remaining_grams: bean.remainingGrams || bean.bagWeightGrams || 340,
+  remaining_grams:
+    bean.remainingGrams !== undefined
+      ? bean.remainingGrams
+      : (bean.bagWeightGrams ?? 340),
   price: bean.price || null,
   is_favorite: bean.isFavorite || false,
   recommended_rest_days: bean.recommendedRestDays ?? null,

@@ -175,6 +175,10 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
     ? bean.variety.join(', ')
     : bean.variety ?? '--';
 
+  const currentStageIndex = RESTING_STAGES.findIndex(
+    (stage) => stage.id === restingInfo.status
+  );
+
   return (
     <ScrollView
       style={styles.container}
@@ -314,14 +318,15 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
 
         {/* 4-Stage Segmented Curve */}
         <View style={styles.timelineCurveContainer}>
-          {RESTING_STAGES.map((stage, idx) => {
+          {RESTING_STAGES.map((stage, stageIndex) => {
             const isCurrent = restingInfo.status === stage.id;
+            const isHighlighted = stageIndex <= currentStageIndex;
             return (
               <View key={stage.id} style={styles.timelineStageSegment}>
                 <View
                   style={[
                     styles.timelineSegmentBar,
-                    isCurrent
+                    isHighlighted
                       ? { backgroundColor: restingInfo.badgeColor }
                       : styles.timelineSegmentBarInactive,
                   ]}
