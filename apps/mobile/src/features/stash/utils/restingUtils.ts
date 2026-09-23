@@ -73,25 +73,25 @@ export function calculateBeanRestingInfo(
   if (effectiveDays < restDays) {
     status = 'resting';
     stageLabel = 'Needs Rest (De-gassing)';
-    badgeColor = colors.statusWarning || '#eab308';
+    badgeColor = colors.statusWarning;
   } else if (effectiveDays <= restDays + 25) {
     status = 'peak';
     stageLabel = 'Peak Flavor Window';
-    badgeColor = colors.statusSuccess || '#22c55e';
+    badgeColor = colors.statusSuccess;
   } else if (effectiveDays <= restDays + 55) {
     status = 'aging';
     stageLabel = 'Good (Drink Soon)';
-    badgeColor = colors.accent || '#f97316';
+    badgeColor = colors.accent;
   } else {
     status = 'past-peak';
     stageLabel = 'Past Peak';
-    badgeColor = colors.textMuted || '#94a3b8';
+    badgeColor = colors.textMuted;
   }
 
   let badgeLabel = '';
   if (isFrozen) {
     badgeLabel = `❄️ Frozen at Day ${effectiveDays} (${status === 'peak' ? 'Peak Window' : stageLabel})`;
-    badgeColor = '#38bdf8'; // Ice Cyan
+    badgeColor = colors.statusInfo;
   } else {
     if (status === 'resting') {
       badgeLabel = `Needs Rest • Day ${effectiveDays} of ${restDays}`;

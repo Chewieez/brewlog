@@ -476,4 +476,40 @@ describe('BeanModalScreen', () => {
       );
     });
   });
+
+  it('rejects negative bag weight during validation', async () => {
+    const { getByPlaceholderText, getAllByPlaceholderText, getByText } = render(
+      <StashContext.Provider value={mockContext}>
+        <BeanModalScreen />
+      </StashContext.Provider>
+    );
+
+    fireEvent.changeText(getByPlaceholderText('e.g. Sey'), 'Sey');
+    fireEvent.changeText(getByPlaceholderText('e.g. Worka Sakaro'), 'Worka');
+    const [bagWeightInput] = getAllByPlaceholderText('250');
+    fireEvent.changeText(bagWeightInput, '-250');
+
+    fireEvent.press(getByText('SAVE BAG'));
+
+    expect(getByText('Bag weight cannot be negative')).toBeTruthy();
+    expect(mockContext.addBean).not.toHaveBeenCalled();
+  });
+
+  it('rejects negative remaining weight during validation', async () => {
+    const { getByPlaceholderText, getAllByPlaceholderText, getByText } = render(
+      <StashContext.Provider value={mockContext}>
+        <BeanModalScreen />
+      </StashContext.Provider>
+    );
+
+    fireEvent.changeText(getByPlaceholderText('e.g. Sey'), 'Sey');
+    fireEvent.changeText(getByPlaceholderText('e.g. Worka Sakaro'), 'Worka');
+    const [, remainingWeightInput] = getAllByPlaceholderText('250');
+    fireEvent.changeText(remainingWeightInput, '-15');
+
+    fireEvent.press(getByText('SAVE BAG'));
+
+    expect(getByText('Remaining weight cannot be negative')).toBeTruthy();
+    expect(mockContext.addBean).not.toHaveBeenCalled();
+  });
 });

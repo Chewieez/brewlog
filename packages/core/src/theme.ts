@@ -12,6 +12,7 @@ export interface ThemeColors {
   statusSuccess: string;
   statusWarning: string;
   statusError: string;
+  statusInfo: string;
 }
 
 export interface ThemeTokens {
@@ -39,6 +40,7 @@ export const INDUSTRIAL_PRECISION_THEME: ThemeTokens = {
     statusSuccess: '#22c55e',
     statusWarning: '#f59e0b',
     statusError: '#ef4444',
+    statusInfo: '#38bdf8',
   },
 };
 

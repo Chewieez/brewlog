@@ -15,14 +15,14 @@ Specialty coffee beans are perishable organic agricultural products that undergo
 We adopted an **Offline-First Inventory Architecture with a Pure Biochemical Resting Engine**:
 
 ### 1. Extended Domain Model & Database Schema Contract
-We expanded the core `Bean` model in `@brewlog/core` and Supabase PostgreSQL schema (`003_add_bean_resting_and_freezer_columns.sql`):
+We expanded the core `Bean` model in `@brewlog/core` and Supabase PostgreSQL schema (`003_add_bean_cellar_status.sql`):
 - `recommendedRestDays`: Optional integer denoting the roaster's recommended resting window prior to first brew.
 - `isFrozen`: Boolean flag indicating active storage in a freezer vault.
 - `frozenDate`: ISO 8601 string timestamp recording when the bag was placed into the freezer.
 - `isArchived`: Boolean flag moving finished or retired bags out of active cellar views.
 - `remainingGrams`: Explicit numeric mass remaining in the bag. Database mappers strictly evaluate `remaining_grams !== null && remaining_grams !== undefined` to ensure zero-gram empty bags (`remainingGrams: 0`) are accurately preserved without falsely reverting to original bag weight.
 
-### 2. Pure Resting Engine & Freezer Pause Math (`restingUtils.ts`)
+### 2. Pure Resting Engine & Freezer Pause Math (`apps/mobile/src/features/stash/utils/restingUtils.ts`)
 To ensure platform independence and deterministic behavior across web and mobile:
 - **Freezer Preservation Math**: When `isFrozen = true` and `frozenDate` is defined, the effective age of the coffee is frozen at the duration between roast date and freeze date:
   $$\text{effectiveDays} = \max\left(0, \left\lfloor \frac{\text{frozenDate} - \text{roastDate}}{86400000} \right\rfloor\right)$$

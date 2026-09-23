@@ -149,4 +149,61 @@ describe("beanMappers", () => {
     const insert = mapBeanDomainToInsert(bean, "user-1");
     expect(insert.remaining_grams).toBe(0);
   });
+
+  it("does not fabricate 340g when bagWeightGrams is undefined or zero", () => {
+    const beanWithoutWeight: Omit<Bean, "id" | "createdAt"> = {
+      roaster: "George Howell",
+      name: "Mamuto AB",
+      flavorNotes: ["Blackberry"],
+    };
+
+    const insertWithoutWeight = mapBeanDomainToInsert(beanWithoutWeight, "user-1");
+    expect(insertWithoutWeight.bag_weight_grams).toBeNull();
+    expect(insertWithoutWeight.remaining_grams).toBeNull();
+
+    const beanWithZeroWeight: Omit<Bean, "id" | "createdAt"> = {
+      roaster: "George Howell",
+      name: "Sample 0g",
+      bagWeightGrams: 0,
+      flavorNotes: [],
+    };
+
+    const insertWithZeroWeight = mapBeanDomainToInsert(beanWithZeroWeight, "user-1");
+    expect(insertWithZeroWeight.bag_weight_grams).toBe(0);
+    expect(insertWithZeroWeight.remaining_grams).toBe(0);
+  });
+
+  it("maps 0 bag_weight_grams correctly from row to domain without converting to undefined", () => {
+    const row: BeanRow = {
+      id: "bean-zero-bag",
+      user_id: "user-1",
+      roaster: "Sey",
+      name: "Zero Bag",
+      origin_country: null,
+      region: null,
+      farm: null,
+      variety: null,
+      altitude_meters: null,
+      process: null,
+      roast_level: null,
+      roast_date: null,
+      recommended_rest_days: null,
+      flavor_notes: [],
+      rating: null,
+      bag_weight_grams: 0,
+      remaining_grams: 0,
+      price: null,
+      is_favorite: false,
+      is_frozen: false,
+      frozen_date: null,
+      is_archived: false,
+      notes: null,
+      created_at: "2026-09-01T00:00:00Z",
+      updated_at: "2026-09-01T00:00:00Z",
+    };
+
+    const domain = mapBeanRowToDomain(row);
+    expect(domain.bagWeightGrams).toBe(0);
+    expect(domain.bagWeightOz).toBe(0);
+  });
 });

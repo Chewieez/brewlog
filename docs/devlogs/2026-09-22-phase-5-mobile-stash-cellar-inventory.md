@@ -17,7 +17,7 @@ Specialty whole-bean coffee is an organic, time-sensitive medium. After roasting
 Prior to Phase 5, the mobile app lacked whole-bean cellar inventory tracking, freshness calculators, and stash-to-timer handoffs. 
 
 Phase 5 establishes a robust, offline-first coffee bean lifecycle on native mobile:
-1. **Extended Domain & PostgreSQL Schema**: Expanded the `Bean` domain model and Supabase database (`003_add_bean_resting_and_freezer_columns.sql`) with `recommendedRestDays`, `isFrozen`, `frozenDate`, `isArchived`, and strict zero-weight persistence (`remainingGrams === 0`).
+1. **Extended Domain & PostgreSQL Schema**: Expanded the `Bean` domain model and Supabase database (`003_add_bean_cellar_status.sql`) with `recommendedRestDays`, `isFrozen`, `frozenDate`, `isArchived`, and strict zero-weight persistence (`remainingGrams === 0`).
 2. **Pure Domain Resting Engine (`restingUtils.ts`)**: Timezone-safe date arithmetic calculating days-off-roast, effective aging with freezer preservation pause math, and roaster-specific adaptive resting windows (`Needs Rest`, `Peak`, `Aging`, `Past Peak`, `Frozen`).
 3. **Offline-First State Management (`StashContext.tsx`)**: Local caching in `@react-native-async-storage/async-storage` (`@brewlog/mobile:stash_cache`) with zero-latency startup hydration, optimistic UI updates, three-way shelf partitioning (`activeBeans`, `frozenBeans`, `archivedBeans`), and resilient two-way Supabase cloud synchronization.
 4. **Cellar Presentation Components**: Industrial precision UI components including `BeanCard` (resting status badges, remaining weight progress bar, tactile favorite toggle, $\ge 44$pt touch targets) and `CellarSummaryBar` (aggregate bag counts, total cellared mass in grams/ounces, active roast profile counts).
@@ -44,13 +44,13 @@ apps/mobile/
 │   └── tabs/
 │       └── timerStashIntegration.test.tsx  # 6 unit tests for Timer and StashContext integration
 └── src/
-    ├── utils/
-    │   ├── restingUtils.ts                 # Pure days-off-roast, freezer pause, & resting curve math
-    │   └── restingUtils.test.ts            # 14 unit tests for resting states, boundaries & freezer pause
     └── features/
         └── stash/
             ├── StashContext.tsx            # Offline-first state manager & Supabase cloud synchronization
             ├── StashContext.test.tsx       # 11 unit tests (hydration, shelf partitioning, CRUD, sync)
+            ├── utils/
+            │   ├── restingUtils.ts         # Pure days-off-roast, freezer pause, & resting curve math
+            │   └── restingUtils.test.ts    # 14 unit tests for resting states, boundaries & freezer pause
             ├── components/
             │   ├── ActiveBeanPill.tsx      # Compact industrial pill above TimerHero with detach button
             │   ├── ActiveBeanPill.test.tsx # 4 unit tests
@@ -72,7 +72,7 @@ packages/
 │       └── types.ts                        # Expanded Bean interface (recommendedRestDays, isFrozen, etc.)
 └── supabase/
     ├── migrations/
-    │   └── 003_add_bean_resting_and_freezer_columns.sql # PostgreSQL schema expansion with RLS
+    │   └── 003_add_bean_cellar_status.sql  # PostgreSQL schema expansion with RLS
     └── src/
         ├── database.types.ts               # Updated BeanRow, BeanInsert, BeanUpdate types
         └── mappers/

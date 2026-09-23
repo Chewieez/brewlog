@@ -113,7 +113,7 @@ describe('calculateBeanRestingInfo', () => {
     expect(info.effectiveDays).toBe(12);
     expect(info.status).toBe('peak');
     expect(info.badgeLabel).toBe('❄️ Frozen at Day 12 (Peak Window)');
-    expect(info.badgeColor).toBe('#38bdf8');
+    expect(info.badgeColor).toBe(INDUSTRIAL_PRECISION_THEME.colors.statusInfo);
   });
 
   it('handles frozen beans frozen at non-peak stages', () => {
@@ -131,7 +131,7 @@ describe('calculateBeanRestingInfo', () => {
     expect(restingInfo.effectiveDays).toBe(2);
     expect(restingInfo.status).toBe('resting');
     expect(restingInfo.badgeLabel).toBe('❄️ Frozen at Day 2 (Needs Rest (De-gassing))');
-    expect(restingInfo.badgeColor).toBe('#38bdf8');
+    expect(restingInfo.badgeColor).toBe(INDUSTRIAL_PRECISION_THEME.colors.statusInfo);
 
     // Frozen during aging stage
     const frozenAgingBean: Bean = {

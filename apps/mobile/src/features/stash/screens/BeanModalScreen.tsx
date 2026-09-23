@@ -202,10 +202,30 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
 
     setErrorMessage(null);
 
-    const parsedBagWeight = bagWeightText.trim() ? parseFloat(bagWeightText) : undefined;
-    const parsedRemaining = remainingWeightText.trim()
+    const rawBagWeight = bagWeightText.trim() ? parseFloat(bagWeightText) : undefined;
+    if (rawBagWeight !== undefined && !isNaN(rawBagWeight) && rawBagWeight < 0) {
+      setErrorMessage('Bag weight cannot be negative');
+      return;
+    }
+
+    const rawRemaining = remainingWeightText.trim()
       ? parseFloat(remainingWeightText)
-      : parsedBagWeight;
+      : undefined;
+    if (rawRemaining !== undefined && !isNaN(rawRemaining) && rawRemaining < 0) {
+      setErrorMessage('Remaining weight cannot be negative');
+      return;
+    }
+
+    const parsedBagWeight =
+      rawBagWeight !== undefined && !isNaN(rawBagWeight)
+        ? Math.max(0, rawBagWeight)
+        : undefined;
+
+    const parsedRemaining =
+      rawRemaining !== undefined && !isNaN(rawRemaining)
+        ? Math.max(0, rawRemaining)
+        : parsedBagWeight;
+
     const parsedAltitude = altitudeText.trim() ? parseInt(altitudeText, 10) : undefined;
     const parsedPrice = priceText.trim() ? parseFloat(priceText) : undefined;
     const parsedRestDays = restDaysText.trim() ? parseInt(restDaysText, 10) : 5;
@@ -231,16 +251,18 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
       process: processMethod,
       roastLevel,
       roastDate: normalizeRoastDate(roastDate),
-      recommendedRestDays: isNaN(parsedRestDays) ? 5 : parsedRestDays,
-      bagWeightGrams: isNaN(parsedBagWeight ?? NaN) ? undefined : parsedBagWeight,
-      remainingGrams: isNaN(parsedRemaining ?? NaN) ? undefined : parsedRemaining,
+      recommendedRestDays: isNaN(parsedRestDays) ? 5 : Math.max(0, parsedRestDays),
+      bagWeightGrams: parsedBagWeight,
+      remainingGrams: parsedRemaining,
       isFrozen,
       frozenDate: isFrozen
         ? sourceBean?.frozenDate || new Date().toISOString().split('T')[0]
         : undefined,
       flavorNotes: flavors,
-      notes: notes.trim() || undefined,
-      price: isNaN(parsedPrice ?? NaN) ? undefined : parsedPrice,
+      price:
+        parsedPrice !== undefined && !isNaN(parsedPrice)
+          ? Math.max(0, parsedPrice)
+          : undefined,
     };
 
     try {
