@@ -5,11 +5,12 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  useRef,
   ReactNode,
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Bean } from '@brewlog/core';
-import { mapBeanRowToDomain, mapBeanDomainToInsert } from '@brewlog/supabase';
+import { BeanRow, mapBeanRowToDomain, mapBeanDomainToInsert } from '@brewlog/supabase';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/AuthContext';
 
@@ -21,6 +22,8 @@ export type AddBeanInput = Omit<Bean, 'id' | 'createdAt' | 'flavorNotes'> & {
   createdAt?: string;
 };
 
+export type BeanUpdater = Partial<Bean> | ((prev: Bean) => Partial<Bean>);
+
 export interface StashContextValue {
   beans: Bean[];
   activeBeans: Bean[];
@@ -29,7 +32,7 @@ export interface StashContextValue {
   activeBrewBean: Bean | null;
   loading: boolean;
   addBean: (bean: AddBeanInput) => Promise<Bean>;
-  updateBean: (id: string, updates: Partial<Bean>) => Promise<Bean>;
+  updateBean: (id: string, updates: BeanUpdater) => Promise<Bean>;
   deleteBean: (id: string) => Promise<void>;
   toggleFavorite: (id: string) => Promise<void>;
   toggleFrozen: (id: string) => Promise<void>;
@@ -81,19 +84,33 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [beans, setBeans] = useState<Bean[]>([]);
   const [activeBrewBean, setActiveBrewBeanState] = useState<Bean | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const isHydrated = useRef<boolean>(false);
+  const beansRef = useRef<Bean[]>([]);
+
+  useEffect(() => {
+    beansRef.current = beans;
+  }, [beans]);
 
   const fetchBeans = useCallback(async () => {
-    setLoading(true);
+    if (!isHydrated.current) {
+      setLoading(true);
+    }
     try {
       const local = await loadCachedBeans();
+      beansRef.current = local;
       setBeans(local);
+      if (!isHydrated.current) {
+        isHydrated.current = true;
+        setLoading(false);
+      }
 
       if (!supabase || !user) {
         return;
       }
 
-      // Auto-sync unsynced local beans (where userId is missing or does not match current user)
-      const unsynced = local.filter((b) => !b.userId || b.userId !== user.id);
+      // Auto-sync genuinely unsynced offline beans (!b.userId).
+      // Beans with existing b.userId belong to previously synced cloud accounts and must not be re-uploaded.
+      const unsynced = local.filter((b) => !b.userId);
       const syncedIds = new Set<string>();
 
       if (unsynced.length > 0) {
@@ -125,12 +142,14 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         .order('created_at', { ascending: false });
 
       if (!error && data) {
-        const mapped: Bean[] = data.map((row: any) => mapBeanRowToDomain(row));
-        const mappedIds = new Set(mapped.map((b) => b.id));
+        const mapped: Bean[] = (data as BeanRow[]).map(mapBeanRowToDomain);
+        // Only preserve genuinely unsynced offline beans (!b.userId) that failed to sync.
+        // Previously synced beans (with a userId) missing from cloud were deleted on remote; do not resurrect them.
         const remainingUnsynced = local.filter(
-          (b) => !mappedIds.has(b.id) && !syncedIds.has(b.id)
+          (b) => !b.userId && !syncedIds.has(b.id)
         );
         const merged = [...remainingUnsynced, ...mapped];
+        beansRef.current = merged;
         setBeans(merged);
         await persistCachedBeans(merged);
       }
@@ -173,11 +192,13 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         userId: user ? user.id : undefined,
       };
 
+      // Optimistic immediate UI response: update state and AsyncStorage before awaiting Supabase
+      const nextBeans = [fallback, ...beansRef.current.filter((b) => b.id !== fallback.id)];
+      beansRef.current = nextBeans;
+      setBeans((prev) => [fallback, ...prev.filter((b) => b.id !== fallback.id)]);
+      await persistCachedBeans(nextBeans);
+
       if (!supabase || !user) {
-        fallback.userId = undefined;
-        const nextBeans = [fallback, ...beans];
-        setBeans(nextBeans);
-        await persistCachedBeans(nextBeans);
         return fallback;
       }
 
@@ -194,45 +215,64 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
         if (beanError || !beanData) {
           console.error('addBean supabase error:', beanError);
-          fallback.userId = undefined;
-          const nextBeans = [fallback, ...beans];
-          setBeans(nextBeans);
-          await persistCachedBeans(nextBeans);
+          // Supabase failed: preserve local bean as unsynced (clear userId) for subsequent sync
+          beansRef.current = beansRef.current.map((b) =>
+            b.id === fallback.id ? { ...b, userId: undefined } : b
+          );
+          setBeans((prev) =>
+            prev.map((b) => (b.id === fallback.id ? { ...b, userId: undefined } : b))
+          );
+          await persistCachedBeans(beansRef.current);
           return fallback;
         }
 
-        const created = mapBeanRowToDomain(beanData);
-        const nextBeans = [created, ...beans.filter((b) => b.id !== fallback.id)];
-        setBeans(nextBeans);
-        await persistCachedBeans(nextBeans);
+        const created = mapBeanRowToDomain(beanData as BeanRow);
+        beansRef.current = beansRef.current.map((b) =>
+          b.id === fallback.id ? created : b
+        );
+        setBeans((prev) =>
+          prev.map((b) => (b.id === fallback.id ? created : b))
+        );
+        await persistCachedBeans(beansRef.current);
         return created;
       } catch (err) {
         console.error('addBean exception:', err);
-        fallback.userId = undefined;
-        const nextBeans = [fallback, ...beans];
-        setBeans(nextBeans);
-        await persistCachedBeans(nextBeans);
+        beansRef.current = beansRef.current.map((b) =>
+          b.id === fallback.id ? { ...b, userId: undefined } : b
+        );
+        setBeans((prev) =>
+          prev.map((b) => (b.id === fallback.id ? { ...b, userId: undefined } : b))
+        );
+        await persistCachedBeans(beansRef.current);
         return fallback;
       }
     },
-    [user, beans]
+    [user]
   );
 
   const updateBean = useCallback(
-    async (id: string, updates: Partial<Bean>): Promise<Bean> => {
-      const existing = beans.find((b) => b.id === id);
+    async (id: string, updates: BeanUpdater): Promise<Bean> => {
+      const existing = beansRef.current.find((b) => b.id === id);
       if (!existing) {
         console.warn('Cannot find bean to update:', id);
         throw new Error(`Bean with id ${id} not found`);
       }
 
-      const updatedTarget: Bean = { ...existing, ...updates };
-      const nextBeans = beans.map((item) => (item.id === id ? updatedTarget : item));
-      setBeans(nextBeans);
-      if (activeBrewBean?.id === id) {
-        setActiveBrewBeanState(updatedTarget);
-      }
-      await persistCachedBeans(nextBeans);
+      const resolved =
+        typeof updates === 'function' ? updates(existing) : updates;
+      const updatedTarget: Bean = { ...existing, ...resolved };
+      const nextBeansList = beansRef.current.map((item) =>
+        item.id === id ? updatedTarget : item
+      );
+      beansRef.current = nextBeansList;
+      setBeans((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, ...resolved } : item))
+      );
+
+      setActiveBrewBeanState((prevActive) =>
+        prevActive?.id === id ? updatedTarget : prevActive
+      );
+      await persistCachedBeans(nextBeansList);
 
       if (supabase && user && updatedTarget.userId === user.id) {
         try {
@@ -245,20 +285,22 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
       return updatedTarget;
     },
-    [user, beans, activeBrewBean]
+    [user]
   );
 
   const deleteBean = useCallback(
     async (id: string): Promise<void> => {
-      const existing = beans.find((b) => b.id === id);
-      const nextBeans = beans.filter((b) => b.id !== id);
-      setBeans(nextBeans);
-      if (activeBrewBean?.id === id) {
-        setActiveBrewBeanState(null);
-      }
-      await persistCachedBeans(nextBeans);
+      const targetBean = beansRef.current.find((b) => b.id === id);
+      const nextBeansList = beansRef.current.filter((b) => b.id !== id);
+      beansRef.current = nextBeansList;
+      setBeans((prev) => prev.filter((b) => b.id !== id));
 
-      if (supabase && user && existing?.userId === user.id) {
+      setActiveBrewBeanState((prevActive) =>
+        prevActive?.id === id ? null : prevActive
+      );
+      await persistCachedBeans(nextBeansList);
+
+      if (supabase && user && targetBean?.userId === user.id) {
         try {
           await supabase.from('beans').delete().eq('id', id);
         } catch (err) {
@@ -266,29 +308,27 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
       }
     },
-    [user, beans, activeBrewBean]
+    [user]
   );
 
   const toggleFavorite = useCallback(
     async (id: string): Promise<void> => {
-      const existing = beans.find((b) => b.id === id);
-      if (!existing) return;
-      await updateBean(id, { isFavorite: !existing.isFavorite });
+      await updateBean(id, (existing) => ({ isFavorite: !existing.isFavorite }));
     },
-    [beans, updateBean]
+    [updateBean]
   );
 
   const toggleFrozen = useCallback(
     async (id: string): Promise<void> => {
-      const existing = beans.find((b) => b.id === id);
-      if (!existing) return;
-      const nextFrozen = !existing.isFrozen;
-      const frozenDate = nextFrozen
-        ? new Date().toISOString().split('T')[0]
-        : undefined;
-      await updateBean(id, { isFrozen: nextFrozen, frozenDate });
+      await updateBean(id, (existing) => {
+        const nextFrozen = !existing.isFrozen;
+        const frozenDate = nextFrozen
+          ? new Date().toISOString().split('T')[0]
+          : undefined;
+        return { isFrozen: nextFrozen, frozenDate };
+      });
     },
-    [beans, updateBean]
+    [updateBean]
   );
 
   const archiveBean = useCallback(
@@ -307,19 +347,16 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const deductBeanDose = useCallback(
     async (id: string, doseGrams: number): Promise<void> => {
-      const existing = beans.find((b) => b.id === id);
-      if (!existing) {
-        console.warn('Cannot find bean for deductBeanDose:', id);
-        return;
-      }
-      const currentRemaining =
-        existing.remainingGrams !== undefined
-          ? existing.remainingGrams
-          : existing.bagWeightGrams || 0;
-      const remainingGrams = Math.max(0, currentRemaining - doseGrams);
-      await updateBean(id, { remainingGrams });
+      await updateBean(id, (existing) => {
+        const currentRemaining =
+          existing.remainingGrams !== undefined
+            ? existing.remainingGrams
+            : existing.bagWeightGrams || 0;
+        const remainingGrams = Math.max(0, currentRemaining - doseGrams);
+        return { remainingGrams };
+      });
     },
-    [beans, updateBean]
+    [updateBean]
   );
 
   const setActiveBrewBean = useCallback((bean: Bean | null) => {

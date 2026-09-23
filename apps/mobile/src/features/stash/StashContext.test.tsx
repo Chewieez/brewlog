@@ -6,8 +6,13 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { StashProvider, useStash } from './StashContext';
 import { Bean } from '@brewlog/core';
 
-const mockUser: any = { id: 'test-user-uuid', email: 'barista@brewlog.dev' };
-let mockAuthUser: any = null;
+interface TestUser {
+  id: string;
+  email: string;
+}
+
+const mockUser: TestUser = { id: 'test-user-uuid', email: 'barista@brewlog.dev' };
+let mockAuthUser: TestUser | null = null;
 
 vi.mock('../auth/AuthContext', () => ({
   useAuth: () => ({
@@ -20,7 +25,7 @@ vi.mock('../auth/AuthContext', () => ({
 const mockSupabaseFrom = vi.fn();
 vi.mock('../../lib/supabase', () => ({
   supabase: {
-    from: (...args: any[]) => mockSupabaseFrom(...args),
+    from: (...args: unknown[]) => mockSupabaseFrom(...args),
   },
 }));
 
@@ -78,6 +83,76 @@ describe('StashContext', () => {
 
     const stored = await AsyncStorage.getItem('@brewlog/mobile:stash_cache');
     expect(stored).toContain('Divisoria');
+  });
+
+  it('provides optimistic immediate UI response when adding a bean while authenticated', async () => {
+    mockAuthUser = mockUser;
+
+    let resolveInsert: (value: unknown) => void = () => {};
+    const insertPromise = new Promise((resolve) => {
+      resolveInsert = resolve;
+    });
+
+    const mockInsert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockReturnValue(insertPromise),
+      }),
+    });
+
+    mockSupabaseFrom.mockImplementation((table: unknown) => {
+      if (table === 'beans') {
+        return {
+          insert: mockInsert,
+          select: vi.fn().mockReturnValue({ order: vi.fn().mockResolvedValue({ data: [], error: null }) }),
+        };
+      }
+      return {};
+    });
+
+    const { result } = renderHook(() => useStash(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // Call addBean without waiting for Supabase promise to resolve yet
+    let addPromise: Promise<Bean>;
+    act(() => {
+      addPromise = result.current.addBean({
+        roaster: 'Tim Wendelboe',
+        name: 'Caballero Geisha',
+        flavorNotes: ['Floral'],
+        bagWeightGrams: 250,
+      });
+    });
+
+    // Optimistic UI state must be populated immediately before Supabase responds!
+    expect(result.current.beans).toHaveLength(1);
+    expect(result.current.beans[0].name).toBe('Caballero Geisha');
+    expect(result.current.activeBeans).toHaveLength(1);
+
+    const storedImmediate = await AsyncStorage.getItem('@brewlog/mobile:stash_cache');
+    expect(storedImmediate).toContain('Caballero Geisha');
+
+    // Now resolve the Supabase insertion
+    await act(async () => {
+      resolveInsert({
+        data: {
+          id: result.current.beans[0].id,
+          user_id: mockUser.id,
+          roaster: 'Tim Wendelboe',
+          name: 'Caballero Geisha',
+          flavor_notes: ['Floral'],
+          bag_weight_grams: 250,
+          remaining_grams: 250,
+          is_favorite: false,
+          is_frozen: false,
+          is_archived: false,
+          created_at: new Date().toISOString(),
+        },
+        error: null,
+      });
+      await addPromise;
+    });
+
+    expect(result.current.beans[0].userId).toBe(mockUser.id);
   });
 
   it('toggles frozen vault status and updates frozenDate', async () => {
@@ -347,7 +422,7 @@ describe('StashContext', () => {
 
     const mockSelect = vi.fn().mockReturnValue({ order: mockOrder });
 
-    mockSupabaseFrom.mockImplementation((table: string) => {
+    mockSupabaseFrom.mockImplementation((table: unknown) => {
       if (table === 'beans') {
         return {
           insert: mockBeanInsert,
@@ -378,6 +453,124 @@ describe('StashContext', () => {
     expect(stored).toBeTruthy();
     const parsed = JSON.parse(stored!);
     expect(parsed).toHaveLength(2);
+  });
+
+  it('does not resurrect remotely deleted beans and prevents cross-user contamination', async () => {
+    mockAuthUser = mockUser;
+
+    // cachedPreviouslySynced was deleted on remote (not in mockOrder)
+    const cachedPreviouslySynced: Bean = {
+      id: 'synced-deleted-remote',
+      userId: mockUser.id,
+      roaster: 'Sey',
+      name: 'Remotely Deleted',
+      flavorNotes: [],
+      createdAt: new Date().toISOString(),
+    };
+
+    // otherUserBean belongs to a different user; should NOT be uploaded to mockUser
+    const otherUserBean: Bean = {
+      id: 'other-user-bean',
+      userId: 'different-user-uuid',
+      roaster: 'Heart',
+      name: 'Other User Coffee',
+      flavorNotes: [],
+      createdAt: new Date().toISOString(),
+    };
+
+    // genuinely offline bean without userId
+    const offlineBean: Bean = {
+      id: 'genuine-offline-bean',
+      roaster: 'Passenger',
+      name: 'Genuine Offline',
+      flavorNotes: [],
+      createdAt: new Date().toISOString(),
+    };
+
+    await AsyncStorage.setItem(
+      '@brewlog/mobile:stash_cache',
+      JSON.stringify([cachedPreviouslySynced, otherUserBean, offlineBean])
+    );
+
+    const mockInsert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: {
+            id: 'genuine-offline-bean',
+            user_id: mockUser.id,
+            roaster: 'Passenger',
+            name: 'Genuine Offline',
+            flavor_notes: [],
+            bag_weight_grams: 250,
+            remaining_grams: 250,
+            is_favorite: false,
+            is_frozen: false,
+            is_archived: false,
+            created_at: new Date().toISOString(),
+          },
+          error: null,
+        }),
+      }),
+    });
+
+    const mockOrder = vi.fn().mockResolvedValue({
+      data: [
+        {
+          id: 'genuine-offline-bean',
+          user_id: mockUser.id,
+          roaster: 'Passenger',
+          name: 'Genuine Offline',
+          flavor_notes: [],
+          bag_weight_grams: 250,
+          remaining_grams: 250,
+          is_favorite: false,
+          is_frozen: false,
+          is_archived: false,
+          created_at: new Date().toISOString(),
+        },
+      ],
+      error: null,
+    });
+
+    mockSupabaseFrom.mockImplementation((table: unknown) => {
+      if (table === 'beans') {
+        return {
+          insert: mockInsert,
+          select: vi.fn().mockReturnValue({ order: mockOrder }),
+        };
+      }
+      return {};
+    });
+
+    const { result } = renderHook(() => useStash(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // Only genuine-offline-bean should have been inserted, NOT otherUserBean!
+    expect(mockInsert).toHaveBeenCalledTimes(1);
+    expect(mockInsert).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Genuine Offline' })
+    );
+
+    // The remotely deleted bean and other user's bean must NOT be in state
+    expect(result.current.beans.some((b) => b.id === 'synced-deleted-remote')).toBe(false);
+    expect(result.current.beans.some((b) => b.id === 'other-user-bean')).toBe(false);
+    expect(result.current.beans).toHaveLength(1);
+    expect(result.current.beans[0].id).toBe('genuine-offline-bean');
+  });
+
+  it('does not re-trigger loading=true on background refresh if already hydrated', async () => {
+    const { result } = renderHook(() => useStash(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    let loadingDuringRefresh = false;
+    await act(async () => {
+      const refreshPromise = result.current.refreshBeans();
+      loadingDuringRefresh = result.current.loading;
+      await refreshPromise;
+    });
+
+    expect(loadingDuringRefresh).toBe(false);
+    expect(result.current.loading).toBe(false);
   });
 
   it('throws an error if useStash is called outside of StashProvider', () => {
