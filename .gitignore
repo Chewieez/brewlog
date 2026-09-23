@@ -45,3 +45,6 @@ handoffs/
 
 # Superpowers scratch
 .superpowers/
+
+# Git Worktrees
+.worktrees/
