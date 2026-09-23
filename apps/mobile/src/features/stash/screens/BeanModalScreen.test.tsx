@@ -3,7 +3,7 @@ import React from 'react';
 import { render, fireEvent as rtlFireEvent, cleanup, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Alert } from 'react-native';
-import { BeanModalScreen } from './BeanModalScreen';
+import { BeanModalScreen, normalizeRoastDate } from './BeanModalScreen';
 import { StashContextValue, StashContext } from '../StashContext';
 import { Bean } from '@brewlog/core';
 
@@ -16,6 +16,11 @@ vi.mock('../../../lib/supabase', () => ({
 
 vi.mock('../../auth/AuthContext', () => ({
   useAuth: () => ({ user: null }),
+}));
+
+vi.mock('react-native-safe-area-context', () => ({
+  SafeAreaView: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }));
 
 vi.mock('react-native', () => ({
@@ -249,7 +254,7 @@ describe('BeanModalScreen', () => {
       </StashContext.Provider>
     );
 
-    fireEvent.changeText(getByPlaceholderText('Roaster (e.g. Sey, Passenger)'), 'Sey');
+    fireEvent.changeText(getByPlaceholderText('e.g. Sey'), 'Sey');
     fireEvent.press(getByText('SAVE BAG'));
     expect(getByText('Coffee name is required')).toBeTruthy();
     expect(mockContext.addBean).not.toHaveBeenCalled();
@@ -262,9 +267,9 @@ describe('BeanModalScreen', () => {
       </StashContext.Provider>
     );
 
-    fireEvent.changeText(getByPlaceholderText('Roaster (e.g. Sey, Passenger)'), 'Sey');
-    fireEvent.changeText(getByPlaceholderText('Coffee Name (e.g. Worka Sakaro)'), 'Bantu');
-    fireEvent.changeText(getByPlaceholderText('5 (Standard)'), '14');
+    fireEvent.changeText(getByPlaceholderText('e.g. Sey'), 'Sey');
+    fireEvent.changeText(getByPlaceholderText('e.g. Worka Sakaro'), 'Bantu');
+    fireEvent.changeText(getByPlaceholderText('5'), '14');
 
     // Select 340g bag preset
     fireEvent.press(getByText('340g'));
@@ -291,8 +296,8 @@ describe('BeanModalScreen', () => {
       </StashContext.Provider>
     );
 
-    fireEvent.changeText(getByPlaceholderText('Roaster (e.g. Sey, Passenger)'), 'Passenger');
-    fireEvent.changeText(getByPlaceholderText('Coffee Name (e.g. Worka Sakaro)'), 'Divino');
+    fireEvent.changeText(getByPlaceholderText('e.g. Sey'), 'Passenger');
+    fireEvent.changeText(getByPlaceholderText('e.g. Worka Sakaro'), 'Divino');
 
     // Select Natural process and Medium roast
     fireEvent.press(getByText('Natural'));
@@ -319,8 +324,8 @@ describe('BeanModalScreen', () => {
       </StashContext.Provider>
     );
 
-    fireEvent.changeText(getByPlaceholderText('Roaster (e.g. Sey, Passenger)'), 'Onyx');
-    fireEvent.changeText(getByPlaceholderText('Coffee Name (e.g. Worka Sakaro)'), 'Southern Weather');
+    fireEvent.changeText(getByPlaceholderText('e.g. Sey'), 'Onyx');
+    fireEvent.changeText(getByPlaceholderText('e.g. Worka Sakaro'), 'Southern Weather');
 
     fireEvent.press(getByTestId('freezer-vault-toggle'));
     fireEvent.press(getByText('SAVE BAG'));
@@ -384,7 +389,7 @@ describe('BeanModalScreen', () => {
       </StashContext.Provider>
     );
 
-    fireEvent.changeText(getByPlaceholderText('Roaster (e.g. Sey, Passenger)'), 'Tim Wendelboe');
+    fireEvent.changeText(getByPlaceholderText('e.g. Sey'), 'Tim Wendelboe');
     fireEvent.press(getByLabelText('Cancel editing'));
 
     expect(alertSpy).toHaveBeenCalledWith(
@@ -428,5 +433,47 @@ describe('BeanModalScreen', () => {
     const presetButton = getByText('250g').closest('button');
     fireEvent.press(getByText('250g'));
     expect(presetButton?.getAttribute('aria-selected')).toBe('true');
+  });
+
+  describe('normalizeRoastDate', () => {
+    it('normalizes American MM-DD-YYYY and MM/DD/YYYY to ISO YYYY-MM-DD', () => {
+      expect(normalizeRoastDate('09-15-2026')).toBe('2026-09-15');
+      expect(normalizeRoastDate('9/5/2026')).toBe('2026-09-05');
+      expect(normalizeRoastDate('12/31/2025')).toBe('2025-12-31');
+    });
+
+    it('preserves and pads ISO YYYY-MM-DD and YYYY/MM/DD', () => {
+      expect(normalizeRoastDate('2026-09-15')).toBe('2026-09-15');
+      expect(normalizeRoastDate('2026/9/5')).toBe('2026-09-05');
+    });
+
+    it('returns undefined for empty strings', () => {
+      expect(normalizeRoastDate('')).toBeUndefined();
+      expect(normalizeRoastDate('   ')).toBeUndefined();
+    });
+  });
+
+  it('automatically normalizes American MM/DD/YYYY roast date on save', async () => {
+    const { getByPlaceholderText, getByText } = render(
+      <StashContext.Provider value={mockContext}>
+        <BeanModalScreen />
+      </StashContext.Provider>
+    );
+
+    fireEvent.changeText(getByPlaceholderText('e.g. Sey'), 'Sey');
+    fireEvent.changeText(getByPlaceholderText('e.g. Worka Sakaro'), 'Worka');
+    fireEvent.changeText(getByPlaceholderText('MM-DD-YYYY'), '09/15/2026');
+
+    fireEvent.press(getByText('SAVE BAG'));
+
+    await waitFor(() => {
+      expect(mockContext.addBean).toHaveBeenCalledWith(
+        expect.objectContaining({
+          roaster: 'Sey',
+          name: 'Worka',
+          roastDate: '2026-09-15',
+        })
+      );
+    });
   });
 });

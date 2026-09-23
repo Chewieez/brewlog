@@ -9,6 +9,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { X, Check, Snowflake } from 'lucide-react-native';
 import {
   Bean,
@@ -20,6 +21,31 @@ import { useStash, AddBeanInput } from '../StashContext';
 import { FONTS } from '../../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
+
+export function normalizeRoastDate(raw: string): string | undefined {
+  const trimmed = raw.trim();
+  if (!trimmed) return undefined;
+
+  // ISO: YYYY-MM-DD or YYYY/MM/DD
+  const isoMatch = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/.exec(trimmed);
+  if (isoMatch) {
+    const y = isoMatch[1];
+    const m = isoMatch[2].padStart(2, '0');
+    const d = isoMatch[3].padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  // American format: MM-DD-YYYY or MM/DD/YYYY
+  const usMatch = /^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/.exec(trimmed);
+  if (usMatch) {
+    const m = usMatch[1].padStart(2, '0');
+    const d = usMatch[2].padStart(2, '0');
+    const y = usMatch[3];
+    return `${y}-${m}-${d}`;
+  }
+
+  return trimmed;
+}
 
 export interface BeanModalScreenProps {
   beanId?: string;
@@ -204,7 +230,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
       altitudeMeters: isNaN(parsedAltitude ?? NaN) ? undefined : parsedAltitude,
       process: processMethod,
       roastLevel,
-      roastDate: roastDate.trim() || undefined,
+      roastDate: normalizeRoastDate(roastDate),
       recommendedRestDays: isNaN(parsedRestDays) ? 5 : parsedRestDays,
       bagWeightGrams: isNaN(parsedBagWeight ?? NaN) ? undefined : parsedBagWeight,
       remainingGrams: isNaN(parsedRemaining ?? NaN) ? undefined : parsedRemaining,
@@ -255,27 +281,30 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
 
   if (id && !sourceBean) {
     return (
-      <View style={styles.notFoundContainer}>
-        <Text style={styles.notFoundTitle}>Coffee Not Found</Text>
-        <Pressable
-          onPress={() => router.back()}
-          style={styles.backButton}
-          accessibilityRole="button"
-          accessibilityLabel="Go Back"
-        >
-          <Text style={styles.backButtonText}>Go Back</Text>
-        </Pressable>
-      </View>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <View style={styles.notFoundContainer}>
+          <Text style={styles.notFoundTitle}>Coffee Not Found</Text>
+          <Pressable
+            onPress={() => router.back()}
+            style={styles.backButton}
+            accessibilityRole="button"
+            accessibilityLabel="Go Back"
+          >
+            <Text style={styles.backButtonText}>Go Back</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-      automaticallyAdjustKeyboardInsets={true}
-    >
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets={true}
+      >
       {/* Header with Cancel / Save */}
       <View style={styles.navHeader}>
         <Pressable
@@ -318,8 +347,9 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
         <TextInput
           value={roaster}
           onChangeText={setRoaster}
-          placeholder="Roaster (e.g. Sey, Passenger)"
+          placeholder="e.g. Sey"
           placeholderTextColor={colors.textMuted}
+          numberOfLines={1}
           style={styles.textInput}
         />
 
@@ -327,8 +357,9 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
         <TextInput
           value={name}
           onChangeText={setName}
-          placeholder="Coffee Name (e.g. Worka Sakaro)"
+          placeholder="e.g. Worka Sakaro"
           placeholderTextColor={colors.textMuted}
+          numberOfLines={1}
           style={styles.textInput}
         />
       </View>
@@ -343,8 +374,9 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
             <TextInput
               value={originCountry}
               onChangeText={setOriginCountry}
-              placeholder="Origin Country (e.g. Ethiopia)"
+              placeholder="e.g. Ethiopia"
               placeholderTextColor={colors.textMuted}
+              numberOfLines={1}
               style={styles.textInput}
             />
           </View>
@@ -353,8 +385,9 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
             <TextInput
               value={region}
               onChangeText={setRegion}
-              placeholder="Region (e.g. Yirgacheffe)"
+              placeholder="e.g. Yirgacheffe"
               placeholderTextColor={colors.textMuted}
+              numberOfLines={1}
               style={styles.textInput}
             />
           </View>
@@ -364,8 +397,9 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
         <TextInput
           value={farm}
           onChangeText={setFarm}
-          placeholder="Farm / Mill (e.g. Finca El Paraiso)"
+          placeholder="e.g. Finca El Paraiso"
           placeholderTextColor={colors.textMuted}
+          numberOfLines={1}
           style={styles.textInput}
         />
 
@@ -375,8 +409,9 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
             <TextInput
               value={varietyText}
               onChangeText={setVarietyText}
-              placeholder="Variety (e.g. Gesha, Bourbon)"
+              placeholder="e.g. Gesha"
               placeholderTextColor={colors.textMuted}
+              numberOfLines={1}
               style={styles.textInput}
             />
           </View>
@@ -385,9 +420,10 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
             <TextInput
               value={altitudeText}
               onChangeText={setAltitudeText}
-              placeholder="Altitude (meters, e.g. 1950)"
+              placeholder="e.g. 1950"
               placeholderTextColor={colors.textMuted}
               keyboardType="numeric"
+              numberOfLines={1}
               style={styles.textInput}
             />
           </View>
@@ -466,12 +502,13 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
 
         <View style={styles.fieldRow}>
           <View style={styles.fieldHalf}>
-            <Text style={styles.fieldLabel}>ROAST DATE (YYYY-MM-DD)</Text>
+            <Text style={styles.fieldLabel}>ROAST DATE</Text>
             <TextInput
               value={roastDate}
               onChangeText={setRoastDate}
-              placeholder="YYYY-MM-DD"
+              placeholder="MM-DD-YYYY"
               placeholderTextColor={colors.textMuted}
+              numberOfLines={1}
               style={styles.textInput}
             />
           </View>
@@ -480,9 +517,10 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
             <TextInput
               value={restDaysText}
               onChangeText={setRestDaysText}
-              placeholder="5 (Standard)"
+              placeholder="5"
               placeholderTextColor={colors.textMuted}
               keyboardType="numeric"
+              numberOfLines={1}
               style={styles.textInput}
             />
           </View>
@@ -531,6 +569,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
               placeholder="250"
               placeholderTextColor={colors.textMuted}
               keyboardType="numeric"
+              numberOfLines={1}
               style={styles.textInput}
             />
           </View>
@@ -539,9 +578,10 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
             <TextInput
               value={remainingWeightText}
               onChangeText={setRemainingWeightText}
-              placeholder="Remaining (g)"
+              placeholder="250"
               placeholderTextColor={colors.textMuted}
               keyboardType="numeric"
+              numberOfLines={1}
               style={styles.textInput}
             />
           </View>
@@ -599,6 +639,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
           onChangeText={setFlavorNotesText}
           placeholder="e.g. Peach, Jasmine, Bergamot"
           placeholderTextColor={colors.textMuted}
+          numberOfLines={1}
           style={styles.textInput}
         />
 
@@ -609,6 +650,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
           placeholder="e.g. 24.00"
           placeholderTextColor={colors.textMuted}
           keyboardType="numeric"
+          numberOfLines={1}
           style={styles.textInput}
         />
 
@@ -624,10 +666,15 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
         />
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.canvas,
+  },
   container: {
     flex: 1,
     backgroundColor: colors.canvas,

@@ -9,6 +9,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   X,
   Check,
@@ -233,11 +234,12 @@ export const RecipeBuilderScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
       <View style={styles.navHeader}>
         <Pressable
           onPress={handleCancel}
@@ -277,6 +279,7 @@ export const RecipeBuilderScreen: React.FC = () => {
           onChangeText={setName}
           placeholder="e.g. My Morning V60"
           placeholderTextColor={colors.textMuted}
+          numberOfLines={1}
           style={styles.textInput}
         />
 
@@ -286,6 +289,7 @@ export const RecipeBuilderScreen: React.FC = () => {
           onChangeText={setAuthor}
           placeholder="e.g. James Hoffmann"
           placeholderTextColor={colors.textMuted}
+          numberOfLines={1}
           style={styles.textInput}
         />
 
@@ -394,6 +398,7 @@ export const RecipeBuilderScreen: React.FC = () => {
               onChangeText={setGrindSize}
               placeholder="e.g. Medium-Fine"
               placeholderTextColor={colors.textMuted}
+              numberOfLines={1}
               style={styles.textInput}
             />
           </View>
@@ -403,6 +408,7 @@ export const RecipeBuilderScreen: React.FC = () => {
               value={waterTempText}
               onChangeText={setWaterTempText}
               keyboardType="number-pad"
+              numberOfLines={1}
               style={styles.textInput}
             />
           </View>
@@ -455,8 +461,9 @@ export const RecipeBuilderScreen: React.FC = () => {
             <TextInput
               value={st.name}
               onChangeText={(val) => handleUpdateStage(idx, { name: val })}
-              placeholder="Stage name (e.g. Bloom)"
+              placeholder="e.g. Bloom"
               placeholderTextColor={colors.textMuted}
+              numberOfLines={1}
               style={styles.textInput}
             />
 
@@ -502,6 +509,7 @@ export const RecipeBuilderScreen: React.FC = () => {
                     handleUpdateStage(idx, { durationSeconds: parseInt(val, 10) || 0 })
                   }
                   keyboardType="number-pad"
+                  numberOfLines={1}
                   style={styles.textInput}
                 />
               </View>
@@ -513,6 +521,7 @@ export const RecipeBuilderScreen: React.FC = () => {
                     handleUpdateStage(idx, { targetWaterWeightGrams: parseFloat(val) || 0 })
                   }
                   keyboardType="decimal-pad"
+                  numberOfLines={1}
                   style={styles.textInput}
                 />
               </View>
@@ -521,8 +530,9 @@ export const RecipeBuilderScreen: React.FC = () => {
             <TextInput
               value={st.instruction}
               onChangeText={(val) => handleUpdateStage(idx, { instruction: val })}
-              placeholder="Pour instruction / technique..."
+              placeholder="Pour technique, notes..."
               placeholderTextColor={colors.textMuted}
+              numberOfLines={1}
               style={styles.textInput}
             />
           </View>
@@ -534,10 +544,15 @@ export const RecipeBuilderScreen: React.FC = () => {
         </Pressable>
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.canvas,
+  },
   container: {
     flex: 1,
     backgroundColor: colors.canvas,
