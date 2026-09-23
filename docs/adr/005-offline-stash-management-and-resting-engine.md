@@ -24,9 +24,9 @@ We expanded the core `Bean` model in `@brewlog/core` and Supabase PostgreSQL sch
 
 ### 2. Pure Resting Engine & Freezer Pause Math (`apps/mobile/src/features/stash/utils/restingUtils.ts`)
 To ensure platform independence and deterministic behavior across web and mobile:
-- **Freezer Preservation Math**: When `isFrozen = true` and `frozenDate` is defined, the effective age of the coffee is frozen at the duration between roast date and freeze date:
+- **Freezer Preservation Math & Thaw Date Offsetting**: When `isFrozen = true` and `frozenDate` is defined, the effective age of the coffee is frozen at the duration between roast date and freeze date:
   $$\text{effectiveDays} = \max\left(0, \left\lfloor \frac{\text{frozenDate} - \text{roastDate}}{86400000} \right\rfloor\right)$$
-  When unfreezing, age accrues forward starting from the accumulated pre-freeze days.
+  When unfreezing (`toggleFrozen`), the bean's roast date is offset forward by the duration spent in the freezer (`roastDate = roastDate + (unfreezeDate - frozenDate)` via `offsetRoastDateForThaw`). This ensures the resting age calculation resumes naturally from the accumulated pre-freeze days without requiring schema changes or multi-cycle event tables.
 - **Adaptive Resting Curves**: Rather than enforcing rigid global cutoffs, resting curves dynamically adjust to roaster guidance:
   - $\text{restDays} = \text{recommendedRestDays} \mathbin{??} 7$
   - $\text{peakDays} = \text{restDays} + 14$
@@ -61,4 +61,4 @@ To ensure platform independence and deterministic behavior across web and mobile
 
 ### Trade-offs & Limitations
 - **Client Clock Dependency**: Age calculations rely on the client device's system clock. Extreme clock skew on the device may temporarily shift calculated days off roast until the clock resynchronizes.
-- **Single Freeze/Thaw State**: Current schema models `isFrozen` and `frozenDate` as binary states. Multiple freeze-thaw-refreeze cycles are collapsed into the current freeze duration; full cycle event logging is deferred to a future enhancement.
+- **Single Freeze/Thaw State via Date Offsetting**: Current schema models `isFrozen` and `frozenDate` without extra historical cycle tables. Unfreezing shifts the effective `roastDate` forward by freezer duration to preserve accumulated pre-freeze days across the UI. While this maintains accurate resting curves and shelf states across thaw events, full granular event logs of multiple freeze-thaw cycles are deferred to a future enhancement.

@@ -1165,4 +1165,78 @@ describe('StashContext', () => {
     expect(cachedList[0].id).toBe('bean-interrupted-sync');
     expect(cachedList[0].userId).toBe(mockUser.id);
   });
+
+  it('preserves pre-freeze age and shifts roastDate forward when unfreezing a bean', async () => {
+    const { result } = renderHook(() => useStash(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    const originalRoastDate = '2026-06-01';
+    const frozenDate = '2026-06-11';
+
+    let created: Bean | undefined;
+    await act(async () => {
+      created = await result.current.addBean({
+        roaster: 'Sey',
+        name: 'Worka',
+        roastDate: originalRoastDate,
+        isFrozen: true,
+        frozenDate,
+        flavorNotes: [],
+      });
+    });
+
+    expect(result.current.beans[0].isFrozen).toBe(true);
+    expect(result.current.beans[0].frozenDate).toBe('2026-06-11');
+    expect(result.current.beans[0].roastDate).toBe('2026-06-01');
+
+    // Unfreeze the bean via toggleFrozen
+    await act(async () => {
+      await result.current.toggleFrozen(created!.id);
+    });
+
+    expect(result.current.beans[0].isFrozen).toBe(false);
+    expect(result.current.beans[0].frozenDate).toBeUndefined();
+    // roastDate must have been shifted forward from 2026-06-01
+    expect(result.current.beans[0].roastDate).not.toBe('2026-06-01');
+    expect(new Date(result.current.beans[0].roastDate!).getTime()).toBeGreaterThan(
+      new Date('2026-06-01').getTime()
+    );
+  });
+
+  it('guards against concurrent fetchBeans calls using in-flight lock', async () => {
+    mockAuthUser = mockUser;
+
+    let resolveSelect: ((val: unknown) => void) | null = null;
+    const slowSelectPromise = new Promise((resolve) => {
+      resolveSelect = resolve;
+    });
+
+    const mockOrder = vi.fn().mockImplementation(() => slowSelectPromise);
+    const mockSelect = vi.fn().mockReturnValue({ order: mockOrder });
+
+    mockSupabaseFrom.mockImplementation((table: unknown) => {
+      if (table === 'beans') {
+        return {
+          select: mockSelect,
+        };
+      }
+      return {};
+    });
+
+    const { result } = renderHook(() => useStash(), { wrapper });
+
+    // While initial fetchBeans is in flight, trigger 3 concurrent refreshBeans
+    const concurrent1 = result.current.refreshBeans();
+    const concurrent2 = result.current.refreshBeans();
+    const concurrent3 = result.current.refreshBeans();
+
+    // Now resolve the in-flight query
+    resolveSelect!({ data: [], error: null });
+
+    await Promise.all([concurrent1, concurrent2, concurrent3]);
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // mockSelect should have been called only once because concurrent calls returned early!
+    expect(mockSelect).toHaveBeenCalledTimes(1);
+  });
 });

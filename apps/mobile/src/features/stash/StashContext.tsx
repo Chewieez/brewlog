@@ -13,6 +13,7 @@ import { Bean } from '@brewlog/core';
 import { BeanRow, mapBeanRowToDomain, mapBeanDomainToInsert } from '@brewlog/supabase';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/AuthContext';
+import { offsetRoastDateForThaw } from './utils/restingUtils';
 
 export const STASH_STORAGE_KEY = '@brewlog/mobile:stash_cache';
 export const STASH_PENDING_UPDATES_KEY = '@brewlog/mobile:stash_pending_updates';
@@ -142,29 +143,34 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const beansRef = useRef<Bean[]>([]);
   const pendingUpdatesRef = useRef<Set<string>>(new Set());
   const pendingDeletesRef = useRef<Set<string>>(new Set());
+  const isFetchingRef = useRef<boolean>(false);
 
   useEffect(() => {
     beansRef.current = beans;
   }, [beans]);
 
   const fetchBeans = useCallback(async () => {
-    if (!isHydrated.current) {
-      setLoading(true);
-      const [local, pendingUpdates, pendingDeletes] = await Promise.all([
-        loadCachedBeans(),
-        loadPendingUpdates(),
-        loadPendingDeletes(),
-      ]);
-      if (!isHydrated.current) {
-        beansRef.current = local;
-        pendingUpdatesRef.current = pendingUpdates;
-        pendingDeletesRef.current = pendingDeletes;
-        setBeans(local);
-        isHydrated.current = true;
-      }
-      setLoading(false);
+    if (isFetchingRef.current) {
+      return;
     }
+    isFetchingRef.current = true;
     try {
+      if (!isHydrated.current) {
+        setLoading(true);
+        const [local, pendingUpdates, pendingDeletes] = await Promise.all([
+          loadCachedBeans(),
+          loadPendingUpdates(),
+          loadPendingDeletes(),
+        ]);
+        if (!isHydrated.current) {
+          beansRef.current = local;
+          pendingUpdatesRef.current = pendingUpdates;
+          pendingDeletesRef.current = pendingDeletes;
+          setBeans(local);
+          isHydrated.current = true;
+        }
+        setLoading(false);
+      }
       if (!supabase || !user) {
         return;
       }
@@ -298,6 +304,7 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     } catch (err) {
       console.error('fetchBeans error:', err);
     } finally {
+      isFetchingRef.current = false;
       setLoading(false);
     }
   }, [user]);
@@ -473,10 +480,19 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     async (id: string): Promise<void> => {
       await updateBean(id, (existing) => {
         const nextFrozen = !existing.isFrozen;
-        const frozenDate = nextFrozen
-          ? new Date().toISOString().split('T')[0]
-          : undefined;
-        return { isFrozen: nextFrozen, frozenDate };
+        let frozenDate: string | undefined;
+        let roastDate = existing.roastDate;
+
+        if (nextFrozen) {
+          frozenDate = new Date().toISOString().split('T')[0];
+        } else {
+          frozenDate = undefined;
+          if (existing.roastDate && existing.frozenDate) {
+            roastDate = offsetRoastDateForThaw(existing.roastDate, existing.frozenDate);
+          }
+        }
+
+        return { isFrozen: nextFrozen, frozenDate, roastDate };
       });
     },
     [updateBean]

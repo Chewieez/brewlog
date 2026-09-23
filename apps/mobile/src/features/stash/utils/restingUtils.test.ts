@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateBeanRestingInfo } from './restingUtils';
+import { calculateBeanRestingInfo, offsetRoastDateForThaw } from './restingUtils';
 import { Bean, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 
 describe('calculateBeanRestingInfo', () => {
@@ -222,5 +222,71 @@ describe('calculateBeanRestingInfo', () => {
     const bean: Bean = { ...baseBean, roastDate: '2026-09-10' };
     const info = calculateBeanRestingInfo(bean);
     expect(info.effectiveDays).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe('offsetRoastDateForThaw', () => {
+  it('offsets roast date forward by the number of days spent in the freezer', () => {
+    // Roasted 2026-06-01, frozen on 2026-06-11 (10 days old).
+    // Thawed on 2026-09-23 (104 days in freezer).
+    const originalRoast = '2026-06-01';
+    const frozenDate = '2026-06-11';
+    const thawDate = new Date('2026-09-23T12:00:00Z');
+
+    const newRoast = offsetRoastDateForThaw(originalRoast, frozenDate, thawDate);
+    expect(newRoast).toBe('2026-09-13');
+
+    // Verify calculateBeanRestingInfo on the thawed bean evaluates to exactly 10 days!
+    const thawedBean: Bean = {
+      id: 'thawed-1',
+      name: 'Thawed Worka',
+      roaster: 'Sey',
+      roastDate: newRoast,
+      isFrozen: false,
+      flavorNotes: [],
+      createdAt: '2026-06-01T00:00:00Z',
+    };
+
+    const restingInfo = calculateBeanRestingInfo(thawedBean, thawDate);
+    expect(restingInfo.effectiveDays).toBe(10);
+    expect(restingInfo.status).toBe('peak');
+    expect(restingInfo.stageLabel).toBe('Peak Flavor Window');
+  });
+
+  it('preserves pre-freeze age of 0 days when frozen on roast date', () => {
+    // Roasted 2026-09-01, frozen on 2026-09-01 (0 days old).
+    // Thawed on 2026-09-21 (20 days in freezer).
+    const originalRoast = '2026-09-01';
+    const frozenDate = '2026-09-01';
+    const thawDate = new Date('2026-09-21T12:00:00Z');
+
+    const newRoast = offsetRoastDateForThaw(originalRoast, frozenDate, thawDate);
+    expect(newRoast).toBe('2026-09-21');
+
+    const thawedBean: Bean = {
+      id: 'thawed-2',
+      name: 'Freshly Frozen',
+      roaster: 'Sey',
+      roastDate: newRoast,
+      isFrozen: false,
+      flavorNotes: [],
+      createdAt: '2026-09-01T00:00:00Z',
+    };
+
+    const restingInfo = calculateBeanRestingInfo(thawedBean, thawDate);
+    expect(restingInfo.effectiveDays).toBe(0);
+    expect(restingInfo.status).toBe('resting');
+  });
+
+  it('handles invalid dates or same-day freeze-and-thaw without drifting', () => {
+    const today = new Date('2026-09-23T12:00:00Z');
+    // Frozen today, thawed today -> 0 days in freezer
+    expect(offsetRoastDateForThaw('2026-09-15', '2026-09-23', today)).toBe('2026-09-15');
+
+    // Invalid frozenDate
+    expect(offsetRoastDateForThaw('2026-09-15', '', today)).toBe('2026-09-15');
+
+    // Invalid roastDate
+    expect(offsetRoastDateForThaw('not-a-date', '2026-09-10', today)).toBe('not-a-date');
   });
 });
