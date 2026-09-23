@@ -253,11 +253,28 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
     }
   };
 
+  if (id && !sourceBean) {
+    return (
+      <View style={styles.notFoundContainer}>
+        <Text style={styles.notFoundTitle}>Coffee Not Found</Text>
+        <Pressable
+          onPress={() => router.back()}
+          style={styles.backButton}
+          accessibilityRole="button"
+          accessibilityLabel="Go Back"
+        >
+          <Text style={styles.backButtonText}>Go Back</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
+      automaticallyAdjustKeyboardInsets={true}
     >
       {/* Header with Cancel / Save */}
       <View style={styles.navHeader}>
@@ -398,6 +415,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
                   isSelected ? styles.chipActive : styles.chipInactive,
                 ]}
                 accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
                 accessibilityLabel={`Process method ${opt.label}`}
               >
                 <Text
@@ -430,6 +448,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
                   isSelected ? styles.chipActive : styles.chipInactive,
                 ]}
                 accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
                 accessibilityLabel={`Roast level ${opt.label}`}
               >
                 <Text
@@ -487,6 +506,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
                   isSelected ? styles.chipActive : styles.chipInactive,
                 ]}
                 accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
                 accessibilityLabel={`Preset ${preset.label}`}
               >
                 <Text
@@ -829,5 +849,33 @@ const styles = StyleSheet.create({
   },
   switchThumbInactive: {
     alignSelf: 'flex-start',
+  },
+  notFoundContainer: {
+    flex: 1,
+    backgroundColor: colors.canvas,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+    padding: 24,
+  },
+  notFoundTitle: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 18,
+    color: colors.textPrimary,
+  },
+  backButton: {
+    minHeight: 44,
+    backgroundColor: colors.panel,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    borderRadius: 8,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButtonText: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 12,
+    color: colors.accent,
   },
 });

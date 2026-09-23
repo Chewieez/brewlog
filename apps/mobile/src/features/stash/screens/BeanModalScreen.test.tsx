@@ -61,6 +61,7 @@ vi.mock('react-native', () => ({
     contentContainerStyle: _ccs,
     style: _style,
     keyboardShouldPersistTaps: _kspt,
+    automaticallyAdjustKeyboardInsets: _aaki,
     horizontal: _h,
     showsHorizontalScrollIndicator: _shsi,
     ...props
@@ -69,6 +70,7 @@ vi.mock('react-native', () => ({
     contentContainerStyle?: unknown;
     style?: unknown;
     keyboardShouldPersistTaps?: string;
+    automaticallyAdjustKeyboardInsets?: boolean;
     horizontal?: boolean;
     showsHorizontalScrollIndicator?: boolean;
     [key: string]: unknown;
@@ -390,5 +392,41 @@ describe('BeanModalScreen', () => {
       'Any unsaved coffee details will be lost.',
       expect.any(Array)
     );
+  });
+
+  it('renders fallback when bean is not found in edit mode', () => {
+    mockSearchParams = { id: 'non-existent-bean' };
+
+    const { getByText } = render(
+      <StashContext.Provider value={mockContext}>
+        <BeanModalScreen />
+      </StashContext.Provider>
+    );
+
+    expect(getByText('Coffee Not Found')).toBeTruthy();
+    fireEvent.press(getByText('Go Back'));
+    expect(backMock).toHaveBeenCalled();
+  });
+
+  it('marks selected process, roast level, and bag preset chips with accessibilityState selected', () => {
+    const { getByText } = render(
+      <StashContext.Provider value={mockContext}>
+        <BeanModalScreen />
+      </StashContext.Provider>
+    );
+
+    const naturalButton = getByText('Natural').closest('button');
+    expect(naturalButton?.getAttribute('aria-selected')).toBe('false');
+
+    fireEvent.press(getByText('Natural'));
+    expect(naturalButton?.getAttribute('aria-selected')).toBe('true');
+
+    const lightButton = getByText('Light').closest('button');
+    fireEvent.press(getByText('Light'));
+    expect(lightButton?.getAttribute('aria-selected')).toBe('true');
+
+    const presetButton = getByText('250g').closest('button');
+    fireEvent.press(getByText('250g'));
+    expect(presetButton?.getAttribute('aria-selected')).toBe('true');
   });
 });
