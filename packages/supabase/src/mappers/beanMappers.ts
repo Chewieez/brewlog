@@ -23,6 +23,10 @@ export const mapBeanRowToDomain = (b: BeanRow): Bean => ({
   remainingGrams: b.remaining_grams ? Number(b.remaining_grams) : undefined,
   price: b.price ? Number(b.price) : undefined,
   isFavorite: b.is_favorite,
+  recommendedRestDays: b.recommended_rest_days ?? undefined,
+  isFrozen: b.is_frozen ?? false,
+  frozenDate: b.frozen_date || undefined,
+  isArchived: b.is_archived ?? false,
   notes: b.notes || undefined,
   createdAt: b.created_at,
 });
@@ -47,6 +51,10 @@ export const mapBeanDomainToInsert = (
   remaining_grams: bean.remainingGrams || bean.bagWeightGrams || 340,
   price: bean.price || null,
   is_favorite: bean.isFavorite || false,
+  recommended_rest_days: bean.recommendedRestDays ?? null,
+  is_frozen: bean.isFrozen ?? false,
+  frozen_date: bean.frozenDate || null,
+  is_archived: bean.isArchived ?? false,
   notes: bean.notes || null,
 });
 
