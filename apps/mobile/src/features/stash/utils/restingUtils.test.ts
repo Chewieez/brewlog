@@ -23,7 +23,7 @@ describe('calculateBeanRestingInfo', () => {
     expect(info1.label).toBe('Needs Rest (De-gassing)');
     expect(info1.badgeLabel).toBe('Needs Rest • Day 3 of 5');
     expect(info1.isFrozen).toBe(false);
-    expect(info1.badgeColor).toBe('#eab308');
+    expect(info1.badgeColor).toBe(INDUSTRIAL_PRECISION_THEME.colors.statusWarning);
     expect(info1.progressPercent).toBe(10); // 3 / (5 + 25) * 100 = 10%
     expect(info1.recommendedRestDays).toBe(5);
 
@@ -34,7 +34,7 @@ describe('calculateBeanRestingInfo', () => {
     expect(info2.status).toBe('peak');
     expect(info2.stageLabel).toBe('Peak Flavor Window');
     expect(info2.badgeLabel).toBe('Peak Window • Day 10');
-    expect(info2.badgeColor).toBe('#22c55e');
+    expect(info2.badgeColor).toBe(INDUSTRIAL_PRECISION_THEME.colors.statusSuccess);
     expect(info2.progressPercent).toBe(33); // 10 / 30 * 100 = 33%
   });
 
@@ -194,6 +194,12 @@ describe('calculateBeanRestingInfo', () => {
     expect(info.badgeColor).toBe(INDUSTRIAL_PRECISION_THEME.colors.textMuted);
     expect(info.progressPercent).toBe(0);
     expect(info.recommendedRestDays).toBe(5);
+
+    // Preserves isFrozen = true when roastDate is undefined
+    const noDateFrozenBean: Bean = { ...baseBean, roastDate: undefined, isFrozen: true };
+    const noDateFrozenInfo = calculateBeanRestingInfo(noDateFrozenBean);
+    expect(noDateFrozenInfo.isFrozen).toBe(true);
+    expect(noDateFrozenInfo.badgeLabel).toBe('Unspecified Roast Date');
 
     // Empty string roastDate
     const emptyDateBean: Bean = { ...baseBean, roastDate: '' };

@@ -1,9 +1,6 @@
 import { Bean, calculateDaysOffRoast, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 
-const colors = INDUSTRIAL_PRECISION_THEME.colors as typeof INDUSTRIAL_PRECISION_THEME.colors & {
-  warning?: string;
-  success?: string;
-};
+const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface BeanRestingInfo {
   effectiveDays: number;
@@ -46,7 +43,7 @@ export function calculateBeanRestingInfo(
       status: 'resting',
       label: 'Unknown',
       stageLabel: 'No Date Specified',
-      isFrozen: false,
+      isFrozen,
       badgeLabel: 'Unspecified Roast Date',
       badgeColor: colors.textMuted,
       progressPercent: 0,
@@ -76,11 +73,11 @@ export function calculateBeanRestingInfo(
   if (effectiveDays < restDays) {
     status = 'resting';
     stageLabel = 'Needs Rest (De-gassing)';
-    badgeColor = colors.warning || '#eab308';
+    badgeColor = colors.statusWarning || '#eab308';
   } else if (effectiveDays <= restDays + 25) {
     status = 'peak';
     stageLabel = 'Peak Flavor Window';
-    badgeColor = colors.success || '#22c55e';
+    badgeColor = colors.statusSuccess || '#22c55e';
   } else if (effectiveDays <= restDays + 55) {
     status = 'aging';
     stageLabel = 'Good (Drink Soon)';
