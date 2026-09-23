@@ -38,8 +38,8 @@ brewlog/
   - **Phase 2 (Dynamic Recipe Routing)**: Complete ✅ (Master-detail layout, `/recipes/:id`, URL synchronization).
   - **Phase 3 (Mobile App Foundation & Shell)**: Complete ✅ (Expo SDK 57, 5-tab shell, drift-free timer).
   - **Phase 3C (Supabase Auth & Secure Storage)**: Complete ✅ (Hardware-backed `LargeSecureStore`, `AuthContext` / `useAuth`, `ProfileHeaderButton`, and `AuthSheet` modal).
-  - **Phase 4 (Mobile Recipe Studio & Catalog)**: In Progress ⏳ (Native stack/modal navigation, recipe builder lifecycle, bidirectional timer handoff).
-  - **Phase 5 (Stash Manager & Inventory)**: Upcoming ⏳ (Native bean cellar, roast resting status indicators).
+  - **Phase 4 (Mobile Recipe Studio & Catalog)**: Complete ✅ (Native stack/modal navigation, recipe builder lifecycle, bidirectional timer handoff).
+  - **Phase 5 (Stash Manager & Inventory)**: Complete ✅ (Native bean cellar, roast resting status indicators, dose deduction handoff to timer).
   - **Phase 6 (Free Brew Timer & Ratio Translator)**: Upcoming ⏳ (Stopwatch mode, nested ratio translator).
   - **Phase 7 (User Preferences & Settings Subsystem)**: Upcoming ⏳ (Cross-platform Supabase `user_settings`, default timer mode).
   - **Phase 8 (Native Cupping Session Logging)**: Upcoming ⏳ (SCA 10-attribute scoring protocol).
