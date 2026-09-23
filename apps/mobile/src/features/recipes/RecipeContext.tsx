@@ -33,7 +33,7 @@ export interface RecipeContextValue {
   refreshRecipes: () => Promise<void>;
 }
 
-const RecipeContext = createContext<RecipeContextValue | null>(null);
+export const RecipeContext = createContext<RecipeContextValue | null>(null);
 
 async function loadCachedRecipes(): Promise<BrewRecipe[]> {
   try {
