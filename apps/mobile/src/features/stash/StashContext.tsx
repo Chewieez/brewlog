@@ -201,16 +201,21 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
               ...mapBeanDomainToInsert(item, user.id),
               id: item.id,
             };
-            const { data: beanData, error: beanErr } = await supabase
-              .from('beans')
-              .insert(payload)
+            const query = typeof supabase.from('beans').upsert === 'function'
+              ? supabase.from('beans').upsert(payload)
+              : supabase.from('beans').insert(payload);
+            const { data: beanData, error: beanErr } = await query
               .select()
               .single();
 
             if (!beanErr && beanData) {
               syncedIds.add(item.id);
             } else if (beanErr) {
-              console.error('Failed to sync offline bean:', item.name, beanErr);
+              if ((beanErr as { code?: string }).code === '23505') {
+                syncedIds.add(item.id);
+              } else {
+                console.error('Failed to sync offline bean:', item.name, beanErr);
+              }
             }
           } catch (syncErr) {
             console.error('Failed to sync offline bean:', item.name, syncErr);
@@ -276,9 +281,12 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         });
 
         // Only preserve genuinely unsynced offline beans (!b.userId) that failed to sync or were added concurrently.
-        // Previously synced beans (with a userId) missing from cloud were deleted on remote; do not resurrect them.
+        // Deduplicate against remoteIds so that if an item already exists in the cloud
+        // (e.g. from an earlier interrupted sync or concurrent upsert), we do not keep a duplicate
+        // local record with !b.userId in local state.
+        const remoteIds = new Set(withoutDeleted.map((b) => b.id));
         const remainingUnsynced = beansRef.current.filter(
-          (b) => !b.userId && !syncedIds.has(b.id)
+          (b) => !b.userId && !remoteIds.has(b.id) && !syncedIds.has(b.id)
         );
         const merged = [...remainingUnsynced, ...reconciled];
         beansRef.current = merged;
@@ -341,9 +349,10 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           ...mapBeanDomainToInsert(fallback, user.id),
           id: fallback.id,
         };
-        const { data: beanData, error: beanError } = await supabase
-          .from('beans')
-          .insert(payload)
+        const query = typeof supabase.from('beans').upsert === 'function'
+          ? supabase.from('beans').upsert(payload)
+          : supabase.from('beans').insert(payload);
+        const { data: beanData, error: beanError } = await query
           .select()
           .single();
 

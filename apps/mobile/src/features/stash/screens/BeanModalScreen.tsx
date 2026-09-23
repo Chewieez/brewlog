@@ -263,6 +263,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
         parsedPrice !== undefined && !isNaN(parsedPrice)
           ? Math.max(0, parsedPrice)
           : undefined,
+      notes: notes.trim() || undefined,
     };
 
     try {

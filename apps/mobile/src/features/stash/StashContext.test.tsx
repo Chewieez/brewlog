@@ -1085,4 +1085,84 @@ describe('StashContext', () => {
     const clearedPending = await AsyncStorage.getItem('@brewlog/mobile:stash_pending_deletes');
     expect(JSON.parse(clearedPending || '[]')).toHaveLength(0);
   });
+
+  it('deduplicates offline beans against remote rows when offline sync was interrupted or returns error 23505', async () => {
+    mockAuthUser = mockUser;
+
+    const offlineBean: Bean = {
+      id: 'bean-interrupted-sync',
+      name: 'Interrupted Sync Bean',
+      roaster: 'Sey',
+      flavorNotes: [],
+      bagWeightGrams: 250,
+      remainingGrams: 250,
+      createdAt: new Date().toISOString(),
+      userId: undefined, // offline unsynced
+    };
+
+    // Pre-populate AsyncStorage cache with the offline bean
+    await AsyncStorage.setItem(
+      '@brewlog/mobile:stash_cache',
+      JSON.stringify([offlineBean])
+    );
+
+    // Mock upsert/insert throwing Postgres error 23505 (duplicate key)
+    const mockUpsert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: null,
+          error: { code: '23505', message: 'duplicate key value violates unique constraint "beans_pkey"' },
+        }),
+      }),
+    });
+
+    // Remote select returns the row that already exists in Supabase
+    const remoteRow = {
+      id: 'bean-interrupted-sync',
+      user_id: mockUser.id,
+      roaster: 'Sey',
+      name: 'Interrupted Sync Bean',
+      flavor_notes: [],
+      bag_weight_grams: 250,
+      remaining_grams: 250,
+      is_favorite: false,
+      is_frozen: false,
+      is_archived: false,
+      created_at: offlineBean.createdAt,
+    };
+
+    const mockSelect = vi.fn().mockReturnValue({
+      order: vi.fn().mockResolvedValue({
+        data: [remoteRow],
+        error: null,
+      }),
+    });
+
+    mockSupabaseFrom.mockImplementation((table: unknown) => {
+      if (table === 'beans') {
+        return {
+          upsert: mockUpsert,
+          insert: mockUpsert,
+          select: mockSelect,
+        };
+      }
+      return {};
+    });
+
+    const { result } = renderHook(() => useStash(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // The bean must exist in state exactly once, with userId populated
+    const matchingBeans = result.current.beans.filter((b) => b.id === 'bean-interrupted-sync');
+    expect(matchingBeans).toHaveLength(1);
+    expect(matchingBeans[0].userId).toBe(mockUser.id);
+    expect(result.current.beans).toHaveLength(1);
+
+    // Storage cache must also have exactly 1 record with userId populated
+    const stored = await AsyncStorage.getItem('@brewlog/mobile:stash_cache');
+    const cachedList = JSON.parse(stored || '[]');
+    expect(cachedList).toHaveLength(1);
+    expect(cachedList[0].id).toBe('bean-interrupted-sync');
+    expect(cachedList[0].userId).toBe(mockUser.id);
+  });
 });

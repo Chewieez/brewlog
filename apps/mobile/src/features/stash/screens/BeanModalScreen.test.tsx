@@ -270,6 +270,10 @@ describe('BeanModalScreen', () => {
     fireEvent.changeText(getByPlaceholderText('e.g. Sey'), 'Sey');
     fireEvent.changeText(getByPlaceholderText('e.g. Worka Sakaro'), 'Bantu');
     fireEvent.changeText(getByPlaceholderText('5'), '14');
+    fireEvent.changeText(
+      getByPlaceholderText('Tasting notes, brew tips, impressions...'),
+      'Delicate floral jasmine notes'
+    );
 
     // Select 340g bag preset
     fireEvent.press(getByText('340g'));
@@ -283,6 +287,7 @@ describe('BeanModalScreen', () => {
           name: 'Bantu',
           recommendedRestDays: 14,
           bagWeightGrams: 340,
+          notes: 'Delicate floral jasmine notes',
         })
       );
       expect(backMock).toHaveBeenCalled();
@@ -350,8 +355,13 @@ describe('BeanModalScreen', () => {
 
     expect(getByDisplayValue('Sey')).toBeTruthy();
     expect(getByDisplayValue('Worka Sakaro')).toBeTruthy();
+    expect(getByDisplayValue('Exceptional clarity')).toBeTruthy();
 
     fireEvent.changeText(getByDisplayValue('Worka Sakaro'), 'Worka Sakaro Special');
+    fireEvent.changeText(
+      getByDisplayValue('Exceptional clarity'),
+      'Exceptional clarity with peach finish'
+    );
     fireEvent.press(getByText('SAVE BAG'));
 
     await waitFor(() => {
@@ -359,6 +369,7 @@ describe('BeanModalScreen', () => {
         'bean-existing-1',
         expect.objectContaining({
           name: 'Worka Sakaro Special',
+          notes: 'Exceptional clarity with peach finish',
         })
       );
       expect(backMock).toHaveBeenCalled();
