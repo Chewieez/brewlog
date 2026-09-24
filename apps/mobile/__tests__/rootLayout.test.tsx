@@ -56,14 +56,23 @@ vi.mock('../src/features/recipes/RecipeContext', () => ({
   useRecipes: () => ({ recipes: [] }),
 }));
 
+vi.mock('../src/features/stash/StashContext', () => ({
+  StashProvider: ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="mock-stash-provider">{children}</div>
+  ),
+  useStash: () => ({ beans: [] }),
+}));
+
 describe('RootLayout', () => {
-  it('renders AuthProvider and RecipeProvider wrapping Stack with recipe routes', () => {
+  it('renders AuthProvider, RecipeProvider, and StashProvider wrapping Stack with routes', () => {
     const { getByTestId } = render(<RootLayout />);
 
     expect(getByTestId('mock-auth-provider')).toBeDefined();
     expect(getByTestId('mock-recipe-provider')).toBeDefined();
+    expect(getByTestId('mock-stash-provider')).toBeDefined();
     expect(getByTestId('mock-screen-(tabs)')).toBeDefined();
     expect(getByTestId('mock-screen-recipe/[id]')).toBeDefined();
     expect(getByTestId('mock-screen-recipe/builder')).toBeDefined();
+    expect(getByTestId('mock-screen-stash/[id]')).toBeDefined();
   });
 });

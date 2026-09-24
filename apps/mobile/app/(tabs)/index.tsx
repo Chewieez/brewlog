@@ -1,12 +1,10 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet, Text, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import {
-  INDUSTRIAL_PRECISION_THEME,
-  DEFAULT_PRESET_RECIPES,
-  rescaleRecipeDose,
-} from '@brewlog/core';
+import { Bean, INDUSTRIAL_PRECISION_THEME, DEFAULT_PRESET_RECIPES, rescaleRecipeDose } from '@brewlog/core';
 import { useRecipes } from '../../src/features/recipes/RecipeContext';
+import { useOptionalStash } from '../../src/features/stash/StashContext';
+import { ActiveBeanPill } from '../../src/features/stash/components/ActiveBeanPill';
 import { useMobileBrewTimer } from '../../src/hooks/useMobileBrewTimer';
 import { MethodPills } from '../../src/components/timer/MethodPills';
 import { CollapsibleCalculator } from '../../src/components/timer/CollapsibleCalculator';
@@ -15,12 +13,21 @@ import { ActiveStageCard } from '../../src/components/timer/ActiveStageCard';
 import { StageTimeline } from '../../src/components/timer/StageTimeline';
 import { FONTS } from '../../src/theme/fonts';
 import { AVAILABLE_METHODS } from '../../src/utils/recipeUtils';
+import { mobileFeedback } from '../../src/lib/mobileFeedback';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export default function TimerScreen() {
   const router = useRouter();
   const { activeTimerRecipe, activeTimerDose, setActiveTimerRecipe } = useRecipes();
+
+  const stash = useOptionalStash();
+  const activeBrewBean = stash?.activeBrewBean ?? null;
+  const setActiveBrewBean = stash?.setActiveBrewBean ?? (() => {});
+  const deductBeanDose = stash?.deductBeanDose ?? (async () => {});
+
+  const [isDeducted, setIsDeducted] = React.useState<boolean>(false);
+  const [isDeducting, setIsDeducting] = React.useState<boolean>(false);
 
   const activeRecipe = rescaleRecipeDose(activeTimerRecipe, activeTimerDose);
 
@@ -36,6 +43,36 @@ export default function TimerScreen() {
     reset,
     toggleMute,
   } = useMobileBrewTimer(activeRecipe);
+
+  React.useEffect(() => {
+    if (!isFinished) {
+      setIsDeducted(false);
+    }
+  }, [isFinished]);
+
+  React.useEffect(() => {
+    setIsDeducted(false);
+  }, [activeBrewBean?.id]);
+
+  const currentBeanRemaining = activeBrewBean
+    ? activeBrewBean.remainingGrams !== undefined
+      ? activeBrewBean.remainingGrams
+      : activeBrewBean.bagWeightGrams ?? 0
+    : 0;
+
+  const handleDeductDose = async () => {
+    if (!activeBrewBean || isDeducted || isDeducting) return;
+    setIsDeducting(true);
+    try {
+      await deductBeanDose(activeBrewBean.id, activeTimerDose);
+      mobileFeedback.triggerHapticTap();
+      setIsDeducted(true);
+    } catch (err) {
+      console.error('Failed to deduct dose from stash:', err);
+    } finally {
+      setIsDeducting(false);
+    }
+  };
 
   const handleSelectMethod = (methodName: string) => {
     if (activeRecipe.brewMethod.toLowerCase() === methodName.toLowerCase()) {
@@ -99,6 +136,14 @@ export default function TimerScreen() {
         onApplyDose={handleApplyDose}
       />
 
+      {/* Active Bean Pill */}
+      {activeBrewBean ? (
+        <ActiveBeanPill
+          bean={activeBrewBean}
+          onDetach={() => setActiveBrewBean(null)}
+        />
+      ) : null}
+
       {/* Web-Parity Instrument Faceplate */}
       <TimerHero
         recipe={activeRecipe}
@@ -122,6 +167,35 @@ export default function TimerScreen() {
           <Text style={styles.finishedSubtitle}>
             Completed in {Math.floor(elapsedSeconds / 60)}m {elapsedSeconds % 60}s
           </Text>
+
+          {/* 1-Tap Stash Deduction Card */}
+          {activeBrewBean ? (
+            <View style={styles.deductCard}>
+              {!isDeducted ? (
+                <Pressable
+                  onPress={handleDeductDose}
+                  disabled={isDeducting}
+                  style={({ pressed }) => [
+                    styles.deductButton,
+                    pressed && styles.buttonPressed,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Deduct ${activeTimerDose}g from stash`}
+                >
+                  <Text style={styles.deductButtonText}>
+                    DEDUCT {activeTimerDose}g FROM STASH
+                  </Text>
+                </Pressable>
+              ) : (
+                <View style={styles.deductedBanner}>
+                  <Text style={styles.deductedText}>
+                    ✓ DEDUCTED {activeTimerDose}g • Updated: {currentBeanRemaining}g left
+                  </Text>
+                </View>
+              )}
+            </View>
+          ) : null}
+
           <Pressable
             onPress={() => router.push('/cupping')}
             style={styles.logButton}
@@ -198,5 +272,47 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontFamily: FONTS.monoBold,
     letterSpacing: 1.2,
+  },
+  deductCard: {
+    width: '100%',
+    marginVertical: 4,
+    alignItems: 'center',
+  },
+  deductButton: {
+    backgroundColor: colors.panelRecessed,
+    borderColor: colors.accent,
+    borderWidth: 1,
+    borderRadius: 6,
+    minHeight: 44,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  buttonPressed: {
+    opacity: 0.75,
+  },
+  deductButtonText: {
+    color: colors.accent,
+    fontSize: 12,
+    fontFamily: FONTS.monoBold,
+    letterSpacing: 1.2,
+  },
+  deductedBanner: {
+    backgroundColor: colors.panelRecessed,
+    borderColor: colors.statusSuccess,
+    borderWidth: 1,
+    borderRadius: 6,
+    minHeight: 44,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  deductedText: {
+    color: colors.statusSuccess,
+    fontSize: 12,
+    fontFamily: FONTS.monoBold,
+    letterSpacing: 0.8,
   },
 });

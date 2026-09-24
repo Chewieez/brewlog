@@ -82,6 +82,10 @@ export interface Database {
           remaining_grams: number | null;
           price: number | null;
           is_favorite: boolean;
+          recommended_rest_days: number | null;
+          is_frozen: boolean;
+          frozen_date: string | null;
+          is_archived: boolean;
           notes: string | null;
           created_at: string;
           updated_at: string;
@@ -105,6 +109,10 @@ export interface Database {
           remaining_grams?: number | null;
           price?: number | null;
           is_favorite?: boolean;
+          recommended_rest_days?: number | null;
+          is_frozen?: boolean;
+          frozen_date?: string | null;
+          is_archived?: boolean;
           notes?: string | null;
           created_at?: string;
           updated_at?: string;

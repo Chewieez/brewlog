@@ -20,6 +20,7 @@ import {
 import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { AuthProvider } from '../src/features/auth/AuthContext';
 import { RecipeProvider } from '../src/features/recipes/RecipeContext';
+import { StashProvider } from '../src/features/stash/StashContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -51,35 +52,55 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <AuthProvider>
         <RecipeProvider>
-          <StatusBar style="light" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: {
-                backgroundColor: colors.canvas,
-              },
-            }}
-          >
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="recipe/[id]"
-              options={{
-                headerShown: true,
-                title: 'Recipe Details',
-                headerBackTitle: 'Back',
-                headerStyle: { backgroundColor: colors.panel },
-                headerTintColor: colors.textPrimary,
-                headerTitleStyle: { fontWeight: '700' },
-              }}
-            />
-            <Stack.Screen
-              name="recipe/builder"
-              options={{
+          <StashProvider>
+            <StatusBar style="light" />
+            <Stack
+              screenOptions={{
                 headerShown: false,
-                presentation: 'modal',
+                contentStyle: {
+                  backgroundColor: colors.canvas,
+                },
               }}
-            />
-          </Stack>
+            >
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="recipe/[id]"
+                options={{
+                  headerShown: true,
+                  title: 'Recipe Details',
+                  headerBackTitle: 'Back',
+                  headerStyle: { backgroundColor: colors.panel },
+                  headerTintColor: colors.textPrimary,
+                  headerTitleStyle: { fontWeight: '700' },
+                }}
+              />
+              <Stack.Screen
+                name="recipe/builder"
+                options={{
+                  headerShown: false,
+                  presentation: 'modal',
+                }}
+              />
+              <Stack.Screen
+                name="stash/[id]"
+                options={{
+                  headerShown: true,
+                  title: 'Coffee Details',
+                  headerBackTitle: 'Back',
+                  headerStyle: { backgroundColor: colors.canvas },
+                  headerTintColor: colors.textPrimary,
+                  headerTitleStyle: { fontWeight: '700' },
+                }}
+              />
+              <Stack.Screen
+                name="stash/modal"
+                options={{
+                  presentation: 'modal',
+                  headerShown: false,
+                }}
+              />
+            </Stack>
+          </StashProvider>
         </RecipeProvider>
       </AuthProvider>
     </SafeAreaProvider>

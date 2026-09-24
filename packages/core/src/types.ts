@@ -66,6 +66,10 @@ export interface Bean {
   remainingGrams?: number;
   price?: number;
   isFavorite?: boolean;
+  recommendedRestDays?: number;
+  isFrozen?: boolean;
+  frozenDate?: string;
+  isArchived?: boolean;
   notes?: string;
   createdAt: string;
 }

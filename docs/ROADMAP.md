@@ -64,6 +64,26 @@ This document tracks upcoming milestones, architectural refactors, and technical
 - Integrated `TimerScreen` (`app/(tabs)/index.tsx`) with `RecipeContext` and added an active brew confirmation guard (`Alert.alert`) to prevent mid-brew state wipes.
 - Maintained 100% test pass rate across 43 test suites (248 tests passing monorepo-wide), zero TypeScript errors, zero inline styles, and production Metro bundling for iOS (3,234 modules, 5.4MB) and Android (3,368 modules, 5.7MB).
 
+### Phase 5: Mobile App — Stash Manager & Cellar Inventory (Complete ✅)
+- **Core Domain & Supabase Extensions**:
+  - Extended `@brewlog/core` with roast resting window utilities (`calculateRestingStatus`, `calculateRestingDays`, `getRestingBadgeConfig`, `formatRestingSummary`, `SHELF_PARTITIONS`) supporting 5 distinct resting states (`needs_rest`, `peak`, `aging`, `past_peak`, `frozen`) and dynamic partition grouping (`Active Bar`, `Sealed Vault`, `Frozen Archive`, `Depleted Cemetery`).
+  - Extended `@brewlog/supabase` with `CoffeeBean` / `CoffeeBeanInsert` / `CoffeeBeanUpdate` types and bidirectional camelCase/snake_case mappers (`mapDbToCoffeeBean`, `mapCoffeeBeanToDb`, `mapCoffeeBeanToUpdateDb`) preserving offline local IDs.
+- **Offline-First Persistence (`StashContext`)**:
+  - Implemented `StashContext` with immediate AsyncStorage hydration (`@brewlog/mobile:stash_cache`) and automated Supabase cloud sync for authenticated users.
+  - Sample bean catalog fallback for instant unauthenticated exploration.
+  - Optimistic updates with zero-latency feedback for creating, updating, archiving, deleting, and freezing/unfreezing beans.
+- **Cellar UI & Inventory Telemetry**:
+  - Built `CellarSummaryBar` displaying total bag count, cellar volume in grams, and peak-window freshness counts.
+  - Built `BeanCard` with remaining weight progress indicators, roast timeline badges, freeze state toggling, and Apple HIG-compliant touch targets (>= 44pt).
+  - Built `StashCatalogScreen` (`app/(tabs)/stash.tsx`) with segmented shelf filters, search query filtering, and smooth navigation to detail and creation flows.
+- **Deep Bag Management & Navigation**:
+  - Built dynamic `BeanDetailScreen` (`app/stash/[id].tsx`) featuring roast resting timeline visualizer, weight gauge with quick dose steppers (-/+ 1g and 15g/18g buttons), freezer toggle, deletion confirmation guard, and one-tap "BREW WITH THIS COFFEE" handoff.
+  - Built modal `BeanModalScreen` (`app/stash/modal.tsx`) supporting full bag creation and editing with roast level chips, process tags, weight inputs, resting days configuration, and keyboard-avoiding container.
+- **Bidirectional Timer Handoff & Dose Deduction**:
+  - Connected `TimerScreen` (`app/(tabs)/index.tsx`) to `StashContext`: displays pinned active bean badge on instrument faceplate and prompts a 1-tap dose deduction card upon brew completion (`deductDose`).
+- **Comprehensive Quality Verification**:
+  - 100% test pass rate across 54 test suites (363 tests passing monorepo-wide), 21/21 clean `expo-doctor` diagnostic checks, zero TypeScript errors (`tsc --noEmit`), and clean production Metro bundles (iOS: 3,244 modules, 5.5MB; Android: 3,378 modules, 5.8MB).
+
 ---
 
 ## 📋 Technical Debt & Component Refactoring (TODO)
@@ -86,9 +106,12 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
   - `RecipeCard.tsx` — Individual recipe card with method badges, ratio summary, and selection/delete actions.
   - `MethodFilterTabs.tsx` — Reusable brew method filter buttons.
 
-### 🫘 Coffee Stash Deep-Linking (Phase 2B)
-- [ ] Implement Approach B (single component route with `useParams`) for `/stash/:beanId` to explore the alternative dynamic routing pattern.
-- [ ] Create dedicated bean detail view / modal route.
+### 🫘 Coffee Stash Deep-Linking (Phase 2B - Web Only `@brewlog/web`)
+> [!NOTE]
+> Coffee Stash deep-linking and dedicated screens are already fully implemented on mobile (`@brewlog/mobile`) via Expo Router routes `app/stash/[id].tsx` and `app/stash/modal.tsx`. The items below represent technical debt specific to the web client (`apps/web`).
+
+- [ ] *(Web Only)* Implement Approach B (single component route with `useParams`) for `/stash/:beanId` to explore the alternative dynamic routing pattern in `@brewlog/web`.
+- [ ] *(Web Only)* Create dedicated bean detail view / modal route on web.
 
 ### 🔤 Typography & Font Auditing (Eliminate Serif Lowercase Fonts)
 - [ ] **Purge Serif / Fallback Lowercase Fonts**:
@@ -111,10 +134,11 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
   - Full recipe lifecycle on mobile: create, edit, fork/duplicate, and delete.
   - Timer parameter handoff ("Brew with this Recipe" CTA from detail to active timer).
   - Dynamic method pills and offline-first cloud synchronization via Supabase.
-- [ ] **Phase 5: Stash Manager & Cellar Inventory**:
+- [x] **Phase 5: Mobile Stash Manager & Cellar Inventory (Complete ✅)** *(Design Spec: [docs/superpowers/specs/2026-09-22-phase-5-stash-manager-design.md](file:///Users/greglawrence/Projects/brewlog/docs/superpowers/specs/2026-09-22-phase-5-stash-manager-design.md))*:
   - Native bean cellar and bag inventory management (`app/(tabs)/stash.tsx`).
-  - Roast date age calculation with resting status indicators (Needs Rest, Peak, Aging, Past Peak).
-  - Quick bean selection link to active brew sessions.
+  - Roast date age calculation with resting status indicators (`Needs Rest`, `Peak`, `Aging`, `Past Peak`, `Frozen`).
+  - Quick bean selection link to active brew sessions with 1-tap dose deduction upon completion.
+  - Modal bag creator/editor (`app/stash/modal.tsx`) and detail screen (`app/stash/[id].tsx`).
 - [ ] **Phase 6: Free Brew (Manual Timer) & Nested Ratio Translator**:
   - **Core Domain Math (`@brewlog/core`)**: Expand `calculator.ts` with bidirectional proportional calculation helpers (`calculateRatio`, target water/coffee proportional scaling from locked ratio). Comprehensive unit tests covering decimal rounding, edge cases, and zero states.
   - **Nested Ratio Translator (`CollapsibleCalculator`)**: Nested collapsible drawer inside the existing calculator card. Enter source coffee:water values (or direct ratio) to establish a baseline, then solve for target coffee or water dynamically with one-tap dose application to the active timer.

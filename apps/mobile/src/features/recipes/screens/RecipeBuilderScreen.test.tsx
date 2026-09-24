@@ -6,6 +6,11 @@ import { Alert } from 'react-native';
 import { DEFAULT_PRESET_RECIPES } from '@brewlog/core';
 import { RecipeBuilderScreen } from './RecipeBuilderScreen';
 
+vi.mock('react-native-safe-area-context', () => ({
+  SafeAreaView: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
+
 vi.mock('react-native', () => ({
   View: ({ children, style, ...props }: any) => <div {...props}>{children}</div>,
   Text: ({ children, style, numberOfLines, ...props }: any) => <span {...props}>{children}</span>,
@@ -49,6 +54,7 @@ vi.mock('react-native', () => ({
     accessibilityLabel,
     keyboardType: _keyboardType,
     multiline: _multiline,
+    numberOfLines: _numberOfLines,
     placeholderTextColor: _placeholderTextColor,
     style: _style,
     ...props

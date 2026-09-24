@@ -27,7 +27,7 @@ brewlog/
 
 ## 🚀 Key Features
 
-* **🫘 Coffee Stash Manager**: Track origins, processing methods (Washed, Natural, Anaerobic), roast dates, resting/freshness windows, and remaining weight.
+* **🫘 Coffee Stash Manager & Cellar Inventory**: Track origins, processing methods (Washed, Natural, Anaerobic), roast dates, resting/freshness windows, and remaining weight. Includes a pure mathematical resting engine with adaptive roaster curves, freezer vault preservation pause math, offline-first local caching (`@brewlog/mobile:stash_cache`), shelf partitioning (Active Cellar, Deep Freeze, Archive), and a 1-tap post-brew dose deduction bridge directly from the live brew timer.
 * **⚙️ Equipment & Gear Tracking**: Log your grinders (burr type, dial settings), brewers (V60, AeroPress, Flair 58, Chemex), and gear settings.
 * **📖 Interactive Recipe Studio**: Build and scale multi-stage recipes (bloom, pours, agitation, drawdown target) with real-time auto-scaling.
 * **⏱️ Interactive Brew Assistant**: Live visual stage timer with target weight indicators, synthesized bell chimes (Web Audio on web, `expo-audio` on mobile), tactile haptics (`expo-haptics`), dynamic method selector, inline dose scaling, and full hardware faceplate controls across web and mobile.
@@ -38,8 +38,8 @@ brewlog/
   - **Phase 2 (Dynamic Recipe Routing)**: Complete ✅ (Master-detail layout, `/recipes/:id`, URL synchronization).
   - **Phase 3 (Mobile App Foundation & Shell)**: Complete ✅ (Expo SDK 57, 5-tab shell, drift-free timer).
   - **Phase 3C (Supabase Auth & Secure Storage)**: Complete ✅ (Hardware-backed `LargeSecureStore`, `AuthContext` / `useAuth`, `ProfileHeaderButton`, and `AuthSheet` modal).
-  - **Phase 4 (Mobile Recipe Studio & Catalog)**: In Progress ⏳ (Native stack/modal navigation, recipe builder lifecycle, bidirectional timer handoff).
-  - **Phase 5 (Stash Manager & Inventory)**: Upcoming ⏳ (Native bean cellar, roast resting status indicators).
+  - **Phase 4 (Mobile Recipe Studio & Catalog)**: Complete ✅ (Native stack/modal navigation, recipe builder lifecycle, bidirectional timer handoff).
+  - **Phase 5 (Stash Manager & Cellar Inventory)**: Complete ✅ (Native bean cellar, roast resting status indicators, dose deduction handoff to timer, pure resting engine, and offline-first cache).
   - **Phase 6 (Free Brew Timer & Ratio Translator)**: Upcoming ⏳ (Stopwatch mode, nested ratio translator).
   - **Phase 7 (User Preferences & Settings Subsystem)**: Upcoming ⏳ (Cross-platform Supabase `user_settings`, default timer mode).
   - **Phase 8 (Native Cupping Session Logging)**: Upcoming ⏳ (SCA 10-attribute scoring protocol).
@@ -143,6 +143,18 @@ npm test
 # Build production artifacts
 npm run build
 ```
+
+---
+ 
+## 📚 Documentation & Architecture Decision Records
+- **Interactive Architecture Graph**: [`docs/architecture.html`](docs/architecture.html) — Vis.js interactive node graph of web and mobile application trees, state stores, and cloud backends.
+- **Architecture Decision Records (ADRs)**:
+  - [`ADR 001: Monorepo Architecture & Shared Domain`](docs/adr/001-monorepo-and-shared-domain.md)
+  - [`ADR 002: Database Choice & Supabase RLS`](docs/adr/002-database-choice-and-supabase-rls.md)
+  - [`ADR 003: Multi-Platform Supabase TypeScript Patterns`](docs/adr/003-supabase-typescript-multiplatform-best-practices.md)
+  - [`ADR 004: Declarative Client Routing via React Router v8`](docs/adr/004-client-side-declarative-routing.md)
+  - [`ADR 005: Offline-First Coffee Stash Management & Biochemical Resting Engine`](docs/adr/005-offline-stash-management-and-resting-engine.md)
+- **Milestone Devlogs**: Comprehensive milestone deep-dives and verification logs in [`docs/devlogs/`](docs/devlogs/).
 
 ---
 

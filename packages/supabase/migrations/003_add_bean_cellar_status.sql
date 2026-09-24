@@ -1,0 +1,6 @@
+-- Migration 003: Add Bean Cellar & Resting Status Fields
+ALTER TABLE public.beans
+  ADD COLUMN IF NOT EXISTS recommended_rest_days INTEGER DEFAULT 5,
+  ADD COLUMN IF NOT EXISTS is_frozen BOOLEAN NOT NULL DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS frozen_date DATE,
+  ADD COLUMN IF NOT EXISTS is_archived BOOLEAN NOT NULL DEFAULT FALSE;
