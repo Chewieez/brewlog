@@ -170,15 +170,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   doseInput: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 22,
     color: colors.textPrimary,
     minWidth: 44,
     textAlign: 'center',
     paddingVertical: 4,
+    fontVariant: ['tabular-nums'],
   },
   doseUnit: {
-    fontFamily: FONTS.monoRegular,
+    fontFamily: FONTS.sansRegular,
     fontSize: 14,
     color: colors.textMuted,
     marginLeft: 4,
@@ -206,12 +207,14 @@ const styles = StyleSheet.create({
     borderColor: colors.borderSubtle,
   },
   presetText: {
-    fontFamily: FONTS.monoRegular,
-    fontSize: 11,
+    fontFamily: FONTS.sansMedium,
+    fontSize: 12,
+    fontVariant: ['tabular-nums'],
   },
   presetTextActive: {
     color: colors.accent,
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
+    fontVariant: ['tabular-nums'],
   },
   presetTextInactive: {
     color: colors.textSecondary,

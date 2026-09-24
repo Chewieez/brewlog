@@ -799,6 +799,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansRegular,
     fontSize: 14,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
   textArea: {
     minHeight: 88,
@@ -852,8 +853,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   presetChipText: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 12,
+    fontVariant: ['tabular-nums'],
   },
   toggleRow: {
     flexDirection: 'row',

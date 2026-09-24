@@ -668,9 +668,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   specValue: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 13,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
   brewButton: {
     flexDirection: 'row',
@@ -755,8 +756,9 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   restingDetailValue: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
   inventoryGaugeContainer: {
     gap: 8,
@@ -767,18 +769,20 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   remainingWeightLarge: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 28,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
   weightUnit: {
     fontSize: 18,
     color: colors.textMuted,
   },
   totalBagWeight: {
-    fontFamily: FONTS.monoRegular,
+    fontFamily: FONTS.sansRegular,
     fontSize: 13,
     color: colors.textSecondary,
+    fontVariant: ['tabular-nums'],
   },
   progressBarTrack: {
     height: 8,
@@ -819,9 +823,10 @@ const styles = StyleSheet.create({
     borderColor: colors.accent,
   },
   stepperButtonText: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 12,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
   stepperButtonTextActive: {
     color: colors.accent,
@@ -839,9 +844,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 6,
     paddingHorizontal: 12,
-    fontFamily: FONTS.monoRegular,
+    fontFamily: FONTS.sansMedium,
     fontSize: 13,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
   manualWeightSaveButton: {
     flexDirection: 'row',

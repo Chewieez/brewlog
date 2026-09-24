@@ -202,7 +202,8 @@ const styles = StyleSheet.create({
   summaryBadge: {
     color: colors.textPrimary,
     fontSize: 11,
-    fontFamily: FONTS.monoMedium,
+    fontFamily: FONTS.sansMedium,
+    fontVariant: ['tabular-nums'],
   },
   body: {
     paddingHorizontal: 14,
@@ -233,7 +234,8 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     color: colors.textPrimary,
     fontSize: 15,
-    fontFamily: FONTS.monoRegular,
+    fontFamily: FONTS.sansMedium,
+    fontVariant: ['tabular-nums'],
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
