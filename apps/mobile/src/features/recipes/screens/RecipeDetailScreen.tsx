@@ -32,7 +32,7 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ recipeId
       <View style={styles.notFoundContainer}>
         <Text style={styles.notFoundTitle}>Recipe Not Found</Text>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>Return to Catalog</Text>
+          <Text style={styles.backButtonText}>RETURN TO CATALOG</Text>
         </Pressable>
       </View>
     );
@@ -137,9 +137,10 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ recipeId
           onPress={handleDuplicate}
           style={styles.actionButton}
           accessibilityRole="button"
+          accessibilityLabel="Duplicate recipe as custom"
         >
           <Copy size={16} color={colors.textPrimary} />
-          <Text style={styles.actionButtonText}>Duplicate as Custom</Text>
+          <Text style={styles.actionButtonText}>DUPLICATE AS CUSTOM</Text>
         </Pressable>
 
         {isCustom ? (
@@ -148,17 +149,19 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ recipeId
               onPress={handleEdit}
               style={styles.actionButton}
               accessibilityRole="button"
+              accessibilityLabel="Edit recipe"
             >
               <Edit2 size={16} color={colors.textPrimary} />
-              <Text style={styles.actionButtonText}>Edit Recipe</Text>
+              <Text style={styles.actionButtonText}>EDIT RECIPE</Text>
             </Pressable>
             <Pressable
               onPress={handleDelete}
               style={[styles.actionButton, styles.deleteButton]}
               accessibilityRole="button"
+              accessibilityLabel="Delete recipe"
             >
               <Trash2 size={16} color={colors.statusError} />
-              <Text style={styles.deleteButtonText}>Delete Recipe</Text>
+              <Text style={styles.deleteButtonText}>DELETE RECIPE</Text>
             </Pressable>
           </>
         ) : null}
@@ -203,6 +206,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 12,
     color: colors.accent,
+    letterSpacing: 1,
   },
   header: {
     gap: 8,
@@ -309,6 +313,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 12,
     color: colors.textPrimary,
+    letterSpacing: 1,
   },
   deleteButton: {
     borderColor: colors.statusError,
@@ -317,5 +322,6 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 12,
     color: colors.statusError,
+    letterSpacing: 1,
   },
 });

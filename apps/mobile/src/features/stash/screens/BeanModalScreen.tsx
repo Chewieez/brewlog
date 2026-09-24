@@ -274,7 +274,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
       }
       router.back();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to save coffee bag.';
+      const msg = err instanceof Error ? err.message : 'Failed to save bean.';
       setErrorMessage(msg);
       Alert.alert('Save Failed', msg);
     }
@@ -341,7 +341,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
         </Pressable>
 
         <Text style={styles.navTitle}>
-          {isEditMode ? 'EDIT COFFEE BAG' : 'NEW COFFEE BAG'}
+          {isEditMode ? 'EDIT BEAN' : 'NEW BEAN'}
         </Text>
 
         <Pressable
