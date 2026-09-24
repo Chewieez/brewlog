@@ -164,9 +164,9 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
           <button
             onClick={onSelectOtherRecipe}
-            className="px-3.5 py-1.5 rounded border border-border-subtle hover:border-border-active hover:bg-panel text-xs font-mono text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
+            className="px-3.5 py-1.5 rounded border border-border-subtle hover:border-border-active hover:bg-panel text-xs font-mono uppercase tracking-wider text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
           >
-            Change Recipe
+            CHANGE RECIPE
           </button>
         </div>
       </div>
