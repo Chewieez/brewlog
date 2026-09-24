@@ -78,9 +78,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   stepBadgeText: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 11,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
   stageContent: {
     flex: 1,
@@ -102,14 +103,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   stageWater: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 12,
     color: colors.accent,
+    fontVariant: ['tabular-nums'],
   },
   stageDuration: {
-    fontFamily: FONTS.monoRegular,
+    fontFamily: FONTS.sansMedium,
     fontSize: 12,
     color: colors.textMuted,
+    fontVariant: ['tabular-nums'],
   },
   stageInstruction: {
     fontFamily: FONTS.sansRegular,

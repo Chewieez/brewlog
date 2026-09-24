@@ -179,11 +179,11 @@ export const TimerView: React.FC<TimerViewProps> = ({
           
           {/* Active Stage & Linear Progress */}
           <div className="space-y-2.5">
-            <div className="flex items-center justify-between text-xs font-mono">
-              <span className="text-accent font-bold tracking-widest uppercase">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-accent font-bold tracking-widest uppercase font-mono">
                 {currentStage.name}
               </span>
-              <span className="text-text-muted">
+              <span className="text-text-muted tabular-nums">
                 {totalProgressPercent}% · Target: {formatTime(recipe.totalTimeSeconds)}
               </span>
             </div>
@@ -314,7 +314,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
             <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted font-mono">
               POUR TIMELINE
             </h3>
-            <span className="text-xs font-mono text-accent font-semibold">
+            <span className="text-xs text-accent font-semibold tabular-nums">
               {recipe.stages.length} Stages
             </span>
           </div>
@@ -353,7 +353,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                     </div>
 
                     <div className="flex items-center space-x-3 text-xs">
-                      <span className="text-text-muted font-mono">
+                      <span className="text-text-muted tabular-nums">
                         {formatTime(stage.startSecond)} ({stage.durationSeconds}s)
                       </span>
                       <span className="font-light text-sm text-text-primary tabular-nums">

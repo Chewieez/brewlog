@@ -146,7 +146,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-accent focus:outline-none"
         />
         {/* Linear scale marks matching min and max with 20% intervals */}
-        <div className="flex justify-between text-[10px] text-zinc-500 font-mono px-0.5">
+        <div className="flex justify-between text-[10px] text-zinc-500 tabular-nums px-0.5">
           {scaleMarks.map((mark, i) => (
             <span key={i}>{mark}g</span>
           ))}
@@ -167,7 +167,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
                 key={dose}
                 type="button"
                 onClick={() => setCustomDose(dose)}
-                className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors cursor-pointer border ${
+                className={`px-2 py-0.5 rounded text-[11px] tabular-nums transition-colors cursor-pointer border ${
                   isActive
                     ? 'bg-accent/15 border-accent text-accent font-medium'
                     : 'bg-panel border-border-subtle hover:border-border-active text-zinc-400 hover:text-zinc-200'
@@ -246,13 +246,13 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
                 key={step.id || idx}
                 className="p-3.5 rounded-xl bg-panel-recessed border border-border-subtle flex items-start space-x-3"
               >
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-zinc-800 text-zinc-300 text-xs font-mono font-bold shrink-0 border border-zinc-700">
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-zinc-800 text-zinc-300 text-xs tabular-nums font-bold shrink-0 border border-zinc-700">
                   {idx + 1}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-bold text-zinc-200">{title}</span>
-                    <div className="flex items-center space-x-2 text-xs font-mono text-zinc-400 shrink-0">
+                    <div className="flex items-center space-x-2 text-xs tabular-nums text-zinc-400 shrink-0">
                       {targetWeight !== undefined && (
                         <span className="text-zinc-100 font-light text-sm tabular-nums">
                           {targetWeight}g

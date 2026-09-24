@@ -172,7 +172,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
 
                   {/* Resting Status Badge */}
                   <div className="mt-4 p-2.5 rounded-xl bg-panel-recessed flex items-center justify-between">
-                    <div className="flex items-center space-x-2 font-mono text-xs text-zinc-300">
+                    <div className="flex items-center space-x-2 tabular-nums text-xs text-zinc-300">
                       <Calendar className="w-3.5 h-3.5 text-zinc-400" />
                       <span>
                         {daysOffRoast} days off roast
@@ -204,7 +204,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
 
                 {/* Bottom Card Action */}
                 <div className="mt-5 pt-3 border-t border-zinc-800 flex items-center justify-between">
-                  <span className="text-xs font-mono text-zinc-400">
+                  <span className="text-xs tabular-nums text-zinc-400">
                     {bean.bagWeightOz ? `${bean.bagWeightOz} oz` : bean.bagWeightGrams ? `${(bean.bagWeightGrams / 28.3495).toFixed(1)} oz` : '12 oz'}
                   </span>
 

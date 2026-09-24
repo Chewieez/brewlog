@@ -173,8 +173,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   metricValue: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 13,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
 });

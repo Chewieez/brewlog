@@ -95,8 +95,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   value: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 16,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
 });
