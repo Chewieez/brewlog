@@ -255,9 +255,9 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
           {onClearPendingSession && (
             <button
               onClick={onClearPendingSession}
-              className="text-xs text-zinc-400 hover:text-zinc-200 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 cursor-pointer transition-colors"
+              className="text-xs font-mono uppercase tracking-wider text-zinc-400 hover:text-zinc-200 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 cursor-pointer transition-colors"
             >
-              Clear
+              CLEAR
             </button>
           )}
         </div>

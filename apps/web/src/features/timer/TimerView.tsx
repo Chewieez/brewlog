@@ -261,12 +261,12 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 {isRunning ? (
                   <>
                     <Pause className="w-4 h-4 fill-current" />
-                    <span>Pause</span>
+                    <span>PAUSE</span>
                   </>
                 ) : (
                   <>
                     <Play className="w-4 h-4 fill-current" />
-                    <span>{elapsedSeconds > 0 ? 'Resume' : 'Start Brew'}</span>
+                    <span>{elapsedSeconds > 0 ? 'RESUME' : 'START BREW'}</span>
                   </>
                 )}
               </button>
@@ -302,7 +302,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Brew Complete! Rate & Log to Cupping Sheet</span>
+                <span>BREW COMPLETE! RATE & LOG TO CUPPING SHEET</span>
               </button>
             </div>
           )}
