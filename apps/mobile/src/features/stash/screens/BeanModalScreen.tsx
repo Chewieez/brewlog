@@ -348,10 +348,10 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
           onPress={handleSave}
           style={styles.saveButton}
           accessibilityRole="button"
-          accessibilityLabel="Save Bag"
+          accessibilityLabel="Save Bean"
         >
           <Check size={18} color={colors.canvas} />
-          <Text style={styles.saveButtonText}>SAVE BAG</Text>
+          <Text style={styles.saveButtonText}>SAVE BEAN</Text>
         </Pressable>
       </View>
 

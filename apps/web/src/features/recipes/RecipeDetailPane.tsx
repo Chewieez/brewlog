@@ -108,10 +108,10 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           <button
             type="button"
             onClick={() => onSelectRecipeForTimer(scaledRecipe)}
-            className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-bold transition-all cursor-pointer text-sm shadow-sm"
+            className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer shadow-sm"
           >
             <Play className="w-4 h-4 fill-current" />
-            <span>Brew with this Recipe</span>
+            <span>BREW WITH THIS RECIPE</span>
           </button>
         </div>
       </div>

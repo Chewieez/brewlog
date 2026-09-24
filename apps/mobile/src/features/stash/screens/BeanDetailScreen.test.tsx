@@ -253,7 +253,7 @@ describe('BeanDetailScreen', () => {
       </StashContext.Provider>
     );
 
-    fireEvent.press(getByText('BREW WITH THIS COFFEE'));
+    fireEvent.press(getByText('BREW WITH THIS BEAN'));
     expect(mockContext.setActiveBrewBean).toHaveBeenCalledWith(bean);
     expect(pushMock).toHaveBeenCalledWith('/(tabs)');
   });
@@ -285,7 +285,7 @@ describe('BeanDetailScreen', () => {
     fireEvent.press(getByText('Set...'));
     const input = getByPlaceholderText('New weight in grams');
     fireEvent.changeText(input, '175');
-    fireEvent.press(getByText('Save'));
+    fireEvent.press(getByText('SAVE'));
 
     expect(mockContext.updateBean).toHaveBeenCalledWith('b-1', { remainingGrams: 175 });
   });
@@ -308,7 +308,7 @@ describe('BeanDetailScreen', () => {
       </StashContext.Provider>
     );
 
-    fireEvent.press(getByText(/Freeze Coffee/i));
+    fireEvent.press(getByText(/FREEZE BEAN/i));
     expect(mockContext.toggleFrozen).toHaveBeenCalledWith('b-1');
   });
 
@@ -322,8 +322,8 @@ describe('BeanDetailScreen', () => {
       </StashContext.Provider>
     );
 
-    expect(getByText(/Thaw Coffee/i)).toBeTruthy();
-    fireEvent.press(getByText(/Thaw Coffee/i));
+    expect(getByText(/THAW BEAN/i)).toBeTruthy();
+    fireEvent.press(getByText(/THAW BEAN/i));
     expect(mockContext.toggleFrozen).toHaveBeenCalledWith('b-1');
   });
 
@@ -334,7 +334,7 @@ describe('BeanDetailScreen', () => {
       </StashContext.Provider>
     );
 
-    fireEvent.press(getByText('Edit Coffee'));
+    fireEvent.press(getByText('EDIT BEAN'));
     expect(pushMock).toHaveBeenCalledWith({
       pathname: '/stash/modal',
       params: { id: 'b-1' },
@@ -348,7 +348,7 @@ describe('BeanDetailScreen', () => {
       </StashContext.Provider>
     );
 
-    fireEvent.press(getByText('Archive Coffee'));
+    fireEvent.press(getByText('ARCHIVE BEAN'));
     expect(mockContext.archiveBean).toHaveBeenCalledWith('b-1');
   });
 
@@ -362,8 +362,8 @@ describe('BeanDetailScreen', () => {
       </StashContext.Provider>
     );
 
-    expect(getByText('Unarchive Coffee')).toBeTruthy();
-    fireEvent.press(getByText('Unarchive Coffee'));
+    expect(getByText('UNARCHIVE BEAN')).toBeTruthy();
+    fireEvent.press(getByText('UNARCHIVE BEAN'));
     expect(mockContext.unarchiveBean).toHaveBeenCalledWith('b-1');
   });
 
@@ -374,7 +374,7 @@ describe('BeanDetailScreen', () => {
       </StashContext.Provider>
     );
 
-    fireEvent.press(getByText('Delete Coffee'));
+    fireEvent.press(getByText('DELETE BEAN'));
     expect(mockContext.deleteBean).toHaveBeenCalledWith('b-1');
     await waitFor(() => {
       expect(backMock).toHaveBeenCalled();
@@ -390,7 +390,7 @@ describe('BeanDetailScreen', () => {
     );
 
     expect(getByText('Coffee Not Found')).toBeTruthy();
-    fireEvent.press(getByText('Return to Stash'));
+    fireEvent.press(getByText('RETURN TO STASH'));
     expect(backMock).toHaveBeenCalled();
   });
 });
