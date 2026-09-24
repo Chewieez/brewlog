@@ -259,7 +259,7 @@ export const RecipeBuilderScreen: React.FC = () => {
           accessibilityLabel="Save Recipe"
         >
           <Check size={18} color={colors.canvas} />
-          <Text style={styles.saveButtonText}>Save Recipe</Text>
+          <Text style={styles.saveButtonText}>SAVE RECIPE</Text>
         </Pressable>
       </View>
 
@@ -540,7 +540,7 @@ export const RecipeBuilderScreen: React.FC = () => {
 
         <Pressable onPress={handleAddStage} style={styles.addStageButton} accessibilityRole="button" accessibilityLabel="Add Brew Stage">
           <Plus size={16} color={colors.accent} />
-          <Text style={styles.addStageButtonText}>+ Add Brew Stage</Text>
+          <Text style={styles.addStageButtonText}>+ ADD STAGE</Text>
         </Pressable>
       </View>
     </ScrollView>

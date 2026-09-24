@@ -92,10 +92,10 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-bold text-sm shadow-sm transition-colors cursor-pointer"
+          className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-sm transition-colors cursor-pointer"
         >
           <Plus className="w-4 h-4" />
-          <span>Add Coffee Bean</span>
+          <span>ADD BEAN</span>
         </button>
       </div>
 
@@ -210,9 +210,9 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
 
                   <button
                     onClick={() => onSelectBeanForBrew(bean)}
-                    className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 text-xs font-semibold transition-colors cursor-pointer shadow-sm"
+                    className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 text-xs font-mono uppercase tracking-wider font-semibold transition-colors cursor-pointer shadow-sm"
                   >
-                    Brew This Bean →
+                    BREW →
                   </button>
                 </div>
               </div>
@@ -356,16 +356,16 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-zinc-100 text-sm font-semibold transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-zinc-100 font-mono text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer"
                 >
-                  Cancel
+                  CANCEL
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="px-5 py-2 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-bold text-sm shadow-sm transition-colors cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-sm transition-colors cursor-pointer disabled:opacity-50"
                 >
-                  {isSaving ? "Saving..." : "Save Bean"}
+                  {isSaving ? "SAVING..." : "SAVE BEAN"}
                 </button>
               </div>
             </form>

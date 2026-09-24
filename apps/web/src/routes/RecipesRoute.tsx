@@ -77,10 +77,10 @@ export const RecipesRoute: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsBuilderModalOpen(true)}
-            className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-bold cursor-pointer transition-colors text-sm shadow-sm"
+            className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
-            <span>Build Custom Recipe</span>
+            <span>NEW RECIPE</span>
           </button>
         </div>
       </div>

@@ -23,7 +23,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
           className="flex items-center space-x-1.5 px-3 py-1.5 rounded text-xs font-mono uppercase tracking-wider font-semibold bg-panel-recessed text-text-primary border border-border-subtle hover:border-border-active hover:bg-panel cursor-pointer whitespace-nowrap transition-colors"
         >
           <LogIn className="w-3.5 h-3.5 text-accent" />
-          <span>Sign In</span>
+          <span>SIGN IN</span>
         </button>
       </div>
     );
@@ -61,10 +61,10 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
                 setDropdownOpen(false);
                 signOut();
               }}
-              className="w-full flex items-center space-x-2 px-3 py-2 rounded text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer transition-colors"
+              className="w-full flex items-center space-x-2 px-3 py-2 rounded text-red-400 hover:text-red-300 hover:bg-red-500/10 font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Sign Out</span>
+              <span>SIGN OUT</span>
             </button>
           </div>
         </>

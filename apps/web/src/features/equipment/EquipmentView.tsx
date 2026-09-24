@@ -59,10 +59,10 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-bold shadow-sm cursor-pointer transition-colors"
+          className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-sm cursor-pointer transition-colors"
         >
           <Plus className="w-4 h-4" />
-          <span>Add Equipment</span>
+          <span>ADD EQUIPMENT</span>
         </button>
       </div>
 
@@ -411,15 +411,15 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-zinc-100 text-sm font-semibold transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-zinc-100 font-mono text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer"
                 >
-                  Cancel
+                  CANCEL
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-bold text-sm shadow-sm transition-colors cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-sm transition-colors cursor-pointer"
                 >
-                  Save Equipment
+                  SAVE EQUIPMENT
                 </button>
               </div>
             </form>

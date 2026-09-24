@@ -155,7 +155,7 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
           accessibilityRole="button"
           accessibilityLabel="Return to Stash"
         >
-          <Text style={styles.backButtonText}>Return to Stash</Text>
+          <Text style={styles.backButtonText}>RETURN TO STASH</Text>
         </Pressable>
       </View>
     );
@@ -287,10 +287,10 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
           pressed && styles.brewButtonPressed,
         ]}
         accessibilityRole="button"
-        accessibilityLabel="Brew with this coffee"
+        accessibilityLabel="Brew with this bean"
       >
         <Play size={18} color={colors.canvas} fill={colors.canvas} />
-        <Text style={styles.brewButtonText}>BREW WITH THIS COFFEE</Text>
+        <Text style={styles.brewButtonText}>BREW WITH THIS BEAN</Text>
       </Pressable>
 
       {/* 2. Resting Progression Timeline */}
@@ -469,7 +469,7 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
                 accessibilityLabel="Save custom weight"
               >
                 <Check size={16} color={colors.canvas} />
-                <Text style={styles.manualWeightSaveButtonText}>Save</Text>
+                <Text style={styles.manualWeightSaveButtonText}>SAVE</Text>
               </Pressable>
             </View>
           ) : null}
@@ -525,7 +525,7 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
               bean.isFrozen && styles.actionButtonTextAccent,
             ]}
           >
-            {bean.isFrozen ? 'Thaw Coffee' : 'Freeze Coffee'}
+            {bean.isFrozen ? 'THAW BEAN' : 'FREEZE BEAN'}
           </Text>
         </Pressable>
 
@@ -533,10 +533,10 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
           onPress={handleEdit}
           style={styles.actionButton}
           accessibilityRole="button"
-          accessibilityLabel="Edit coffee"
+          accessibilityLabel="Edit bean"
         >
           <Edit2 size={16} color={colors.textPrimary} />
-          <Text style={styles.actionButtonText}>Edit Coffee</Text>
+          <Text style={styles.actionButtonText}>EDIT BEAN</Text>
         </Pressable>
 
         <Pressable
@@ -544,12 +544,12 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
           style={styles.actionButton}
           accessibilityRole="button"
           accessibilityLabel={
-            bean.isArchived ? 'Unarchive coffee' : 'Archive coffee'
+            bean.isArchived ? 'Unarchive bean' : 'Archive bean'
           }
         >
           <Archive size={16} color={colors.textPrimary} />
           <Text style={styles.actionButtonText}>
-            {bean.isArchived ? 'Unarchive Coffee' : 'Archive Coffee'}
+            {bean.isArchived ? 'UNARCHIVE BEAN' : 'ARCHIVE BEAN'}
           </Text>
         </Pressable>
 
@@ -557,10 +557,10 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
           onPress={handleDelete}
           style={[styles.actionButton, styles.deleteButton]}
           accessibilityRole="button"
-          accessibilityLabel="Delete coffee"
+          accessibilityLabel="Delete bean"
         >
           <Trash2 size={16} color={colors.statusError} />
-          <Text style={styles.deleteButtonText}>Delete Coffee</Text>
+          <Text style={styles.deleteButtonText}>DELETE BEAN</Text>
         </Pressable>
       </View>
     </ScrollView>

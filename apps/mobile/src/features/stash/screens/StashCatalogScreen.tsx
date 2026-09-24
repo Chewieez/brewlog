@@ -244,10 +244,10 @@ export const StashCatalogScreen: React.FC = () => {
           onPress={handleAddBag}
           style={styles.emptyActionButton}
           accessibilityRole="button"
-          accessibilityLabel="Add your first bag"
+          accessibilityLabel="Add your first bean"
         >
           <Plus size={16} color={colors.canvas} />
-          <Text style={styles.emptyActionButtonText}>ADD YOUR FIRST BAG</Text>
+          <Text style={styles.emptyActionButtonText}>ADD YOUR FIRST BEAN</Text>
         </Pressable>
       </View>
     );
@@ -268,10 +268,10 @@ export const StashCatalogScreen: React.FC = () => {
           onPress={handleAddBag}
           style={styles.addButton}
           accessibilityRole="button"
-          accessibilityLabel="Add new bag to stash"
+          accessibilityLabel="Add new bean to stash"
         >
           <Plus size={16} color={colors.canvas} />
-          <Text style={styles.addButtonText}>ADD BAG</Text>
+          <Text style={styles.addButtonText}>ADD BEAN</Text>
         </Pressable>
       </View>
 

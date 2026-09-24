@@ -59,7 +59,7 @@ describe('CuppingView', () => {
       />
     );
 
-    const submitButton = screen.getByRole('button', { name: /Save Tasting Log to Book/i });
+    const submitButton = screen.getByRole('button', { name: /SAVE TASTING LOG/i });
     await act(async () => {
       fireEvent.click(submitButton);
     });

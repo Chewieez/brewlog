@@ -545,10 +545,10 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
               <button
                 type="button"
                 onClick={handleAddStage}
-                className="flex items-center space-x-1 px-3 py-1.5 rounded bg-panel-recessed hover:bg-panel text-accent text-xs font-semibold border border-border-subtle transition-colors cursor-pointer"
+                className="flex items-center space-x-1 px-3 py-1.5 rounded bg-panel-recessed hover:bg-panel text-accent font-mono text-xs uppercase tracking-wider font-semibold border border-border-subtle transition-colors cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Add Stage</span>
+                <span>ADD STAGE</span>
               </button>
             </div>
 
@@ -731,22 +731,22 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded bg-panel-recessed text-text-secondary hover:text-text-primary hover:bg-panel border border-border-subtle text-xs font-semibold transition-colors cursor-pointer"
+              className="px-4 py-2 rounded bg-panel-recessed text-text-secondary hover:text-text-primary hover:bg-panel border border-border-subtle font-mono text-xs uppercase tracking-wider transition-colors cursor-pointer"
             >
-              Cancel
+              CANCEL
             </button>
             <button
               type="submit"
               disabled={isSaving}
               onClick={handleSubmit}
-              className="px-6 py-2 rounded bg-accent hover:bg-accent-hover disabled:opacity-50 text-zinc-950 text-xs font-bold shadow-md transition-all active:scale-95 flex items-center space-x-2 cursor-pointer"
+              className="px-6 py-2 rounded bg-accent hover:bg-accent-hover disabled:opacity-50 text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-md transition-all active:scale-95 flex items-center space-x-2 cursor-pointer"
             >
               {isSaving ? (
-                <span>Saving Profile...</span>
+                <span>SAVING PROFILE...</span>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  <span>Save Recipe</span>
+                  <span>SAVE RECIPE</span>
                 </>
               )}
             </button>
