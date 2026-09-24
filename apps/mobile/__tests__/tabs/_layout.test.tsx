@@ -61,6 +61,36 @@ vi.mock("react-native", () => ({
   AppState: {
     addEventListener: vi.fn(() => ({ remove: vi.fn() })),
   },
+  Animated: {
+    Value: class {
+      val: number;
+      constructor(val: number) {
+        this.val = val;
+      }
+      setValue(val: number) {
+        this.val = val;
+      }
+    },
+    timing: vi.fn(() => ({
+      start: vi.fn((cb?: any) => cb?.()),
+    })),
+    View: ({ children, style, testID, ...props }: any) => (
+      <div data-testid={testID || "animated-view"} {...props}>
+        {children}
+      </div>
+    ),
+  },
+  Keyboard: {
+    addListener: vi.fn(() => ({ remove: vi.fn() })),
+    dismiss: vi.fn(),
+  },
+  Easing: {
+    out: (fn: any) => fn,
+    ease: (t: number) => t,
+  },
+  BackHandler: {
+    addEventListener: vi.fn(() => ({ remove: vi.fn() })),
+  },
 }));
 
 vi.mock("lucide-react-native", () => ({

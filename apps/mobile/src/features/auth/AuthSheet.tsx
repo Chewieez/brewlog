@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
-  Modal,
   View,
   Text,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  KeyboardAvoidingView,
   ScrollView,
   Platform,
   ActivityIndicator,
   StyleSheet,
   Alert,
+  Animated,
+  Keyboard,
+  Easing,
+  BackHandler,
 } from "react-native";
 import * as Haptics from "expo-haptics";
 import {
@@ -54,13 +56,45 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  const keyboardPadding = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const showSub = Keyboard.addListener(showEvent, (e) => {
+      Animated.timing(keyboardPadding, {
+        toValue: e.endCoordinates.height,
+        duration: Platform.OS === "ios" ? (e.duration || 250) : 220,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: false,
+      }).start();
+    });
+
+    const hideSub = Keyboard.addListener(hideEvent, (e) => {
+      Animated.timing(keyboardPadding, {
+        toValue: 0,
+        duration: Platform.OS === "ios" ? (e?.duration || 200) : 200,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: false,
+      }).start();
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [keyboardPadding]);
+
   useEffect(() => {
     setPassword("");
     if (visible) {
+      Keyboard.dismiss();
       setMode("signin");
       setErrorMessage(null);
       setSuccessMessage(null);
       setSubmitting(false);
+      keyboardPadding.setValue(0);
     }
   }, [visible, user]);
 
@@ -149,27 +183,38 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
     ]);
   };
 
-  return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={submitting ? undefined : onClose}
-    >
-      <TouchableWithoutFeedback onPress={submitting ? undefined : onClose}>
-        <View style={styles.backdrop}>
-          <TouchableWithoutFeedback>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-              style={styles.sheetContainer}
-            >
-              {/* Grabber Handle */}
-              <View style={styles.grabber} />
+  useEffect(() => {
+    if (!visible) return;
+    const onBackPress = () => {
+      if (submitting) return true;
+      onClose();
+      return true;
+    };
+    const subscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+    return () => subscription.remove();
+  }, [visible, submitting, onClose]);
 
-              <ScrollView
-                contentContainerStyle={styles.scrollContent}
-                keyboardShouldPersistTaps="handled"
-              >
+  if (!visible) {
+    return null;
+  }
+
+  return (
+    <View testID="modal" style={styles.modalOverlay}>
+      <Animated.View
+        style={[styles.keyboardAvoidContainer, { paddingBottom: keyboardPadding }]}
+      >
+        <TouchableWithoutFeedback onPress={submitting ? undefined : onClose}>
+          <View style={styles.backdrop}>
+            <TouchableWithoutFeedback>
+              <View style={styles.sheetContainer}>
+                {/* Grabber Handle */}
+                <View style={styles.grabber} />
+
+                <ScrollView
+                  contentContainerStyle={styles.scrollContent}
+                  keyboardShouldPersistTaps="handled"
+                  bounces={false}
+                >
                 {/* Header */}
                 <View style={styles.header}>
                   <View style={styles.headerLeft}>
@@ -299,6 +344,9 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                             onChangeText={setDisplayName}
                             placeholder="e.g. Greg"
                             placeholderTextColor={colors.textMuted}
+                            autoComplete="name"
+                            textContentType="name"
+                            importantForAutofill="yes"
                             style={styles.input}
                             autoCapitalize="words"
                           />
@@ -318,7 +366,9 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                           placeholder="you@example.com"
                           placeholderTextColor={colors.textMuted}
                           keyboardType="email-address"
-                          textContentType="emailAddress"
+                          autoComplete={mode === "signup" ? "email" : "username"}
+                          textContentType={mode === "signup" ? "emailAddress" : "username"}
+                          importantForAutofill="yes"
                           autoCapitalize="none"
                           autoCorrect={false}
                           style={styles.input}
@@ -352,7 +402,9 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                             placeholder="••••••••"
                             placeholderTextColor={colors.textMuted}
                             secureTextEntry={true}
+                            autoComplete={mode === "signup" ? "password-new" : "password"}
                             textContentType={mode === "signup" ? "newPassword" : "password"}
+                            importantForAutofill="yes"
                             autoCapitalize="none"
                             autoCorrect={false}
                             spellCheck={false}
@@ -398,15 +450,28 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                   </View>
                 )}
               </ScrollView>
-            </KeyboardAvoidingView>
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
-    </Modal>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Animated.View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  modalOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1000,
+    elevation: 1000,
+  },
+  keyboardAvoidContainer: {
+    flex: 1,
+  },
   backdrop: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.75)",

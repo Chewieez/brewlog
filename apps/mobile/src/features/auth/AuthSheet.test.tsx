@@ -5,7 +5,17 @@ import { render, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import { AuthSheet } from "./AuthSheet";
 import * as AuthContextModule from "./AuthContext";
 
-const mockAlert = vi.fn();
+const { mockAlert, mockKeyboardDismiss, getBackHandlerListeners, setBackHandlerListeners } = vi.hoisted(() => {
+  let listeners: any[] = [];
+  return {
+    mockAlert: vi.fn(),
+    mockKeyboardDismiss: vi.fn(),
+    getBackHandlerListeners: () => listeners,
+    setBackHandlerListeners: (next: any[]) => {
+      listeners = next;
+    },
+  };
+});
 
 vi.mock("../../lib/supabase", () => ({
   isSupabaseConfigured: true,
@@ -13,8 +23,12 @@ vi.mock("../../lib/supabase", () => ({
 }));
 
 vi.mock("react-native", () => ({
-  Modal: ({ visible, children }: any) =>
-    visible ? <div data-testid="modal">{children}</div> : null,
+  Modal: ({ visible, statusBarTranslucent, children }: any) =>
+    visible ? (
+      <div data-testid="modal" data-status-bar-translucent={statusBarTranslucent ? "true" : undefined}>
+        {children}
+      </div>
+    ) : null,
   View: ({ children, style, testID, ...props }: any) => (
     <div data-testid={testID} {...props}>
       {children}
@@ -33,6 +47,8 @@ vi.mock("react-native", () => ({
     keyboardType,
     textContentType,
     placeholderTextColor,
+    autoComplete,
+    importantForAutofill,
     style,
     ...props
   }: any) => (
@@ -40,6 +56,8 @@ vi.mock("react-native", () => ({
       value={value}
       placeholder={placeholder}
       aria-label={accessibilityLabel}
+      autoComplete={autoComplete}
+      data-important-for-autofill={importantForAutofill}
       onChange={(e) => onChangeText?.(e.target.value)}
       {...props}
     />
@@ -74,9 +92,33 @@ vi.mock("react-native", () => ({
       {children}
     </div>
   ),
-  KeyboardAvoidingView: ({ children, behavior, style, ...props }: any) => (
-    <div {...props}>{children}</div>
-  ),
+  Animated: {
+    Value: class {
+      val: number;
+      constructor(val: number) {
+        this.val = val;
+      }
+      setValue(val: number) {
+        this.val = val;
+      }
+    },
+    timing: vi.fn(() => ({
+      start: vi.fn((cb?: any) => cb?.()),
+    })),
+    View: ({ children, style, testID, ...props }: any) => (
+      <div data-testid={testID || "animated-view"} {...props}>
+        {children}
+      </div>
+    ),
+  },
+  Keyboard: {
+    addListener: vi.fn(() => ({ remove: vi.fn() })),
+    dismiss: mockKeyboardDismiss,
+  },
+  Easing: {
+    out: (fn: any) => fn,
+    ease: (t: number) => t,
+  },
   ScrollView: ({ children, contentContainerStyle, keyboardShouldPersistTaps, ...props }: any) => (
     <div {...props}>{children}</div>
   ),
@@ -90,6 +132,16 @@ vi.mock("react-native", () => ({
   },
   StyleSheet: {
     create: (styles: any) => styles,
+  },
+  BackHandler: {
+    addEventListener: vi.fn((event: string, cb: any) => {
+      getBackHandlerListeners().push(cb);
+      return {
+        remove: vi.fn(() => {
+          setBackHandlerListeners(getBackHandlerListeners().filter((l) => l !== cb));
+        }),
+      };
+    }),
   },
 }));
 
@@ -121,6 +173,7 @@ describe("AuthSheet", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    setBackHandlerListeners([]);
   });
 
   afterEach(() => {
@@ -778,6 +831,80 @@ describe("AuthSheet", () => {
     expect((passwordInput as HTMLInputElement).value).toBe("");
   });
 
+  it("renders in-tree overlay container and animated keyboard container", () => {
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    const { getByTestId } = render(
+      <AuthSheet visible={true} onClose={vi.fn()} />
+    );
+
+    const modal = getByTestId("modal");
+    expect(modal).toBeDefined();
+
+    const animatedView = getByTestId("animated-view");
+    expect(animatedView).toBeDefined();
+  });
+
+  it("registers hardware back press listener and triggers onClose", () => {
+    const onClose = vi.fn();
+    render(<AuthSheet visible={true} onClose={onClose} />);
+    const listeners = getBackHandlerListeners();
+    expect(listeners.length).toBeGreaterThan(0);
+    const cb = listeners[listeners.length - 1];
+    cb();
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("configures inputs with appropriate autoComplete and importantForAutofill metadata for password managers", () => {
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    const { getByPlaceholderText, getByText } = render(
+      <AuthSheet visible={true} onClose={vi.fn()} />
+    );
+
+    // Sign in mode
+    const emailInput = getByPlaceholderText("you@example.com");
+    expect(emailInput.getAttribute("autocomplete")).toBe("username");
+    expect(emailInput.getAttribute("data-important-for-autofill")).toBe("yes");
+
+    const passwordInput = getByPlaceholderText("••••••••");
+    expect(passwordInput.getAttribute("autocomplete")).toBe("password");
+    expect(passwordInput.getAttribute("data-important-for-autofill")).toBe("yes");
+
+    // Switch to create account mode
+    fireEvent.click(getByText("CREATE ACCOUNT"));
+
+    const signUpEmailInput = getByPlaceholderText("you@example.com");
+    expect(signUpEmailInput.getAttribute("autocomplete")).toBe("email");
+    expect(signUpEmailInput.getAttribute("data-important-for-autofill")).toBe("yes");
+
+    const nameInput = getByPlaceholderText("e.g. Greg");
+    expect(nameInput.getAttribute("autocomplete")).toBe("name");
+    expect(nameInput.getAttribute("data-important-for-autofill")).toBe("yes");
+
+    const newPasswordInput = getByPlaceholderText("••••••••");
+    expect(newPasswordInput.getAttribute("autocomplete")).toBe("password-new");
+    expect(newPasswordInput.getAttribute("data-important-for-autofill")).toBe("yes");
+  });
+
   it("unmounts cleanly without throwing", () => {
     vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
       user: null,
@@ -795,5 +922,22 @@ describe("AuthSheet", () => {
     );
 
     expect(() => unmount()).not.toThrow();
+  });
+
+  it("dismisses any open keyboard when visible is true", () => {
+    mockKeyboardDismiss.mockClear();
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    render(<AuthSheet visible={true} onClose={vi.fn()} />);
+    expect(mockKeyboardDismiss).toHaveBeenCalled();
   });
 });

@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { View, StyleSheet, Keyboard } from 'react-native';
 import { Tabs } from 'expo-router';
 import {
   Timer,
@@ -16,6 +17,7 @@ export default function TabLayout() {
   const [authSheetVisible, setAuthSheetVisible] = useState(false);
 
   const handleOpenAuthSheet = useCallback(() => {
+    Keyboard.dismiss();
     setAuthSheetVisible(true);
   }, []);
 
@@ -29,7 +31,7 @@ export default function TabLayout() {
   );
 
   return (
-    <>
+    <View style={styles.container}>
       <Tabs
         screenOptions={{
           headerStyle: {
@@ -104,6 +106,12 @@ export default function TabLayout() {
         visible={authSheetVisible}
         onClose={handleCloseAuthSheet}
       />
-    </>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
