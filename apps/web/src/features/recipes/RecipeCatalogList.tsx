@@ -41,7 +41,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
             key={method}
             type="button"
             onClick={() => onSelectMethodFilter(method)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-mono font-semibold uppercase tracking-wider transition-all cursor-pointer ${
               selectedMethodFilter === method
                 ? 'bg-panel-recessed border border-accent text-accent'
                 : 'bg-zinc-800/90 border border-zinc-700 text-zinc-300 hover:text-zinc-100 hover:border-zinc-600'
