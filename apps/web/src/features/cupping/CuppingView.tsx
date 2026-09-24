@@ -229,10 +229,10 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
         <button
           type="button"
           onClick={resetForm}
-          className="self-start sm:self-auto flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-zinc-100 text-xs transition-colors cursor-pointer"
+          className="self-start sm:self-auto flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-zinc-100 font-mono text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer"
         >
           <RotateCcw className="w-3.5 h-3.5" />
-          <span>Reset Form</span>
+          <span>RESET FORM</span>
         </button>
       </div>
 
@@ -255,9 +255,9 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
           {onClearPendingSession && (
             <button
               onClick={onClearPendingSession}
-              className="text-xs text-zinc-400 hover:text-zinc-200 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 cursor-pointer transition-colors"
+              className="text-xs font-mono uppercase tracking-wider text-zinc-400 hover:text-zinc-200 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 cursor-pointer transition-colors"
             >
-              Clear
+              CLEAR
             </button>
           )}
         </div>
@@ -577,10 +577,10 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
               <button
                 type="submit"
                 disabled={isSaving}
-                className="w-full flex items-center justify-center space-x-2 py-3.5 px-4 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-bold text-sm shadow-sm cursor-pointer transition-all disabled:opacity-50"
+                className="w-full flex items-center justify-center space-x-2 py-3.5 px-4 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-sm cursor-pointer transition-all disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving Tasting Log...' : 'Save Tasting Log to Book'}</span>
+                <span>{isSaving ? 'SAVING TASTING LOG...' : 'SAVE TASTING LOG'}</span>
               </button>
             )}
           </div>

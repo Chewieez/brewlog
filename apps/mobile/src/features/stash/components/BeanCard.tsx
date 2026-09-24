@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   weightValue: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 12,
     color: colors.textPrimary,
     fontVariant: ['tabular-nums'],

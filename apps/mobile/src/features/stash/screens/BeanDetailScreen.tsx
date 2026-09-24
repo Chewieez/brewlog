@@ -155,7 +155,7 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
           accessibilityRole="button"
           accessibilityLabel="Return to Stash"
         >
-          <Text style={styles.backButtonText}>Return to Stash</Text>
+          <Text style={styles.backButtonText}>RETURN TO STASH</Text>
         </Pressable>
       </View>
     );
@@ -287,10 +287,10 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
           pressed && styles.brewButtonPressed,
         ]}
         accessibilityRole="button"
-        accessibilityLabel="Brew with this coffee"
+        accessibilityLabel="Brew with this bean"
       >
         <Play size={18} color={colors.canvas} fill={colors.canvas} />
-        <Text style={styles.brewButtonText}>BREW WITH THIS COFFEE</Text>
+        <Text style={styles.brewButtonText}>BREW WITH THIS BEAN</Text>
       </Pressable>
 
       {/* 2. Resting Progression Timeline */}
@@ -469,7 +469,7 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
                 accessibilityLabel="Save custom weight"
               >
                 <Check size={16} color={colors.canvas} />
-                <Text style={styles.manualWeightSaveButtonText}>Save</Text>
+                <Text style={styles.manualWeightSaveButtonText}>SAVE</Text>
               </Pressable>
             </View>
           ) : null}
@@ -525,7 +525,7 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
               bean.isFrozen && styles.actionButtonTextAccent,
             ]}
           >
-            {bean.isFrozen ? 'Thaw Coffee' : 'Freeze Coffee'}
+            {bean.isFrozen ? 'THAW BEAN' : 'FREEZE BEAN'}
           </Text>
         </Pressable>
 
@@ -533,10 +533,10 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
           onPress={handleEdit}
           style={styles.actionButton}
           accessibilityRole="button"
-          accessibilityLabel="Edit coffee"
+          accessibilityLabel="Edit bean"
         >
           <Edit2 size={16} color={colors.textPrimary} />
-          <Text style={styles.actionButtonText}>Edit Coffee</Text>
+          <Text style={styles.actionButtonText}>EDIT BEAN</Text>
         </Pressable>
 
         <Pressable
@@ -544,12 +544,12 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
           style={styles.actionButton}
           accessibilityRole="button"
           accessibilityLabel={
-            bean.isArchived ? 'Unarchive coffee' : 'Archive coffee'
+            bean.isArchived ? 'Unarchive bean' : 'Archive bean'
           }
         >
           <Archive size={16} color={colors.textPrimary} />
           <Text style={styles.actionButtonText}>
-            {bean.isArchived ? 'Unarchive Coffee' : 'Archive Coffee'}
+            {bean.isArchived ? 'UNARCHIVE BEAN' : 'ARCHIVE BEAN'}
           </Text>
         </Pressable>
 
@@ -557,10 +557,10 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
           onPress={handleDelete}
           style={[styles.actionButton, styles.deleteButton]}
           accessibilityRole="button"
-          accessibilityLabel="Delete coffee"
+          accessibilityLabel="Delete bean"
         >
           <Trash2 size={16} color={colors.statusError} />
-          <Text style={styles.deleteButtonText}>Delete Coffee</Text>
+          <Text style={styles.deleteButtonText}>DELETE BEAN</Text>
         </Pressable>
       </View>
     </ScrollView>
@@ -668,9 +668,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   specValue: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 13,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
   brewButton: {
     flexDirection: 'row',
@@ -755,8 +756,9 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   restingDetailValue: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
   inventoryGaugeContainer: {
     gap: 8,
@@ -767,18 +769,20 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   remainingWeightLarge: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 28,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
   weightUnit: {
     fontSize: 18,
     color: colors.textMuted,
   },
   totalBagWeight: {
-    fontFamily: FONTS.monoRegular,
+    fontFamily: FONTS.sansRegular,
     fontSize: 13,
     color: colors.textSecondary,
+    fontVariant: ['tabular-nums'],
   },
   progressBarTrack: {
     height: 8,
@@ -819,9 +823,10 @@ const styles = StyleSheet.create({
     borderColor: colors.accent,
   },
   stepperButtonText: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 12,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
   stepperButtonTextActive: {
     color: colors.accent,
@@ -839,9 +844,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 6,
     paddingHorizontal: 12,
-    fontFamily: FONTS.monoRegular,
+    fontFamily: FONTS.sansMedium,
     fontSize: 13,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
   manualWeightSaveButton: {
     flexDirection: 'row',

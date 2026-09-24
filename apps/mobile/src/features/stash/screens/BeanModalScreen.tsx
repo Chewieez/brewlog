@@ -274,7 +274,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
       }
       router.back();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to save coffee bag.';
+      const msg = err instanceof Error ? err.message : 'Failed to save bean.';
       setErrorMessage(msg);
       Alert.alert('Save Failed', msg);
     }
@@ -341,17 +341,17 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
         </Pressable>
 
         <Text style={styles.navTitle}>
-          {isEditMode ? 'EDIT COFFEE BAG' : 'NEW COFFEE BAG'}
+          {isEditMode ? 'EDIT BEAN' : 'NEW BEAN'}
         </Text>
 
         <Pressable
           onPress={handleSave}
           style={styles.saveButton}
           accessibilityRole="button"
-          accessibilityLabel="Save Bag"
+          accessibilityLabel="Save Bean"
         >
           <Check size={18} color={colors.canvas} />
-          <Text style={styles.saveButtonText}>SAVE BAG</Text>
+          <Text style={styles.saveButtonText}>SAVE BEAN</Text>
         </Pressable>
       </View>
 
@@ -799,6 +799,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansRegular,
     fontSize: 14,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
   textArea: {
     minHeight: 88,
@@ -852,8 +853,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   presetChipText: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 12,
+    fontVariant: ['tabular-nums'],
   },
   toggleRow: {
     flexDirection: 'row',

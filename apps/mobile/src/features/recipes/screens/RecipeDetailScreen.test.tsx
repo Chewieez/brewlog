@@ -119,7 +119,7 @@ describe('RecipeDetailScreen', () => {
 
     expect(getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
     expect(getByText('BREW WITH THIS RECIPE')).toBeDefined();
-    expect(getByText('Duplicate as Custom')).toBeDefined();
+    expect(getByText('DUPLICATE AS CUSTOM')).toBeDefined();
   });
 
   it('hands off scaled recipe to timer and navigates to tabs when Brew With This Recipe is clicked', () => {
@@ -134,7 +134,7 @@ describe('RecipeDetailScreen', () => {
   it('navigates to builder with duplicateId parameter when Duplicate is clicked', () => {
     const { getByText } = render(<RecipeDetailScreen recipeId={DEFAULT_PRESET_RECIPES[0].id} />);
 
-    fireEvent.click(getByText('Duplicate as Custom'));
+    fireEvent.click(getByText('DUPLICATE AS CUSTOM'));
 
     expect(mockPush).toHaveBeenCalledWith({
       pathname: '/recipe/builder',
@@ -154,8 +154,8 @@ describe('RecipeDetailScreen', () => {
     const alertSpy = vi.spyOn(Alert, 'alert');
     const { getByText } = render(<RecipeDetailScreen recipeId="local-rec-999" />);
 
-    expect(getByText('Edit Recipe')).toBeDefined();
-    const deleteBtn = getByText('Delete Recipe');
+    expect(getByText('EDIT RECIPE')).toBeDefined();
+    const deleteBtn = getByText('DELETE RECIPE');
     expect(deleteBtn).toBeDefined();
 
     fireEvent.click(deleteBtn);
@@ -180,7 +180,7 @@ describe('RecipeDetailScreen', () => {
     mockContext.recipes = [customRecipe, ...DEFAULT_PRESET_RECIPES];
 
     const { getByText } = render(<RecipeDetailScreen recipeId="local-rec-999" />);
-    fireEvent.click(getByText('Edit Recipe'));
+    fireEvent.click(getByText('EDIT RECIPE'));
 
     expect(mockPush).toHaveBeenCalledWith({
       pathname: '/recipe/builder',
@@ -192,7 +192,7 @@ describe('RecipeDetailScreen', () => {
     const { getByText } = render(<RecipeDetailScreen recipeId="non-existent-id" />);
 
     expect(getByText('Recipe Not Found')).toBeDefined();
-    fireEvent.click(getByText('Return to Catalog'));
+    fireEvent.click(getByText('RETURN TO CATALOG'));
     expect(mockBack).toHaveBeenCalled();
   });
 });

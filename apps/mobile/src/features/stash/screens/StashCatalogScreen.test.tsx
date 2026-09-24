@@ -365,14 +365,14 @@ describe('StashCatalogScreen', () => {
     expect(getByText('Southern Weather')).toBeTruthy();
   });
 
-  it('navigates to /stash/modal when ADD BAG button is pressed', () => {
+  it('navigates to /stash/modal when ADD BEAN button is pressed', () => {
     const { getByLabelText } = render(
       <StashContext.Provider value={mockValue}>
         <StashCatalogScreen />
       </StashContext.Provider>
     );
 
-    fireEvent.press(getByLabelText('Add new bag to stash'));
+    fireEvent.press(getByLabelText('Add new bean to stash'));
     expect(mockPush).toHaveBeenCalledWith('/stash/modal');
   });
 

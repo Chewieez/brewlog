@@ -129,7 +129,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   const b = beans.find((item) => item.id === e.target.value);
                   if (b && onSelectBean) onSelectBean(b);
                 }}
-                className="bg-panel border border-border-subtle rounded px-2.5 py-1 text-xs font-mono font-medium text-text-primary focus:outline-none focus:border-accent cursor-pointer"
+                className="bg-panel border border-border-subtle rounded px-2.5 py-1 text-xs font-medium text-text-primary focus:outline-none focus:border-accent cursor-pointer"
               >
                 {beans.map((b) => (
                   <option key={b.id} value={b.id}>
@@ -138,7 +138,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 ))}
               </select>
             ) : (
-              <span className="text-text-secondary font-mono">
+              <span className="text-text-secondary text-xs">
                 {selectedBean ? `${selectedBean.name} (${selectedBean.roaster})` : "Specialty Blend"}
               </span>
             )}
@@ -164,9 +164,9 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
           <button
             onClick={onSelectOtherRecipe}
-            className="px-3.5 py-1.5 rounded border border-border-subtle hover:border-border-active hover:bg-panel text-xs font-mono text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
+            className="px-3.5 py-1.5 rounded border border-border-subtle hover:border-border-active hover:bg-panel text-xs font-mono uppercase tracking-wider text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
           >
-            Change Recipe
+            CHANGE RECIPE
           </button>
         </div>
       </div>
@@ -179,11 +179,11 @@ export const TimerView: React.FC<TimerViewProps> = ({
           
           {/* Active Stage & Linear Progress */}
           <div className="space-y-2.5">
-            <div className="flex items-center justify-between text-xs font-mono">
-              <span className="text-accent font-bold tracking-widest uppercase">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-accent font-bold tracking-widest uppercase font-mono">
                 {currentStage.name}
               </span>
-              <span className="text-text-muted">
+              <span className="text-text-muted tabular-nums">
                 {totalProgressPercent}% · Target: {formatTime(recipe.totalTimeSeconds)}
               </span>
             </div>
@@ -261,12 +261,12 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 {isRunning ? (
                   <>
                     <Pause className="w-4 h-4 fill-current" />
-                    <span>Pause</span>
+                    <span>PAUSE</span>
                   </>
                 ) : (
                   <>
                     <Play className="w-4 h-4 fill-current" />
-                    <span>{elapsedSeconds > 0 ? 'Resume' : 'Start Brew'}</span>
+                    <span>{elapsedSeconds > 0 ? 'RESUME' : 'START BREW'}</span>
                   </>
                 )}
               </button>
@@ -302,7 +302,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Brew Complete! Rate & Log to Cupping Sheet</span>
+                <span>BREW COMPLETE! RATE & LOG TO CUPPING SHEET</span>
               </button>
             </div>
           )}
@@ -314,7 +314,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
             <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted font-mono">
               POUR TIMELINE
             </h3>
-            <span className="text-xs font-mono text-accent font-semibold">
+            <span className="text-xs text-accent font-semibold tabular-nums">
               {recipe.stages.length} Stages
             </span>
           </div>
@@ -353,7 +353,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                     </div>
 
                     <div className="flex items-center space-x-3 text-xs">
-                      <span className="text-text-muted font-mono">
+                      <span className="text-text-muted tabular-nums">
                         {formatTime(stage.startSecond)} ({stage.durationSeconds}s)
                       </span>
                       <span className="font-light text-sm text-text-primary tabular-nums">

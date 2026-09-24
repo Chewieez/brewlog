@@ -97,9 +97,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   weight: {
-    fontFamily: FONTS.monoRegular,
+    fontFamily: FONTS.sansRegular,
     color: colors.textSecondary,
-    letterSpacing: 0.5,
+    fontVariant: ['tabular-nums'],
   },
   detachButton: {
     width: 44,

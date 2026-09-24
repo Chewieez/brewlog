@@ -149,7 +149,7 @@ describe('RecipeBuilderScreen', () => {
 
   it('validates empty name and disables or warns on save', async () => {
     const { getByText } = render(<RecipeBuilderScreen />);
-    fireEvent.click(getByText('Save Recipe'));
+    fireEvent.click(getByText('SAVE RECIPE'));
 
     expect(mockAddRecipe).not.toHaveBeenCalled();
     expect(getByText('Recipe name is required.')).toBeDefined();
@@ -164,14 +164,14 @@ describe('RecipeBuilderScreen', () => {
     // Dose = 0
     const doseInput = document.querySelector('input[value="15"]') as HTMLInputElement;
     fireEvent.change(doseInput, { target: { value: '0' } });
-    fireEvent.click(getByText('Save Recipe'));
+    fireEvent.click(getByText('SAVE RECIPE'));
 
     expect(mockAddRecipe).not.toHaveBeenCalled();
     expect(getByText('Coffee dose must be between 1g and 100g.')).toBeDefined();
 
     // Dose = 105
     fireEvent.change(doseInput, { target: { value: '105' } });
-    fireEvent.click(getByText('Save Recipe'));
+    fireEvent.click(getByText('SAVE RECIPE'));
     expect(getByText('Coffee dose must be between 1g and 100g.')).toBeDefined();
   });
 
@@ -184,14 +184,14 @@ describe('RecipeBuilderScreen', () => {
     // Ratio = 0.5
     const ratioInput = document.querySelector('input[value="16.67"]') as HTMLInputElement;
     fireEvent.change(ratioInput, { target: { value: '0.5' } });
-    fireEvent.click(getByText('Save Recipe'));
+    fireEvent.click(getByText('SAVE RECIPE'));
 
     expect(mockAddRecipe).not.toHaveBeenCalled();
     expect(getByText('Brew ratio must be between 1:1 and 1:30.')).toBeDefined();
 
     // Ratio = 35
     fireEvent.change(ratioInput, { target: { value: '35' } });
-    fireEvent.click(getByText('Save Recipe'));
+    fireEvent.click(getByText('SAVE RECIPE'));
     expect(getByText('Brew ratio must be between 1:1 and 1:30.')).toBeDefined();
   });
 
@@ -206,7 +206,7 @@ describe('RecipeBuilderScreen', () => {
     fireEvent.click(getByLabelText('Remove stage 1'));
     fireEvent.click(getByLabelText('Remove stage 1'));
 
-    fireEvent.click(getByText('Save Recipe'));
+    fireEvent.click(getByText('SAVE RECIPE'));
 
     expect(mockAddRecipe).not.toHaveBeenCalled();
     expect(
@@ -249,8 +249,8 @@ describe('RecipeBuilderScreen', () => {
     const notesInput = getByPlaceholderText('Personal notes, water specs, grinder settings...');
     fireEvent.change(notesInput, { target: { value: 'Ground with Comandante 24 clicks' } });
 
-    fireEvent.click(getByText('+ Add Brew Stage'));
-    fireEvent.click(getByText('Save Recipe'));
+    fireEvent.click(getByText('+ ADD STAGE'));
+    fireEvent.click(getByText('SAVE RECIPE'));
 
     await waitFor(() => {
       expect(mockAddRecipe).toHaveBeenCalledWith(
@@ -272,7 +272,7 @@ describe('RecipeBuilderScreen', () => {
     const nameInput = getByPlaceholderText('e.g. My Morning V60');
     fireEvent.change(nameInput, { target: { value: 'Valid Recipe' } });
 
-    fireEvent.click(getByText('Save Recipe'));
+    fireEvent.click(getByText('SAVE RECIPE'));
 
     await waitFor(() => {
       expect(alertSpy).toHaveBeenCalledWith('Save Failed', 'Network error writing to database');
@@ -301,7 +301,7 @@ describe('RecipeBuilderScreen', () => {
     expect(getByText('Edit Recipe')).toBeDefined();
     expect(getByDisplayValue('My Special V60')).toBeDefined();
 
-    fireEvent.click(getByText('Save Recipe'));
+    fireEvent.click(getByText('SAVE RECIPE'));
 
     await waitFor(() => {
       expect(mockUpdateRecipe).toHaveBeenCalledWith(
@@ -321,7 +321,7 @@ describe('RecipeBuilderScreen', () => {
     expect(getByText('Duplicate Recipe')).toBeDefined();
     expect(getByDisplayValue(`${DEFAULT_PRESET_RECIPES[0].name} (Copy)`)).toBeDefined();
 
-    fireEvent.click(getByText('Save Recipe'));
+    fireEvent.click(getByText('SAVE RECIPE'));
 
     await waitFor(() => {
       expect(mockAddRecipe).toHaveBeenCalledWith(

@@ -188,7 +188,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   : "text-text-muted hover:text-text-primary"
               }`}
             >
-              Sign In
+              SIGN IN
             </button>
             <button
               type="button"
@@ -199,7 +199,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   : "text-text-muted hover:text-text-primary"
               }`}
             >
-              Create Account
+              CREATE ACCOUNT
             </button>
           </div>
         ) : isForgot ? (
@@ -262,16 +262,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 onClick={() => switchMode("signin")}
                 className="flex items-center space-x-1.5 px-4 py-2 rounded bg-accent text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold hover:bg-accent-hover cursor-pointer transition-colors"
               >
-                <span>Go to Sign In</span>
+                <span>GO TO SIGN IN</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
 
               <button
                 type="button"
                 onClick={handleClose}
-                className="px-3 py-1.5 rounded text-xs font-mono text-text-muted hover:text-text-primary cursor-pointer"
+                className="px-3 py-1.5 rounded text-xs font-mono uppercase tracking-wider text-text-muted hover:text-text-primary cursor-pointer"
               >
-                Close
+                CLOSE
               </button>
             </div>
           </div>
@@ -397,22 +397,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 {isSignIn ? (
                   <>
                     <LogIn className="w-4 h-4" />
-                    <span>{submitting ? "Signing In..." : "Sign In"}</span>
+                    <span>{submitting ? "SIGNING IN..." : "SIGN IN"}</span>
                   </>
                 ) : isSignUp ? (
                   <>
                     <UserPlus className="w-4 h-4" />
-                    <span>{submitting ? "Creating Account..." : "Create Account"}</span>
+                    <span>{submitting ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"}</span>
                   </>
                 ) : isForgot ? (
                   <>
                     <KeyRound className="w-4 h-4" />
-                    <span>{submitting ? "Sending Link..." : "Send Password Reset Link"}</span>
+                    <span>{submitting ? "SENDING LINK..." : "SEND PASSWORD RESET LINK"}</span>
                   </>
                 ) : (
                   <>
                     <ShieldCheck className="w-4 h-4" />
-                    <span>{submitting ? "Updating Password..." : "Save New Password"}</span>
+                    <span>{submitting ? "UPDATING PASSWORD..." : "SAVE NEW PASSWORD"}</span>
                   </>
                 )}
               </button>
@@ -421,10 +421,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 <button
                   type="button"
                   onClick={() => switchMode("signin")}
-                  className="w-full flex items-center justify-center space-x-1.5 py-2 text-xs font-mono text-text-muted hover:text-text-primary cursor-pointer transition-colors"
+                  className="w-full flex items-center justify-center space-x-1.5 py-2 text-xs font-mono uppercase tracking-wider text-text-muted hover:text-text-primary cursor-pointer transition-colors"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Back to Sign In</span>
+                  <span>BACK TO SIGN IN</span>
                 </button>
               )}
             </div>

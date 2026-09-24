@@ -49,7 +49,7 @@ describe('App Routing', () => {
 
   it('navigates directly to /stash', () => {
     render(<TestApp initialPath="/stash" />);
-    expect(screen.getByText(/Add Coffee Beans?/i)).toBeDefined();
+    expect(screen.getByText(/ADD BEAN/i)).toBeDefined();
   });
 
   it('renders 404 page for unknown paths', () => {

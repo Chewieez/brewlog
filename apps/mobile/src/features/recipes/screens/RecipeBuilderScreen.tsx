@@ -259,7 +259,7 @@ export const RecipeBuilderScreen: React.FC = () => {
           accessibilityLabel="Save Recipe"
         >
           <Check size={18} color={colors.canvas} />
-          <Text style={styles.saveButtonText}>Save Recipe</Text>
+          <Text style={styles.saveButtonText}>SAVE RECIPE</Text>
         </Pressable>
       </View>
 
@@ -540,7 +540,7 @@ export const RecipeBuilderScreen: React.FC = () => {
 
         <Pressable onPress={handleAddStage} style={styles.addStageButton} accessibilityRole="button" accessibilityLabel="Add Brew Stage">
           <Plus size={16} color={colors.accent} />
-          <Text style={styles.addStageButtonText}>+ Add Brew Stage</Text>
+          <Text style={styles.addStageButtonText}>+ ADD STAGE</Text>
         </Pressable>
       </View>
     </ScrollView>
@@ -628,9 +628,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   timeSummaryText: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 12,
     color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
   },
   fieldLabel: {
     fontFamily: FONTS.monoBold,
@@ -648,6 +649,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontFamily: FONTS.sansRegular,
     fontSize: 14,
+    fontVariant: ['tabular-nums'],
   },
   multilineInput: {
     minHeight: 72,
@@ -716,8 +718,9 @@ const styles = StyleSheet.create({
     borderColor: colors.borderSubtle,
   },
   ratioPillText: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 11,
+    fontVariant: ['tabular-nums'],
   },
   ratioPillTextActive: {
     color: colors.accent,
@@ -741,9 +744,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   waterSummaryValue: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 15,
     color: colors.accent,
+    fontVariant: ['tabular-nums'],
   },
   stageEditorCard: {
     backgroundColor: colors.panelRecessed,
@@ -759,9 +763,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   stageNumber: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 11,
     color: colors.accent,
+    fontVariant: ['tabular-nums'],
   },
   stageActionIcons: {
     flexDirection: 'row',

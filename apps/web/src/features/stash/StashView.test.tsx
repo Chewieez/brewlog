@@ -71,7 +71,7 @@ describe('StashView', () => {
     );
 
     expect(screen.getByRole('heading', { level: 2, name: 'Coffee Bean Stash' })).toBeDefined();
-    expect(screen.getByRole('button', { name: /Add Coffee Bean/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /ADD BEAN/i })).toBeDefined();
     expect(screen.getByPlaceholderText(/Search by coffee name/i)).toBeDefined();
     expect(screen.getByRole('combobox')).toBeDefined();
   });
@@ -120,7 +120,7 @@ describe('StashView', () => {
     expect(pastPeakBadge.className).toContain('text-zinc-100');
   });
 
-  it('calls onSelectBeanForBrew when clicking "Brew This Bean →"', () => {
+  it('calls onSelectBeanForBrew when clicking "BREW →"', () => {
     const onSelect = vi.fn();
     render(
       <StashView
@@ -130,7 +130,7 @@ describe('StashView', () => {
       />
     );
 
-    const brewButtons = screen.getAllByRole('button', { name: /Brew This Bean →/i });
+    const brewButtons = screen.getAllByRole('button', { name: /BREW →/i });
     expect(brewButtons.length).toBe(3);
 
     fireEvent.click(brewButtons[0]);
@@ -196,7 +196,7 @@ describe('StashView', () => {
       />
     );
 
-    const addBtn = screen.getByRole('button', { name: /Add Coffee Bean/i });
+    const addBtn = screen.getByRole('button', { name: /ADD BEAN/i });
     fireEvent.click(addBtn);
 
     expect(screen.getByRole('dialog')).toBeDefined();
@@ -213,7 +213,7 @@ describe('StashView', () => {
       target: { value: 'Chocolate, Citrus' },
     });
 
-    const saveBtn = screen.getByRole('button', { name: 'Save Bean' });
+    const saveBtn = screen.getByRole('button', { name: /SAVE BEAN/i });
     fireEvent.click(saveBtn);
 
     expect(onAddBean).toHaveBeenCalledTimes(1);
