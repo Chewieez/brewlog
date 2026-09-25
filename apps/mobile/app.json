@@ -1,5 +1,4 @@
 {
-  "$schema": "https://json.schemastore.org/app.json",
   "expo": {
     "name": "BrewLog",
     "slug": "brewlog",
@@ -12,10 +11,6 @@
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#09090b"
-    },
-    "androidNavigationBar": {
-      "backgroundColor": "#09090b",
-      "barStyle": "light-content"
     },
     "ios": {
       "supportsTablet": true,
@@ -45,6 +40,12 @@
             "backgroundColor": "#09090b"
           },
           "imageWidth": 200
+        }
+      ],
+      [
+        "expo-navigation-bar",
+        {
+          "style": "light"
         }
       ]
     ]
