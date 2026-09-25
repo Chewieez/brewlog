@@ -117,4 +117,174 @@ describe('TimerView', () => {
     });
     expect(handleLog).toHaveBeenCalledTimes(1);
   });
+
+  it('switches between Guided Recipe and Free Brew modes', () => {
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    const guidedBtn = screen.getByRole('button', { name: /GUIDED RECIPE/i });
+    const freeBrewBtn = screen.getByRole('button', { name: /FREE BREW/i });
+
+    expect(guidedBtn).toBeDefined();
+    expect(freeBrewBtn).toBeDefined();
+
+    // Initially in recipe mode: shows POUR TIMELINE
+    expect(screen.getByText(/POUR TIMELINE/i)).toBeDefined();
+
+    // Switch to Free Brew mode
+    act(() => {
+      fireEvent.click(freeBrewBtn);
+    });
+
+    expect(screen.getByText(/SPLIT LOG/i)).toBeDefined();
+    expect(screen.getByRole('button', { name: /^SPLIT$/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /\+ Bloom/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /\+ Pour 1/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /\+ Drawdown/i })).toBeDefined();
+  });
+
+  it('records and removes splits in Free Brew mode', () => {
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        initialMode="free_brew"
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    // Start timer
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /START BREW/i }));
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(30000);
+    });
+
+    // Record Bloom split via quick tag
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /\+ Bloom/i }));
+    });
+
+    expect(screen.getByText('Bloom')).toBeDefined();
+
+    // Record second split via SPLIT button
+    act(() => {
+      vi.advanceTimersByTime(20000);
+    });
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /^SPLIT$/i }));
+    });
+
+    expect(screen.getByText('Split 2')).toBeDefined();
+
+    // Remove the first split
+    const removeBtns = screen.getAllByRole('button', { name: /Remove split/i });
+    expect(removeBtns.length).toBe(2);
+    act(() => {
+      fireEvent.click(removeBtns[0]);
+    });
+
+    expect(screen.queryByText('Bloom')).toBeNull();
+    expect(screen.getByText('Split 2')).toBeDefined();
+  });
+
+  it('prompts confirmation when switching mode during an active brew', () => {
+    const confirmSpy = vi.spyOn(window, 'confirm');
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    // Start timer in recipe mode
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /START BREW/i }));
+    });
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    // Attempt to switch to free brew, user cancels
+    confirmSpy.mockReturnValueOnce(false);
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /FREE BREW/i }));
+    });
+
+    expect(confirmSpy).toHaveBeenCalledTimes(1);
+    // Still in recipe mode
+    expect(screen.getByText(/POUR TIMELINE/i)).toBeDefined();
+
+    // Attempt to switch, user confirms
+    confirmSpy.mockReturnValueOnce(true);
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /FREE BREW/i }));
+    });
+
+    expect(confirmSpy).toHaveBeenCalledTimes(2);
+    // Now switched to Free Brew mode
+    expect(screen.getByText(/SPLIT LOG/i)).toBeDefined();
+    confirmSpy.mockRestore();
+  });
+
+  it('finishes Free Brew, presents cupping log and custom recipe save actions', () => {
+    const handleLog = vi.fn();
+    const handleSave = vi.fn();
+
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        initialMode="free_brew"
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={handleLog}
+        onSaveAsRecipe={handleSave}
+      />
+    );
+
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /START BREW/i }));
+    });
+    act(() => {
+      vi.advanceTimersByTime(45000);
+    });
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /\+ Bloom/i }));
+    });
+
+    // Finish brew
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /FINISH BREW/i }));
+    });
+
+    // Both action buttons should be visible
+    const cuppingBtn = screen.getByRole('button', {
+      name: /RATE & LOG TO CUPPING SHEET/i,
+    });
+    const saveRecipeBtn = screen.getByRole('button', {
+      name: /SAVE AS CUSTOM RECIPE/i,
+    });
+
+    expect(cuppingBtn).toBeDefined();
+    expect(saveRecipeBtn).toBeDefined();
+
+    act(() => {
+      fireEvent.click(saveRecipeBtn);
+    });
+    expect(handleSave).toHaveBeenCalledTimes(1);
+    expect(handleSave.mock.calls[0][0].stages).toHaveLength(1);
+
+    act(() => {
+      fireEvent.click(cuppingBtn);
+    });
+    expect(handleLog).toHaveBeenCalledTimes(1);
+  });
 });
+
