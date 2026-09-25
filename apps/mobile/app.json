@@ -6,6 +6,16 @@
     "orientation": "portrait",
     "scheme": "brewlog",
     "userInterfaceStyle": "dark",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#09090b"
+    },
+    "androidNavigationBar": {
+      "backgroundColor": "#09090b",
+      "barStyle": "light-content"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.brewlog.app",
@@ -15,6 +25,7 @@
     },
     "android": {
       "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#09090b"
       },
       "package": "com.brewlog.app"
