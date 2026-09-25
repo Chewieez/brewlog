@@ -5,6 +5,9 @@ import { render } from '@testing-library/react';
 import RootLayout from '../app/_layout';
 
 vi.mock('react-native-get-random-values', () => ({}));
+vi.mock('react-native', () => ({
+  Platform: { OS: 'ios' },
+}));
 
 vi.mock('react-native-safe-area-context', () => ({
   SafeAreaProvider: ({ children }: any) => <div data-testid="mock-safe-area-provider">{children}</div>,
@@ -12,6 +15,12 @@ vi.mock('react-native-safe-area-context', () => ({
 
 vi.mock('expo-status-bar', () => ({
   StatusBar: () => null,
+}));
+
+vi.mock('expo-navigation-bar', () => ({
+  NavigationBar: () => null,
+  setStyle: vi.fn(),
+  setHidden: vi.fn(),
 }));
 
 vi.mock('expo-router', () => ({
