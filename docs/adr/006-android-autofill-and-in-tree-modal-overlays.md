@@ -35,6 +35,9 @@ During physical device testing on Android (Google Pixel running Android 15/16 wi
 ### 1. In-Tree Absolute Overlays for Critical Interactive Sheets
 * Replaced React Native's `<Modal>` in `AuthSheet` with an in-tree overlay (`position: 'absolute'`, `StyleSheet.absoluteFillObject`, `elevation: 1000`, `zIndex: 1000`).
 * Anchored the overlay inside a `<View style={{ flex: 1 }}>` wrapper in the root tab navigator (`apps/mobile/app/(tabs)/_layout.tsx`).
+* Added `accessibilityViewIsModal={true}` and `aria-modal="true"` to the root overlay view to ensure screen readers (VoiceOver and TalkBack) trap focus within the sheet rather than navigating behind it into background tab content.
+* Incorporated smooth entrance and exit animations (`translateY` slide on `sheetContainer` and `opacity` fade on `backdrop`) to preserve the native sheet feel without abrupt mount/unmount visual snaps.
+* Applied dynamic bottom safe area padding using `useSafeAreaInsets().bottom` (`Math.max(28, insets.bottom + 12)`) to accommodate Android 15 edge-to-edge 3-button/gesture bars and iOS home indicators.
 * **Result**: All inputs reside directly within `MainActivity`'s primary view hierarchy, allowing Android's `AutofillManager` and third-party password managers to inspect and autofill credentials without window isolation barriers.
 
 ### 2. Dual-Platform Autofill Hint Strategy
@@ -50,9 +53,11 @@ All authentication and credential inputs must supply matching attributes for bot
 
 * Note: React Native's Android engine maps `"password-new"` to `View.AUTOFILL_HINT_NEW_PASSWORD`. Using unmapped strings like `"new-password"` triggers a fallback that breaks Android autofill hint assignment.
 
-### 3. Automated Keyboard Dismissal & Smooth Animated Padding
-* Whenever an auth or profile sheet becomes visible (`visible === true`), immediately invoke `Keyboard.dismiss()` to prevent background inputs from keeping the soft keyboard open.
-* Avoid `<KeyboardAvoidingView>` inside complex overlay hierarchies. Instead, subscribe directly to `Keyboard.addListener` (`keyboardWillShow`/`keyboardDidShow` and `keyboardWillHide`/`keyboardDidHide`) and drive an `Animated.Value` applied to `paddingBottom` with easing.
+### 3. Automated Keyboard Dismissal & Platform-Specific Keyboard Avoidance
+* Whenever an auth or profile sheet becomes visible (`visible === true`) or is dismissed/closed (`handleCloseAuthSheet`), immediately invoke `Keyboard.dismiss()` to prevent background inputs from keeping the soft keyboard open or unmounting focused inputs with lingering keyboards.
+* Avoid `<KeyboardAvoidingView>` inside complex overlay hierarchies.
+* On **Android**, Expo/React Native defaults to `softwareKeyboardLayoutMode: "resize"` (`android:windowSoftInputMode="adjustResize"`). The OS automatically resizes the root container by the keyboard height when the keyboard opens, placing in-tree absolute overlays (`bottom: 0`) directly atop the keyboard. Applying manual `paddingBottom` on Android causes double-padding (`2 * keyboardHeight`) and a viewport snap/drift glitch when `keyboardDidShow` fires. Therefore, manual padding is bypassed entirely on Android.
+* On **iOS**, the root viewport is not automatically resized by the OS, so `AuthSheet` listens to `keyboardWillShow` and `keyboardWillHide` to drive an `Animated.Value` applied to `paddingBottom` with easing.
 
 ### 4. Android Hardware Back Button Subscription
 * When an in-tree overlay is visible, register a `BackHandler` listener (`hardwareBackPress`).

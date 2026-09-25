@@ -84,27 +84,27 @@ Configured cross-platform autofill props:
 
 ### 3. Smooth Keyboard Avoidance & Auto-Dismissal
 - Added `Keyboard.dismiss()` on sheet trigger in both `_layout.tsx` and `AuthSheet.tsx`.
-- Replaced `<KeyboardAvoidingView>` with an `Animated.Value` listener reacting to `keyboardWillShow`/`keyboardDidShow` and `keyboardWillHide`/`keyboardDidHide`:
+- On Android, Expo defaults to `softwareKeyboardLayoutMode: "resize"` (`adjustResize`), automatically resizing the root viewport atop the soft keyboard. Manual `paddingBottom` animation is bypassed on Android to prevent double-padding and viewport jump/drift.
+- On iOS, `keyboardWillShow` and `keyboardWillHide` animate `keyboardPadding` via `Animated.Value`:
 ```tsx
 const keyboardPadding = useRef(new Animated.Value(0)).current;
 
 useEffect(() => {
-  const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
-  const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+  if (Platform.OS === "android") return;
 
-  const showSub = Keyboard.addListener(showEvent, (e) => {
+  const showSub = Keyboard.addListener("keyboardWillShow", (e) => {
     Animated.timing(keyboardPadding, {
       toValue: e.endCoordinates.height,
-      duration: Platform.OS === "ios" ? (e.duration || 250) : 220,
+      duration: e.duration || 250,
       easing: Easing.out(Easing.ease),
       useNativeDriver: false,
     }).start();
   });
 
-  const hideSub = Keyboard.addListener(hideEvent, (e) => {
+  const hideSub = Keyboard.addListener("keyboardWillHide", (e) => {
     Animated.timing(keyboardPadding, {
       toValue: 0,
-      duration: Platform.OS === "ios" ? (e?.duration || 200) : 200,
+      duration: e?.duration || 200,
       easing: Easing.out(Easing.ease),
       useNativeDriver: false,
     }).start();

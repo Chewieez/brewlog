@@ -5,11 +5,14 @@ import { render, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import { AuthSheet } from "./AuthSheet";
 import * as AuthContextModule from "./AuthContext";
 
-const { mockAlert, mockKeyboardDismiss, getBackHandlerListeners, setBackHandlerListeners } = vi.hoisted(() => {
+import { Platform, Keyboard, Animated } from "react-native";
+
+const { mockAlert, mockKeyboardDismiss, mockKeyboardAddListener, getBackHandlerListeners, setBackHandlerListeners } = vi.hoisted(() => {
   let listeners: any[] = [];
   return {
     mockAlert: vi.fn(),
     mockKeyboardDismiss: vi.fn(),
+    mockKeyboardAddListener: vi.fn(() => ({ remove: vi.fn() })),
     getBackHandlerListeners: () => listeners,
     setBackHandlerListeners: (next: any[]) => {
       listeners = next;
@@ -22,15 +25,17 @@ vi.mock("../../lib/supabase", () => ({
   supabase: null,
 }));
 
+vi.mock("react-native-safe-area-context", () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
+
 vi.mock("react-native", () => ({
-  Modal: ({ visible, statusBarTranslucent, children }: any) =>
-    visible ? (
-      <div data-testid="modal" data-status-bar-translucent={statusBarTranslucent ? "true" : undefined}>
-        {children}
-      </div>
-    ) : null,
-  View: ({ children, style, testID, ...props }: any) => (
-    <div data-testid={testID} {...props}>
+  View: ({ children, style, testID, accessibilityViewIsModal, ...props }: any) => (
+    <div
+      data-testid={testID}
+      data-accessibility-view-is-modal={accessibilityViewIsModal ? "true" : undefined}
+      {...props}
+    >
       {children}
     </div>
   ),
@@ -57,6 +62,7 @@ vi.mock("react-native", () => ({
       placeholder={placeholder}
       aria-label={accessibilityLabel}
       autoComplete={autoComplete}
+      data-text-content-type={textContentType}
       data-important-for-autofill={importantForAutofill}
       onChange={(e) => onChangeText?.(e.target.value)}
       {...props}
@@ -105,6 +111,12 @@ vi.mock("react-native", () => ({
     timing: vi.fn(() => ({
       start: vi.fn((cb?: any) => cb?.()),
     })),
+    parallel: vi.fn((animations: any[]) => ({
+      start: vi.fn((cb?: any) => {
+        animations?.forEach((a) => a?.start?.());
+        cb?.();
+      }),
+    })),
     View: ({ children, style, testID, ...props }: any) => (
       <div data-testid={testID || "animated-view"} {...props}>
         {children}
@@ -112,10 +124,11 @@ vi.mock("react-native", () => ({
     ),
   },
   Keyboard: {
-    addListener: vi.fn(() => ({ remove: vi.fn() })),
+    addListener: mockKeyboardAddListener,
     dismiss: mockKeyboardDismiss,
   },
   Easing: {
+    in: (fn: any) => fn,
     out: (fn: any) => fn,
     ease: (t: number) => t,
   },
@@ -831,7 +844,7 @@ describe("AuthSheet", () => {
     expect((passwordInput as HTMLInputElement).value).toBe("");
   });
 
-  it("renders in-tree overlay container and animated keyboard container", () => {
+  it("renders in-tree overlay container and animated keyboard container with accessibility modal trapping", () => {
     vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
       user: null,
       session: null,
@@ -843,15 +856,34 @@ describe("AuthSheet", () => {
       signOut: mockSignOut,
     });
 
-    const { getByTestId } = render(
+    const { getByTestId, getAllByTestId } = render(
       <AuthSheet visible={true} onClose={vi.fn()} />
     );
 
     const modal = getByTestId("modal");
     expect(modal).toBeDefined();
+    expect(modal.getAttribute("aria-modal")).toBe("true");
+    expect(modal.getAttribute("data-accessibility-view-is-modal")).toBe("true");
 
-    const animatedView = getByTestId("animated-view");
-    expect(animatedView).toBeDefined();
+    const animatedViews = getAllByTestId("animated-view");
+    expect(animatedViews.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("animates slide and backdrop on open and applies safe area bottom padding", () => {
+    (Animated.timing as any).mockClear();
+    (Animated.parallel as any).mockClear();
+
+    render(<AuthSheet visible={true} onClose={vi.fn()} />);
+
+    expect(Animated.parallel).toHaveBeenCalled();
+    expect(Animated.timing).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ toValue: 1, duration: 200 })
+    );
+    expect(Animated.timing).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ toValue: 0, duration: 250 })
+    );
   });
 
   it("registers hardware back press listener and triggers onClose", () => {
@@ -862,6 +894,52 @@ describe("AuthSheet", () => {
     const cb = listeners[listeners.length - 1];
     cb();
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("suppresses hardware back press dismissal when submission is in flight", async () => {
+    let resolveSignIn: any;
+    mockSignIn.mockImplementation(
+      () => new Promise((resolve) => { resolveSignIn = resolve; })
+    );
+
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    const onClose = vi.fn();
+    const { getAllByText, getByPlaceholderText } = render(
+      <AuthSheet visible={true} onClose={onClose} />
+    );
+
+    fireEvent.change(getByPlaceholderText("you@example.com"), {
+      target: { value: "barista@brewlog.dev" },
+    });
+    fireEvent.change(getByPlaceholderText("••••••••"), {
+      target: { value: "password123" },
+    });
+
+    const signInButtons = getAllByText("SIGN IN");
+    fireEvent.click(signInButtons[signInButtons.length - 1]);
+
+    // Submission is in flight
+    const listeners = getBackHandlerListeners();
+    expect(listeners.length).toBeGreaterThan(0);
+    const cb = listeners[listeners.length - 1];
+    const handled = cb();
+
+    expect(handled).toBe(true);
+    expect(onClose).not.toHaveBeenCalled();
+
+    // Finish async submission
+    resolveSignIn?.({ error: null });
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
   });
 
   it("configures inputs with appropriate autoComplete and importantForAutofill metadata for password managers", () => {
@@ -880,29 +958,43 @@ describe("AuthSheet", () => {
       <AuthSheet visible={true} onClose={vi.fn()} />
     );
 
-    // Sign in mode
+    // Sign in mode: username / password
     const emailInput = getByPlaceholderText("you@example.com");
     expect(emailInput.getAttribute("autocomplete")).toBe("username");
+    expect(emailInput.getAttribute("data-text-content-type")).toBe("username");
     expect(emailInput.getAttribute("data-important-for-autofill")).toBe("yes");
 
     const passwordInput = getByPlaceholderText("••••••••");
     expect(passwordInput.getAttribute("autocomplete")).toBe("password");
+    expect(passwordInput.getAttribute("data-text-content-type")).toBe("password");
     expect(passwordInput.getAttribute("data-important-for-autofill")).toBe("yes");
 
-    // Switch to create account mode
+    // Switch to create account mode: email / name / password-new
     fireEvent.click(getByText("CREATE ACCOUNT"));
 
     const signUpEmailInput = getByPlaceholderText("you@example.com");
     expect(signUpEmailInput.getAttribute("autocomplete")).toBe("email");
+    expect(signUpEmailInput.getAttribute("data-text-content-type")).toBe("emailAddress");
     expect(signUpEmailInput.getAttribute("data-important-for-autofill")).toBe("yes");
 
     const nameInput = getByPlaceholderText("e.g. Greg");
     expect(nameInput.getAttribute("autocomplete")).toBe("name");
+    expect(nameInput.getAttribute("data-text-content-type")).toBe("name");
     expect(nameInput.getAttribute("data-important-for-autofill")).toBe("yes");
 
     const newPasswordInput = getByPlaceholderText("••••••••");
     expect(newPasswordInput.getAttribute("autocomplete")).toBe("password-new");
+    expect(newPasswordInput.getAttribute("data-text-content-type")).toBe("newPassword");
     expect(newPasswordInput.getAttribute("data-important-for-autofill")).toBe("yes");
+
+    // Switch to forgot password mode: email (reset)
+    fireEvent.click(getByText("SIGN IN"));
+    fireEvent.click(getByText("Forgot password?"));
+
+    const forgotEmailInput = getByPlaceholderText("you@example.com");
+    expect(forgotEmailInput.getAttribute("autocomplete")).toBe("email");
+    expect(forgotEmailInput.getAttribute("data-text-content-type")).toBe("emailAddress");
+    expect(forgotEmailInput.getAttribute("data-important-for-autofill")).toBe("yes");
   });
 
   it("unmounts cleanly without throwing", () => {
@@ -939,5 +1031,124 @@ describe("AuthSheet", () => {
 
     render(<AuthSheet visible={true} onClose={vi.fn()} />);
     expect(mockKeyboardDismiss).toHaveBeenCalled();
+  });
+
+  it("subscribes to keyboardWillShow and keyboardWillHide on iOS and drives keyboardPadding", () => {
+    mockKeyboardAddListener.mockClear();
+    (Animated.timing as any).mockClear();
+    (Platform as any).OS = "ios";
+
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    const { unmount } = render(<AuthSheet visible={true} onClose={vi.fn()} />);
+
+    expect(mockKeyboardAddListener).toHaveBeenCalledWith(
+      "keyboardWillShow",
+      expect.any(Function)
+    );
+    expect(mockKeyboardAddListener).toHaveBeenCalledWith(
+      "keyboardWillHide",
+      expect.any(Function)
+    );
+
+    // Simulate keyboardWillShow event
+    const showCall = (mockKeyboardAddListener.mock.calls as unknown as [string, (e: any) => void][]).find(
+      (call) => call[0] === "keyboardWillShow"
+    );
+    expect(showCall).toBeDefined();
+    showCall![1]({ endCoordinates: { height: 320 }, duration: 250 });
+
+    expect(Animated.timing).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        toValue: 320,
+        duration: 250,
+      })
+    );
+
+    // Simulate keyboardWillHide event
+    const hideCall = (mockKeyboardAddListener.mock.calls as unknown as [string, (e: any) => void][]).find(
+      (call) => call[0] === "keyboardWillHide"
+    );
+    expect(hideCall).toBeDefined();
+    hideCall![1]({ duration: 200 });
+
+    expect(Animated.timing).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        toValue: 0,
+        duration: 200,
+      })
+    );
+
+    unmount();
+  });
+
+  it("bypasses keyboard listener subscriptions on Android to avoid adjustResize double-padding", () => {
+    mockKeyboardAddListener.mockClear();
+    (Platform as any).OS = "android";
+
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    try {
+      render(<AuthSheet visible={true} onClose={vi.fn()} />);
+      expect(mockKeyboardAddListener).not.toHaveBeenCalled();
+    } finally {
+      (Platform as any).OS = "ios";
+    }
+  });
+
+  it("does not attach keyboard listeners when visible is false and removes them on hide", () => {
+    mockKeyboardAddListener.mockClear();
+    (Platform as any).OS = "ios";
+
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    const { rerender } = render(<AuthSheet visible={false} onClose={vi.fn()} />);
+    expect(mockKeyboardAddListener).not.toHaveBeenCalled();
+
+    // Show sheet
+    rerender(<AuthSheet visible={true} onClose={vi.fn()} />);
+    expect(mockKeyboardAddListener).toHaveBeenCalledWith(
+      "keyboardWillShow",
+      expect.any(Function)
+    );
+    expect(mockKeyboardAddListener).toHaveBeenCalledWith(
+      "keyboardWillHide",
+      expect.any(Function)
+    );
+
+    const mockRemove = mockKeyboardAddListener.mock.results[0].value.remove;
+
+    // Hide sheet
+    rerender(<AuthSheet visible={false} onClose={vi.fn()} />);
+    expect(mockRemove).toHaveBeenCalled();
   });
 });

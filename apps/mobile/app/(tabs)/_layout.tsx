@@ -22,6 +22,7 @@ export default function TabLayout() {
   }, []);
 
   const handleCloseAuthSheet = useCallback(() => {
+    Keyboard.dismiss();
     setAuthSheetVisible(false);
   }, []);
 
