@@ -209,4 +209,91 @@ describe('useMobileBrewTimer', () => {
     expect(result.current.elapsedSeconds).toBe(0);
     expect(result.current.isRunning).toBe(false);
   });
+
+  it('supports free_brew mode with split recording and interval calculation', () => {
+    const mockRecipe = recipe;
+    const { result } = renderHook(() => useMobileBrewTimer(mockRecipe, 'free_brew'));
+
+    expect(result.current.splits).toEqual([]);
+
+    act(() => {
+      result.current.start();
+    });
+
+    // Advance clock by 45 seconds
+    act(() => {
+      vi.advanceTimersByTime(45000);
+    });
+
+    act(() => {
+      result.current.recordSplit('Bloom', 'bloom');
+    });
+
+    expect(result.current.splits).toHaveLength(1);
+    expect(result.current.splits[0].label).toBe('Bloom');
+    expect(result.current.splits[0].second).toBe(45);
+    expect(result.current.splits[0].intervalSeconds).toBe(45);
+
+    // Advance by another 30 seconds
+    act(() => {
+      vi.advanceTimersByTime(30000);
+    });
+
+    act(() => {
+      result.current.recordSplit('First Pour', 'pour');
+    });
+
+    expect(result.current.splits).toHaveLength(2);
+    expect(result.current.splits[1].second).toBe(75);
+    expect(result.current.splits[1].intervalSeconds).toBe(30);
+
+    // Test remove split
+    const splitId = result.current.splits[0].id;
+    act(() => {
+      result.current.removeSplit(splitId);
+    });
+    expect(result.current.splits).toHaveLength(1);
+    expect(result.current.splits[0].label).toBe('First Pour');
+  });
+
+  it('suppresses stage chimes and countdown haptics when mode is free_brew', () => {
+    const { result } = renderHook(() => useMobileBrewTimer(recipe, 'free_brew'));
+
+    act(() => {
+      result.current.start();
+    });
+
+    // Advance past stage 0 and 1 boundaries
+    act(() => {
+      vi.advanceTimersByTime(50000);
+    });
+
+    expect(mobileFeedback.triggerHapticStageTransition).not.toHaveBeenCalled();
+    expect(mobileFeedback.playChime).not.toHaveBeenCalled();
+    expect(mobileFeedback.triggerHapticCountdown).not.toHaveBeenCalled();
+  });
+
+  it('clears splits when reset is called and provides defaults for omitted label/tag', () => {
+    const { result } = renderHook(() => useMobileBrewTimer(recipe, 'free_brew'));
+
+    act(() => {
+      result.current.start();
+    });
+    act(() => {
+      vi.advanceTimersByTime(20000);
+    });
+    act(() => {
+      result.current.recordSplit();
+    });
+
+    expect(result.current.splits).toHaveLength(1);
+    expect(result.current.splits[0].label).toBe('Split 1');
+    expect(result.current.splits[0].tag).toBe('custom');
+
+    act(() => {
+      result.current.reset();
+    });
+    expect(result.current.splits).toEqual([]);
+  });
 });
+

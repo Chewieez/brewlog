@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { BrewRecipe, BrewStage } from '@brewlog/core';
+import { BrewRecipe, BrewStage, TimerMode, BrewSplit, SplitTag } from '@brewlog/core';
 import { mobileFeedback } from '../lib/mobileFeedback';
 
 export interface UseMobileBrewTimerReturn {
@@ -13,6 +13,9 @@ export interface UseMobileBrewTimerReturn {
   nextStage: BrewStage | undefined;
   totalProgress: number;
   stageProgress: number;
+  splits: BrewSplit[];
+  recordSplit: (label?: string, tag?: SplitTag) => void;
+  removeSplit: (id: string) => void;
   start: () => void;
   pause: () => void;
   reset: () => void;
@@ -30,16 +33,23 @@ const defaultFallbackStage: BrewStage = {
   stageType: 'pour',
 };
 
-export const useMobileBrewTimer = (recipe: BrewRecipe): UseMobileBrewTimerReturn => {
+export const useMobileBrewTimer = (
+  recipe: BrewRecipe,
+  mode: TimerMode = 'recipe'
+): UseMobileBrewTimerReturn => {
   const [isRunning, setIsRunning] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [splits, setSplits] = useState<BrewSplit[]>([]);
 
   const startTimeRef = useRef<number>(0);
   const accumulatedMsRef = useRef<number>(0);
   const recipeRef = useRef<BrewRecipe>(recipe);
   recipeRef.current = recipe;
+
+  const modeRef = useRef<TimerMode>(mode);
+  modeRef.current = mode;
 
   const isMutedRef = useRef<boolean>(isMuted);
   isMutedRef.current = isMuted;
@@ -94,35 +104,38 @@ export const useMobileBrewTimer = (recipe: BrewRecipe): UseMobileBrewTimerReturn
         setElapsedSeconds(currentSec);
 
         const currentRecipe = recipeRef.current;
+        const currentMode = modeRef.current;
         const muted = isMutedRef.current;
 
-        // Stage transition trigger
-        for (let idx = 0; idx < currentRecipe.stages.length; idx++) {
-          const stage = currentRecipe.stages[idx];
-          if (currentSec === stage.startSecond && lastChimedStageRef.current < idx) {
-            lastChimedStageRef.current = idx;
-            mobileFeedback.triggerHapticStageTransition();
-            mobileFeedback.playChime(muted);
-            break;
+        if (currentMode === 'recipe') {
+          // Stage transition trigger
+          for (let idx = 0; idx < currentRecipe.stages.length; idx++) {
+            const stage = currentRecipe.stages[idx];
+            if (currentSec === stage.startSecond && lastChimedStageRef.current < idx) {
+              lastChimedStageRef.current = idx;
+              mobileFeedback.triggerHapticStageTransition();
+              mobileFeedback.playChime(muted);
+              break;
+            }
           }
-        }
 
-        // 3-2-1 countdown ticks
-        const upcomingStage = currentRecipe.stages.find((s) => s.startSecond > currentSec);
-        if (upcomingStage) {
-          const secondsUntil = upcomingStage.startSecond - currentSec;
-          if (secondsUntil <= 3 && secondsUntil > 0 && lastTickedSecondRef.current !== currentSec) {
-            lastTickedSecondRef.current = currentSec;
-            mobileFeedback.triggerHapticCountdown();
+          // 3-2-1 countdown ticks
+          const upcomingStage = currentRecipe.stages.find((s) => s.startSecond > currentSec);
+          if (upcomingStage) {
+            const secondsUntil = upcomingStage.startSecond - currentSec;
+            if (secondsUntil <= 3 && secondsUntil > 0 && lastTickedSecondRef.current !== currentSec) {
+              lastTickedSecondRef.current = currentSec;
+              mobileFeedback.triggerHapticCountdown();
+            }
           }
-        }
 
-        // Finish detection
-        if (currentSec >= currentRecipe.totalTimeSeconds && currentRecipe.totalTimeSeconds > 0) {
-          setIsFinished(true);
-          setIsRunning(false);
-          mobileFeedback.triggerHapticBrewComplete();
-          clearInterval(intervalId);
+          // Finish detection
+          if (currentSec >= currentRecipe.totalTimeSeconds && currentRecipe.totalTimeSeconds > 0) {
+            setIsFinished(true);
+            setIsRunning(false);
+            mobileFeedback.triggerHapticBrewComplete();
+            clearInterval(intervalId);
+          }
         }
       }
     }, 50);
@@ -151,10 +164,31 @@ export const useMobileBrewTimer = (recipe: BrewRecipe): UseMobileBrewTimerReturn
     setIsRunning(false);
     setElapsedSeconds(0);
     setIsFinished(false);
+    setSplits([]);
     accumulatedMsRef.current = 0;
     lastReportedSecondRef.current = -1;
     lastChimedStageRef.current = -1;
     lastTickedSecondRef.current = -1;
+  }, []);
+
+  const recordSplit = useCallback((label?: string, tag?: SplitTag) => {
+    const id = `split-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const lastSplitSecond = splits.length > 0 ? splits[splits.length - 1].second : 0;
+    const intervalSeconds = Math.max(0, elapsedSeconds - lastSplitSecond);
+    const newSplit: BrewSplit = {
+      id,
+      second: elapsedSeconds,
+      intervalSeconds,
+      label: label || `Split ${splits.length + 1}`,
+      tag: tag || 'custom',
+    };
+    setSplits((prev) => [...prev, newSplit]);
+    mobileFeedback.triggerHapticTap();
+  }, [elapsedSeconds, splits]);
+
+  const removeSplit = useCallback((id: string) => {
+    setSplits((prev) => prev.filter((s) => s.id !== id));
+    mobileFeedback.triggerHapticTap();
   }, []);
 
   const toggleTimer = useCallback(() => {
@@ -183,6 +217,9 @@ export const useMobileBrewTimer = (recipe: BrewRecipe): UseMobileBrewTimerReturn
     nextStage,
     totalProgress,
     stageProgress,
+    splits,
+    recordSplit,
+    removeSplit,
     start,
     pause,
     reset,
