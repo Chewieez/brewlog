@@ -136,5 +136,19 @@ describe('FreeBrewSplitTimeline', () => {
     expect(getByText('DRAWDOWN')).toBeTruthy();
     expect(getByText('CUSTOM')).toBeTruthy();
   });
+
+  it('omits delete buttons when rendered in readOnly mode or without onRemoveSplit', () => {
+    const splits: BrewSplit[] = [
+      { id: 's1', second: 45, intervalSeconds: 45, label: 'Bloom', tag: 'bloom' },
+    ];
+    const { queryByLabelText, rerender } = render(
+      <FreeBrewSplitTimeline splits={splits} readOnly={true} onRemoveSplit={vi.fn()} />
+    );
+
+    expect(queryByLabelText('Delete split Bloom')).toBeNull();
+
+    rerender(<FreeBrewSplitTimeline splits={splits} />);
+    expect(queryByLabelText('Delete split Bloom')).toBeNull();
+  });
 });
 

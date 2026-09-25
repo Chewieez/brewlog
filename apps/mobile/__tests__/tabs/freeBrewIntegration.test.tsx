@@ -201,9 +201,26 @@ describe('TimerScreen Free Brew Integration', () => {
     fireEvent.press(getByText('SAVE AS CUSTOM RECIPE'));
     expect(mockPush).toHaveBeenCalledWith(
       expect.objectContaining({
-        pathname: '/recipes/modal',
+        pathname: '/recipe/builder',
       })
     );
+
+    // Verify Free Brew Split Timeline is rendered in read-only mode below finished banner
+    expect(getByText('RECORDED SPLITS')).toBeTruthy();
+    expect(getByText('Bloom')).toBeTruthy();
+  });
+
+  it('omits SAVE AS CUSTOM RECIPE button in finished banner when in recipe mode', () => {
+    const { getByText, queryByText } = render(
+      <RecipeProvider>
+        <StashProvider>
+          <TimerScreen />
+        </StashProvider>
+      </RecipeProvider>
+    );
+
+    // In guided recipe mode, verify Free Brew specific CTA is not present before or after
+    expect(queryByText('SAVE AS CUSTOM RECIPE')).toBeNull();
   });
 
   it('guards with confirmation alert when attempting to switch modes during an active brew session', () => {

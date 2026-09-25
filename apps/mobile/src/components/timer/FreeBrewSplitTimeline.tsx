@@ -8,7 +8,8 @@ const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface FreeBrewSplitTimelineProps {
   splits: BrewSplit[];
-  onRemoveSplit: (id: string) => void;
+  onRemoveSplit?: (id: string) => void;
+  readOnly?: boolean;
 }
 
 const formatSplitTime = (second: number): string => {
@@ -33,6 +34,7 @@ const getTagColor = (tag?: SplitTag): string => {
 export const FreeBrewSplitTimeline: React.FC<FreeBrewSplitTimelineProps> = ({
   splits,
   onRemoveSplit,
+  readOnly = false,
 }) => {
   return (
     <View style={styles.container}>
@@ -84,15 +86,17 @@ export const FreeBrewSplitTimeline: React.FC<FreeBrewSplitTimelineProps> = ({
                   </View>
                 </View>
 
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`Delete split ${split.label}`}
-                  onPress={() => onRemoveSplit(split.id)}
-                  hitSlop={8}
-                  style={styles.deleteButton}
-                >
-                  <Trash2 size={16} color={colors.textMuted} />
-                </Pressable>
+                {!readOnly && onRemoveSplit ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`Delete split ${split.label}`}
+                    onPress={() => onRemoveSplit(split.id)}
+                    hitSlop={8}
+                    style={styles.deleteButton}
+                  >
+                    <Trash2 size={16} color={colors.textMuted} />
+                  </Pressable>
+                ) : null}
               </View>
             );
           })}

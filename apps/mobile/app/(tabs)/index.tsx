@@ -183,7 +183,7 @@ export default function TimerScreen() {
     );
 
     router.push({
-      pathname: '/recipes/modal',
+      pathname: '/recipe/builder',
       params: {
         stages: JSON.stringify(generatedStages),
         initialDose: String(activeTimerDose),
@@ -290,7 +290,8 @@ export default function TimerScreen() {
 
       {/* Finished Banner or Timeline View */}
       {isFinished ? (
-        <View style={styles.finishedBanner}>
+        <>
+          <View style={styles.finishedBanner}>
           <Text style={styles.finishedTitle}>BREW COMPLETE</Text>
           <Text style={styles.finishedSubtitle}>
             Completed in {Math.floor(elapsedSeconds / 60)}m {elapsedSeconds % 60}s
@@ -324,15 +325,17 @@ export default function TimerScreen() {
             </View>
           ) : null}
 
-          {/* Save as Custom Recipe CTA */}
-          <Pressable
-            onPress={handleSaveAsRecipe}
-            style={styles.saveRecipeButton}
-            accessibilityRole="button"
-            accessibilityLabel="Save as Custom Recipe"
-          >
-            <Text style={styles.saveRecipeButtonText}>SAVE AS CUSTOM RECIPE</Text>
-          </Pressable>
+          {/* Save as Custom Recipe CTA (Free Brew Mode Only) */}
+          {timerMode === 'free_brew' && (
+            <Pressable
+              onPress={handleSaveAsRecipe}
+              style={styles.saveRecipeButton}
+              accessibilityRole="button"
+              accessibilityLabel="Save as Custom Recipe"
+            >
+              <Text style={styles.saveRecipeButtonText}>SAVE AS CUSTOM RECIPE</Text>
+            </Pressable>
+          )}
 
           <Pressable
             onPress={handleLogCupping}
@@ -343,6 +346,15 @@ export default function TimerScreen() {
             <Text style={styles.logButtonText}>LOG TO CUPPING JOURNAL</Text>
           </Pressable>
         </View>
+
+        {/* Free Brew Finished Review: Read-only split timeline */}
+        {timerMode === 'free_brew' && (
+          <FreeBrewSplitTimeline
+            splits={splits}
+            readOnly={true}
+          />
+        )}
+      </>
       ) : timerMode === 'free_brew' ? (
         <FreeBrewSplitTimeline
           splits={splits}
