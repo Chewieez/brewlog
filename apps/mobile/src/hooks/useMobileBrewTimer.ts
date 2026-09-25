@@ -173,18 +173,20 @@ export const useMobileBrewTimer = (
 
   const recordSplit = useCallback((label?: string, tag?: SplitTag) => {
     const id = `split-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    const lastSplitSecond = splits.length > 0 ? splits[splits.length - 1].second : 0;
-    const intervalSeconds = Math.max(0, elapsedSeconds - lastSplitSecond);
-    const newSplit: BrewSplit = {
-      id,
-      second: elapsedSeconds,
-      intervalSeconds,
-      label: label || `Split ${splits.length + 1}`,
-      tag: tag || 'custom',
-    };
-    setSplits((prev) => [...prev, newSplit]);
+    setSplits((prev) => {
+      const lastSplitSecond = prev.length > 0 ? prev[prev.length - 1].second : 0;
+      const intervalSeconds = Math.max(0, elapsedSeconds - lastSplitSecond);
+      const newSplit: BrewSplit = {
+        id,
+        second: elapsedSeconds,
+        intervalSeconds,
+        label: label || `Split ${prev.length + 1}`,
+        tag: tag || 'custom',
+      };
+      return [...prev, newSplit];
+    });
     mobileFeedback.triggerHapticTap();
-  }, [elapsedSeconds, splits]);
+  }, [elapsedSeconds]);
 
   const removeSplit = useCallback((id: string) => {
     setSplits((prev) => prev.filter((s) => s.id !== id));

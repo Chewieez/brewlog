@@ -59,6 +59,13 @@ export function solveProportionalScale(params: ProportionalScaleParams): Proport
   }
 
   if (targetWater !== undefined && targetWater > 0) {
+    if (ratio <= 0) {
+      return {
+        ratio: 0,
+        targetCoffee: 0,
+        targetWater: targetWater ?? 0,
+      };
+    }
     const calculatedCoffee = Number((targetWater / ratio).toFixed(1));
     return {
       ratio,
@@ -106,13 +113,15 @@ export function splitsToRecipeStages(
       ? split.waterWeightGrams
       : Math.round(((idx + 1) / (sortedSplits.length + 1)) * totalWaterAmountGrams);
 
+    const safeLabel = (split.label && split.label.trim()) || (split.tag ? split.tag : `Stage ${idx + 1}`);
+
     stages.push({
       id: `stage-${idx + 1}`,
-      name: split.label || `Stage ${idx + 1}`,
+      name: safeLabel,
       startSecond,
       durationSeconds: duration,
       targetWaterWeightGrams: stageWater,
-      instruction: `Execute ${split.label.toLowerCase()} phase.`,
+      instruction: `Execute ${safeLabel.toLowerCase()} phase.`,
       stageType: split.tag === 'bloom' ? 'bloom' : split.tag === 'drawdown' ? 'wait' : 'pour',
     });
 

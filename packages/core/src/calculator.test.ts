@@ -351,6 +351,17 @@ describe("Brew Calculator Math", () => {
         expect(negResult.ratio).toBe(0);
         expect(negResult.targetCoffee).toBe(0);
       });
+
+      it("guards against division by zero when ratio evaluates to 0 due to extreme inputs", () => {
+        const result = solveProportionalScale({
+          sourceCoffee: 100,
+          sourceWater: 1, // 1/100 = 0.01 -> toFixed(1) is "0.0" -> ratio 0
+          targetWater: 250,
+        });
+        expect(result.ratio).toBe(0);
+        expect(result.targetCoffee).toBe(0);
+        expect(result.targetWater).toBe(250);
+      });
     });
 
     describe("splitsToRecipeStages", () => {
@@ -386,6 +397,21 @@ describe("Brew Calculator Math", () => {
         expect(stages[3].name).toBe("Finish & Drain");
         expect(stages[3].startSecond).toBe(180);
         expect(stages[3].durationSeconds).toBe(30);
+      });
+
+      it("safely falls back for empty, whitespace, or undefined split.label", () => {
+        const splits: BrewSplit[] = [
+          { id: "s1", second: 30, intervalSeconds: 30, label: "   ", tag: "bloom" },
+          { id: "s2", second: 90, intervalSeconds: 60, label: "", tag: undefined as any },
+          { id: "s3", second: 150, intervalSeconds: 60, label: undefined as any, tag: "pour" },
+        ];
+        const stages = splitsToRecipeStages(splits, 180, 300);
+        expect(stages[0].name).toBe("bloom");
+        expect(stages[0].instruction).toBe("Execute bloom phase.");
+        expect(stages[1].name).toBe("Stage 2");
+        expect(stages[1].instruction).toBe("Execute stage 2 phase.");
+        expect(stages[2].name).toBe("pour");
+        expect(stages[2].instruction).toBe("Execute pour phase.");
       });
     });
   });
