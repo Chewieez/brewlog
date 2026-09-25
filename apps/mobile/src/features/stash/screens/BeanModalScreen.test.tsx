@@ -523,4 +523,40 @@ describe('BeanModalScreen', () => {
     expect(getByText('Remaining weight cannot be negative')).toBeTruthy();
     expect(mockContext.addBean).not.toHaveBeenCalled();
   });
+
+  it('renders NEW BEAN header in create mode and EDIT BEAN header in edit mode', () => {
+    const { getByText, unmount } = render(
+      <StashContext.Provider value={mockContext}>
+        <BeanModalScreen />
+      </StashContext.Provider>
+    );
+    expect(getByText('NEW BEAN')).toBeTruthy();
+    unmount();
+
+    mockSearchParams = { id: 'bean-existing-1' };
+    const editRender = render(
+      <StashContext.Provider value={mockContext}>
+        <BeanModalScreen />
+      </StashContext.Provider>
+    );
+    expect(editRender.getByText('EDIT BEAN')).toBeTruthy();
+  });
+
+  it('handles save error and falls back to default message if not an Error instance', async () => {
+    mockContext.addBean = vi.fn().mockRejectedValue('unknown failure');
+    const { getByPlaceholderText, getByText } = render(
+      <StashContext.Provider value={mockContext}>
+        <BeanModalScreen />
+      </StashContext.Provider>
+    );
+
+    fireEvent.changeText(getByPlaceholderText('e.g. Sey'), 'Sey');
+    fireEvent.changeText(getByPlaceholderText('e.g. Worka Sakaro'), 'Worka');
+    fireEvent.press(getByText('SAVE BEAN'));
+
+    await waitFor(() => {
+      expect(Alert.alert).toHaveBeenCalledWith('Save Failed', 'Failed to save bean.');
+      expect(getByText('Failed to save bean.')).toBeTruthy();
+    });
+  });
 });

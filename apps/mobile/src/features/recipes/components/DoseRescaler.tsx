@@ -214,7 +214,6 @@ const styles = StyleSheet.create({
   presetTextActive: {
     color: colors.accent,
     fontFamily: FONTS.sansBold,
-    fontVariant: ['tabular-nums'],
   },
   presetTextInactive: {
     color: colors.textSecondary,

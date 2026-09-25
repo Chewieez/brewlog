@@ -262,16 +262,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 onClick={() => switchMode("signin")}
                 className="flex items-center space-x-1.5 px-4 py-2 rounded bg-accent text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold hover:bg-accent-hover cursor-pointer transition-colors"
               >
-                <span>Go to Sign In</span>
+                <span>GO TO SIGN IN</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
 
               <button
                 type="button"
                 onClick={handleClose}
-                className="px-3 py-1.5 rounded text-xs font-mono text-text-muted hover:text-text-primary cursor-pointer"
+                className="px-3 py-1.5 rounded text-xs font-mono uppercase tracking-wider text-text-muted hover:text-text-primary cursor-pointer"
               >
-                Close
+                CLOSE
               </button>
             </div>
           </div>

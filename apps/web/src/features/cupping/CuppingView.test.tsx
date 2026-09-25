@@ -3,6 +3,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
 import { CuppingView } from './CuppingView';
 import { INITIAL_BEANS } from '../../lib/sampleData';
+import { DEFAULT_PRESET_RECIPES } from '@brewlog/core';
 
 describe('CuppingView', () => {
   afterEach(() => {
@@ -79,5 +80,31 @@ describe('CuppingView', () => {
     expect(savedPayload.scores.sweetness).toBe(10);
     expect(savedPayload.scores.uniformity).toBe(10);
     expect(savedPayload.calculatedScaScore).toBe(82.5);
+  });
+
+  it('renders CLEAR button with standardized styles when pendingBrewSession is provided', () => {
+    const onClearPendingSession = vi.fn();
+    render(
+      <CuppingView
+        logs={[]}
+        beans={INITIAL_BEANS}
+        onAddTastingLog={vi.fn()}
+        pendingBrewSession={{
+          recipe: DEFAULT_PRESET_RECIPES[0],
+          actualTimeSeconds: 210,
+          bean: INITIAL_BEANS[0],
+        }}
+        onClearPendingSession={onClearPendingSession}
+      />
+    );
+
+    const clearButton = screen.getByRole('button', { name: 'CLEAR' });
+    expect(clearButton).toBeDefined();
+    expect(clearButton.className).toContain('font-mono');
+    expect(clearButton.className).toContain('uppercase');
+    expect(clearButton.className).toContain('tracking-wider');
+
+    fireEvent.click(clearButton);
+    expect(onClearPendingSession).toHaveBeenCalledTimes(1);
   });
 });
