@@ -53,11 +53,10 @@ All authentication and credential inputs must supply matching attributes for bot
 
 * Note: React Native's Android engine maps `"password-new"` to `View.AUTOFILL_HINT_NEW_PASSWORD`. Using unmapped strings like `"new-password"` triggers a fallback that breaks Android autofill hint assignment.
 
-### 3. Automated Keyboard Dismissal & Platform-Specific Keyboard Avoidance
+### 3. Automated Keyboard Dismissal & Smooth Animated Padding
 * Whenever an auth or profile sheet becomes visible (`visible === true`) or is dismissed/closed (`handleCloseAuthSheet`), immediately invoke `Keyboard.dismiss()` to prevent background inputs from keeping the soft keyboard open or unmounting focused inputs with lingering keyboards.
-* Avoid `<KeyboardAvoidingView>` inside complex overlay hierarchies.
-* On **Android**, Expo/React Native defaults to `softwareKeyboardLayoutMode: "resize"` (`android:windowSoftInputMode="adjustResize"`). The OS automatically resizes the root container by the keyboard height when the keyboard opens, placing in-tree absolute overlays (`bottom: 0`) directly atop the keyboard. Applying manual `paddingBottom` on Android causes double-padding (`2 * keyboardHeight`) and a viewport snap/drift glitch when `keyboardDidShow` fires. Therefore, manual padding is bypassed entirely on Android.
-* On **iOS**, the root viewport is not automatically resized by the OS, so `AuthSheet` listens to `keyboardWillShow` and `keyboardWillHide` to drive an `Animated.Value` applied to `paddingBottom` with easing.
+* Avoid `<KeyboardAvoidingView>` inside complex overlay hierarchies where nested absolute modals, transforms, and insets can cause jumpy layout recalculations.
+* Instead, subscribe directly to `Keyboard.addListener` using platform-appropriate events (`keyboardWillShow` / `keyboardWillHide` on iOS, and `keyboardDidShow` / `keyboardDidHide` on Android) to drive an `Animated.Value` applied to `paddingBottom` with easing. This ensures that in-tree absolute overlays (`position: 'absolute'`, `bottom: 0`) lift cleanly above the soft keyboard on both platforms.
 
 ### 4. Android Hardware Back Button Subscription
 * When an in-tree overlay is visible, register a `BackHandler` listener (`hardwareBackPress`).
