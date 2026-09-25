@@ -43,6 +43,7 @@ vi.mock('react-native', () => ({
 vi.mock('lucide-react-native', () => ({
   ChevronDown: () => null,
   ChevronUp: () => null,
+  ChevronRight: () => null,
   Calculator: () => null,
   Check: () => null,
 }));
@@ -53,9 +54,19 @@ vi.mock('../../lib/mobileFeedback', () => ({
   },
 }));
 
-import { render, fireEvent, cleanup, act } from '@testing-library/react';
+import { render, fireEvent as rtlFireEvent, cleanup, act } from '@testing-library/react';
 import { CollapsibleCalculator } from './CollapsibleCalculator';
 import { mobileFeedback } from '../../lib/mobileFeedback';
+
+const fireEvent = {
+  ...rtlFireEvent,
+  press: (element: Element | Node | Document | Window) => {
+    rtlFireEvent.click(element);
+  },
+  changeText: (element: Element | Node | Document | Window, text: string) => {
+    rtlFireEvent.change(element, { target: { value: text } });
+  },
+};
 
 describe('CollapsibleCalculator Component', () => {
   afterEach(() => {
@@ -163,4 +174,55 @@ describe('CollapsibleCalculator Component', () => {
     expect(getByText('APPLY DOSE TO TIMER (22g)')).toBeDefined();
     vi.useRealTimers();
   });
+
+  describe('Nested Ratio Translator Accordion', () => {
+    it('expands nested translator drawer when clicked', () => {
+      const { getByText, queryByText } = render(
+        <CollapsibleCalculator initialDose={18} initialRatio={16} />
+      );
+
+      // Expand main calculator
+      fireEvent.press(getByText('RATIO CALCULATOR'));
+      expect(getByText('RATIO TRANSLATOR / CONVERTER')).toBeTruthy();
+
+      // Drawer starts collapsed
+      expect(queryByText('BASELINE RECIPE')).toBeNull();
+
+      // Expand translator drawer
+      fireEvent.press(getByText('RATIO TRANSLATOR / CONVERTER'));
+      expect(getByText('BASELINE RECIPE')).toBeTruthy();
+      expect(getByText('TARGET SOLVER')).toBeTruthy();
+    });
+
+    it('calculates implied ratio and solves target water from target coffee', () => {
+      const onApplyDose = vi.fn();
+      const { getByText, getByLabelText } = render(
+        <CollapsibleCalculator initialDose={18} initialRatio={16} onApplyDose={onApplyDose} />
+      );
+
+      fireEvent.press(getByText('RATIO CALCULATOR'));
+      fireEvent.press(getByText('RATIO TRANSLATOR / CONVERTER'));
+
+      const sourceCoffeeInput = getByLabelText('Baseline coffee dose in grams');
+      const sourceWaterInput = getByLabelText('Baseline water amount in grams');
+      const targetCoffeeInput = getByLabelText('Target coffee dose in grams');
+
+      fireEvent.changeText(sourceCoffeeInput, '20');
+      fireEvent.changeText(sourceWaterInput, '300');
+
+      // Implied ratio should be 1:15.0
+      expect(getByText(/1:15/)).toBeTruthy();
+
+      fireEvent.changeText(targetCoffeeInput, '16');
+
+      // Target water should solve to 240g
+      expect(getByText(/Target Water: 240g/i)).toBeTruthy();
+
+      // Apply solved dose to timer
+      const applyTranslatorBtn = getByText('APPLY TRANSLATOR DOSE (16g)');
+      fireEvent.press(applyTranslatorBtn);
+      expect(onApplyDose).toHaveBeenCalledWith(16);
+    });
+  });
 });
+
