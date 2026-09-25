@@ -264,6 +264,9 @@ describe('TimerView', () => {
       fireEvent.click(screen.getByRole('button', { name: /FINISH BREW/i }));
     });
 
+    // Split button should now be disabled post-finish
+    expect(screen.getByRole('button', { name: /^SPLIT$/i })).toHaveProperty('disabled', true);
+
     // Both action buttons should be visible
     const cuppingBtn = screen.getByRole('button', {
       name: /RATE & LOG TO CUPPING SHEET/i,

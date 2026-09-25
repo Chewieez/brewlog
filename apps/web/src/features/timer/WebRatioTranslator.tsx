@@ -97,7 +97,9 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
   const handleApply = () => {
     const dose = parseFloat(targetCoffee) || 0;
     if (dose > 0) {
-      onApplyDose(dose);
+      const doseToApply = Number(dose.toFixed(1));
+      onApplyDose(doseToApply);
+      setTargetCoffee(doseToApply.toString());
       setIsApplied(true);
       setTimeout(() => setIsApplied(false), 2000);
     }

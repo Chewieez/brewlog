@@ -42,4 +42,18 @@ describe("WebRatioTranslator", () => {
 
     expect(screen.getByText(/Target Coffee: 16g/i)).toBeDefined();
   });
+
+  it("rounds dose to 1 decimal place before calling onApplyDose", () => {
+    const onApplyDose = vi.fn();
+    render(<WebRatioTranslator currentDose={18} onApplyDose={onApplyDose} />);
+
+    fireEvent.click(screen.getByText(/RATIO TRANSLATOR/i));
+
+    const targetCoffee = screen.getByLabelText(/target coffee/i);
+    fireEvent.change(targetCoffee, { target: { value: "15.666" } });
+
+    fireEvent.click(screen.getByText(/APPLY/i));
+    expect(onApplyDose).toHaveBeenCalledWith(15.7);
+  });
 });
+

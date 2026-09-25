@@ -426,7 +426,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   <button
                     type="button"
                     onClick={() => recordSplit()}
-                    disabled={!isRunning && elapsedSeconds === 0}
+                    disabled={(!isRunning && elapsedSeconds === 0) || isFreeBrewFinished}
                     className="flex items-center space-x-1.5 px-4 py-3 rounded border border-accent bg-accent/10 hover:bg-accent/20 text-accent font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
                     title="Record Split"
                     aria-label="SPLIT"
