@@ -1093,8 +1093,9 @@ describe("AuthSheet", () => {
     unmount();
   });
 
-  it("bypasses keyboard listener subscriptions on Android to avoid adjustResize double-padding", () => {
+  it("subscribes to keyboardDidShow and keyboardDidHide on Android and drives keyboardPadding", () => {
     mockKeyboardAddListener.mockClear();
+    (Animated.timing as any).mockClear();
     (Platform as any).OS = "android";
 
     vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
@@ -1109,8 +1110,48 @@ describe("AuthSheet", () => {
     });
 
     try {
-      render(<AuthSheet visible={true} onClose={vi.fn()} />);
-      expect(mockKeyboardAddListener).not.toHaveBeenCalled();
+      const { unmount } = render(<AuthSheet visible={true} onClose={vi.fn()} />);
+
+      expect(mockKeyboardAddListener).toHaveBeenCalledWith(
+        "keyboardDidShow",
+        expect.any(Function)
+      );
+      expect(mockKeyboardAddListener).toHaveBeenCalledWith(
+        "keyboardDidHide",
+        expect.any(Function)
+      );
+
+      // Simulate keyboardDidShow event
+      const showCall = (mockKeyboardAddListener.mock.calls as unknown as [string, (e: any) => void][]).find(
+        (call) => call[0] === "keyboardDidShow"
+      );
+      expect(showCall).toBeDefined();
+      showCall![1]({ endCoordinates: { height: 300 } });
+
+      expect(Animated.timing).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          toValue: 300,
+          duration: 220,
+        })
+      );
+
+      // Simulate keyboardDidHide event
+      const hideCall = (mockKeyboardAddListener.mock.calls as unknown as [string, (e: any) => void][]).find(
+        (call) => call[0] === "keyboardDidHide"
+      );
+      expect(hideCall).toBeDefined();
+      hideCall![1]({});
+
+      expect(Animated.timing).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          toValue: 0,
+          duration: 200,
+        })
+      );
+
+      unmount();
     } finally {
       (Platform as any).OS = "ios";
     }

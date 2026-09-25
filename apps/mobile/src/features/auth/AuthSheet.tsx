@@ -64,26 +64,26 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
   const [rendered, setRendered] = useState(visible);
 
   useEffect(() => {
-    // Only subscribe when the sheet is visible and on iOS.
-    // On Android, adjustResize automatically resizes the root container by the keyboard height,
-    // so manual paddingBottom causes double-padding and a viewport snap/drift glitch.
-    if (!visible || Platform.OS === "android") {
+    if (!visible) {
       return;
     }
 
-    const showSub = Keyboard.addListener("keyboardWillShow", (e) => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const showSub = Keyboard.addListener(showEvent, (e) => {
       Animated.timing(keyboardPadding, {
         toValue: e.endCoordinates.height,
-        duration: e.duration || 250,
+        duration: Platform.OS === "ios" ? (e.duration || 250) : 220,
         easing: Easing.out(Easing.ease),
         useNativeDriver: false,
       }).start();
     });
 
-    const hideSub = Keyboard.addListener("keyboardWillHide", (e) => {
+    const hideSub = Keyboard.addListener(hideEvent, (e) => {
       Animated.timing(keyboardPadding, {
         toValue: 0,
-        duration: e?.duration || 200,
+        duration: Platform.OS === "ios" ? (e?.duration || 200) : 200,
         easing: Easing.out(Easing.ease),
         useNativeDriver: false,
       }).start();
