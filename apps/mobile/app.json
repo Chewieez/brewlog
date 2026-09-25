@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/app.json",
   "expo": {
     "name": "BrewLog",
     "slug": "brewlog",
