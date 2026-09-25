@@ -3,12 +3,16 @@ import {
   calculateWaterAmount,
   calculateCoffeeDose,
   calculateRatio,
+  calculateTargetWater,
+  calculateTargetCoffee,
+  solveProportionalScale,
+  splitsToRecipeStages,
   rescaleRecipeDose,
   calculateScaScore,
   calculateDaysOffRoast,
   getRestingStatus,
 } from "./calculator";
-import { BrewRecipe, CuppingAttributes } from "./types";
+import { BrewRecipe, BrewSplit, CuppingAttributes } from "./types";
 
 describe("Brew Calculator Math", () => {
   describe("calculateWaterAmount", () => {
@@ -289,4 +293,101 @@ describe("Brew Calculator Math", () => {
       expect(getRestingStatus(120).status).toBe("past-peak");
     });
   });
+
+  describe("Phase 6 Proportional Math & Split Converter", () => {
+    describe("calculateTargetWater & calculateTargetCoffee", () => {
+      it("calculates target water correctly", () => {
+        expect(calculateTargetWater(18, 16)).toBe(288);
+        expect(calculateTargetWater(15.5, 15)).toBe(233);
+        expect(calculateTargetWater(0, 16)).toBe(0);
+        expect(calculateTargetWater(18, 0)).toBe(0);
+      });
+
+      it("calculates target coffee correctly with 1 decimal place", () => {
+        expect(calculateTargetCoffee(288, 16)).toBe(18);
+        expect(calculateTargetCoffee(250, 16.5)).toBe(15.2);
+        expect(calculateTargetCoffee(0, 16)).toBe(0);
+        expect(calculateTargetCoffee(250, 0)).toBe(0);
+      });
+    });
+
+    describe("solveProportionalScale", () => {
+      it("solves target water given target coffee from source baseline", () => {
+        const result = solveProportionalScale({
+          sourceCoffee: 20,
+          sourceWater: 320,
+          targetCoffee: 15,
+        });
+        expect(result.ratio).toBe(16);
+        expect(result.targetCoffee).toBe(15);
+        expect(result.targetWater).toBe(240);
+      });
+
+      it("solves target coffee given target water from source baseline", () => {
+        const result = solveProportionalScale({
+          sourceCoffee: 22,
+          sourceWater: 350,
+          targetWater: 250,
+        });
+        expect(result.ratio).toBe(15.9);
+        expect(result.targetWater).toBe(250);
+        expect(result.targetCoffee).toBe(15.7);
+      });
+
+      it("handles zero and negative inputs safely without throwing", () => {
+        const zeroResult = solveProportionalScale({
+          sourceCoffee: 0,
+          sourceWater: 300,
+          targetCoffee: 15,
+        });
+        expect(zeroResult.ratio).toBe(0);
+        expect(zeroResult.targetWater).toBe(0);
+
+        const negResult = solveProportionalScale({
+          sourceCoffee: -10,
+          sourceWater: 150,
+          targetWater: 200,
+        });
+        expect(negResult.ratio).toBe(0);
+        expect(negResult.targetCoffee).toBe(0);
+      });
+    });
+
+    describe("splitsToRecipeStages", () => {
+      it("creates a single full extraction stage when no splits are provided", () => {
+        const stages = splitsToRecipeStages([], 180, 300);
+        expect(stages).toHaveLength(1);
+        expect(stages[0].name).toBe("Full Extraction");
+        expect(stages[0].startSecond).toBe(0);
+        expect(stages[0].durationSeconds).toBe(180);
+        expect(stages[0].targetWaterWeightGrams).toBe(300);
+      });
+
+      it("converts multiple splits into progressive stages with correct durations", () => {
+        const splits: BrewSplit[] = [
+          { id: "s1", second: 45, intervalSeconds: 45, label: "Bloom", tag: "bloom" },
+          { id: "s2", second: 105, intervalSeconds: 60, label: "First Pour", tag: "pour" },
+          { id: "s3", second: 180, intervalSeconds: 75, label: "Drawdown", tag: "drawdown" },
+        ];
+        const stages = splitsToRecipeStages(splits, 210, 300);
+        expect(stages).toHaveLength(4);
+        expect(stages[0].name).toBe("Bloom");
+        expect(stages[0].startSecond).toBe(0);
+        expect(stages[0].durationSeconds).toBe(45);
+
+        expect(stages[1].name).toBe("First Pour");
+        expect(stages[1].startSecond).toBe(45);
+        expect(stages[1].durationSeconds).toBe(60);
+
+        expect(stages[2].name).toBe("Drawdown");
+        expect(stages[2].startSecond).toBe(105);
+        expect(stages[2].durationSeconds).toBe(75);
+
+        expect(stages[3].name).toBe("Finish & Drain");
+        expect(stages[3].startSecond).toBe(180);
+        expect(stages[3].durationSeconds).toBe(30);
+      });
+    });
+  });
 });
+
