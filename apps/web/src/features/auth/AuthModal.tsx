@@ -314,7 +314,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
             {!isUpdatePassword && (
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-text-muted mb-1">Email Address *</label>
+                <label className="block text-xs font-mono uppercase tracking-wider text-text-muted mb-1">Email Address</label>
                 <input
                   type="email"
                   required
@@ -335,7 +335,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             {isCredentialMode && (
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-mono uppercase tracking-wider text-text-muted">Password *</label>
+                  <label className="block text-xs font-mono uppercase tracking-wider text-text-muted">Password</label>
                   {isSignIn && (
                     <button
                       type="button"
@@ -361,7 +361,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             {isUpdatePassword && (
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-text-muted mb-1">New Password *</label>
+                  <label className="block text-xs font-mono uppercase tracking-wider text-text-muted mb-1">New Password</label>
                   <input
                     type="password"
                     required
@@ -374,7 +374,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-text-muted mb-1">Confirm New Password *</label>
+                  <label className="block text-xs font-mono uppercase tracking-wider text-text-muted mb-1">Confirm New Password</label>
                   <input
                     type="password"
                     required

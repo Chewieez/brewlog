@@ -4,10 +4,19 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, fireEvent, cleanup } from "@testing-library/react";
 import TabLayout from "../../app/(tabs)/_layout";
 import { AuthProvider } from "../../src/features/auth/AuthContext";
+import { Keyboard } from "react-native";
+
+vi.mock("react-native-safe-area-context", () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
 
 vi.mock("react-native", () => ({
-  View: ({ children, style, testID, ...props }: any) => (
-    <div data-testid={testID} {...props}>
+  View: ({ children, style, testID, accessibilityViewIsModal, ...props }: any) => (
+    <div
+      data-testid={testID}
+      data-accessibility-view-is-modal={accessibilityViewIsModal ? "true" : undefined}
+      {...props}
+    >
       {children}
     </div>
   ),
@@ -24,7 +33,10 @@ vi.mock("react-native", () => ({
   }: any) => (
     <button
       type="button"
-      onClick={onPress}
+      onClick={(e) => {
+        e.stopPropagation();
+        onPress?.(e);
+      }}
       role={accessibilityRole}
       aria-label={accessibilityLabel}
       {...props}
@@ -39,8 +51,6 @@ vi.mock("react-native", () => ({
     OS: "ios",
     select: (obj: any) => obj.ios ?? obj.default,
   },
-  Modal: ({ visible, children }: any) =>
-    visible ? <div data-testid="modal">{children}</div> : null,
   TextInput: ({
     value,
     onChangeText,
@@ -54,11 +64,55 @@ vi.mock("react-native", () => ({
     ...props
   }: any) => <input value={value} readOnly {...props} />,
   TouchableWithoutFeedback: ({ children, onPress }: any) => (
-    <div onClick={onPress}>{children}</div>
+    <div
+      onClick={(e) => {
+        e.stopPropagation();
+        onPress?.(e);
+      }}
+    >
+      {children}
+    </div>
   ),
   KeyboardAvoidingView: ({ children }: any) => <div>{children}</div>,
   ScrollView: ({ children }: any) => <div>{children}</div>,
   AppState: {
+    addEventListener: vi.fn(() => ({ remove: vi.fn() })),
+  },
+  Animated: {
+    Value: class {
+      val: number;
+      constructor(val: number) {
+        this.val = val;
+      }
+      setValue(val: number) {
+        this.val = val;
+      }
+    },
+    timing: vi.fn(() => ({
+      start: vi.fn((cb?: any) => cb?.()),
+    })),
+    parallel: vi.fn((animations: any[]) => ({
+      start: vi.fn((cb?: any) => {
+        animations?.forEach((a) => a?.start?.());
+        cb?.();
+      }),
+    })),
+    View: ({ children, style, testID, ...props }: any) => (
+      <div data-testid={testID || "animated-view"} {...props}>
+        {children}
+      </div>
+    ),
+  },
+  Keyboard: {
+    addListener: vi.fn(() => ({ remove: vi.fn() })),
+    dismiss: vi.fn(),
+  },
+  Easing: {
+    in: (fn: any) => fn,
+    out: (fn: any) => fn,
+    ease: (t: number) => t,
+  },
+  BackHandler: {
     addEventListener: vi.fn(() => ({ remove: vi.fn() })),
   },
 }));
@@ -139,5 +193,27 @@ describe("TabLayout Integration", () => {
     expect(queryByTestId("modal")).toBeNull();
     fireEvent.click(getByLabelText("Account profile"));
     expect(queryByTestId("modal")).not.toBeNull();
+  });
+
+  it("dismisses keyboard when opening and closing AuthSheet", () => {
+    const { getByLabelText, queryByTestId } = render(
+      <AuthProvider>
+        <TabLayout />
+      </AuthProvider>
+    );
+
+    vi.mocked(Keyboard.dismiss).mockClear();
+
+    // Open sheet
+    fireEvent.click(getByLabelText("Account profile"));
+    expect(queryByTestId("modal")).not.toBeNull();
+    expect(Keyboard.dismiss).toHaveBeenCalled();
+
+    vi.mocked(Keyboard.dismiss).mockClear();
+
+    // Close sheet
+    fireEvent.click(getByLabelText("Close sheet"));
+    expect(queryByTestId("modal")).toBeNull();
+    expect(Keyboard.dismiss).toHaveBeenCalled();
   });
 });

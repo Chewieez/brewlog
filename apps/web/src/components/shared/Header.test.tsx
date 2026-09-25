@@ -41,7 +41,7 @@ describe('Header', () => {
     );
 
     const stashLink = screen.getAllByRole('link', { name: /Coffee Stash/i })[0];
-    expect(stashLink.className).toContain('text-amber-300');
+    expect(stashLink.className).toContain('text-accent');
   });
 
   it('renders logo link pointing to /timer', () => {
