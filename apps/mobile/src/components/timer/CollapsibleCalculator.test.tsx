@@ -223,6 +223,32 @@ describe('CollapsibleCalculator Component', () => {
       fireEvent.press(applyTranslatorBtn);
       expect(onApplyDose).toHaveBeenCalledWith(16);
     });
+
+    it('solves target coffee proportionally when target water is changed and rounds applied dose', () => {
+      const onApplyDose = vi.fn();
+      const { getByText, getByLabelText } = render(
+        <CollapsibleCalculator initialDose={18} initialRatio={16} onApplyDose={onApplyDose} />
+      );
+
+      fireEvent.press(getByText('RATIO CALCULATOR'));
+      fireEvent.press(getByText('RATIO TRANSLATOR / CONVERTER'));
+
+      const sourceCoffeeInput = getByLabelText('Baseline coffee dose in grams');
+      const sourceWaterInput = getByLabelText('Baseline water amount in grams');
+      const targetWaterInput = getByLabelText('Target water amount in grams');
+      const targetCoffeeInput = getByLabelText('Target coffee dose in grams') as HTMLInputElement;
+
+      fireEvent.changeText(sourceCoffeeInput, '20');
+      fireEvent.changeText(sourceWaterInput, '300');
+
+      // Changing target water to 250g with 1:15 ratio should solve coffee to 16.7g
+      fireEvent.changeText(targetWaterInput, '250');
+      expect(targetCoffeeInput.value).toBe('16.7');
+
+      const applyBtn = getByText('APPLY TRANSLATOR DOSE (16.7g)');
+      fireEvent.press(applyBtn);
+      expect(onApplyDose).toHaveBeenCalledWith(16.7);
+    });
   });
 });
 

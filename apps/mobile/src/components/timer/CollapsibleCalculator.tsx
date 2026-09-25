@@ -148,8 +148,9 @@ export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
 
   const handleApplyTranslator = () => {
     if (parsedTargetCoffee > 0 && onApplyDose) {
-      onApplyDose(parsedTargetCoffee);
-      setDose(parsedTargetCoffee.toString());
+      const doseToApply = Number(parsedTargetCoffee.toFixed(1));
+      onApplyDose(doseToApply);
+      setDose(doseToApply.toString());
       if (impliedRatio > 0) {
         setRatio(impliedRatio.toString());
       }
@@ -410,6 +411,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 14,
     paddingVertical: 10,
+    minHeight: 44,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -493,6 +495,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 6,
     paddingVertical: 10,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 4,
@@ -535,6 +538,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 12,
     paddingVertical: 10,
+    minHeight: 44,
     backgroundColor: colors.panelRecessed,
   },
   translatorTitle: {
