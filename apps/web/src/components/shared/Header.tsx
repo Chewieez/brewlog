@@ -56,14 +56,14 @@ export const Header: React.FC<HeaderProps> = ({
                   className={({ isActive }) =>
                     `flex items-center space-x-1.5 lg:space-x-2 px-2.5 lg:px-3.5 py-2 rounded-lg text-xs lg:text-sm font-medium cursor-pointer select-none whitespace-nowrap transition-all duration-200 ${
                       isActive
-                        ? 'bg-zinc-800/90 text-amber-300 border border-zinc-700 shadow-sm'
+                        ? 'bg-zinc-800/90 text-accent border border-zinc-700 shadow-sm'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 border border-transparent'
                     }`
                   }
                 >
                   {({ isActive }) => (
                     <>
-                      <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-amber-300' : 'text-zinc-400'}`} />
+                      <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-accent' : 'text-zinc-400'}`} />
                       <span>{tab.label}</span>
                       {tab.badge !== undefined && tab.badge > 0 && (
                         <span className="ml-1 px-1.5 py-0.2 text-[10px] lg:text-[11px] font-mono font-medium rounded bg-zinc-800 text-zinc-300 border border-zinc-700 flex-shrink-0">
@@ -96,14 +96,14 @@ export const Header: React.FC<HeaderProps> = ({
                 className={({ isActive }) =>
                   `flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs whitespace-nowrap font-medium cursor-pointer transition-all flex-shrink-0 ${
                     isActive
-                      ? 'bg-zinc-800/90 text-amber-300 border border-zinc-700 shadow-sm'
+                      ? 'bg-zinc-800/90 text-accent border border-zinc-700 shadow-sm'
                       : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 border border-transparent'
                   }`
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? 'text-amber-300' : 'text-zinc-400'}`} />
+                    <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? 'text-accent' : 'text-zinc-400'}`} />
                     <span>{tab.label}</span>
                     {tab.badge !== undefined && tab.badge > 0 && (
                       <span className="ml-1 px-1.5 py-0.2 text-[10px] font-mono font-medium rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
