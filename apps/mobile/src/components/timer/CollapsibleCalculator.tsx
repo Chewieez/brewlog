@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
-import { ChevronDown, ChevronUp, ChevronRight, Calculator, Check } from 'lucide-react-native';
+import { ChevronDown, ChevronUp, Calculator, Check } from 'lucide-react-native';
 import {
   INDUSTRIAL_PRECISION_THEME,
   calculateWaterAmount,
@@ -268,11 +268,11 @@ export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
               accessibilityLabel="Toggle Ratio Translator"
               accessibilityState={{ expanded: isTranslatorOpen }}
             >
-              <Text style={styles.translatorTitle}>RATIO TRANSLATOR / CONVERTER</Text>
+              <Text style={styles.translatorTitle}>CONVERTER</Text>
               {isTranslatorOpen ? (
-                <ChevronDown size={14} color={colors.textMuted} />
+                <ChevronUp size={14} color={colors.textMuted} />
               ) : (
-                <ChevronRight size={14} color={colors.textMuted} />
+                <ChevronDown size={14} color={colors.textMuted} />
               )}
             </Pressable>
 
@@ -542,7 +542,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.panelRecessed,
   },
   translatorTitle: {
-    color: colors.accent,
+    color: colors.textSecondary,
     fontSize: 10,
     fontFamily: FONTS.monoBold,
     letterSpacing: 1.1,

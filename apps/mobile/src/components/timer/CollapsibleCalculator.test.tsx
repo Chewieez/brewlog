@@ -183,13 +183,13 @@ describe('CollapsibleCalculator Component', () => {
 
       // Expand main calculator
       fireEvent.press(getByText('RATIO CALCULATOR'));
-      expect(getByText('RATIO TRANSLATOR / CONVERTER')).toBeTruthy();
+      expect(getByText('CONVERTER')).toBeTruthy();
 
       // Drawer starts collapsed
       expect(queryByText('BASELINE RECIPE')).toBeNull();
 
       // Expand translator drawer
-      fireEvent.press(getByText('RATIO TRANSLATOR / CONVERTER'));
+      fireEvent.press(getByText('CONVERTER'));
       expect(getByText('BASELINE RECIPE')).toBeTruthy();
       expect(getByText('TARGET SOLVER')).toBeTruthy();
     });
@@ -201,7 +201,7 @@ describe('CollapsibleCalculator Component', () => {
       );
 
       fireEvent.press(getByText('RATIO CALCULATOR'));
-      fireEvent.press(getByText('RATIO TRANSLATOR / CONVERTER'));
+      fireEvent.press(getByText('CONVERTER'));
 
       const sourceCoffeeInput = getByLabelText('Baseline coffee dose in grams');
       const sourceWaterInput = getByLabelText('Baseline water amount in grams');
@@ -231,7 +231,7 @@ describe('CollapsibleCalculator Component', () => {
       );
 
       fireEvent.press(getByText('RATIO CALCULATOR'));
-      fireEvent.press(getByText('RATIO TRANSLATOR / CONVERTER'));
+      fireEvent.press(getByText('CONVERTER'));
 
       const sourceCoffeeInput = getByLabelText('Baseline coffee dose in grams');
       const sourceWaterInput = getByLabelText('Baseline water amount in grams');
