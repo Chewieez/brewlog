@@ -88,7 +88,9 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
             ? 'FREE BREW · MANUAL STOPWATCH'
             : `${recipe.brewMethod.toUpperCase()} · 1:${recipe.ratio}`}
         </Text>
-        <Text style={styles.recipeTitle}>{recipe.name}</Text>
+        {mode !== 'free_brew' && (
+          <Text style={styles.recipeTitle}>{recipe.name}</Text>
+        )}
       </View>
 
       {/* Linear Progress Line */}
