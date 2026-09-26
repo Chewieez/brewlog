@@ -85,6 +85,25 @@ This document tracks upcoming milestones, architectural refactors, and technical
 - **Comprehensive Quality Verification**:
   - 100% test pass rate across 54 test suites (363 tests passing monorepo-wide), 21/21 clean `expo-doctor` diagnostic checks, zero TypeScript errors (`tsc --noEmit`), and clean production Metro bundles (iOS: 3,244 modules, 5.5MB; Android: 3,378 modules, 5.8MB).
 
+### Phase 6: Free Brew (Manual Timer) & Nested Ratio Translator (Complete ✅)
+- **Core Domain Math & Types (`@brewlog/core`)**:
+  - Implemented bidirectional proportional calculation utilities in `calculator.ts` (`calculateRatio`, `calculateTargetWater`, `calculateTargetCoffee`, `solveProportionalScale`, `splitsToRecipeStages`).
+  - Added domain types in `types.ts` (`TimerMode`, `BrewSplit`, `SplitTag`) with division-by-zero guards and sanitized fallbacks.
+- **Nested Ratio Translator Drawer**:
+  - Built collapsible proportional ratio converter (`CollapsibleCalculator.tsx` on mobile, `WebRatioTranslator.tsx` on web) enabling baristas to dial in baseline doses/water targets, derive implied ratios, and dynamically solve for target coffee or water with 1-tap dose application.
+  - Aligned header styling, de-emphasized color accents, and standardized chevron toggles (`ChevronDown`/`ChevronUp`).
+- **Free Brew Precision Stopwatch Subsystem**:
+  - Extended timer hooks (`useMobileBrewTimer` and `useBrewTimer`) with open-ended stopwatch execution, split recording, interval delta tracking, and muting of recipe countdown ticks.
+  - Built `<FreeBrewSplitTimeline>` for live split milestone tracking and post-brew review with $\ge$ 44pt touch targets.
+  - Added top segmented control `[ GUIDED RECIPE ] | [ FREE BREW ]` on both mobile (`app/(tabs)/index.tsx`) and web (`TimerView.tsx`) with active brew reset confirmation protection.
+- **Multi-Action Completion Flow**:
+  - Direct 1-tap Stash deduction card (`deductBeanDose`) updating bean weight in real time.
+  - Pre-populated Cupping journal log export containing brew method, coffee dose, total duration, and formatted split milestone notes.
+  - One-tap "Save as Custom Recipe" converting recorded splits into structured recipe stages (`splitsToRecipeStages`) and routing into Recipe Builder (`/recipe/builder`).
+- **Comprehensive Quality Verification**:
+  - 100% test pass rate across 442 unit tests monorepo-wide (`@brewlog/core`: 66, `@brewlog/mobile`: 277, `@brewlog/web`: 99).
+  - Clean TypeScript verification across all workspaces (`npm run typecheck`) and verified Metro production bundles for iOS and Android.
+
 ---
 
 ## 📋 Technical Debt & Component Refactoring (TODO)
@@ -144,20 +163,35 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
   - **Core Domain Math (`@brewlog/core`)**: Expand `calculator.ts` with bidirectional proportional calculation helpers (`calculateRatio`, `calculateTargetWater`, `calculateTargetCoffee`, `solveProportionalScale`, `splitsToRecipeStages`).
   - **Nested Ratio Translator (`CollapsibleCalculator`)**: Nested collapsible drawer inside the existing calculator card solving for target coffee/water with 1-tap dose application.
   - **Free Brew Mode (Timer Subsystem)**: Dedicated recipe-free mode directly on the Timer screen (web and mobile) with precision stopwatch, manual split/lap markers (bloom, first pour, draw-down), stash deduction, cupping journal logging, and custom recipe creation.
-- [ ] **Phase 7: User Preferences & Settings Subsystem (Cross-Platform)**:
+- [ ] **Phase 7: Centralized Cross-Platform Design System (`@brewlog/ui`) (Active / Next 🚀)** *(Issue: [#22](https://github.com/Chewieez/brewlog/issues/22))*:
+  - **Problem & Motivation**: UI divergence frequently occurs across `@brewlog/web` (Vite, React 19, Tailwind v4) and `@brewlog/mobile` (Expo SDK 57, React Native 0.86, StyleSheet) during AI-driven feature development due to the lack of a shared component contract and primitives.
+  - **Architecture (Platform Split with Unified Contract)**:
+    - Scaffold workspace package `@brewlog/ui` at `packages/ui` consuming `@brewlog/core` theme tokens (`INDUSTRIAL_PRECISION_THEME`).
+    - Standardize shared TypeScript prop contracts (`Component.types.ts`) ensuring identical API interfaces across platforms.
+    - Implement platform-specific rendering layers: `.web.tsx` (semantic HTML with Tailwind v4 utility tokens) and `.native.tsx` (React Native primitives with `INDUSTRIAL_PRECISION_THEME` styling), avoiding `react-native-web` bundler complexity in Vite.
+  - **Core Component Primitives**:
+    - `Button` (primary copper, secondary panel, ghost, danger; icon slots, loading state, Apple HIG $\ge$ 44pt touch targets).
+    - `Card` / `Panel` (standard panel, recessed panel, active border highlights).
+    - `Badge` / `Pill` (method badges, roast level tags, status indicators).
+    - `Input` / `TextInput` (label, helper text, error state, monospaced numeric variant).
+    - `MetricTile` (chassis instrumentation display: small caps uppercase label + tabular monospaced value).
+    - `Modal` / `Sheet` (confirmation dialogues and bottom sheets).
+  - **AI Agent Guardrails**:
+    - Mandate `@brewlog/ui` primitives in developer guidelines / agent instructions for all UI tasks, eliminating style hallucinations and visual divergence.
+- [ ] **Phase 8: User Preferences & Settings Subsystem (Cross-Platform)**:
   - **Supabase Cloud Schema (`@brewlog/supabase`)**: `user_settings` table keyed to `user_id` with Row-Level Security (RLS) policies and offline-first local cache fallback. Initial schema stores `default_timer_mode` (`'recipe'` | `'manual'`), `date_format` (`'locale'` | `'MM/DD/YYYY'` | `'DD/MM/YYYY'` | `'YYYY-MM-DD'`), `weight_unit` (`'metric'` [grams/g] | `'imperial'` [ounces/oz, pounds/lb]), and `temperature_unit` (`'celsius'` | `'fahrenheit'`), architected to scale for future preferences (haptic/audio cues, default brew method).
   - **Settings UI & Navigation**:
     - **Mobile**: Settings entry button situated in the slide-up account tray (`AuthSheet` opened via `ProfileHeaderButton`), preserving Apple HIG 5-tab ergonomics. Includes selectors for weight scale (metric/imperial), temperature units, and date format.
     - **Web**: Settings option in the account dropdown menu routing to `/settings`.
   - **Boot Lifecycle & Domain Converters**: Hydrates user settings on startup and automatically initializes the Timer, Stash bag weights, and Recipe spec displays with localized conversion helpers (`g` ↔ `oz`, `°C` ↔ `°F`) while preserving canonical metric units in core domain stores.
-- [ ] **Phase 8: Native Cupping Session Logging Flow**:
+- [ ] **Phase 9: Native Cupping Session Logging Flow**:
   - Complete SCA 10-attribute scoring protocol form on native (`app/(tabs)/cupping.tsx`).
   - Radar chart visualization and spider graphs for sensory profiles.
   - Session history and exportable cupping sheets.
-- [ ] **Phase 9: Platform-Adaptive Navigation & Native Design Systems**:
+- [ ] **Phase 10: Platform-Adaptive Navigation & Native Design Systems**:
   - **iOS Liquid Glass Navigation**: Implement native translucent headers and floating tab bar materials (`headerTransparent`, `headerBlurEffect`, under-content scrolling) for iOS 26/27 while preserving solid core theme tokens for cross-platform stability.
   - **Android Material 3 Support with Expo UI**: Implement first-class Material Design 3 navigation chrome and components via Expo UI / Jetpack Compose primitives (tonal elevation, surface container scrolling, native predictive back gesture integration, and dynamic theme tokens).
-- [ ] **Phase 10: Responsive Adaptive Layouts (Landscape, Foldables & Tablets)**:
+- [ ] **Phase 11: Responsive Adaptive Layouts (Landscape, Foldables & Tablets)**:
   - **Dynamic Breakpoints & Orientation**: Implement `useDeviceLayout` consuming `useWindowDimensions` and device orientation to handle compact phones, landscape mode, foldables (unfolded 600dp–840dp), and large tablets (>840dp).
   - **Landscape Brew Station Layout**:
     - Dual-column chassis for the Timer view (`app/(tabs)/index.tsx`): oversized stopwatch and brew controls pinned to the left; active stage guidance, vertical timeline, and dose calculator on the right.

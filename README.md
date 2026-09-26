@@ -30,7 +30,7 @@ brewlog/
 * **🫘 Coffee Stash Manager & Cellar Inventory**: Track origins, processing methods (Washed, Natural, Anaerobic), roast dates, resting/freshness windows, and remaining weight. Includes a pure mathematical resting engine with adaptive roaster curves, freezer vault preservation pause math, offline-first local caching (`@brewlog/mobile:stash_cache`), shelf partitioning (Active Cellar, Deep Freeze, Archive), and a 1-tap post-brew dose deduction bridge directly from the live brew timer.
 * **⚙️ Equipment & Gear Tracking**: Log your grinders (burr type, dial settings), brewers (V60, AeroPress, Flair 58, Chemex), and gear settings.
 * **📖 Interactive Recipe Studio**: Build and scale multi-stage recipes (bloom, pours, agitation, drawdown target) with real-time auto-scaling.
-* **⏱️ Interactive Brew Assistant**: Live visual stage timer with target weight indicators, synthesized bell chimes (Web Audio on web, `expo-audio` on mobile), tactile haptics (`expo-haptics`), dynamic method selector, inline dose scaling, and full hardware faceplate controls across web and mobile.
+* **⏱️ Interactive Brew Assistant & Ratio Translator**: Live visual stage timer with target weight indicators, synthesized bell chimes (Web Audio on web, `expo-audio` on mobile), tactile haptics (`expo-haptics`), dynamic method selector, inline dose scaling, dual-mode operation (Guided Recipe Mode + Free Brew manual stopwatch with milestone split tags), and a nested bidirectional proportional Ratio Translator.
 * **📝 SCA Cupping Logbook & Flavor Wheel**: Score fragrance/aroma, flavor, aftertaste, acidity, body, balance, uniformity, clean cup, sweetness, and overall impression with interactive flavor tags to calculate authentic 0–100 SCA scores.
 * **☁️ Cloud Sync, Multi-User & Secure Storage**: Supabase PostgreSQL backend with Row Level Security (RLS), cross-platform authentication (`AuthSheet` modal bottom sheet with sign-in/up/reset, `ProfileHeaderButton` avatar indicator), and hardware-secured session storage (`LargeSecureStore` AES-256 CTR hybrid encryption backed by `expo-secure-store` with `WHEN_UNLOCKED_THIS_DEVICE_ONLY` keychain accessibility).
 * **📱 Active Project Milestones & Roadmap**:
@@ -40,10 +40,12 @@ brewlog/
   - **Phase 3C (Supabase Auth & Secure Storage)**: Complete ✅ (Hardware-backed `LargeSecureStore`, `AuthContext` / `useAuth`, `ProfileHeaderButton`, and `AuthSheet` modal).
   - **Phase 4 (Mobile Recipe Studio & Catalog)**: Complete ✅ (Native stack/modal navigation, recipe builder lifecycle, bidirectional timer handoff).
   - **Phase 5 (Stash Manager & Cellar Inventory)**: Complete ✅ (Native bean cellar, roast resting status indicators, dose deduction handoff to timer, pure resting engine, and offline-first cache).
-  - **Phase 6 (Free Brew Timer & Ratio Translator)**: Upcoming ⏳ (Stopwatch mode, nested ratio translator).
-  - **Phase 7 (User Preferences & Settings Subsystem)**: Upcoming ⏳ (Cross-platform Supabase `user_settings`, default timer mode).
-  - **Phase 8 (Native Cupping Session Logging)**: Upcoming ⏳ (SCA 10-attribute scoring protocol).
-  - **Phase 9 (Platform-Adaptive Navigation)**: Upcoming ⏳ (iOS Liquid Glass & Android Material Design 3).
+  - **Phase 6 (Free Brew Timer & Ratio Translator)**: Complete ✅ (Stopwatch mode, manual split tags, nested ratio translator, cupping/recipe export, mobile & web parity).
+  - **Phase 7 (Centralized Cross-Platform Design System)**: Active / Next 🚀 (`@brewlog/ui` shared monorepo package, platform-split primitives, unified TypeScript contracts).
+  - **Phase 8 (User Preferences & Settings Subsystem)**: Upcoming ⏳ (Cross-platform Supabase `user_settings`, default timer mode).
+  - **Phase 9 (Native Cupping Session Logging)**: Upcoming ⏳ (SCA 10-attribute scoring protocol).
+  - **Phase 10 (Platform-Adaptive Navigation)**: Upcoming ⏳ (iOS Liquid Glass & Android Material Design 3).
+  - **Phase 11 (Responsive Adaptive Layouts)**: Upcoming ⏳ (Landscape, foldables, tablets).
 * **⌚ Companion Platforms & Wearables**:
   - **WearOS Companion**: Android Wear OS wrist timer with haptic pour alerts via Wearable DataLayer.
   - **watchOS Companion**: Apple Watch companion app built with SwiftUI & WatchConnectivity.

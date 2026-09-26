@@ -26,6 +26,9 @@ Interactive timers leverage performance timing APIs combined with synthesized We
 ### 6. Offline-First Stash Inventory & Biochemical Resting Engine
 Mobile baristas manage roasted bean cellar inventory with instant local responsiveness via `@brewlog/mobile:stash_cache`. A pure mathematical resting engine calculates roast freshness curves and pauses degradation during deep-freeze vault storage, seamlessly bridging into the active brew timer for one-tap dose deduction upon extraction completion.
 
+### 7. Bidirectional Ratio Translation & Manual Free Brew Stopwatch Engine
+BrewLog bridges structured recipe execution with intuitive, unguided brewing via a unified dual-mode timing state machine (`recipe` vs `free_brew`). A pure mathematical proportional engine (`@brewlog/core`) computes bidirectional targets ($C_{target}$ from water or $W_{target}$ from coffee) with zero-division protections. Live split-interval tracking records milestone timestamps (+Bloom, +Pours, +Drawdown) and seamlessly serializes unstructured extractions into formal recipe stages or SCA cupping sensory logs across web and mobile.
+
 ---
 
 ## 📈 Learning Roadmap & Architecture Decision Records
@@ -34,4 +37,5 @@ Mobile baristas manage roasted bean cellar inventory with instant local responsi
 - [`docs/adr/003-supabase-typescript-multiplatform-best-practices.md`](./docs/adr/003-supabase-typescript-multiplatform-best-practices.md) — Multi-Platform Supabase TypeScript Patterns
 - [`docs/adr/004-client-side-declarative-routing.md`](./docs/adr/004-client-side-declarative-routing.md) — Declarative Routing via React Router v8
 - [`docs/adr/005-offline-stash-management-and-resting-engine.md`](./docs/adr/005-offline-stash-management-and-resting-engine.md) — Offline-First Stash Management & Resting Engine
+- [`docs/adr/006-android-autofill-and-in-tree-modal-overlays.md`](./docs/adr/006-android-autofill-and-in-tree-modal-overlays.md) — Android Autofill & In-Tree Modal Overlays
 - [`docs/ROADMAP.md`](./docs/ROADMAP.md) — Macro Milestones & Technical Debt Tracker
