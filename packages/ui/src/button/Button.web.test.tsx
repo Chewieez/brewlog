@@ -26,6 +26,23 @@ describe('Button (web)', () => {
     expect(btn.className).toContain('border-status-error/40');
   });
 
+  it('renders secondary button with panel-recessed and text-primary', () => {
+    render(<Button label="CANCEL" variant="secondary" />);
+    const btn = screen.getByRole('button', { name: 'CANCEL' });
+    expect(btn.className).toContain('bg-panel-recessed');
+    expect(btn.className).toContain('hover:bg-panel');
+    expect(btn.className).toContain('text-text-primary');
+    expect(btn.className).toContain('border-border-subtle');
+  });
+
+  it('renders ghost button with transparent background and text-secondary', () => {
+    render(<Button label="MORE" variant="ghost" />);
+    const btn = screen.getByRole('button', { name: 'MORE' });
+    expect(btn.className).toContain('bg-transparent');
+    expect(btn.className).toContain('hover:bg-panel-recessed');
+    expect(btn.className).toContain('text-text-secondary');
+  });
+
   it('renders string children correctly', () => {
     render(<Button><span>START BREW</span></Button>);
     expect(screen.getByText('START BREW')).toBeInTheDocument();

@@ -14,6 +14,9 @@ export const Input: React.FC<InputProps> = ({
   accessibilityLabel,
 }) => {
   const isNumeric = variant === 'numeric';
+  const borderClasses = error
+    ? 'border-status-error focus-within:border-status-error'
+    : 'border-border-subtle focus-within:border-accent';
 
   return (
     <div className="flex flex-col space-y-1">
@@ -22,7 +25,7 @@ export const Input: React.FC<InputProps> = ({
           {label}
         </label>
       )}
-      <div className="relative flex items-center bg-panel-recessed border border-border-subtle focus-within:border-accent rounded-md px-3 py-2 transition-colors">
+      <div className={`relative flex items-center bg-panel-recessed border rounded-md px-3 py-2 transition-colors ${borderClasses}`}>
         <input
           data-testid={testID}
           aria-label={accessibilityLabel || label}

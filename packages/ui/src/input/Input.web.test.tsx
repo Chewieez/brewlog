@@ -27,4 +27,12 @@ describe('Input (web)', () => {
     fireEvent.change(input, { target: { value: '18' } });
     expect(handleChange).toHaveBeenCalledWith('18');
   });
+
+  it('applies border-status-error when error prop is provided', () => {
+    render(<Input value="" onChangeText={() => {}} label="Dose" error="Dose required" testID="dose-input" />);
+    const inputWrapper = screen.getByTestId('dose-input').parentElement;
+    expect(inputWrapper?.className).toContain('border-status-error');
+    expect(inputWrapper?.className).toContain('focus-within:border-status-error');
+    expect(screen.getByText('Dose required')).toBeInTheDocument();
+  });
 });

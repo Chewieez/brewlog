@@ -22,9 +22,9 @@ export const Button: React.FC<ButtonProps> = ({
 
   let variantClasses = 'bg-copper hover:bg-copper-hover text-canvas font-mono font-bold uppercase tracking-wider';
   if (variant === 'secondary') {
-    variantClasses = 'bg-panel-recessed hover:bg-zinc-800 text-bone border border-border-subtle hover:border-border-active font-mono font-bold uppercase tracking-wider';
+    variantClasses = 'bg-panel-recessed hover:bg-panel text-text-primary border border-border-subtle hover:border-border-active font-mono font-bold uppercase tracking-wider';
   } else if (variant === 'ghost') {
-    variantClasses = 'bg-transparent hover:bg-panel-recessed text-bone-muted hover:text-bone uppercase font-medium';
+    variantClasses = 'bg-transparent hover:bg-panel-recessed text-text-secondary hover:text-text-primary uppercase font-medium';
   } else if (variant === 'danger') {
     variantClasses = 'bg-status-error/10 hover:bg-status-error/20 text-status-error border border-status-error/40 font-mono font-bold uppercase tracking-wider';
   }
