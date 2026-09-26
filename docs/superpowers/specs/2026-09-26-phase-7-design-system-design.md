@@ -115,6 +115,17 @@ packages/ui/
 | **Chassis Eyebrow Labels** | `font-mono uppercase tracking-widest text-[10px]` | `JetBrainsMono_700Bold` (`FONTS.monoBold`) + uppercase | Industrial instrument faceplate labels. |
 | **Button Labels** | `font-mono uppercase tracking-wider text-xs font-bold` | `JetBrainsMono_700Bold` (`FONTS.monoBold`) + uppercase | Tactile action triggers (`START BREW`, `RESET`). Numeric dose steppers (`+1g`, `-1g`) format numbers in `Outfit`. |
 
+### 3.2 Standardized Border & Surface Tokens
+
+All primitives strictly consume unified tokens from `@brewlog/core` (`INDUSTRIAL_PRECISION_THEME`), eliminating hardcoded hexes or arbitrary Tailwind zinc colors:
+
+| Border Role | Color Token | Web (Tailwind v4) | Mobile (StyleSheet) | Usage |
+| :--- | :--- | :--- | :--- | :--- |
+| **Subtle Boundary** | `borderSubtle` (`#27272a`) | `border-border-subtle` | `colors.borderSubtle` | Default borders on cards, inactive panels, inputs, and hairline dividers. |
+| **Interactive Active** | `borderActive` (`#3f3f46`) | `border-border-active` | `colors.borderActive` | Hover/pressed card states, secondary button outline, and interactive borders. |
+| **Accent Focus** | `accent` (`#d97736`) | `border-accent` / `border-copper` | `colors.accent` | Active input focus rings, selected method chips, active timer indicators. |
+| **Error / Validation** | `statusError` (`#ef4444`) | `border-status-error` | `colors.statusError` | Form validation failures, destructive alert dialog boundaries. |
+
 ---
 
 ## 4. Component Primitive Contracts
@@ -140,13 +151,19 @@ export interface ButtonProps {
 }
 ```
 
+#### Button Text & Color Standard Matrix
+| Variant | Background | Border | Text Color & Font | Hover / Active State |
+| :--- | :--- | :--- | :--- | :--- |
+| **`primary`** | `accent` (`#d97736`) | None | `canvas` (`#121214`) bold monospaced uppercase | `accentHover` (`#e88344`) |
+| **`secondary`** | `panelRecessed` (`#202024`) | `borderSubtle` (`#27272a`) | `textPrimary` (`#f4f4f5`) bold monospaced uppercase | Border `borderActive` (`#3f3f46`), surface `#27272a` |
+| **`ghost`** | Transparent | None | `textSecondary` (`#a1a1aa`) uppercase | Recessed background hover, text `textPrimary` |
+| **`danger`** | `statusError/10` | `statusError/40` (`#ef4444`) | `statusError` (`#ef4444`) bold monospaced uppercase | Background `statusError/20` |
+| **Disabled** | `panel` (`#18181b`) | `borderSubtle` (`#27272a`) | `textMuted` (`#71717a`) at 50% opacity | Inactive, zero pointer events |
+| **Stepper (+1g)** | Inherits variant | Inherits variant | Numeric amount in `Outfit font-light` tabular | Haptic feedback on mobile, press opacity |
+
 * **Web Implementation (`Button.web.tsx`)**:
   * Semantic `<button type="button">`.
-  * Variants:
-    * `primary`: `bg-copper hover:bg-copper-hover text-canvas font-mono font-bold uppercase tracking-wider rounded-md transition-colors`
-    * `secondary`: `bg-panel-recessed hover:bg-zinc-800 text-bone border border-border-subtle font-mono font-bold uppercase tracking-wider rounded-md`
-    * `ghost`: `bg-transparent hover:bg-panel-recessed text-bone-muted hover:text-bone rounded-md`
-    * `danger`: `bg-status-error/10 border border-status-error/40 text-status-error hover:bg-status-error/20 rounded-md`
+  * Variants mapped strictly to Tailwind v4 theme variables (`bg-copper`, `text-canvas`, `border-border-subtle`, `border-border-active`, etc.).
   * Sizes: `sm` (h-8, px-3, text-xs), `md` (h-11, px-4, text-xs), `lg` (h-12, px-6, text-sm).
 * **Native Implementation (`Button.native.tsx`)**:
   * `<Pressable>` with touch target $\ge 44\text{pt}$ (Apple HIG compliance).
