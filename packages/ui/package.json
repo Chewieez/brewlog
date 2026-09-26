@@ -1,0 +1,39 @@
+{
+  "name": "@brewlog/ui",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.web.ts",
+  "react-native": "./src/index.native.ts",
+  "types": "./src/index.web.ts",
+  "exports": {
+    ".": {
+      "react-native": "./src/index.native.ts",
+      "default": "./src/index.web.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@brewlog/core": "*"
+  },
+  "peerDependencies": {
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-native": "0.86.3"
+  },
+  "peerDependenciesMeta": {
+    "react-dom": { "optional": true },
+    "react-native": { "optional": true }
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^29.1.1",
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.11"
+  }
+}
