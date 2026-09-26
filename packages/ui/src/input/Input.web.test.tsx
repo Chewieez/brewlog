@@ -35,4 +35,12 @@ describe('Input (web)', () => {
     expect(inputWrapper?.className).toContain('focus-within:border-status-error');
     expect(screen.getByText('Dose required')).toBeInTheDocument();
   });
+
+  it('associates label with input using htmlFor and id', () => {
+    render(<Input value="" onChangeText={() => {}} label="Grind Size" testID="grind-input" />);
+    const label = screen.getByText('Grind Size');
+    const input = screen.getByTestId('grind-input');
+    expect(label.getAttribute('for')).toBe('grind-input');
+    expect(input.getAttribute('id')).toBe('grind-input');
+  });
 });

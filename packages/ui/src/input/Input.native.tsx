@@ -18,20 +18,29 @@ export const Input: React.FC<InputProps> = ({
   accessibilityLabel,
 }) => {
   const isNumeric = variant === 'numeric';
+  const [isFocused, setIsFocused] = React.useState(false);
 
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <View style={[styles.inputWrapper, error ? styles.inputWrapperError : null]}>
+      <View
+        style={[
+          styles.inputWrapper,
+          isFocused && styles.inputWrapperFocused,
+          error ? styles.inputWrapperError : null,
+        ]}
+      >
         <TextInput
           testID={testID}
           accessibilityLabel={accessibilityLabel || label}
           editable={!disabled}
-          value={String(value)}
+          value={value != null ? String(value) : ''}
           placeholder={placeholder}
           placeholderTextColor={colors.textMuted}
           keyboardType={isNumeric ? 'decimal-pad' : 'default'}
           onChangeText={onChangeText}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           style={[
             styles.input,
             isNumeric ? styles.numericInput : styles.standardInput,
@@ -65,6 +74,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     minHeight: 44,
+  },
+  inputWrapperFocused: {
+    borderColor: colors.accent,
   },
   inputWrapperError: {
     borderColor: colors.statusError,

@@ -66,4 +66,10 @@ describe('Button (native)', () => {
     expect(screen.getByText('START BREW')).toBeInTheDocument();
     expect(screen.getByTestId('start-btn')).toBeDisabled();
   });
+
+  it('scales text style to fontSize 14 for size="lg"', () => {
+    render(<Button label="CONTINUE" size="lg" />);
+    const textElement = screen.getByText('CONTINUE');
+    expect(textElement.getAttribute('data-style')).toContain('"fontSize":14');
+  });
 });

@@ -13,6 +13,8 @@ export const Input: React.FC<InputProps> = ({
   testID,
   accessibilityLabel,
 }) => {
+  const generatedId = React.useId();
+  const inputId = testID || generatedId;
   const isNumeric = variant === 'numeric';
   const borderClasses = error
     ? 'border-status-error focus-within:border-status-error'
@@ -21,12 +23,16 @@ export const Input: React.FC<InputProps> = ({
   return (
     <div className="flex flex-col space-y-1">
       {label && (
-        <label className="text-[10px] font-mono tracking-widest text-text-muted uppercase">
+        <label
+          htmlFor={inputId}
+          className="text-[10px] font-mono tracking-widest text-text-muted uppercase cursor-pointer"
+        >
           {label}
         </label>
       )}
       <div className={`relative flex items-center bg-panel-recessed border rounded-md px-3 py-2 transition-colors ${borderClasses}`}>
         <input
+          id={inputId}
           data-testid={testID}
           aria-label={accessibilityLabel || label}
           disabled={disabled}

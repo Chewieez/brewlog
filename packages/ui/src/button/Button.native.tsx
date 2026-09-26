@@ -33,7 +33,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   const textStyles = [
     styles.baseText,
-    isSm ? styles.smText : styles.mdText,
+    isSm ? styles.smText : isLg ? styles.lgText : styles.mdText,
     variant === 'primary' && styles.primaryText,
     variant === 'secondary' && styles.secondaryText,
     variant === 'ghost' && styles.ghostText,
@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
   },
   smText: { fontSize: 11 },
   mdText: { fontSize: 12 },
+  lgText: { fontSize: 14 },
   primaryText: { color: colors.canvas },
   secondaryText: { color: colors.textPrimary },
   ghostText: { color: colors.textSecondary },
