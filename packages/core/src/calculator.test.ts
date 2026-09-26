@@ -3,12 +3,16 @@ import {
   calculateWaterAmount,
   calculateCoffeeDose,
   calculateRatio,
+  calculateTargetWater,
+  calculateTargetCoffee,
+  solveProportionalScale,
+  splitsToRecipeStages,
   rescaleRecipeDose,
   calculateScaScore,
   calculateDaysOffRoast,
   getRestingStatus,
 } from "./calculator";
-import { BrewRecipe, CuppingAttributes } from "./types";
+import { BrewRecipe, BrewSplit, CuppingAttributes } from "./types";
 
 describe("Brew Calculator Math", () => {
   describe("calculateWaterAmount", () => {
@@ -114,6 +118,34 @@ describe("Brew Calculator Math", () => {
     it("should return unchanged recipe if new dose or original dose is non-positive", () => {
       expect(rescaleRecipeDose(sampleRecipe, 0)).toBe(sampleRecipe);
       expect(rescaleRecipeDose(sampleRecipe, -5)).toBe(sampleRecipe);
+    });
+
+    it("should adopt custom target ratio and target water when provided", () => {
+      // sampleRecipe is 20g dose, 300g water (ratio 15).
+      // Scale to 25g dose, with ratio 16.0 and target water 400g
+      const scaled = rescaleRecipeDose(sampleRecipe, 25, 16.0, 400);
+
+      expect(scaled.coffeeDoseGrams).toBe(25);
+      expect(scaled.ratio).toBe(16.0);
+      expect(scaled.waterAmountGrams).toBe(400);
+      // Stages scaled by 400 / 300 = 1.3333x
+      // Stage 0: 60 * (400/300) = 80g
+      expect(scaled.stages[0].targetWaterWeightGrams).toBe(80);
+      // Final stage guaranteed to match total water 400g
+      expect(scaled.stages[1].targetWaterWeightGrams).toBe(400);
+    });
+
+    it("should adopt custom ratio when water is omitted, deriving total water", () => {
+      // Scale to 20g dose with ratio 14.0 -> water 280g
+      const scaled = rescaleRecipeDose(sampleRecipe, 20, 14.0);
+
+      expect(scaled.coffeeDoseGrams).toBe(20);
+      expect(scaled.ratio).toBe(14.0);
+      expect(scaled.waterAmountGrams).toBe(280);
+      // Stages scaled by 280 / 300 = 0.9333x
+      // Stage 0: 60 * (280/300) = 56g
+      expect(scaled.stages[0].targetWaterWeightGrams).toBe(56);
+      expect(scaled.stages[1].targetWaterWeightGrams).toBe(280);
     });
   });
 
@@ -289,4 +321,152 @@ describe("Brew Calculator Math", () => {
       expect(getRestingStatus(120).status).toBe("past-peak");
     });
   });
+
+  describe("Phase 6 Proportional Math & Split Converter", () => {
+    describe("calculateTargetWater & calculateTargetCoffee", () => {
+      it("calculates target water correctly", () => {
+        expect(calculateTargetWater(18, 16)).toBe(288);
+        expect(calculateTargetWater(15.5, 15)).toBe(233);
+        expect(calculateTargetWater(0, 16)).toBe(0);
+        expect(calculateTargetWater(18, 0)).toBe(0);
+      });
+
+      it("calculates target coffee correctly with 1 decimal place", () => {
+        expect(calculateTargetCoffee(288, 16)).toBe(18);
+        expect(calculateTargetCoffee(250, 16.5)).toBe(15.2);
+        expect(calculateTargetCoffee(0, 16)).toBe(0);
+        expect(calculateTargetCoffee(250, 0)).toBe(0);
+      });
+    });
+
+    describe("solveProportionalScale", () => {
+      it("solves target water given target coffee from source baseline", () => {
+        const result = solveProportionalScale({
+          sourceCoffee: 20,
+          sourceWater: 320,
+          targetCoffee: 15,
+        });
+        expect(result.ratio).toBe(16);
+        expect(result.targetCoffee).toBe(15);
+        expect(result.targetWater).toBe(240);
+      });
+
+      it("solves target coffee given target water from source baseline", () => {
+        const result = solveProportionalScale({
+          sourceCoffee: 22,
+          sourceWater: 350,
+          targetWater: 250,
+        });
+        expect(result.ratio).toBe(15.9);
+        expect(result.targetWater).toBe(250);
+        expect(result.targetCoffee).toBe(15.7);
+      });
+
+      it("handles zero and negative inputs safely without throwing", () => {
+        const zeroResult = solveProportionalScale({
+          sourceCoffee: 0,
+          sourceWater: 300,
+          targetCoffee: 15,
+        });
+        expect(zeroResult.ratio).toBe(0);
+        expect(zeroResult.targetWater).toBe(0);
+
+        const negResult = solveProportionalScale({
+          sourceCoffee: -10,
+          sourceWater: 150,
+          targetWater: 200,
+        });
+        expect(negResult.ratio).toBe(0);
+        expect(negResult.targetCoffee).toBe(0);
+      });
+
+      it("guards against division by zero when ratio evaluates to 0 due to extreme inputs", () => {
+        const result = solveProportionalScale({
+          sourceCoffee: 100,
+          sourceWater: 1, // 1/100 = 0.01 -> toFixed(1) is "0.0" -> ratio 0
+          targetWater: 250,
+        });
+        expect(result.ratio).toBe(0);
+        expect(result.targetCoffee).toBe(0);
+        expect(result.targetWater).toBe(250);
+      });
+    });
+
+    describe("splitsToRecipeStages", () => {
+      it("creates a single full extraction stage when no splits are provided", () => {
+        const stages = splitsToRecipeStages([], 180, 300);
+        expect(stages).toHaveLength(1);
+        expect(stages[0].name).toBe("Full Extraction");
+        expect(stages[0].startSecond).toBe(0);
+        expect(stages[0].durationSeconds).toBe(180);
+        expect(stages[0].targetWaterWeightGrams).toBe(300);
+      });
+
+      it("converts multiple splits into progressive stages with correct durations", () => {
+        const splits: BrewSplit[] = [
+          { id: "s1", second: 45, intervalSeconds: 45, label: "Bloom", tag: "bloom" },
+          { id: "s2", second: 105, intervalSeconds: 60, label: "First Pour", tag: "pour" },
+          { id: "s3", second: 180, intervalSeconds: 75, label: "Drawdown", tag: "drawdown" },
+        ];
+        const stages = splitsToRecipeStages(splits, 210, 300);
+        expect(stages).toHaveLength(4);
+        expect(stages[0].name).toBe("Bloom");
+        expect(stages[0].startSecond).toBe(0);
+        expect(stages[0].durationSeconds).toBe(45);
+        expect(stages[0].stageType).toBe("bloom");
+
+        expect(stages[1].name).toBe("First Pour");
+        expect(stages[1].startSecond).toBe(45);
+        expect(stages[1].durationSeconds).toBe(60);
+        expect(stages[1].stageType).toBe("pour");
+
+        expect(stages[2].name).toBe("Drawdown");
+        expect(stages[2].startSecond).toBe(105);
+        expect(stages[2].durationSeconds).toBe(75);
+        expect(stages[2].stageType).toBe("drawdown");
+
+        expect(stages[3].name).toBe("Finish & Drain");
+        expect(stages[3].startSecond).toBe(180);
+        expect(stages[3].durationSeconds).toBe(30);
+        expect(stages[3].stageType).toBe("drawdown");
+      });
+
+      it("safely falls back for empty, whitespace, or undefined split.label", () => {
+        const splits: BrewSplit[] = [
+          { id: "s1", second: 30, intervalSeconds: 30, label: "   ", tag: "bloom" },
+          { id: "s2", second: 90, intervalSeconds: 60, label: "", tag: undefined as any },
+          { id: "s3", second: 150, intervalSeconds: 60, label: undefined as any, tag: "pour" },
+        ];
+        const stages = splitsToRecipeStages(splits, 180, 300);
+        expect(stages[0].name).toBe("bloom");
+        expect(stages[0].instruction).toBe("Execute bloom phase.");
+        expect(stages[1].name).toBe("Stage 2");
+        expect(stages[1].instruction).toBe("Execute stage 2 phase.");
+        expect(stages[2].name).toBe("pour");
+        expect(stages[2].instruction).toBe("Execute pour phase.");
+      });
+
+      it("guarantees final stage targets total water when brew ends at final split without a trailing stage", () => {
+        const splits: BrewSplit[] = [
+          { id: "s1", second: 45, intervalSeconds: 45, label: "Bloom", tag: "bloom" },
+          { id: "s2", second: 180, intervalSeconds: 135, label: "Drawdown", tag: "drawdown" },
+        ];
+        // Total elapsed time equals the last split timestamp (180s)
+        const stages = splitsToRecipeStages(splits, 180, 300);
+        expect(stages).toHaveLength(2);
+        expect(stages[0].targetWaterWeightGrams).toBe(150); // 1/2 of 300
+        expect(stages[1].targetWaterWeightGrams).toBe(300); // final stage must hit total water 300g!
+      });
+
+      it("guarantees single split ending at total time targets 100% of total water", () => {
+        const splits: BrewSplit[] = [
+          { id: "s1", second: 120, intervalSeconds: 120, label: "Pour", tag: "pour" },
+        ];
+        const stages = splitsToRecipeStages(splits, 120, 250);
+        expect(stages).toHaveLength(1);
+        expect(stages[0].targetWaterWeightGrams).toBe(250);
+      });
+    });
+  });
 });
+

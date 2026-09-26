@@ -317,4 +317,171 @@ describe('TimerHero Component', () => {
 
     expect(doseInput.value).toBe('22');
   });
+
+  describe('Free Brew Mode', () => {
+    it('renders FREE BREW · MANUAL STOPWATCH subtitle and RATIO / SPLITS metrics', () => {
+      const { getByText, queryByText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={45}
+          isRunning={true}
+          isMuted={false}
+          currentStageTargetWater={0}
+          doseGrams={15}
+          onToggleTimer={vi.fn()}
+          onReset={vi.fn()}
+          onToggleMute={vi.fn()}
+          totalProgress={0}
+          mode="free_brew"
+          splitsCount={3}
+        />
+      );
+
+      expect(getByText('FREE BREW · MANUAL STOPWATCH')).toBeDefined();
+      expect(getByText('RATIO')).toBeDefined();
+      expect(getByText(/1:16.67/)).toBeDefined();
+      expect(getByText('SPLITS')).toBeDefined();
+      expect(getByText('3')).toBeDefined();
+      expect(queryByText('WATER TARGET')).toBeNull();
+      expect(queryByText('POUR TO')).toBeNull();
+    });
+
+    it('renders quick tag chips and invokes onTagSplit when pressed', () => {
+      const onTagSplit = vi.fn();
+
+      const { getByText, getByLabelText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={30}
+          isRunning={true}
+          isMuted={false}
+          currentStageTargetWater={0}
+          doseGrams={15}
+          onToggleTimer={vi.fn()}
+          onReset={vi.fn()}
+          onToggleMute={vi.fn()}
+          totalProgress={0}
+          mode="free_brew"
+          onTagSplit={onTagSplit}
+        />
+      );
+
+      const bloomChip = getByLabelText('Record Bloom split');
+      const pour1Chip = getByLabelText('Record Pour 1 split');
+      const pour2Chip = getByLabelText('Record Pour 2 split');
+      const drawdownChip = getByLabelText('Record Drawdown split');
+
+      expect(bloomChip).toBeDefined();
+      expect(pour1Chip).toBeDefined();
+      expect(pour2Chip).toBeDefined();
+      expect(drawdownChip).toBeDefined();
+
+      fireEvent.click(bloomChip);
+      expect(onTagSplit).toHaveBeenCalledWith('bloom', 'Bloom');
+
+      fireEvent.click(pour1Chip);
+      expect(onTagSplit).toHaveBeenCalledWith('pour', 'Pour 1');
+
+      fireEvent.click(pour2Chip);
+      expect(onTagSplit).toHaveBeenCalledWith('pour', 'Pour 2');
+
+      fireEvent.click(drawdownChip);
+      expect(onTagSplit).toHaveBeenCalledWith('drawdown', 'Drawdown');
+    });
+
+    it('renders SPLIT button when running and calls onSplit when clicked', () => {
+      const onSplit = vi.fn();
+
+      const { getByText, queryByText, rerender } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={30}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={0}
+          doseGrams={15}
+          onToggleTimer={vi.fn()}
+          onReset={vi.fn()}
+          onToggleMute={vi.fn()}
+          totalProgress={0}
+          mode="free_brew"
+          onSplit={onSplit}
+        />
+      );
+
+      // SPLIT button not rendered when idle
+      expect(queryByText('SPLIT')).toBeNull();
+
+      // Render while running
+      rerender(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={30}
+          isRunning={true}
+          isMuted={false}
+          currentStageTargetWater={0}
+          doseGrams={15}
+          onToggleTimer={vi.fn()}
+          onReset={vi.fn()}
+          onToggleMute={vi.fn()}
+          totalProgress={0}
+          mode="free_brew"
+          onSplit={onSplit}
+        />
+      );
+
+      const splitBtn = getByText('SPLIT');
+      expect(splitBtn).toBeDefined();
+      fireEvent.click(splitBtn);
+      expect(onSplit).toHaveBeenCalledTimes(1);
+    });
+
+    it('renders FINISH BREW button when running or started and calls onFinish', () => {
+      const onFinish = vi.fn();
+
+      const { getByText, queryByText, rerender } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={0}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={0}
+          doseGrams={15}
+          onToggleTimer={vi.fn()}
+          onReset={vi.fn()}
+          onToggleMute={vi.fn()}
+          totalProgress={0}
+          mode="free_brew"
+          onFinish={onFinish}
+        />
+      );
+
+      // Not visible before start
+      expect(queryByText('FINISH BREW')).toBeNull();
+
+      // Visible when running
+      rerender(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={15}
+          isRunning={true}
+          isMuted={false}
+          currentStageTargetWater={0}
+          doseGrams={15}
+          onToggleTimer={vi.fn()}
+          onReset={vi.fn()}
+          onToggleMute={vi.fn()}
+          totalProgress={0}
+          mode="free_brew"
+          onFinish={onFinish}
+        />
+      );
+
+      const finishBtn = getByText('FINISH BREW');
+      expect(finishBtn).toBeDefined();
+      fireEvent.click(finishBtn);
+      expect(onFinish).toHaveBeenCalledTimes(1);
+    });
+  });
 });
+

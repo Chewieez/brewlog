@@ -74,7 +74,20 @@ export interface Bean {
   createdAt: string;
 }
 
-export type StageType = "bloom" | "pour" | "agitation" | "drawdown" | "press" | "other";
+export type TimerMode = 'recipe' | 'free_brew';
+
+export type SplitTag = 'bloom' | 'pour' | 'drawdown' | 'custom';
+
+export interface BrewSplit {
+  id: string;
+  second: number;
+  intervalSeconds: number;
+  label: string;
+  tag?: SplitTag;
+  waterWeightGrams?: number;
+}
+
+export type StageType = "bloom" | "pour" | "agitation" | "drawdown" | "press" | "wait" | "other";
 
 export interface BrewStage {
   id: string;

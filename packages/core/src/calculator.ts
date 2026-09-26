@@ -1,4 +1,4 @@
-import { BrewRecipe, BrewStage, CuppingAttributes } from "./types";
+import { BrewRecipe, BrewSplit, BrewStage, CuppingAttributes } from "./types";
 
 export function calculateWaterAmount(coffeeDoseGrams: number, ratio: number): number {
   return Math.round(coffeeDoseGrams * ratio);
@@ -14,21 +14,184 @@ export function calculateRatio(coffeeDoseGrams: number, waterAmountGrams: number
   return Number((waterAmountGrams / coffeeDoseGrams).toFixed(1));
 }
 
-export function rescaleRecipeDose(recipe: BrewRecipe, newDoseGrams: number): BrewRecipe {
+export function calculateTargetWater(coffeeDoseGrams: number, ratio: number): number {
+  if (coffeeDoseGrams <= 0 || ratio <= 0) return 0;
+  return Math.round(coffeeDoseGrams * ratio);
+}
+
+export function calculateTargetCoffee(waterAmountGrams: number, ratio: number): number {
+  if (waterAmountGrams <= 0 || ratio <= 0) return 0;
+  return Number((waterAmountGrams / ratio).toFixed(1));
+}
+
+export interface ProportionalScaleParams {
+  sourceCoffee: number;
+  sourceWater: number;
+  targetCoffee?: number;
+  targetWater?: number;
+}
+
+export interface ProportionalScaleResult {
+  ratio: number;
+  targetCoffee: number;
+  targetWater: number;
+}
+
+export function solveProportionalScale(params: ProportionalScaleParams): ProportionalScaleResult {
+  const { sourceCoffee, sourceWater, targetCoffee, targetWater } = params;
+  if (sourceCoffee <= 0 || sourceWater <= 0) {
+    return {
+      ratio: 0,
+      targetCoffee: targetCoffee ?? 0,
+      targetWater: targetWater ?? 0,
+    };
+  }
+
+  const ratio = Number((sourceWater / sourceCoffee).toFixed(1));
+
+  if (targetCoffee !== undefined && targetCoffee > 0) {
+    const calculatedWater = Math.round(targetCoffee * ratio);
+    return {
+      ratio,
+      targetCoffee,
+      targetWater: calculatedWater,
+    };
+  }
+
+  if (targetWater !== undefined && targetWater > 0) {
+    if (ratio <= 0) {
+      return {
+        ratio: 0,
+        targetCoffee: 0,
+        targetWater: targetWater ?? 0,
+      };
+    }
+    const calculatedCoffee = Number((targetWater / ratio).toFixed(1));
+    return {
+      ratio,
+      targetCoffee: calculatedCoffee,
+      targetWater,
+    };
+  }
+
+  return {
+    ratio,
+    targetCoffee: sourceCoffee,
+    targetWater: sourceWater,
+  };
+}
+
+export function splitsToRecipeStages(
+  splits: BrewSplit[],
+  totalElapsedSeconds: number,
+  totalWaterAmountGrams: number
+): BrewStage[] {
+  const safeTotalTime = Math.max(1, totalElapsedSeconds);
+
+  if (!splits || splits.length === 0) {
+    return [
+      {
+        id: 'stage-1',
+        name: 'Full Extraction',
+        startSecond: 0,
+        durationSeconds: safeTotalTime,
+        targetWaterWeightGrams: totalWaterAmountGrams,
+        instruction: 'Pour total water and allow drawdown.',
+        stageType: 'pour',
+      },
+    ];
+  }
+
+  const sortedSplits = [...splits].sort((a, b) => a.second - b.second);
+  const lastSplitSecond = sortedSplits[sortedSplits.length - 1].second;
+  const hasTrailingStage = safeTotalTime > lastSplitSecond;
+  const totalStagesCount = sortedSplits.length + (hasTrailingStage ? 1 : 0);
+
+  const stages: BrewStage[] = [];
+  let prevSecond = 0;
+
+  sortedSplits.forEach((split, idx) => {
+    const startSecond = prevSecond;
+    const duration = Math.max(1, split.second - startSecond);
+    const isOverallLastStage = !hasTrailingStage && idx === sortedSplits.length - 1;
+    const stageWater = split.waterWeightGrams !== undefined
+      ? split.waterWeightGrams
+      : isOverallLastStage
+      ? totalWaterAmountGrams
+      : Math.round(((idx + 1) / totalStagesCount) * totalWaterAmountGrams);
+
+    const safeLabel = (split.label && split.label.trim()) || (split.tag ? split.tag : `Stage ${idx + 1}`);
+
+    stages.push({
+      id: `stage-${idx + 1}`,
+      name: safeLabel,
+      startSecond,
+      durationSeconds: duration,
+      targetWaterWeightGrams: stageWater,
+      instruction: `Execute ${safeLabel.toLowerCase()} phase.`,
+      stageType: split.tag === 'bloom' ? 'bloom' : split.tag === 'drawdown' ? 'drawdown' : 'pour',
+    });
+
+    prevSecond = split.second;
+  });
+
+  if (hasTrailingStage) {
+    stages.push({
+      id: `stage-${stages.length + 1}`,
+      name: 'Finish & Drain',
+      startSecond: prevSecond,
+      durationSeconds: safeTotalTime - prevSecond,
+      targetWaterWeightGrams: totalWaterAmountGrams,
+      instruction: 'Final drawdown and decant.',
+      stageType: 'drawdown',
+    });
+  }
+
+  return stages;
+}
+
+export function rescaleRecipeDose(
+  recipe: BrewRecipe,
+  newDoseGrams: number,
+  newRatio?: number,
+  newWaterAmountGrams?: number
+): BrewRecipe {
   if (recipe.coffeeDoseGrams <= 0 || newDoseGrams <= 0) return recipe;
 
-  const scale = newDoseGrams / recipe.coffeeDoseGrams;
-  const newWaterAmount = Math.round(recipe.waterAmountGrams * scale);
+  let newWaterAmount: number;
+  let targetRatio: number;
+  let waterScale: number;
 
-  const rescaledStages: BrewStage[] = recipe.stages.map((stage) => ({
-    ...stage,
-    targetWaterWeightGrams: Math.round(stage.targetWaterWeightGrams * scale),
-  }));
+  if (newWaterAmountGrams !== undefined && newWaterAmountGrams > 0) {
+    newWaterAmount = Math.round(newWaterAmountGrams);
+    targetRatio =
+      newRatio !== undefined && newRatio > 0
+        ? Number(newRatio.toFixed(1))
+        : Number((newWaterAmount / newDoseGrams).toFixed(1));
+    waterScale = recipe.waterAmountGrams > 0 ? newWaterAmount / recipe.waterAmountGrams : 1;
+  } else if (newRatio !== undefined && newRatio > 0) {
+    targetRatio = Number(newRatio.toFixed(1));
+    newWaterAmount = Math.round(newDoseGrams * newRatio);
+    waterScale = recipe.waterAmountGrams > 0 ? newWaterAmount / recipe.waterAmountGrams : 1;
+  } else {
+    waterScale = newDoseGrams / recipe.coffeeDoseGrams;
+    newWaterAmount = Math.round(recipe.waterAmountGrams * waterScale);
+    targetRatio = recipe.ratio;
+  }
+
+  const rescaledStages: BrewStage[] = recipe.stages.map((stage, idx) => {
+    const isLast = idx === recipe.stages.length - 1;
+    return {
+      ...stage,
+      targetWaterWeightGrams: isLast ? newWaterAmount : Math.round(stage.targetWaterWeightGrams * waterScale),
+    };
+  });
 
   return {
     ...recipe,
     coffeeDoseGrams: newDoseGrams,
     waterAmountGrams: newWaterAmount,
+    ratio: targetRatio,
     stages: rescaledStages,
   };
 }

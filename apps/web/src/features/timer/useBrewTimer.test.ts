@@ -215,4 +215,91 @@ describe("useBrewTimer hook", () => {
     expect(coffeeAudio.playTick).not.toHaveBeenCalled();
     expect(coffeeAudio.playCompletionFanfare).not.toHaveBeenCalled();
   });
+
+  it("records splits in free_brew mode and calculates interval seconds", () => {
+    const { result } = renderHook(() => useBrewTimer(mockRecipe, "free_brew"));
+
+    act(() => {
+      result.current.start();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(30000);
+    });
+
+    act(() => {
+      result.current.recordSplit("Bloom", "bloom");
+    });
+
+    expect(result.current.splits).toHaveLength(1);
+    expect(result.current.splits[0].label).toBe("Bloom");
+    expect(result.current.splits[0].second).toBe(30);
+
+    act(() => {
+      result.current.removeSplit(result.current.splits[0].id);
+    });
+    expect(result.current.splits).toHaveLength(0);
+  });
+
+  it("suppresses countdown ticks and stage chimes in free_brew mode", () => {
+    const { result } = renderHook(() => useBrewTimer(mockRecipe, "free_brew"));
+
+    act(() => {
+      result.current.start();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(12000);
+    });
+
+    expect(coffeeAudio.playTick).not.toHaveBeenCalled();
+    expect(coffeeAudio.playStageChime).not.toHaveBeenCalled();
+    expect(coffeeAudio.playCompletionFanfare).not.toHaveBeenCalled();
+    expect(result.current.isFinished).toBe(false);
+  });
+
+  it("plays audio chime on recordSplit unless muted", () => {
+    const { result } = renderHook(() => useBrewTimer(mockRecipe, "free_brew"));
+
+    act(() => {
+      result.current.recordSplit("Bloom", "bloom");
+    });
+    expect(coffeeAudio.playStageChime).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      result.current.toggleMute();
+      result.current.recordSplit("Pour 1", "pour");
+    });
+    expect(coffeeAudio.playStageChime).toHaveBeenCalledTimes(1);
+  });
+
+  it("calculates interval seconds between successive splits", () => {
+    const { result } = renderHook(() => useBrewTimer(mockRecipe, "free_brew"));
+
+    act(() => {
+      result.current.start();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(45000);
+    });
+
+    act(() => {
+      result.current.recordSplit("Bloom", "bloom");
+    });
+
+    expect(result.current.splits[0].intervalSeconds).toBe(45);
+
+    act(() => {
+      vi.advanceTimersByTime(35000);
+    });
+
+    act(() => {
+      result.current.recordSplit("Pour 1", "pour");
+    });
+
+    expect(result.current.splits[1].second).toBe(80);
+    expect(result.current.splits[1].intervalSeconds).toBe(35);
+  });
 });
+

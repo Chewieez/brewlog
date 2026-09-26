@@ -88,7 +88,14 @@ vi.mock('lucide-react-native', () => ({
 
 const mockBack = vi.fn();
 const mockReplace = vi.fn();
-let mockParams: { editId?: string; duplicateId?: string } = {};
+let mockParams: {
+  editId?: string;
+  duplicateId?: string;
+  stages?: string;
+  initialDose?: string;
+  initialWater?: string;
+  initialMethod?: string;
+} = {};
 
 vi.mock('expo-router', () => ({
   useRouter: () => ({ back: mockBack, replace: mockReplace }),
@@ -249,7 +256,7 @@ describe('RecipeBuilderScreen', () => {
     const notesInput = getByPlaceholderText('Personal notes, water specs, grinder settings...');
     fireEvent.change(notesInput, { target: { value: 'Ground with Comandante 24 clicks' } });
 
-    fireEvent.click(getByText('+ ADD STAGE'));
+    fireEvent.click(getByText('ADD STAGE'));
     fireEvent.click(getByText('SAVE RECIPE'));
 
     await waitFor(() => {
@@ -374,5 +381,49 @@ describe('RecipeBuilderScreen', () => {
 
     fireEvent.click(aeropressPill);
     expect(aeropressPill.getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('initializes form state from free brew route params (stages, initialDose, initialWater, initialMethod)', () => {
+    mockParams = {
+      stages: JSON.stringify([
+        {
+          id: 'stage-1',
+          name: 'Bloom',
+          startSecond: 0,
+          durationSeconds: 45,
+          targetWaterWeightGrams: 60,
+          instruction: 'Execute bloom phase.',
+          stageType: 'bloom',
+        },
+        {
+          id: 'stage-2',
+          name: 'Main Pour',
+          startSecond: 45,
+          durationSeconds: 90,
+          targetWaterWeightGrams: 300,
+          instruction: 'Execute main pour phase.',
+          stageType: 'pour',
+        },
+      ]),
+      initialDose: '18.5',
+      initialWater: '300',
+      initialMethod: 'aeropress',
+    };
+
+    const { getByLabelText, getByDisplayValue } = render(<RecipeBuilderScreen />);
+
+    // Method should be initialized to aeropress
+    const aeropressPill = getByLabelText('Select brew method AeroPress');
+    expect(aeropressPill.getAttribute('aria-selected')).toBe('true');
+
+    // Dose should be initialized to 18.5
+    expect(getByDisplayValue('18.5')).toBeDefined();
+
+    // Ratio should be calculated from 300 / 18.5 = 16.2
+    expect(getByDisplayValue('16.2')).toBeDefined();
+
+    // Custom stages should be rendered
+    expect(getByDisplayValue('Bloom')).toBeDefined();
+    expect(getByDisplayValue('Main Pour')).toBeDefined();
   });
 });

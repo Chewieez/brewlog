@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router';
 import { TimerView } from '../features/timer/TimerView';
 import { useRootOutletContext } from '../layouts/RootLayout';
+import { useRecipes } from '../features/recipes/useRecipes';
 import { BrewRecipe, Bean } from '@brewlog/core';
 
 export const TimerRoute: React.FC = () => {
@@ -11,7 +12,9 @@ export const TimerRoute: React.FC = () => {
     beans,
     setSelectedBean,
     setPendingBrewSession,
+    onAddRecipe,
   } = useRootOutletContext();
+  const { addRecipe } = useRecipes();
   const navigate = useNavigate();
 
   const handleLogCompletedBrew = (recipe: BrewRecipe, actualTimeSeconds: number, bean: Bean | null) => {
@@ -27,6 +30,15 @@ export const TimerRoute: React.FC = () => {
     navigate('/recipes');
   };
 
+  const handleSaveAsRecipe = async (recipe: Omit<BrewRecipe, 'id' | 'createdAt'>) => {
+    if (onAddRecipe) {
+      await onAddRecipe(recipe);
+    } else {
+      await addRecipe(recipe);
+    }
+    navigate('/recipes');
+  };
+
   return (
     <TimerView
       key={selectedRecipe.id}
@@ -36,6 +48,7 @@ export const TimerRoute: React.FC = () => {
       onSelectBean={setSelectedBean}
       onSelectOtherRecipe={handleSelectOtherRecipe}
       onLogCompletedBrew={handleLogCompletedBrew}
+      onSaveAsRecipe={handleSaveAsRecipe}
     />
   );
 };
