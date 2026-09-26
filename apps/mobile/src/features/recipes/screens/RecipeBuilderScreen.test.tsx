@@ -256,7 +256,7 @@ describe('RecipeBuilderScreen', () => {
     const notesInput = getByPlaceholderText('Personal notes, water specs, grinder settings...');
     fireEvent.change(notesInput, { target: { value: 'Ground with Comandante 24 clicks' } });
 
-    fireEvent.click(getByText('+ ADD STAGE'));
+    fireEvent.click(getByText('ADD STAGE'));
     fireEvent.click(getByText('SAVE RECIPE'));
 
     await waitFor(() => {

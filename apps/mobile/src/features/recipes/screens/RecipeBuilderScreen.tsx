@@ -587,7 +587,7 @@ export const RecipeBuilderScreen: React.FC = () => {
 
         <Pressable onPress={handleAddStage} style={styles.addStageButton} accessibilityRole="button" accessibilityLabel="Add Brew Stage">
           <Plus size={16} color={colors.accent} />
-          <Text style={styles.addStageButtonText}>+ ADD STAGE</Text>
+          <Text style={styles.addStageButtonText}>ADD STAGE</Text>
         </Pressable>
       </View>
     </ScrollView>
