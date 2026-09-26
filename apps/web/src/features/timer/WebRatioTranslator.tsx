@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { solveProportionalScale, calculateRatio } from "@brewlog/core";
 import { ChevronDown, ChevronUp, Scale, Check } from "lucide-react";
 
@@ -32,6 +32,15 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
     return String(res.targetWater);
   });
   const [isApplied, setIsApplied] = useState(false);
+  const appliedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (appliedTimeoutRef.current) {
+        clearTimeout(appliedTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (baseCoffee !== undefined && baseWater !== undefined) {
@@ -121,7 +130,12 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
       onApplyDose(doseToApply, ratioToApply, waterToApply);
       setTargetCoffee(doseToApply.toString());
       setIsApplied(true);
-      setTimeout(() => setIsApplied(false), 2000);
+      if (appliedTimeoutRef.current) {
+        clearTimeout(appliedTimeoutRef.current);
+      }
+      appliedTimeoutRef.current = setTimeout(() => {
+        setIsApplied(false);
+      }, 2000);
     }
   };
 

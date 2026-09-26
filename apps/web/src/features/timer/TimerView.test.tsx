@@ -256,7 +256,7 @@ describe('TimerView', () => {
       vi.advanceTimersByTime(45000);
     });
     act(() => {
-      fireEvent.click(screen.getByRole('button', { name: /\+ Bloom/i }));
+      fireEvent.click(screen.getByRole('button', { name: /\+ BLOOM/i }));
     });
 
     // Finish brew

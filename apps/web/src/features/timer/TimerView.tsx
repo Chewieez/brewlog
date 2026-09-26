@@ -490,34 +490,34 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 <button
                   type="button"
                   onClick={() => recordSplit('Bloom', 'bloom')}
-                  className="px-2.5 py-1 rounded border border-border-subtle hover:border-accent hover:bg-panel bg-panel-recessed text-xs font-mono text-text-secondary hover:text-accent cursor-pointer transition-colors"
-                  aria-label="+ Bloom"
+                  className="px-2.5 py-1 rounded border border-border-subtle hover:border-accent hover:bg-panel bg-panel-recessed text-xs font-mono uppercase tracking-wider text-text-secondary hover:text-accent cursor-pointer transition-colors"
+                  aria-label="+ BLOOM"
                 >
-                  + Bloom
+                  + BLOOM
                 </button>
                 <button
                   type="button"
                   onClick={() => recordSplit('Pour 1', 'pour')}
-                  className="px-2.5 py-1 rounded border border-border-subtle hover:border-accent hover:bg-panel bg-panel-recessed text-xs font-mono text-text-secondary hover:text-accent cursor-pointer transition-colors"
-                  aria-label="+ Pour 1"
+                  className="px-2.5 py-1 rounded border border-border-subtle hover:border-accent hover:bg-panel bg-panel-recessed text-xs font-mono uppercase tracking-wider text-text-secondary hover:text-accent cursor-pointer transition-colors"
+                  aria-label="+ POUR 1"
                 >
-                  + Pour 1
+                  + POUR 1
                 </button>
                 <button
                   type="button"
                   onClick={() => recordSplit('Pour 2', 'pour')}
-                  className="px-2.5 py-1 rounded border border-border-subtle hover:border-accent hover:bg-panel bg-panel-recessed text-xs font-mono text-text-secondary hover:text-accent cursor-pointer transition-colors"
-                  aria-label="+ Pour 2"
+                  className="px-2.5 py-1 rounded border border-border-subtle hover:border-accent hover:bg-panel bg-panel-recessed text-xs font-mono uppercase tracking-wider text-text-secondary hover:text-accent cursor-pointer transition-colors"
+                  aria-label="+ POUR 2"
                 >
-                  + Pour 2
+                  + POUR 2
                 </button>
                 <button
                   type="button"
                   onClick={() => recordSplit('Drawdown', 'drawdown')}
-                  className="px-2.5 py-1 rounded border border-border-subtle hover:border-accent hover:bg-panel bg-panel-recessed text-xs font-mono text-text-secondary hover:text-accent cursor-pointer transition-colors"
-                  aria-label="+ Drawdown"
+                  className="px-2.5 py-1 rounded border border-border-subtle hover:border-accent hover:bg-panel bg-panel-recessed text-xs font-mono uppercase tracking-wider text-text-secondary hover:text-accent cursor-pointer transition-colors"
+                  aria-label="+ DRAWDOWN"
                 >
-                  + Drawdown
+                  + DRAWDOWN
                 </button>
               </div>
             )}

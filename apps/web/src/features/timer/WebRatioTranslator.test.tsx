@@ -88,4 +88,21 @@ describe("WebRatioTranslator", () => {
     fireEvent.click(screen.getByText(/APPLY DOSE/i));
     expect(onApplyDose).toHaveBeenCalledWith(18, 16.7, 300);
   });
+
+  it("cleans up applied badge timeout on unmount without errors", () => {
+    vi.useFakeTimers();
+    const onApplyDose = vi.fn();
+    const { unmount } = render(
+      <WebRatioTranslator currentDose={18} onApplyDose={onApplyDose} />
+    );
+
+    fireEvent.click(screen.getByText(/RATIO CALCULATOR/i));
+    fireEvent.click(screen.getByText(/APPLY DOSE/i));
+
+    expect(screen.getByText(/DOSE APPLIED/i)).toBeDefined();
+
+    unmount();
+    vi.advanceTimersByTime(2500);
+    vi.useRealTimers();
+  });
 });
