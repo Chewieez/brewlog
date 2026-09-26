@@ -264,6 +264,10 @@ describe('TimerView', () => {
       fireEvent.click(screen.getByRole('button', { name: /FINISH BREW/i }));
     });
 
+    // Main action button should now show BREW COMPLETE and be disabled
+    const brewCompleteBtn = screen.getByRole('button', { name: /^BREW COMPLETE$/i });
+    expect(brewCompleteBtn).toHaveProperty('disabled', true);
+
     // Split button should now be disabled post-finish
     expect(screen.getByRole('button', { name: /^SPLIT$/i })).toHaveProperty('disabled', true);
 
@@ -288,6 +292,47 @@ describe('TimerView', () => {
       fireEvent.click(cuppingBtn);
     });
     expect(handleLog).toHaveBeenCalledTimes(1);
+  });
+
+  it('adopts translated dose, solved ratio, and target water when applied from translator', () => {
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    // Initial recipe ratio is 16.67 and target water is 250g
+    expect(screen.getByText('1:16.67')).toBeDefined();
+    expect(screen.getByText('250g')).toBeDefined();
+
+    // Open translator
+    act(() => {
+      fireEvent.click(screen.getByText(/RATIO TRANSLATOR/i));
+    });
+
+    const sourceCoffee = screen.getByLabelText(/baseline coffee/i);
+    const sourceWater = screen.getByLabelText(/baseline water/i);
+    const targetCoffee = screen.getByLabelText(/target coffee/i);
+
+    // Set baseline to 20:300 (ratio 15) and target coffee to 20g -> target water 300g
+    act(() => {
+      fireEvent.change(sourceCoffee, { target: { value: '20' } });
+      fireEvent.change(sourceWater, { target: { value: '300' } });
+      fireEvent.change(targetCoffee, { target: { value: '20' } });
+    });
+
+    // Apply to timer
+    act(() => {
+      fireEvent.click(screen.getByText(/APPLY 20g TO TIMER/i));
+    });
+
+    // Ratio should now be 1:15 and water target should be 300g
+    expect(screen.getByText('1:15')).toBeDefined();
+    expect(screen.getAllByText('300g').length).toBeGreaterThan(0);
+    const doseInput = screen.getByLabelText(/Coffee dose in grams/i) as HTMLInputElement;
+    expect(doseInput.value).toBe('20');
   });
 });
 

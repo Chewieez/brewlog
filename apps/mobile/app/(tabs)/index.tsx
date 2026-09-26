@@ -158,10 +158,16 @@ export default function TimerScreen() {
     setActiveTimerRecipe(match, match.coffeeDoseGrams);
   };
 
-  const handleApplyDose = (newDose: number) => {
+  const handleApplyDose = (newDose: number, newRatio?: number, newWater?: number) => {
     if (isRunning || isFinished) return;
     if (newDose > 0) {
-      setActiveTimerRecipe(activeTimerRecipe, Math.round(newDose * 10) / 10);
+      const roundedDose = Math.round(newDose * 10) / 10;
+      if (newRatio !== undefined || newWater !== undefined) {
+        const scaled = rescaleRecipeDose(activeTimerRecipe, roundedDose, newRatio, newWater);
+        setActiveTimerRecipe(scaled, roundedDose);
+      } else {
+        setActiveTimerRecipe(activeTimerRecipe, roundedDose);
+      }
     }
   };
 

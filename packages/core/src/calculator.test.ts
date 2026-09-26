@@ -119,6 +119,34 @@ describe("Brew Calculator Math", () => {
       expect(rescaleRecipeDose(sampleRecipe, 0)).toBe(sampleRecipe);
       expect(rescaleRecipeDose(sampleRecipe, -5)).toBe(sampleRecipe);
     });
+
+    it("should adopt custom target ratio and target water when provided", () => {
+      // sampleRecipe is 20g dose, 300g water (ratio 15).
+      // Scale to 25g dose, with ratio 16.0 and target water 400g
+      const scaled = rescaleRecipeDose(sampleRecipe, 25, 16.0, 400);
+
+      expect(scaled.coffeeDoseGrams).toBe(25);
+      expect(scaled.ratio).toBe(16.0);
+      expect(scaled.waterAmountGrams).toBe(400);
+      // Stages scaled by 400 / 300 = 1.3333x
+      // Stage 0: 60 * (400/300) = 80g
+      expect(scaled.stages[0].targetWaterWeightGrams).toBe(80);
+      // Final stage guaranteed to match total water 400g
+      expect(scaled.stages[1].targetWaterWeightGrams).toBe(400);
+    });
+
+    it("should adopt custom ratio when water is omitted, deriving total water", () => {
+      // Scale to 20g dose with ratio 14.0 -> water 280g
+      const scaled = rescaleRecipeDose(sampleRecipe, 20, 14.0);
+
+      expect(scaled.coffeeDoseGrams).toBe(20);
+      expect(scaled.ratio).toBe(14.0);
+      expect(scaled.waterAmountGrams).toBe(280);
+      // Stages scaled by 280 / 300 = 0.9333x
+      // Stage 0: 60 * (280/300) = 56g
+      expect(scaled.stages[0].targetWaterWeightGrams).toBe(56);
+      expect(scaled.stages[1].targetWaterWeightGrams).toBe(280);
+    });
   });
 
   describe("calculateScaScore", () => {
@@ -385,18 +413,22 @@ describe("Brew Calculator Math", () => {
         expect(stages[0].name).toBe("Bloom");
         expect(stages[0].startSecond).toBe(0);
         expect(stages[0].durationSeconds).toBe(45);
+        expect(stages[0].stageType).toBe("bloom");
 
         expect(stages[1].name).toBe("First Pour");
         expect(stages[1].startSecond).toBe(45);
         expect(stages[1].durationSeconds).toBe(60);
+        expect(stages[1].stageType).toBe("pour");
 
         expect(stages[2].name).toBe("Drawdown");
         expect(stages[2].startSecond).toBe(105);
         expect(stages[2].durationSeconds).toBe(75);
+        expect(stages[2].stageType).toBe("drawdown");
 
         expect(stages[3].name).toBe("Finish & Drain");
         expect(stages[3].startSecond).toBe(180);
         expect(stages[3].durationSeconds).toBe(30);
+        expect(stages[3].stageType).toBe("drawdown");
       });
 
       it("safely falls back for empty, whitespace, or undefined split.label", () => {

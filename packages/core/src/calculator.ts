@@ -129,7 +129,7 @@ export function splitsToRecipeStages(
       durationSeconds: duration,
       targetWaterWeightGrams: stageWater,
       instruction: `Execute ${safeLabel.toLowerCase()} phase.`,
-      stageType: split.tag === 'bloom' ? 'bloom' : split.tag === 'drawdown' ? 'wait' : 'pour',
+      stageType: split.tag === 'bloom' ? 'bloom' : split.tag === 'drawdown' ? 'drawdown' : 'pour',
     });
 
     prevSecond = split.second;
@@ -143,28 +143,55 @@ export function splitsToRecipeStages(
       durationSeconds: safeTotalTime - prevSecond,
       targetWaterWeightGrams: totalWaterAmountGrams,
       instruction: 'Final drawdown and decant.',
-      stageType: 'wait',
+      stageType: 'drawdown',
     });
   }
 
   return stages;
 }
 
-export function rescaleRecipeDose(recipe: BrewRecipe, newDoseGrams: number): BrewRecipe {
+export function rescaleRecipeDose(
+  recipe: BrewRecipe,
+  newDoseGrams: number,
+  newRatio?: number,
+  newWaterAmountGrams?: number
+): BrewRecipe {
   if (recipe.coffeeDoseGrams <= 0 || newDoseGrams <= 0) return recipe;
 
-  const scale = newDoseGrams / recipe.coffeeDoseGrams;
-  const newWaterAmount = Math.round(recipe.waterAmountGrams * scale);
+  let newWaterAmount: number;
+  let targetRatio: number;
+  let waterScale: number;
 
-  const rescaledStages: BrewStage[] = recipe.stages.map((stage) => ({
-    ...stage,
-    targetWaterWeightGrams: Math.round(stage.targetWaterWeightGrams * scale),
-  }));
+  if (newWaterAmountGrams !== undefined && newWaterAmountGrams > 0) {
+    newWaterAmount = Math.round(newWaterAmountGrams);
+    targetRatio =
+      newRatio !== undefined && newRatio > 0
+        ? Number(newRatio.toFixed(1))
+        : Number((newWaterAmount / newDoseGrams).toFixed(1));
+    waterScale = recipe.waterAmountGrams > 0 ? newWaterAmount / recipe.waterAmountGrams : 1;
+  } else if (newRatio !== undefined && newRatio > 0) {
+    targetRatio = Number(newRatio.toFixed(1));
+    newWaterAmount = Math.round(newDoseGrams * newRatio);
+    waterScale = recipe.waterAmountGrams > 0 ? newWaterAmount / recipe.waterAmountGrams : 1;
+  } else {
+    waterScale = newDoseGrams / recipe.coffeeDoseGrams;
+    newWaterAmount = Math.round(recipe.waterAmountGrams * waterScale);
+    targetRatio = recipe.ratio;
+  }
+
+  const rescaledStages: BrewStage[] = recipe.stages.map((stage, idx) => {
+    const isLast = idx === recipe.stages.length - 1;
+    return {
+      ...stage,
+      targetWaterWeightGrams: isLast ? newWaterAmount : Math.round(stage.targetWaterWeightGrams * waterScale),
+    };
+  });
 
   return {
     ...recipe,
     coffeeDoseGrams: newDoseGrams,
     waterAmountGrams: newWaterAmount,
+    ratio: targetRatio,
     stages: rescaledStages,
   };
 }

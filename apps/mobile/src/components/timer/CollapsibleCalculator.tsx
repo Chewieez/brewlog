@@ -17,7 +17,7 @@ export interface CollapsibleCalculatorProps {
   initialRatio?: number;
   defaultDose?: number;
   defaultRatio?: number;
-  onApplyDose?: (dose: number) => void;
+  onApplyDose?: (dose: number, ratio?: number, water?: number) => void;
 }
 
 export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
@@ -77,7 +77,11 @@ export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
 
   const handleApply = () => {
     if (doseNum > 0 && onApplyDose) {
-      onApplyDose(doseNum);
+      onApplyDose(
+        doseNum,
+        ratioNum > 0 ? ratioNum : undefined,
+        mainTargetWater > 0 ? mainTargetWater : undefined
+      );
       mobileFeedback.triggerHapticTap();
       setIsApplied(true);
       if (appliedTimeoutRef.current) {
@@ -93,6 +97,7 @@ export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
   const parsedSourceWater = parseFloat(sourceWater) || 0;
   const impliedRatio = calculateRatio(parsedSourceCoffee, parsedSourceWater);
   const parsedTargetCoffee = parseFloat(targetCoffee) || 0;
+  const parsedTargetWater = parseFloat(targetWater) || 0;
 
   const handleSourceCoffeeChange = (text: string) => {
     setSourceCoffee(text);
@@ -149,7 +154,9 @@ export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
   const handleApplyTranslator = () => {
     if (parsedTargetCoffee > 0 && onApplyDose) {
       const doseToApply = Number(parsedTargetCoffee.toFixed(1));
-      onApplyDose(doseToApply);
+      const ratioToApply = impliedRatio > 0 ? impliedRatio : undefined;
+      const waterToApply = parsedTargetWater > 0 ? parsedTargetWater : undefined;
+      onApplyDose(doseToApply, ratioToApply, waterToApply);
       setDose(doseToApply.toString());
       if (impliedRatio > 0) {
         setRatio(impliedRatio.toString());

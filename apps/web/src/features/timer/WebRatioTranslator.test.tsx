@@ -23,7 +23,7 @@ describe("WebRatioTranslator", () => {
     expect(screen.getByText(/Target Water: 225g/i)).toBeDefined();
 
     fireEvent.click(screen.getByText(/APPLY 15g TO TIMER/i));
-    expect(onApplyDose).toHaveBeenCalledWith(15);
+    expect(onApplyDose).toHaveBeenCalledWith(15, 15, 225);
   });
 
   it("translates proportional coffee when target water changes", () => {
@@ -41,6 +41,9 @@ describe("WebRatioTranslator", () => {
     fireEvent.change(targetWater, { target: { value: "240" } });
 
     expect(screen.getByText(/Target Coffee: 16g/i)).toBeDefined();
+
+    fireEvent.click(screen.getByText(/APPLY 16g TO TIMER/i));
+    expect(onApplyDose).toHaveBeenCalledWith(16, 15, 240);
   });
 
   it("rounds dose to 1 decimal place before calling onApplyDose", () => {
@@ -53,7 +56,7 @@ describe("WebRatioTranslator", () => {
     fireEvent.change(targetCoffee, { target: { value: "15.666" } });
 
     fireEvent.click(screen.getByText(/APPLY/i));
-    expect(onApplyDose).toHaveBeenCalledWith(15.7);
+    expect(onApplyDose).toHaveBeenCalledWith(15.7, 15, 235);
   });
 });
 

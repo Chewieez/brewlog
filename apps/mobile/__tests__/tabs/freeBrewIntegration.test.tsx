@@ -289,5 +289,42 @@ describe('TimerScreen Free Brew Integration', () => {
       })
     );
   });
+
+  it('adopts translated dose, ratio, and water target when applied from calculator drawer', () => {
+    const { getByText, getByLabelText, getAllByText } = render(
+      <RecipeProvider>
+        <StashProvider>
+          <TimerScreen />
+        </StashProvider>
+      </RecipeProvider>
+    );
+
+    // Initial guided recipe water target is 500g
+    expect(getAllByText(/500\s*g/).length).toBeGreaterThan(0);
+
+    // Expand ratio calculator
+    fireEvent.press(getByText('RATIO CALCULATOR'));
+    // Expand nested converter
+    fireEvent.press(getByText('CONVERTER'));
+
+    const sourceCoffeeInput = getByLabelText('Baseline coffee dose in grams');
+    const sourceWaterInput = getByLabelText('Baseline water amount in grams');
+    const targetCoffeeInput = getByLabelText('Target coffee dose in grams');
+
+    fireEvent.change(sourceCoffeeInput, { target: { value: '20' } });
+    fireEvent.change(sourceWaterInput, { target: { value: '300' } });
+    fireEvent.change(targetCoffeeInput, { target: { value: '20' } });
+
+    // Implied ratio is 1:15, target water is 300g
+    expect(getAllByText(/1:15/).length).toBeGreaterThan(0);
+    expect(getByText(/Target Water: 300g/i)).toBeTruthy();
+
+    // Apply translator dose to timer
+    fireEvent.press(getByText('APPLY TRANSLATOR DOSE (20g)'));
+
+    // TimerHero should now show water target 300g and ratio 1:15
+    expect(getAllByText(/300\s*g/).length).toBeGreaterThan(0);
+    expect(getAllByText(/1:15/).length).toBeGreaterThan(0);
+  });
 });
 

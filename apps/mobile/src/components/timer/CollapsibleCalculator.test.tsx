@@ -160,7 +160,7 @@ describe('CollapsibleCalculator Component', () => {
     fireEvent.click(applyButton);
 
     expect(onApply).toHaveBeenCalledTimes(1);
-    expect(onApply).toHaveBeenCalledWith(22);
+    expect(onApply).toHaveBeenCalledWith(22, 16, 352);
     expect(mobileFeedback.triggerHapticTap).toHaveBeenCalledTimes(1);
 
     // Visual confirmation state
@@ -221,7 +221,7 @@ describe('CollapsibleCalculator Component', () => {
       // Apply solved dose to timer
       const applyTranslatorBtn = getByText('APPLY TRANSLATOR DOSE (16g)');
       fireEvent.press(applyTranslatorBtn);
-      expect(onApplyDose).toHaveBeenCalledWith(16);
+      expect(onApplyDose).toHaveBeenCalledWith(16, 15, 240);
     });
 
     it('solves target coffee proportionally when target water is changed and rounds applied dose', () => {
@@ -247,7 +247,7 @@ describe('CollapsibleCalculator Component', () => {
 
       const applyBtn = getByText('APPLY TRANSLATOR DOSE (16.7g)');
       fireEvent.press(applyBtn);
-      expect(onApplyDose).toHaveBeenCalledWith(16.7);
+      expect(onApplyDose).toHaveBeenCalledWith(16.7, 15, 250);
     });
   });
 });

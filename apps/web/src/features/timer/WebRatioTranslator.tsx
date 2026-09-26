@@ -4,7 +4,7 @@ import { ChevronDown, ChevronUp, Scale, Check } from "lucide-react";
 
 export interface WebRatioTranslatorProps {
   currentDose?: number;
-  onApplyDose: (dose: number) => void;
+  onApplyDose: (dose: number, ratio?: number, water?: number) => void;
   className?: string;
 }
 
@@ -94,21 +94,24 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
     }
   };
 
+  const scNum = parseFloat(sourceCoffee) || 0;
+  const swNum = parseFloat(sourceWater) || 0;
+  const impliedRatio = calculateRatio(scNum, swNum);
+  const tcNum = parseFloat(targetCoffee) || 0;
+
   const handleApply = () => {
     const dose = parseFloat(targetCoffee) || 0;
     if (dose > 0) {
       const doseToApply = Number(dose.toFixed(1));
-      onApplyDose(doseToApply);
+      const waterVal = parseFloat(targetWater) || 0;
+      const waterToApply = waterVal > 0 ? Math.round(waterVal) : undefined;
+      const ratioToApply = impliedRatio > 0 ? impliedRatio : undefined;
+      onApplyDose(doseToApply, ratioToApply, waterToApply);
       setTargetCoffee(doseToApply.toString());
       setIsApplied(true);
       setTimeout(() => setIsApplied(false), 2000);
     }
   };
-
-  const scNum = parseFloat(sourceCoffee) || 0;
-  const swNum = parseFloat(sourceWater) || 0;
-  const impliedRatio = calculateRatio(scNum, swNum);
-  const tcNum = parseFloat(targetCoffee) || 0;
 
   return (
     <div className={`border border-border-subtle rounded bg-panel-recessed ${className}`}>

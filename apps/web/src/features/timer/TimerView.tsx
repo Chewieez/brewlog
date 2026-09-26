@@ -44,15 +44,20 @@ export const TimerView: React.FC<TimerViewProps> = ({
   const [isFreeBrewFinished, setIsFreeBrewFinished] = useState(false);
   const [isRecipeSaved, setIsRecipeSaved] = useState(false);
 
-  // Reset dose when initial recipe changes
+  // Reset dose and recipe when initial recipe changes
   useEffect(() => {
     setDoseGrams(initialRecipe.coffeeDoseGrams);
+    setRecipe(initialRecipe);
   }, [initialRecipe.id, initialRecipe.coffeeDoseGrams]);
 
-  // Sync recipe when initial recipe or dose changes
-  useEffect(() => {
-    setRecipe(rescaleRecipeDose(initialRecipe, doseGrams));
-  }, [initialRecipe, doseGrams]);
+  const handleApplyDose = (newDose: number, newRatio?: number, newWater?: number) => {
+    if (isRunning || isFinished) return;
+    if (newDose > 0) {
+      const roundedDose = Math.round(newDose * 10) / 10;
+      setDoseGrams(roundedDose);
+      setRecipe((prev) => rescaleRecipeDose(prev, roundedDose, newRatio, newWater));
+    }
+  };
 
   // Hook into precision brew timer engine
   const {
@@ -293,7 +298,10 @@ export const TimerView: React.FC<TimerViewProps> = ({
               max="100"
               step="1"
               value={doseGrams}
-              onChange={(e) => setDoseGrams(Math.max(5, Math.min(100, Math.round(Number(e.target.value)) || 0)))}
+              onChange={(e) => {
+                const val = Number(e.target.value) || 0;
+                handleApplyDose(Math.max(5, Math.min(100, Math.round(val))));
+              }}
               className="w-10 bg-transparent text-sm font-light tabular-nums text-text-primary focus:outline-none text-right"
               aria-label="Coffee dose in grams"
             />
@@ -402,13 +410,21 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 <button
                   type="button"
                   onClick={toggleTimer}
-                  className={`flex items-center space-x-2 px-8 py-3 rounded font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-all active:scale-95 ${
-                    isRunning
-                      ? 'bg-accent text-zinc-950 hover:bg-accent-hover'
-                      : 'bg-text-primary text-zinc-950 hover:bg-white'
+                  disabled={isFreeBrewFinished}
+                  className={`flex items-center space-x-2 px-8 py-3 rounded font-mono text-xs uppercase tracking-wider font-bold transition-all ${
+                    isFreeBrewFinished
+                      ? 'bg-panel-recessed text-text-muted border border-border-subtle cursor-not-allowed opacity-60'
+                      : isRunning
+                        ? 'bg-accent text-zinc-950 hover:bg-accent-hover cursor-pointer active:scale-95'
+                        : 'bg-text-primary text-zinc-950 hover:bg-white cursor-pointer active:scale-95'
                   }`}
                 >
-                  {isRunning ? (
+                  {isFreeBrewFinished ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-400" />
+                      <span>BREW COMPLETE</span>
+                    </>
+                  ) : isRunning ? (
                     <>
                       <Pause className="w-4 h-4 fill-current" />
                       <span>PAUSE</span>
@@ -523,7 +539,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
           {/* Integrated Ratio Translator Collapsible Drawer */}
           <WebRatioTranslator
             currentDose={doseGrams}
-            onApplyDose={(d) => setDoseGrams(d)}
+            onApplyDose={handleApplyDose}
             className="mt-6"
           />
 
