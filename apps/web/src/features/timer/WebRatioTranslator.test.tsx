@@ -58,5 +58,32 @@ describe("WebRatioTranslator", () => {
     fireEvent.click(screen.getByText(/APPLY/i));
     expect(onApplyDose).toHaveBeenCalledWith(15.7, 15, 235);
   });
-});
 
+  it("initializes baseline values from baseCoffee and baseWater and solves target coffee", () => {
+    const onApplyDose = vi.fn();
+    render(
+      <WebRatioTranslator
+        currentDose={30}
+        baseCoffee={30}
+        baseWater={500}
+        onApplyDose={onApplyDose}
+      />
+    );
+
+    fireEvent.click(screen.getByText(/RATIO TRANSLATOR/i));
+
+    const sourceCoffee = screen.getByLabelText(/baseline coffee/i) as HTMLInputElement;
+    const sourceWater = screen.getByLabelText(/baseline water/i) as HTMLInputElement;
+    const targetWater = screen.getByLabelText(/target water/i) as HTMLInputElement;
+    const targetCoffee = screen.getByLabelText(/target coffee/i) as HTMLInputElement;
+
+    expect(sourceCoffee.value).toBe("30");
+    expect(sourceWater.value).toBe("500");
+
+    fireEvent.change(targetWater, { target: { value: "300" } });
+    expect(targetCoffee.value).toBe("18");
+
+    fireEvent.click(screen.getByText(/APPLY 18g TO TIMER/i));
+    expect(onApplyDose).toHaveBeenCalledWith(18, 16.7, 300);
+  });
+});

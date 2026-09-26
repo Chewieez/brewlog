@@ -315,12 +315,8 @@ describe('TimerScreen Free Brew Integration', () => {
     fireEvent.change(sourceWaterInput, { target: { value: '300' } });
     fireEvent.change(targetCoffeeInput, { target: { value: '20' } });
 
-    // Implied ratio is 1:15, target water is 300g
-    expect(getAllByText(/1:15/).length).toBeGreaterThan(0);
-    expect(getByText(/Target Water: 300g/i)).toBeTruthy();
-
-    // Apply translator dose to timer
-    fireEvent.press(getByText('APPLY TRANSLATOR DOSE (20g)'));
+    // Apply dose to timer
+    fireEvent.press(getByText('APPLY DOSE'));
 
     // TimerHero should now show water target 300g and ratio 1:15
     expect(getAllByText(/300\s*g/).length).toBeGreaterThan(0);

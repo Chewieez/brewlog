@@ -15,32 +15,37 @@ const { colors } = INDUSTRIAL_PRECISION_THEME;
 export interface CollapsibleCalculatorProps {
   initialDose?: number;
   initialRatio?: number;
+  initialWater?: number;
   defaultDose?: number;
   defaultRatio?: number;
+  defaultWater?: number;
   onApplyDose?: (dose: number, ratio?: number, water?: number) => void;
 }
 
 export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
   initialDose = 18,
   initialRatio = 16,
+  initialWater,
   defaultDose,
   defaultRatio,
+  defaultWater,
   onApplyDose,
 }) => {
+  const baseDose = defaultDose ?? initialDose;
+  const baseRatio = defaultRatio ?? initialRatio;
+  const baseWater = defaultWater ?? initialWater ?? calculateWaterAmount(baseDose, baseRatio);
+
   const [isExpanded, setIsExpanded] = useState(false);
-  const [dose, setDose] = useState((defaultDose ?? initialDose).toString());
-  const [ratio, setRatio] = useState((defaultRatio ?? initialRatio).toString());
+  const [dose, setDose] = useState(baseDose.toString());
+  const [ratio, setRatio] = useState(baseRatio.toString());
   const [isApplied, setIsApplied] = useState(false);
   const appliedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Nested ratio translator state
   const [isTranslatorOpen, setIsTranslatorOpen] = useState(false);
-  const [sourceCoffee, setSourceCoffee] = useState('20');
-  const [sourceWater, setSourceWater] = useState('320');
-  const [targetCoffee, setTargetCoffee] = useState('18');
-  const [targetWater, setTargetWater] = useState('288');
-  const [isTranslatorApplied, setIsTranslatorApplied] = useState(false);
-  const translatorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [sourceCoffee, setSourceCoffee] = useState(baseDose.toString());
+  const [sourceWater, setSourceWater] = useState(baseWater.toString());
+  const [targetCoffee, setTargetCoffee] = useState(baseDose.toString());
+  const [targetWater, setTargetWater] = useState(baseWater.toString());
 
   useEffect(() => {
     setDose((defaultDose ?? initialDose).toString());
@@ -51,47 +56,22 @@ export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
   }, [initialRatio, defaultRatio]);
 
   useEffect(() => {
+    const d = defaultDose ?? initialDose;
+    const r = defaultRatio ?? initialRatio;
+    const w = defaultWater ?? initialWater ?? calculateWaterAmount(d, r);
+    setSourceCoffee(d.toString());
+    setSourceWater(w.toString());
+    setTargetCoffee(d.toString());
+    setTargetWater(w.toString());
+  }, [initialDose, defaultDose, initialRatio, defaultRatio, initialWater, defaultWater]);
+
+  useEffect(() => {
     return () => {
       if (appliedTimeoutRef.current) {
         clearTimeout(appliedTimeoutRef.current);
       }
-      if (translatorTimeoutRef.current) {
-        clearTimeout(translatorTimeoutRef.current);
-      }
     };
   }, []);
-
-  const handleDoseChange = (text: string) => {
-    setDose(text);
-    if (isApplied) setIsApplied(false);
-  };
-
-  const handleRatioChange = (text: string) => {
-    setRatio(text);
-    if (isApplied) setIsApplied(false);
-  };
-
-  const doseNum = parseFloat(dose) || 0;
-  const ratioNum = parseFloat(ratio) || 0;
-  const mainTargetWater = calculateWaterAmount(doseNum, ratioNum);
-
-  const handleApply = () => {
-    if (doseNum > 0 && onApplyDose) {
-      onApplyDose(
-        doseNum,
-        ratioNum > 0 ? ratioNum : undefined,
-        mainTargetWater > 0 ? mainTargetWater : undefined
-      );
-      mobileFeedback.triggerHapticTap();
-      setIsApplied(true);
-      if (appliedTimeoutRef.current) {
-        clearTimeout(appliedTimeoutRef.current);
-      }
-      appliedTimeoutRef.current = setTimeout(() => {
-        setIsApplied(false);
-      }, 1500);
-    }
-  };
 
   const parsedSourceCoffee = parseFloat(sourceCoffee) || 0;
   const parsedSourceWater = parseFloat(sourceWater) || 0;
@@ -99,9 +79,39 @@ export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
   const parsedTargetCoffee = parseFloat(targetCoffee) || 0;
   const parsedTargetWater = parseFloat(targetWater) || 0;
 
+  const doseNum = parseFloat(dose) || 0;
+  const ratioNum = parseFloat(ratio) || 0;
+  const mainTargetWater = calculateWaterAmount(doseNum, ratioNum);
+
+  const activeDose = isTranslatorOpen && parsedTargetCoffee > 0 ? parsedTargetCoffee : doseNum;
+  const activeRatio = isTranslatorOpen && impliedRatio > 0 ? impliedRatio : ratioNum;
+  const activeWater = isTranslatorOpen && parsedTargetWater > 0 ? parsedTargetWater : mainTargetWater;
+  const roundedActiveDose = Number(activeDose.toFixed(1));
+
+  const handleDoseChange = (text: string) => {
+    setDose(text);
+    if (isApplied) setIsApplied(false);
+    const tc = parseFloat(text) || 0;
+    const sc = parseFloat(sourceCoffee) || 0;
+    const sw = parseFloat(sourceWater) || 0;
+    if (tc > 0 && sc > 0 && sw > 0) {
+      setTargetCoffee(text);
+      const res = solveProportionalScale({ sourceCoffee: sc, sourceWater: sw, targetCoffee: tc });
+      setTargetWater(res.targetWater.toString());
+    } else if (tc <= 0) {
+      setTargetCoffee('0');
+      setTargetWater('0');
+    }
+  };
+
+  const handleRatioChange = (text: string) => {
+    setRatio(text);
+    if (isApplied) setIsApplied(false);
+  };
+
   const handleSourceCoffeeChange = (text: string) => {
     setSourceCoffee(text);
-    if (isTranslatorApplied) setIsTranslatorApplied(false);
+    if (isApplied) setIsApplied(false);
     const sc = parseFloat(text) || 0;
     const sw = parseFloat(sourceWater) || 0;
     const tc = parseFloat(targetCoffee) || 0;
@@ -113,7 +123,7 @@ export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
 
   const handleSourceWaterChange = (text: string) => {
     setSourceWater(text);
-    if (isTranslatorApplied) setIsTranslatorApplied(false);
+    if (isApplied) setIsApplied(false);
     const sw = parseFloat(text) || 0;
     const sc = parseFloat(sourceCoffee) || 0;
     const tc = parseFloat(targetCoffee) || 0;
@@ -125,49 +135,53 @@ export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
 
   const handleTargetCoffeeChange = (text: string) => {
     setTargetCoffee(text);
-    if (isTranslatorApplied) setIsTranslatorApplied(false);
+    if (isApplied) setIsApplied(false);
     const tc = parseFloat(text) || 0;
     const sc = parseFloat(sourceCoffee) || 0;
     const sw = parseFloat(sourceWater) || 0;
     if (tc > 0 && sc > 0 && sw > 0) {
       const res = solveProportionalScale({ sourceCoffee: sc, sourceWater: sw, targetCoffee: tc });
       setTargetWater(res.targetWater.toString());
+      setDose(text);
     } else if (tc <= 0) {
       setTargetWater('0');
+      setDose('0');
     }
   };
 
   const handleTargetWaterChange = (text: string) => {
     setTargetWater(text);
-    if (isTranslatorApplied) setIsTranslatorApplied(false);
+    if (isApplied) setIsApplied(false);
     const tw = parseFloat(text) || 0;
     const sc = parseFloat(sourceCoffee) || 0;
     const sw = parseFloat(sourceWater) || 0;
     if (tw > 0 && sc > 0 && sw > 0) {
       const res = solveProportionalScale({ sourceCoffee: sc, sourceWater: sw, targetWater: tw });
       setTargetCoffee(res.targetCoffee.toString());
+      setDose(res.targetCoffee.toString());
     } else if (tw <= 0) {
       setTargetCoffee('0');
+      setDose('0');
     }
   };
 
-  const handleApplyTranslator = () => {
-    if (parsedTargetCoffee > 0 && onApplyDose) {
-      const doseToApply = Number(parsedTargetCoffee.toFixed(1));
-      const ratioToApply = impliedRatio > 0 ? impliedRatio : undefined;
-      const waterToApply = parsedTargetWater > 0 ? parsedTargetWater : undefined;
+  const handleApply = () => {
+    if (activeDose > 0 && onApplyDose) {
+      const doseToApply = roundedActiveDose;
+      const ratioToApply = activeRatio > 0 ? activeRatio : undefined;
+      const waterToApply = activeWater > 0 ? Math.round(activeWater) : undefined;
       onApplyDose(doseToApply, ratioToApply, waterToApply);
       setDose(doseToApply.toString());
-      if (impliedRatio > 0) {
-        setRatio(impliedRatio.toString());
+      if (ratioToApply !== undefined) {
+        setRatio(ratioToApply.toString());
       }
       mobileFeedback.triggerHapticTap();
-      setIsTranslatorApplied(true);
-      if (translatorTimeoutRef.current) {
-        clearTimeout(translatorTimeoutRef.current);
+      setIsApplied(true);
+      if (appliedTimeoutRef.current) {
+        clearTimeout(appliedTimeoutRef.current);
       }
-      translatorTimeoutRef.current = setTimeout(() => {
-        setIsTranslatorApplied(false);
+      appliedTimeoutRef.current = setTimeout(() => {
+        setIsApplied(false);
       }, 1500);
     }
   };
@@ -227,20 +241,97 @@ export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
             <Text style={styles.targetValue}>{mainTargetWater.toFixed(1)}g</Text>
           </View>
 
+          {/* Converter Toggle Header (Moved above apply button, no inner card) */}
+          <Pressable
+            onPress={() => setIsTranslatorOpen((prev) => !prev)}
+            style={styles.translatorToggle}
+            accessibilityRole="button"
+            accessibilityLabel="Toggle Ratio Converter"
+            accessibilityState={{ expanded: isTranslatorOpen }}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={styles.translatorTitle}>CONVERTER</Text>
+            {isTranslatorOpen ? (
+              <ChevronUp size={14} color={colors.textMuted} />
+            ) : (
+              <ChevronDown size={14} color={colors.textMuted} />
+            )}
+          </Pressable>
+
+          {/* Converter Body (Expanded without inner card wrapper) */}
+          {isTranslatorOpen && (
+            <View style={styles.translatorBody}>
+              {/* Baseline Recipe Inputs */}
+              <View style={styles.translatorSection}>
+                <View style={styles.translatorInputRow}>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>SOURCE COFFEE (G)</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={sourceCoffee}
+                      onChangeText={handleSourceCoffeeChange}
+                      keyboardType="decimal-pad"
+                      placeholderTextColor={colors.textMuted}
+                      accessibilityLabel="Baseline coffee dose in grams"
+                    />
+                  </View>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>SOURCE WATER (G)</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={sourceWater}
+                      onChangeText={handleSourceWaterChange}
+                      keyboardType="decimal-pad"
+                      placeholderTextColor={colors.textMuted}
+                      accessibilityLabel="Baseline water amount in grams"
+                    />
+                  </View>
+                </View>
+              </View>
+
+              {/* Target Solver */}
+              <View style={styles.translatorSection}>
+                <View style={styles.translatorInputRow}>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>TARGET COFFEE (G)</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={targetCoffee}
+                      onChangeText={handleTargetCoffeeChange}
+                      keyboardType="decimal-pad"
+                      placeholderTextColor={colors.textMuted}
+                      accessibilityLabel="Target coffee dose in grams"
+                    />
+                  </View>
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>TARGET WATER (G)</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={targetWater}
+                      onChangeText={handleTargetWaterChange}
+                      keyboardType="decimal-pad"
+                      placeholderTextColor={colors.textMuted}
+                      accessibilityLabel="Target water amount in grams"
+                    />
+                  </View>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Unified Apply Dose Button at Bottom */}
           {onApplyDose && (
             <Pressable
               onPress={handleApply}
-              disabled={doseNum <= 0}
+              disabled={roundedActiveDose <= 0}
               style={[
                 styles.applyButton,
                 isApplied && styles.applyButtonSuccess,
-                doseNum <= 0 && styles.applyButtonDisabled,
+                roundedActiveDose <= 0 && styles.applyButtonDisabled,
               ]}
               accessibilityRole="button"
               accessibilityLabel={
-                isApplied
-                  ? `Dose ${doseNum}g applied to timer`
-                  : 'Apply dose to timer'
+                isApplied ? 'Dose applied to timer' : 'Apply dose to timer'
               }
             >
               <View style={styles.applyButtonContent}>
@@ -255,147 +346,14 @@ export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
                   style={[
                     styles.applyButtonText,
                     isApplied && styles.applyButtonTextSuccess,
-                    doseNum <= 0 && styles.applyButtonTextDisabled,
+                    roundedActiveDose <= 0 && styles.applyButtonTextDisabled,
                   ]}
                 >
-                  {isApplied
-                    ? `DOSE APPLIED (${doseNum}g)`
-                    : `APPLY DOSE TO TIMER (${doseNum}g)`}
+                  {isApplied ? 'DOSE APPLIED' : 'APPLY DOSE'}
                 </Text>
               </View>
             </Pressable>
           )}
-
-          {/* Nested Ratio Translator Accordion */}
-          <View style={styles.translatorCard}>
-            <Pressable
-              onPress={() => setIsTranslatorOpen((prev) => !prev)}
-              style={styles.translatorHeader}
-              accessibilityRole="button"
-              accessibilityLabel="Toggle Ratio Translator"
-              accessibilityState={{ expanded: isTranslatorOpen }}
-            >
-              <Text style={styles.translatorTitle}>CONVERTER</Text>
-              {isTranslatorOpen ? (
-                <ChevronUp size={14} color={colors.textMuted} />
-              ) : (
-                <ChevronDown size={14} color={colors.textMuted} />
-              )}
-            </Pressable>
-
-            {isTranslatorOpen && (
-              <View style={styles.translatorBody}>
-                {/* Baseline Recipe */}
-                <View style={styles.translatorSection}>
-                  <View style={styles.sectionHeaderRow}>
-                    <Text style={styles.sectionHeaderTitle}>BASELINE RECIPE</Text>
-                    <Text style={styles.ratioBadge}>
-                      1:{impliedRatio > 0 ? impliedRatio.toFixed(1) : '—'}
-                    </Text>
-                  </View>
-                  <View style={styles.inputRow}>
-                    <View style={styles.inputGroup}>
-                      <Text style={styles.inputLabel}>SOURCE COFFEE (G)</Text>
-                      <TextInput
-                        style={styles.input}
-                        value={sourceCoffee}
-                        onChangeText={handleSourceCoffeeChange}
-                        keyboardType="decimal-pad"
-                        placeholderTextColor={colors.textMuted}
-                        accessibilityLabel="Baseline coffee dose in grams"
-                      />
-                    </View>
-                    <View style={styles.inputGroup}>
-                      <Text style={styles.inputLabel}>SOURCE WATER (G)</Text>
-                      <TextInput
-                        style={styles.input}
-                        value={sourceWater}
-                        onChangeText={handleSourceWaterChange}
-                        keyboardType="decimal-pad"
-                        placeholderTextColor={colors.textMuted}
-                        accessibilityLabel="Baseline water amount in grams"
-                      />
-                    </View>
-                  </View>
-                </View>
-
-                {/* Target Solver */}
-                <View style={styles.translatorSection}>
-                  <View style={styles.sectionHeaderRow}>
-                    <Text style={styles.sectionHeaderTitle}>TARGET SOLVER</Text>
-                  </View>
-                  <View style={styles.inputRow}>
-                    <View style={styles.inputGroup}>
-                      <Text style={styles.inputLabel}>TARGET COFFEE (G)</Text>
-                      <TextInput
-                        style={styles.input}
-                        value={targetCoffee}
-                        onChangeText={handleTargetCoffeeChange}
-                        keyboardType="decimal-pad"
-                        placeholderTextColor={colors.textMuted}
-                        accessibilityLabel="Target coffee dose in grams"
-                      />
-                    </View>
-                    <View style={styles.inputGroup}>
-                      <Text style={styles.inputLabel}>TARGET WATER (G)</Text>
-                      <TextInput
-                        style={styles.input}
-                        value={targetWater}
-                        onChangeText={handleTargetWaterChange}
-                        keyboardType="decimal-pad"
-                        placeholderTextColor={colors.textMuted}
-                        accessibilityLabel="Target water amount in grams"
-                      />
-                    </View>
-                  </View>
-                  <View style={styles.translatorTargetRow}>
-                    <Text style={styles.translatorTargetWaterText}>
-                      Target Water: {targetWater}g
-                    </Text>
-                  </View>
-                </View>
-
-                {onApplyDose && (
-                  <Pressable
-                    onPress={handleApplyTranslator}
-                    disabled={parsedTargetCoffee <= 0}
-                    style={[
-                      styles.applyButton,
-                      isTranslatorApplied && styles.applyButtonSuccess,
-                      parsedTargetCoffee <= 0 && styles.applyButtonDisabled,
-                    ]}
-                    accessibilityRole="button"
-                    accessibilityLabel={
-                      isTranslatorApplied
-                        ? `Translator dose ${parsedTargetCoffee}g applied to timer`
-                        : 'Apply translator dose to timer'
-                    }
-                  >
-                    <View style={styles.applyButtonContent}>
-                      {isTranslatorApplied && (
-                        <Check
-                          size={14}
-                          color={colors.statusSuccess}
-                          strokeWidth={2.5}
-                        />
-                      )}
-                      <Text
-                        style={[
-                          styles.applyButtonText,
-                          isTranslatorApplied && styles.applyButtonTextSuccess,
-                          parsedTargetCoffee <= 0 && styles.applyButtonTextDisabled,
-                        ]}
-                      >
-                        {isTranslatorApplied
-                          ? `TRANSLATOR DOSE APPLIED (${parsedTargetCoffee}g)`
-                          : `APPLY TRANSLATOR DOSE (${parsedTargetCoffee}g)`}
-                      </Text>
-                    </View>
-                  </Pressable>
-                )}
-              </View>
-            )}
-          </View>
         </View>
       )}
     </View>
@@ -505,7 +463,7 @@ const styles = StyleSheet.create({
     minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 4,
+    marginTop: 0,
   },
   applyButtonContent: {
     flexDirection: 'row',
@@ -531,22 +489,13 @@ const styles = StyleSheet.create({
   applyButtonTextDisabled: {
     color: colors.textMuted,
   },
-  translatorCard: {
-    backgroundColor: colors.panelRecessed,
-    borderColor: colors.borderSubtle,
-    borderWidth: 1,
-    borderRadius: 6,
-    overflow: 'hidden',
-    marginTop: 6,
-  },
-  translatorHeader: {
+  translatorToggle: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    minHeight: 44,
-    backgroundColor: colors.panelRecessed,
+    paddingTop: 6,
+    paddingBottom: 2,
+    minHeight: 32,
   },
   translatorTitle: {
     color: colors.textSecondary,
@@ -555,54 +504,16 @@ const styles = StyleSheet.create({
     letterSpacing: 1.1,
   },
   translatorBody: {
-    padding: 12,
-    gap: 12,
-    borderTopWidth: 1,
-    borderTopColor: colors.borderSubtle,
-    backgroundColor: colors.panel,
+    gap: 10,
+    marginTop: -4,
+    paddingBottom: 4,
   },
   translatorSection: {
     gap: 8,
   },
-  sectionHeaderRow: {
+  translatorInputRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  sectionHeaderTitle: {
-    color: colors.textSecondary,
-    fontSize: 10,
-    fontFamily: FONTS.monoBold,
-    letterSpacing: 1,
-  },
-  ratioBadge: {
-    color: colors.accent,
-    fontSize: 11,
-    fontFamily: FONTS.monoMedium,
-    fontVariant: ['tabular-nums'],
-    backgroundColor: colors.panelRecessed,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-  },
-  translatorTargetRow: {
-    backgroundColor: colors.panelRecessed,
-    borderColor: colors.borderSubtle,
-    borderWidth: 1,
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.accent,
-    marginTop: 2,
-  },
-  translatorTargetWaterText: {
-    color: colors.textPrimary,
-    fontSize: 12,
-    fontFamily: FONTS.sansMedium,
-    fontVariant: ['tabular-nums'],
+    gap: 12,
   },
 });
 

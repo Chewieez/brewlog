@@ -539,6 +539,8 @@ export const TimerView: React.FC<TimerViewProps> = ({
           {/* Integrated Ratio Translator Collapsible Drawer */}
           <WebRatioTranslator
             currentDose={doseGrams}
+            baseCoffee={doseGrams}
+            baseWater={recipe.waterAmountGrams}
             onApplyDose={handleApplyDose}
             className="mt-6"
           />

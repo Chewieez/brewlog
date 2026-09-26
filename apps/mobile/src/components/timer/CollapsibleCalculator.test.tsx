@@ -154,7 +154,7 @@ describe('CollapsibleCalculator Component', () => {
     const doseInput = getByLabelText('Coffee dose in grams');
     fireEvent.change(doseInput, { target: { value: '22' } });
 
-    expect(getByText('APPLY DOSE TO TIMER (22g)')).toBeDefined();
+    expect(getByText('APPLY DOSE')).toBeDefined();
 
     const applyButton = getByLabelText('Apply dose to timer');
     fireEvent.click(applyButton);
@@ -164,20 +164,20 @@ describe('CollapsibleCalculator Component', () => {
     expect(mobileFeedback.triggerHapticTap).toHaveBeenCalledTimes(1);
 
     // Visual confirmation state
-    expect(getByText('DOSE APPLIED (22g)')).toBeDefined();
+    expect(getByText('DOSE APPLIED')).toBeDefined();
 
     // After 1500ms timeout expires, button resets to idle label
     act(() => {
       vi.advanceTimersByTime(1500);
     });
 
-    expect(getByText('APPLY DOSE TO TIMER (22g)')).toBeDefined();
+    expect(getByText('APPLY DOSE')).toBeDefined();
     vi.useRealTimers();
   });
 
   describe('Nested Ratio Translator Accordion', () => {
     it('expands nested translator drawer when clicked', () => {
-      const { getByText, queryByText } = render(
+      const { getByText, queryByLabelText, getByLabelText } = render(
         <CollapsibleCalculator initialDose={18} initialRatio={16} />
       );
 
@@ -186,12 +186,12 @@ describe('CollapsibleCalculator Component', () => {
       expect(getByText('CONVERTER')).toBeTruthy();
 
       // Drawer starts collapsed
-      expect(queryByText('BASELINE RECIPE')).toBeNull();
+      expect(queryByLabelText('Baseline coffee dose in grams')).toBeNull();
 
       // Expand translator drawer
       fireEvent.press(getByText('CONVERTER'));
-      expect(getByText('BASELINE RECIPE')).toBeTruthy();
-      expect(getByText('TARGET SOLVER')).toBeTruthy();
+      expect(getByLabelText('Baseline coffee dose in grams')).toBeTruthy();
+      expect(getByLabelText('Target coffee dose in grams')).toBeTruthy();
     });
 
     it('calculates implied ratio and solves target water from target coffee', () => {
@@ -206,21 +206,19 @@ describe('CollapsibleCalculator Component', () => {
       const sourceCoffeeInput = getByLabelText('Baseline coffee dose in grams');
       const sourceWaterInput = getByLabelText('Baseline water amount in grams');
       const targetCoffeeInput = getByLabelText('Target coffee dose in grams');
+      const targetWaterInput = getByLabelText('Target water amount in grams') as HTMLInputElement;
 
       fireEvent.changeText(sourceCoffeeInput, '20');
       fireEvent.changeText(sourceWaterInput, '300');
 
-      // Implied ratio should be 1:15.0
-      expect(getByText(/1:15/)).toBeTruthy();
-
       fireEvent.changeText(targetCoffeeInput, '16');
 
       // Target water should solve to 240g
-      expect(getByText(/Target Water: 240g/i)).toBeTruthy();
+      expect(targetWaterInput.value).toBe('240');
 
       // Apply solved dose to timer
-      const applyTranslatorBtn = getByText('APPLY TRANSLATOR DOSE (16g)');
-      fireEvent.press(applyTranslatorBtn);
+      const applyBtn = getByText('APPLY DOSE');
+      fireEvent.press(applyBtn);
       expect(onApplyDose).toHaveBeenCalledWith(16, 15, 240);
     });
 
@@ -245,9 +243,42 @@ describe('CollapsibleCalculator Component', () => {
       fireEvent.changeText(targetWaterInput, '250');
       expect(targetCoffeeInput.value).toBe('16.7');
 
-      const applyBtn = getByText('APPLY TRANSLATOR DOSE (16.7g)');
+      const applyBtn = getByText('APPLY DOSE');
       fireEvent.press(applyBtn);
       expect(onApplyDose).toHaveBeenCalledWith(16.7, 15, 250);
+    });
+
+    it('initializes baseline recipe values from initialDose and initialWater (matching top calculator/recipe)', () => {
+      const onApplyDose = vi.fn();
+      const { getByText, getByLabelText } = render(
+        <CollapsibleCalculator
+          initialDose={30}
+          initialRatio={16.67}
+          initialWater={500}
+          onApplyDose={onApplyDose}
+        />
+      );
+
+      fireEvent.press(getByText('RATIO CALCULATOR'));
+      fireEvent.press(getByText('CONVERTER'));
+
+      const sourceCoffeeInput = getByLabelText('Baseline coffee dose in grams') as HTMLInputElement;
+      const sourceWaterInput = getByLabelText('Baseline water amount in grams') as HTMLInputElement;
+      const targetWaterInput = getByLabelText('Target water amount in grams');
+      const targetCoffeeInput = getByLabelText('Target coffee dose in grams') as HTMLInputElement;
+
+      // Baseline should match recipe values 30 : 500
+      expect(sourceCoffeeInput.value).toBe('30');
+      expect(sourceWaterInput.value).toBe('500');
+
+      // Change target water to 300g (e.g. user only has 300g water)
+      fireEvent.changeText(targetWaterInput, '300');
+      expect(targetCoffeeInput.value).toBe('18');
+
+      // Apply solved dose to timer
+      const applyBtn = getByText('APPLY DOSE');
+      fireEvent.press(applyBtn);
+      expect(onApplyDose).toHaveBeenCalledWith(18, 16.7, 300);
     });
   });
 });

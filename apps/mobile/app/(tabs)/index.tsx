@@ -262,6 +262,7 @@ export default function TimerScreen() {
       <CollapsibleCalculator
         initialDose={activeTimerDose}
         initialRatio={activeRecipe.ratio}
+        initialWater={activeRecipe.waterAmountGrams}
         onApplyDose={handleApplyDose}
       />
 
