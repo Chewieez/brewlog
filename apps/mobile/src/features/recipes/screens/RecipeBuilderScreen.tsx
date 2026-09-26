@@ -24,6 +24,7 @@ import {
   StageType,
   BrewStage,
   calculateWaterAmount,
+  calculateRatio,
 } from '@brewlog/core';
 import { useRecipes } from '../RecipeContext';
 import { recalculateTiming, calculateTotalBrewTime } from '../utils/timingUtils';
@@ -84,9 +85,20 @@ const DEFAULT_STAGES: BrewStage[] = [
 
 export const RecipeBuilderScreen: React.FC = () => {
   const router = useRouter();
-  const { editId, duplicateId } = useLocalSearchParams<{
+  const {
+    editId,
+    duplicateId,
+    stages: paramStages,
+    initialDose,
+    initialWater,
+    initialMethod,
+  } = useLocalSearchParams<{
     editId?: string;
     duplicateId?: string;
+    stages?: string;
+    initialDose?: string;
+    initialWater?: string;
+    initialMethod?: string;
   }>();
   const { recipes, addRecipe, updateRecipe } = useRecipes();
 
@@ -95,6 +107,31 @@ export const RecipeBuilderScreen: React.FC = () => {
     : duplicateId
     ? recipes.find((r) => r.id === duplicateId)
     : null;
+
+  const parsedParamStages = React.useMemo(() => {
+    if (!paramStages) return null;
+    try {
+      const parsed = JSON.parse(paramStages);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return recalculateTiming(parsed);
+      }
+    } catch {
+      // ignore JSON parse failure and fallback to defaults
+    }
+    return null;
+  }, [paramStages]);
+
+  const initialDoseNum = parseFloat(initialDose || '') || 0;
+  const initialWaterNum = parseFloat(initialWater || '') || 0;
+  const computedRatio =
+    initialDoseNum > 0 && initialWaterNum > 0
+      ? calculateRatio(initialDoseNum, initialWaterNum)
+      : null;
+
+  const matchedMethod: BrewMethodType | null =
+    initialMethod && METHODS.some((m) => m.value === initialMethod.toLowerCase())
+      ? (initialMethod.toLowerCase() as BrewMethodType)
+      : null;
 
   const [name, setName] = useState<string>(
     sourceRecipe
@@ -105,15 +142,23 @@ export const RecipeBuilderScreen: React.FC = () => {
   );
   const [author, setAuthor] = useState<string>(sourceRecipe?.author || '');
   const [brewMethod, setBrewMethod] = useState<BrewMethodType>(
-    sourceRecipe?.brewMethod || 'v60'
+    sourceRecipe?.brewMethod || matchedMethod || 'v60'
   );
 
   // Use string state for numeric inputs to avoid snapping decimal keystrokes (e.g. "15." or "16.5")
   const [doseText, setDoseText] = useState<string>(
-    sourceRecipe ? String(sourceRecipe.coffeeDoseGrams) : '15'
+    sourceRecipe
+      ? String(sourceRecipe.coffeeDoseGrams)
+      : initialDose
+      ? String(initialDose)
+      : '15'
   );
   const [ratioText, setRatioText] = useState<string>(
-    sourceRecipe ? String(sourceRecipe.ratio) : '16.67'
+    sourceRecipe
+      ? String(sourceRecipe.ratio)
+      : computedRatio
+      ? String(computedRatio)
+      : '16.67'
   );
   const [grindSize, setGrindSize] = useState<string>(
     sourceRecipe?.grindSize || 'Medium-Fine'
@@ -126,7 +171,9 @@ export const RecipeBuilderScreen: React.FC = () => {
   );
   const [notes, setNotes] = useState<string>(sourceRecipe?.notes || '');
   const [stages, setStages] = useState<BrewStage[]>(
-    sourceRecipe ? recalculateTiming(sourceRecipe.stages) : DEFAULT_STAGES
+    sourceRecipe
+      ? recalculateTiming(sourceRecipe.stages)
+      : parsedParamStages || DEFAULT_STAGES
   );
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

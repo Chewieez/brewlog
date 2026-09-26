@@ -103,15 +103,22 @@ export function splitsToRecipeStages(
   }
 
   const sortedSplits = [...splits].sort((a, b) => a.second - b.second);
+  const lastSplitSecond = sortedSplits[sortedSplits.length - 1].second;
+  const hasTrailingStage = safeTotalTime > lastSplitSecond;
+  const totalStagesCount = sortedSplits.length + (hasTrailingStage ? 1 : 0);
+
   const stages: BrewStage[] = [];
   let prevSecond = 0;
 
   sortedSplits.forEach((split, idx) => {
     const startSecond = prevSecond;
     const duration = Math.max(1, split.second - startSecond);
+    const isOverallLastStage = !hasTrailingStage && idx === sortedSplits.length - 1;
     const stageWater = split.waterWeightGrams !== undefined
       ? split.waterWeightGrams
-      : Math.round(((idx + 1) / (sortedSplits.length + 1)) * totalWaterAmountGrams);
+      : isOverallLastStage
+      ? totalWaterAmountGrams
+      : Math.round(((idx + 1) / totalStagesCount) * totalWaterAmountGrams);
 
     const safeLabel = (split.label && split.label.trim()) || (split.tag ? split.tag : `Stage ${idx + 1}`);
 
@@ -128,7 +135,7 @@ export function splitsToRecipeStages(
     prevSecond = split.second;
   });
 
-  if (safeTotalTime > prevSecond) {
+  if (hasTrailingStage) {
     stages.push({
       id: `stage-${stages.length + 1}`,
       name: 'Finish & Drain',

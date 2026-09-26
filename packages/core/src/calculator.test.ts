@@ -413,6 +413,27 @@ describe("Brew Calculator Math", () => {
         expect(stages[2].name).toBe("pour");
         expect(stages[2].instruction).toBe("Execute pour phase.");
       });
+
+      it("guarantees final stage targets total water when brew ends at final split without a trailing stage", () => {
+        const splits: BrewSplit[] = [
+          { id: "s1", second: 45, intervalSeconds: 45, label: "Bloom", tag: "bloom" },
+          { id: "s2", second: 180, intervalSeconds: 135, label: "Drawdown", tag: "drawdown" },
+        ];
+        // Total elapsed time equals the last split timestamp (180s)
+        const stages = splitsToRecipeStages(splits, 180, 300);
+        expect(stages).toHaveLength(2);
+        expect(stages[0].targetWaterWeightGrams).toBe(150); // 1/2 of 300
+        expect(stages[1].targetWaterWeightGrams).toBe(300); // final stage must hit total water 300g!
+      });
+
+      it("guarantees single split ending at total time targets 100% of total water", () => {
+        const splits: BrewSplit[] = [
+          { id: "s1", second: 120, intervalSeconds: 120, label: "Pour", tag: "pour" },
+        ];
+        const stages = splitsToRecipeStages(splits, 120, 250);
+        expect(stages).toHaveLength(1);
+        expect(stages[0].targetWaterWeightGrams).toBe(250);
+      });
     });
   });
 });
