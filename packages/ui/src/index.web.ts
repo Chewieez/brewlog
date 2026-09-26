@@ -9,3 +9,6 @@ export { Card } from './card/Card.web';
 export * from './button/Button.types';
 export { Button } from './button/Button.web';
 
+export * from './input/Input.types';
+export { Input } from './input/Input.web';
+

@@ -9,3 +9,6 @@ export { Card } from './card/Card.native';
 export * from './button/Button.types';
 export { Button } from './button/Button.native';
 
+export * from './input/Input.types';
+export { Input } from './input/Input.native';
+
