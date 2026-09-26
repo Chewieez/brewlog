@@ -113,6 +113,7 @@ vi.mock('lucide-react-native', () => ({
   ChevronUp: () => null,
   ChevronRight: () => null,
   Calculator: () => null,
+  Scale: () => null,
   CheckCircle2: () => null,
   CircleDot: () => null,
   Circle: () => null,
@@ -151,7 +152,7 @@ describe('TimerScreen Free Brew Integration', () => {
   });
 
   it('switches to Free Brew mode and renders stopwatch faceplate with split controls', () => {
-    const { getByText } = render(
+    const { getByText, getByLabelText } = render(
       <RecipeProvider>
         <StashProvider>
           <TimerScreen />
@@ -167,13 +168,13 @@ describe('TimerScreen Free Brew Integration', () => {
     fireEvent.press(getByText('FREE BREW'));
 
     expect(getByText('FREE BREW · MANUAL STOPWATCH')).toBeTruthy();
-    expect(getByText('+ BLOOM')).toBeTruthy();
-    expect(getByText('+ POUR 1')).toBeTruthy();
-    expect(getByText('+ DRAWDOWN')).toBeTruthy();
+    expect(getByLabelText('Record Bloom split')).toBeTruthy();
+    expect(getByLabelText('Record Pour 1 split')).toBeTruthy();
+    expect(getByLabelText('Record Drawdown split')).toBeTruthy();
   });
 
   it('records splits via quick tags and finishes brew with Save as Recipe CTA', () => {
-    const { getByText } = render(
+    const { getByText, getByLabelText } = render(
       <RecipeProvider>
         <StashProvider>
           <TimerScreen />
@@ -187,7 +188,7 @@ describe('TimerScreen Free Brew Integration', () => {
     fireEvent.press(getByText('START BREW'));
 
     // Tap Bloom tag chip
-    fireEvent.press(getByText('+ BLOOM'));
+    fireEvent.press(getByLabelText('Record Bloom split'));
     expect(getByText('Bloom')).toBeTruthy();
 
     // Tap Finish Brew
@@ -262,7 +263,7 @@ describe('TimerScreen Free Brew Integration', () => {
   });
 
   it('formats recorded splits into notes when logging to cupping journal', () => {
-    const { getByText } = render(
+    const { getByText, getByLabelText } = render(
       <RecipeProvider>
         <StashProvider>
           <TimerScreen />
@@ -274,8 +275,8 @@ describe('TimerScreen Free Brew Integration', () => {
     fireEvent.press(getByText('START BREW'));
 
     // Record two splits
-    fireEvent.press(getByText('+ BLOOM'));
-    fireEvent.press(getByText('+ POUR 1'));
+    fireEvent.press(getByLabelText('Record Bloom split'));
+    fireEvent.press(getByLabelText('Record Pour 1 split'));
 
     fireEvent.press(getByText('FINISH BREW'));
 

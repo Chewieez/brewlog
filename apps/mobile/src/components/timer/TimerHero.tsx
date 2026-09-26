@@ -256,11 +256,16 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
             <Pressable
               key={item.chipLabel}
               onPress={() => onTagSplit?.(item.tag, item.label)}
-              style={styles.quickTagChip}
+              style={({ pressed }) => [
+                styles.quickTagChip,
+                pressed && styles.quickTagChipPressed,
+              ]}
               accessibilityRole="button"
               accessibilityLabel={`Record ${item.label} split`}
             >
-              <Text style={styles.quickTagChipText}>{item.chipLabel}</Text>
+              <Text style={styles.quickTagChipText}>
+                <Text style={styles.plusSymbol}>+</Text> {item.label.toUpperCase()}
+              </Text>
             </Pressable>
           ))}
         </View>
@@ -460,11 +465,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 6,
   },
+  quickTagChipPressed: {
+    borderColor: colors.accent,
+  },
   quickTagChipText: {
-    color: colors.accent,
+    color: colors.textSecondary,
     fontSize: 10,
     fontFamily: FONTS.monoBold,
     letterSpacing: 0.8,
+  },
+  plusSymbol: {
+    fontSize: 15,
+    fontFamily: FONTS.monoBold,
+    color: colors.textSecondary,
   },
   finishBrewButton: {
     minHeight: 44,

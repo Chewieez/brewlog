@@ -417,9 +417,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   modeButtonActive: {
-    backgroundColor: colors.panel,
-    borderWidth: 1,
-    borderColor: colors.accent,
+    backgroundColor: colors.accent,
   },
   modeButtonText: {
     color: colors.textMuted,
@@ -428,7 +426,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   modeButtonTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
   },
   finishedBanner: {
     marginHorizontal: 16,

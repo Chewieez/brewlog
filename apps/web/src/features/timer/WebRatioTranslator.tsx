@@ -136,12 +136,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
       >
         <div className="flex items-center space-x-2">
           <Scale className="w-3.5 h-3.5 text-accent" />
-          <span className="font-semibold text-text-primary">RATIO TRANSLATOR</span>
-          {impliedRatio > 0 && (
-            <span className="text-[11px] text-text-muted">
-              (Implied 1:{impliedRatio})
-            </span>
-          )}
+          <span className="font-semibold text-text-primary">RATIO CALCULATOR</span>
         </div>
         {isOpen ? (
           <ChevronUp className="w-3.5 h-3.5 text-text-muted" />
@@ -157,56 +152,50 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
             Translate recipe dose & water proportionally to match your target coffee dose.
           </p>
 
-          {/* Baseline Reference Grid */}
+          {/* Source Recipe Inputs */}
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-widest text-text-muted mb-1.5">
-              1. Baseline Recipe Reference
-            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label
-                  htmlFor="baseline-coffee"
+                  htmlFor="source-coffee"
                   className="block text-[11px] font-mono uppercase text-text-muted mb-1"
                 >
-                  Baseline Coffee (g)
+                  Source Coffee (g)
                 </label>
                 <input
-                  id="baseline-coffee"
-                  aria-label="Baseline Coffee (g)"
+                  id="source-coffee"
+                  aria-label="Source Coffee (g)"
                   type="number"
                   min="1"
                   step="0.1"
                   value={sourceCoffee}
                   onChange={(e) => handleSourceCoffeeChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-text-primary tabular-nums font-mono focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-text-primary tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
               <div>
                 <label
-                  htmlFor="baseline-water"
+                  htmlFor="source-water"
                   className="block text-[11px] font-mono uppercase text-text-muted mb-1"
                 >
-                  Baseline Water (g)
+                  Source Water (g)
                 </label>
                 <input
-                  id="baseline-water"
-                  aria-label="Baseline Water (g)"
+                  id="source-water"
+                  aria-label="Source Water (g)"
                   type="number"
                   min="1"
                   step="1"
                   value={sourceWater}
                   onChange={(e) => handleSourceWaterChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-text-primary tabular-nums font-mono focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-text-primary tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
             </div>
           </div>
 
-          {/* Target Solved Grid */}
+          {/* Target Solved Inputs */}
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-widest text-text-muted mb-1.5">
-              2. Target Desired Scale
-            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label
@@ -223,7 +212,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
                   step="0.1"
                   value={targetCoffee}
                   onChange={(e) => handleTargetCoffeeChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-text-primary tabular-nums font-mono focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-text-primary tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
               <div>
@@ -241,20 +230,10 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
                   step="1"
                   value={targetWater}
                   onChange={(e) => handleTargetWaterChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-text-primary tabular-nums font-mono focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-text-primary tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
             </div>
-          </div>
-
-          {/* Results readout & Action */}
-          <div className="flex items-center justify-between pt-1">
-            <span className="text-xs font-mono text-accent font-semibold">
-              Target Water: {targetWater}g
-            </span>
-            <span className="text-xs font-mono text-text-muted">
-              Target Coffee: {targetCoffee}g
-            </span>
           </div>
 
           <button
@@ -262,14 +241,15 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
             onClick={handleApply}
             disabled={tcNum <= 0}
             className="w-full flex items-center justify-center space-x-1.5 px-3 py-2 rounded bg-accent hover:bg-accent-hover disabled:opacity-50 text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer"
+            aria-label={isApplied ? "Dose applied to timer" : "Apply dose to timer"}
           >
             {isApplied ? (
               <>
                 <Check className="w-3.5 h-3.5" />
-                <span>APPLIED!</span>
+                <span>DOSE APPLIED</span>
               </>
             ) : (
-              <span>APPLY {targetCoffee}g TO TIMER</span>
+              <span>APPLY DOSE</span>
             )}
           </button>
         </div>

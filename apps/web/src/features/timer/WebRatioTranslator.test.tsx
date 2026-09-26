@@ -10,19 +10,20 @@ describe("WebRatioTranslator", () => {
     render(<WebRatioTranslator currentDose={18} onApplyDose={onApplyDose} />);
 
     // Expand translator
-    fireEvent.click(screen.getByText(/RATIO TRANSLATOR/i));
+    fireEvent.click(screen.getByText(/RATIO CALCULATOR/i));
 
-    const sourceCoffee = screen.getByLabelText(/baseline coffee/i);
-    const sourceWater = screen.getByLabelText(/baseline water/i);
+    const sourceCoffee = screen.getByLabelText(/source coffee/i);
+    const sourceWater = screen.getByLabelText(/source water/i);
     const targetCoffee = screen.getByLabelText(/target coffee/i);
 
     fireEvent.change(sourceCoffee, { target: { value: "20" } });
     fireEvent.change(sourceWater, { target: { value: "300" } });
     fireEvent.change(targetCoffee, { target: { value: "15" } });
 
-    expect(screen.getByText(/Target Water: 225g/i)).toBeDefined();
+    const targetWater = screen.getByLabelText(/target water/i) as HTMLInputElement;
+    expect(targetWater.value).toBe("225");
 
-    fireEvent.click(screen.getByText(/APPLY 15g TO TIMER/i));
+    fireEvent.click(screen.getByText(/APPLY DOSE/i));
     expect(onApplyDose).toHaveBeenCalledWith(15, 15, 225);
   });
 
@@ -30,19 +31,20 @@ describe("WebRatioTranslator", () => {
     const onApplyDose = vi.fn();
     render(<WebRatioTranslator currentDose={15} onApplyDose={onApplyDose} />);
 
-    fireEvent.click(screen.getByText(/RATIO TRANSLATOR/i));
+    fireEvent.click(screen.getByText(/RATIO CALCULATOR/i));
 
-    const sourceCoffee = screen.getByLabelText(/baseline coffee/i);
-    const sourceWater = screen.getByLabelText(/baseline water/i);
+    const sourceCoffee = screen.getByLabelText(/source coffee/i);
+    const sourceWater = screen.getByLabelText(/source water/i);
     const targetWater = screen.getByLabelText(/target water/i);
 
     fireEvent.change(sourceCoffee, { target: { value: "20" } });
     fireEvent.change(sourceWater, { target: { value: "300" } });
     fireEvent.change(targetWater, { target: { value: "240" } });
 
-    expect(screen.getByText(/Target Coffee: 16g/i)).toBeDefined();
+    const targetCoffee = screen.getByLabelText(/target coffee/i) as HTMLInputElement;
+    expect(targetCoffee.value).toBe("16");
 
-    fireEvent.click(screen.getByText(/APPLY 16g TO TIMER/i));
+    fireEvent.click(screen.getByText(/APPLY DOSE/i));
     expect(onApplyDose).toHaveBeenCalledWith(16, 15, 240);
   });
 
@@ -50,12 +52,12 @@ describe("WebRatioTranslator", () => {
     const onApplyDose = vi.fn();
     render(<WebRatioTranslator currentDose={18} onApplyDose={onApplyDose} />);
 
-    fireEvent.click(screen.getByText(/RATIO TRANSLATOR/i));
+    fireEvent.click(screen.getByText(/RATIO CALCULATOR/i));
 
     const targetCoffee = screen.getByLabelText(/target coffee/i);
     fireEvent.change(targetCoffee, { target: { value: "15.666" } });
 
-    fireEvent.click(screen.getByText(/APPLY/i));
+    fireEvent.click(screen.getByText(/APPLY DOSE/i));
     expect(onApplyDose).toHaveBeenCalledWith(15.7, 15, 235);
   });
 
@@ -70,10 +72,10 @@ describe("WebRatioTranslator", () => {
       />
     );
 
-    fireEvent.click(screen.getByText(/RATIO TRANSLATOR/i));
+    fireEvent.click(screen.getByText(/RATIO CALCULATOR/i));
 
-    const sourceCoffee = screen.getByLabelText(/baseline coffee/i) as HTMLInputElement;
-    const sourceWater = screen.getByLabelText(/baseline water/i) as HTMLInputElement;
+    const sourceCoffee = screen.getByLabelText(/source coffee/i) as HTMLInputElement;
+    const sourceWater = screen.getByLabelText(/source water/i) as HTMLInputElement;
     const targetWater = screen.getByLabelText(/target water/i) as HTMLInputElement;
     const targetCoffee = screen.getByLabelText(/target coffee/i) as HTMLInputElement;
 
@@ -83,7 +85,7 @@ describe("WebRatioTranslator", () => {
     fireEvent.change(targetWater, { target: { value: "300" } });
     expect(targetCoffee.value).toBe("18");
 
-    fireEvent.click(screen.getByText(/APPLY 18g TO TIMER/i));
+    fireEvent.click(screen.getByText(/APPLY DOSE/i));
     expect(onApplyDose).toHaveBeenCalledWith(18, 16.7, 300);
   });
 });

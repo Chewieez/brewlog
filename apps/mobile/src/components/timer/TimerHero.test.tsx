@@ -349,7 +349,7 @@ describe('TimerHero Component', () => {
     it('renders quick tag chips and invokes onTagSplit when pressed', () => {
       const onTagSplit = vi.fn();
 
-      const { getByText } = render(
+      const { getByText, getByLabelText } = render(
         <TimerHero
           recipe={baseRecipe}
           elapsedSeconds={30}
@@ -366,10 +366,10 @@ describe('TimerHero Component', () => {
         />
       );
 
-      const bloomChip = getByText('+ BLOOM');
-      const pour1Chip = getByText('+ POUR 1');
-      const pour2Chip = getByText('+ POUR 2');
-      const drawdownChip = getByText('+ DRAWDOWN');
+      const bloomChip = getByLabelText('Record Bloom split');
+      const pour1Chip = getByLabelText('Record Pour 1 split');
+      const pour2Chip = getByLabelText('Record Pour 2 split');
+      const drawdownChip = getByLabelText('Record Drawdown split');
 
       expect(bloomChip).toBeDefined();
       expect(pour1Chip).toBeDefined();

@@ -437,30 +437,17 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   )}
                 </button>
 
-                {/* Free Brew Specific SPLIT button */}
-                {mode === 'free_brew' && (
+                {/* Free Brew Specific SPLIT button (only visible while timer is running) */}
+                {mode === 'free_brew' && isRunning && (
                   <button
                     type="button"
                     onClick={() => recordSplit()}
-                    disabled={(!isRunning && elapsedSeconds === 0) || isFreeBrewFinished}
-                    className="flex items-center space-x-1.5 px-4 py-3 rounded border border-accent bg-accent/10 hover:bg-accent/20 text-accent font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="flex items-center space-x-1.5 px-4 py-3 rounded border border-accent bg-accent/10 hover:bg-accent/20 text-accent font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-all active:scale-95"
                     title="Record Split"
                     aria-label="SPLIT"
                   >
                     <Flag className="w-3.5 h-3.5" />
                     <span>SPLIT</span>
-                  </button>
-                )}
-
-                {/* Free Brew Finish Button */}
-                {mode === 'free_brew' && (isRunning || elapsedSeconds > 0) && !isFreeBrewFinished && (
-                  <button
-                    type="button"
-                    onClick={handleFinishFreeBrew}
-                    className="px-4 py-3 rounded border border-emerald-600 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-all active:scale-95"
-                    aria-label="FINISH BREW"
-                  >
-                    FINISH BREW
                   </button>
                 )}
 
@@ -533,6 +520,18 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   + Drawdown
                 </button>
               </div>
+            )}
+
+            {/* Free Brew Dedicated Finish Action Button */}
+            {mode === 'free_brew' && (isRunning || elapsedSeconds > 0) && !isFreeBrewFinished && (
+              <button
+                type="button"
+                onClick={handleFinishFreeBrew}
+                className="w-full flex items-center justify-center space-x-2 py-2.5 px-4 rounded border border-emerald-500/40 bg-emerald-950/20 hover:bg-emerald-900/40 text-emerald-400 font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-all active:scale-95 shadow-sm"
+                aria-label="FINISH BREW"
+              >
+                <span>FINISH BREW</span>
+              </button>
             )}
           </div>
 

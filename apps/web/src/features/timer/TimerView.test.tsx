@@ -142,10 +142,10 @@ describe('TimerView', () => {
     });
 
     expect(screen.getByText(/SPLIT LOG/i)).toBeDefined();
-    expect(screen.getByRole('button', { name: /^SPLIT$/i })).toBeDefined();
-    expect(screen.getByRole('button', { name: /\+ Bloom/i })).toBeDefined();
-    expect(screen.getByRole('button', { name: /\+ Pour 1/i })).toBeDefined();
-    expect(screen.getByRole('button', { name: /\+ Drawdown/i })).toBeDefined();
+    expect(screen.queryByRole('button', { name: /^SPLIT$/i })).toBeNull();
+    expect(screen.getByRole('button', { name: /\+ BLOOM/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /\+ POUR 1/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /\+ DRAWDOWN/i })).toBeDefined();
   });
 
   it('records and removes splits in Free Brew mode', () => {
@@ -169,7 +169,7 @@ describe('TimerView', () => {
 
     // Record Bloom split via quick tag
     act(() => {
-      fireEvent.click(screen.getByRole('button', { name: /\+ Bloom/i }));
+      fireEvent.click(screen.getByRole('button', { name: /\+ BLOOM/i }));
     });
 
     expect(screen.getByText('Bloom')).toBeDefined();
@@ -268,8 +268,8 @@ describe('TimerView', () => {
     const brewCompleteBtn = screen.getByRole('button', { name: /^BREW COMPLETE$/i });
     expect(brewCompleteBtn).toHaveProperty('disabled', true);
 
-    // Split button should now be disabled post-finish
-    expect(screen.getByRole('button', { name: /^SPLIT$/i })).toHaveProperty('disabled', true);
+    // Split button should not be rendered post-finish
+    expect(screen.queryByRole('button', { name: /^SPLIT$/i })).toBeNull();
 
     // Both action buttons should be visible
     const cuppingBtn = screen.getByRole('button', {
@@ -309,14 +309,14 @@ describe('TimerView', () => {
 
     // Open translator
     act(() => {
-      fireEvent.click(screen.getByText(/RATIO TRANSLATOR/i));
+      fireEvent.click(screen.getByText(/RATIO CALCULATOR/i));
     });
 
-    const sourceCoffee = screen.getByLabelText(/baseline coffee/i);
-    const sourceWater = screen.getByLabelText(/baseline water/i);
+    const sourceCoffee = screen.getByLabelText(/source coffee/i);
+    const sourceWater = screen.getByLabelText(/source water/i);
     const targetCoffee = screen.getByLabelText(/target coffee/i);
 
-    // Set baseline to 20:300 (ratio 15) and target coffee to 20g -> target water 300g
+    // Set source to 20:300 (ratio 15) and target coffee to 20g -> target water 300g
     act(() => {
       fireEvent.change(sourceCoffee, { target: { value: '20' } });
       fireEvent.change(sourceWater, { target: { value: '300' } });
@@ -325,7 +325,7 @@ describe('TimerView', () => {
 
     // Apply to timer
     act(() => {
-      fireEvent.click(screen.getByText(/APPLY 20g TO TIMER/i));
+      fireEvent.click(screen.getByText(/APPLY DOSE/i));
     });
 
     // Ratio should now be 1:15 and water target should be 300g
@@ -335,4 +335,3 @@ describe('TimerView', () => {
     expect(doseInput.value).toBe('20');
   });
 });
-

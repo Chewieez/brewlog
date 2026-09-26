@@ -45,6 +45,7 @@ vi.mock('lucide-react-native', () => ({
   ChevronUp: () => null,
   ChevronRight: () => null,
   Calculator: () => null,
+  Scale: () => null,
   Check: () => null,
 }));
 
@@ -73,13 +74,12 @@ describe('CollapsibleCalculator Component', () => {
     cleanup();
   });
 
-  it('renders collapsed by default with summary badge', () => {
+  it('renders collapsed by default', () => {
     const { getByText, queryByLabelText } = render(
       <CollapsibleCalculator initialDose={18} initialRatio={16} />
     );
 
     expect(getByText('RATIO CALCULATOR')).toBeDefined();
-    expect(getByText('18g @ 1:16 ➔ 288.0g')).toBeDefined();
 
     // Inputs should not be visible when collapsed
     expect(queryByLabelText('Coffee dose in grams')).toBeNull();
@@ -119,7 +119,6 @@ describe('CollapsibleCalculator Component', () => {
 
     // Target water = 20 * 15 = 300.0g
     expect(getByText('300.0g')).toBeDefined();
-    expect(getByText('20g @ 1:15 ➔ 300.0g')).toBeDefined();
   });
 
   it('syncs internal state when initial props change', () => {
@@ -128,12 +127,12 @@ describe('CollapsibleCalculator Component', () => {
     );
 
     fireEvent.click(getByLabelText('Toggle Ratio Calculator'));
-    expect(getByText('15g @ 1:16.67 ➔ 250.0g')).toBeDefined();
+    expect(getByText('250.0g')).toBeDefined();
 
     // Rerender with new recipe props (e.g. method switch to Flair)
     rerender(<CollapsibleCalculator initialDose={18} initialRatio={2.5} />);
 
-    expect(getByText('18g @ 1:2.5 ➔ 45.0g')).toBeDefined();
+    expect(getByText('45.0g')).toBeDefined();
     const doseInput = getByLabelText('Coffee dose in grams') as HTMLInputElement;
     expect(doseInput.value).toBe('18');
   });

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
-import { ChevronDown, ChevronUp, Calculator, Check } from 'lucide-react-native';
+import { ChevronDown, ChevronUp, Scale, Check } from 'lucide-react-native';
 import {
   INDUSTRIAL_PRECISION_THEME,
   calculateWaterAmount,
@@ -196,11 +196,8 @@ export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
         accessibilityState={{ expanded: isExpanded }}
       >
         <View style={styles.headerLeft}>
-          <Calculator size={15} color={colors.accent} />
+          <Scale size={15} color={colors.accent} />
           <Text style={styles.title}>RATIO CALCULATOR</Text>
-          <Text style={styles.summaryBadge}>
-            {doseNum}g @ 1:{ratioNum} ➔ {mainTargetWater.toFixed(1)}g
-          </Text>
         </View>
         {isExpanded ? (
           <ChevronUp size={16} color={colors.textMuted} />
@@ -388,12 +385,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: FONTS.monoBold,
     letterSpacing: 1.2,
-  },
-  summaryBadge: {
-    color: colors.textPrimary,
-    fontSize: 11,
-    fontFamily: FONTS.sansMedium,
-    fontVariant: ['tabular-nums'],
   },
   body: {
     paddingHorizontal: 14,
