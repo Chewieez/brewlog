@@ -6,3 +6,6 @@ export { Badge } from './badge/Badge.web';
 export * from './card/Card.types';
 export { Card } from './card/Card.web';
 
+export * from './button/Button.types';
+export { Button } from './button/Button.web';
+

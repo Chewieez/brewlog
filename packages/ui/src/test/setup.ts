@@ -2,6 +2,7 @@ import { expect } from 'vitest';
 
 interface CustomMatchers<R = unknown> {
   toBeInTheDocument(): R;
+  toBeDisabled(): R;
 }
 
 declare module 'vitest' {
@@ -22,4 +23,17 @@ expect.extend({
           : 'expected element to be in document',
     };
   },
+  toBeDisabled(received: Element | null | undefined) {
+    const pass =
+      received != null &&
+      (Boolean((received as any).disabled) || received.hasAttribute('disabled'));
+    return {
+      pass,
+      message: () =>
+        pass
+          ? 'expected element not to be disabled'
+          : 'expected element to be disabled',
+    };
+  },
 });
+

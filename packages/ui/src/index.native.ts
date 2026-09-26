@@ -6,3 +6,6 @@ export { Badge } from './badge/Badge.native';
 export * from './card/Card.types';
 export { Card } from './card/Card.native';
 
+export * from './button/Button.types';
+export { Button } from './button/Button.native';
+
