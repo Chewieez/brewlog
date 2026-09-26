@@ -29,7 +29,7 @@ export const Button: React.FC<ButtonProps> = ({
     variantClasses = 'bg-status-error/10 hover:bg-status-error/20 text-status-error border border-status-error/40 font-mono font-bold uppercase tracking-wider';
   }
 
-  const content = children || label;
+  const content = children ?? label;
 
   return (
     <button

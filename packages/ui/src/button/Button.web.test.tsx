@@ -67,4 +67,10 @@ describe('Button (web)', () => {
     render(<Button><span>START BREW</span></Button>);
     expect(screen.getByText('START BREW')).toBeInTheDocument();
   });
+
+  it('renders numeric 0 child without falling back to label', () => {
+    render(<Button label="DEFAULT">{0}</Button>);
+    expect(screen.getByText('0')).toBeInTheDocument();
+    expect(screen.queryByText('DEFAULT')).not.toBeInTheDocument();
+  });
 });
