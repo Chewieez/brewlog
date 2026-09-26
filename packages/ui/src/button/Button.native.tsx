@@ -58,7 +58,15 @@ export const Button: React.FC<ButtonProps> = ({
       ) : (
         <>
           {icon && iconPosition === 'left' && <View style={styles.iconSlot}>{icon}</View>}
-          {children ? children : <Text style={textStyles}>{label}</Text>}
+          {children !== undefined && children !== null ? (
+            typeof children === 'string' || typeof children === 'number' ? (
+              <Text style={textStyles}>{children}</Text>
+            ) : (
+              children
+            )
+          ) : (
+            <Text style={textStyles}>{label}</Text>
+          )}
           {icon && iconPosition === 'right' && <View style={styles.iconSlot}>{icon}</View>}
         </>
       )}

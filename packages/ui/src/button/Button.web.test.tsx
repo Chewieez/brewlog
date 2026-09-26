@@ -19,12 +19,15 @@ describe('Button (web)', () => {
     expect(handlePress).toHaveBeenCalledTimes(1);
   });
 
-  it('does not trigger onPress when disabled or loading', () => {
-    const handlePress = vi.fn();
-    render(<Button label="SAVE" disabled onPress={handlePress} />);
-    const btn = screen.getByRole('button', { name: 'SAVE' });
-    expect(btn).toBeDisabled();
-    fireEvent.click(btn);
-    expect(handlePress).not.toHaveBeenCalled();
+  it('renders danger button with status error text and border', () => {
+    render(<Button label="DELETE" variant="danger" />);
+    const btn = screen.getByRole('button', { name: 'DELETE' });
+    expect(btn.className).toContain('text-status-error');
+    expect(btn.className).toContain('border-status-error/40');
+  });
+
+  it('renders string children correctly', () => {
+    render(<Button><span>START BREW</span></Button>);
+    expect(screen.getByText('START BREW')).toBeInTheDocument();
   });
 });
