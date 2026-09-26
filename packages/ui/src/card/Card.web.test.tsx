@@ -20,6 +20,9 @@ describe('Card (web)', () => {
   it('triggers onPress when clicked in interactive mode', () => {
     const handlePress = vi.fn();
     render(<Card variant="interactive" onPress={handlePress}><span>Click Me</span></Card>);
+    const card = screen.getByText('Click Me').parentElement;
+    expect(card?.className).toContain('hover:border-border-active');
+    expect(card?.className).toContain('active:border-copper');
     fireEvent.click(screen.getByText('Click Me'));
     expect(handlePress).toHaveBeenCalledTimes(1);
   });

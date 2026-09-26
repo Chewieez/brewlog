@@ -20,7 +20,7 @@ export const Card: React.FC<CardProps> = ({
   if (variant === 'recessed') {
     variantClasses = 'bg-panel-recessed border border-border-subtle';
   } else if (variant === 'interactive') {
-    variantClasses = 'bg-panel border border-border-subtle hover:border-border-active cursor-pointer transition-colors';
+    variantClasses = 'bg-panel border border-border-subtle hover:border-border-active active:border-copper cursor-pointer transition-colors';
   }
 
   return (
