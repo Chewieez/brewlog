@@ -41,7 +41,7 @@ export const Button: React.FC<ButtonProps> = ({
       className={`inline-flex items-center justify-center rounded-md transition-colors select-none focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-50 disabled:cursor-not-allowed ${sizeClasses} ${variantClasses}`}
     >
       {loading ? (
-        <span className="animate-spin mr-1">⟳</span>
+        <span className="animate-spin" data-testid="button-spinner">⟳</span>
       ) : (
         icon && iconPosition === 'left' && <span className="shrink-0">{icon}</span>
       )}

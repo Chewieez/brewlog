@@ -19,6 +19,26 @@ describe('Button (web)', () => {
     expect(handlePress).toHaveBeenCalledTimes(1);
   });
 
+  it('does not trigger onPress when disabled', () => {
+    const handlePress = vi.fn();
+    render(<Button label="PAUSE" disabled onPress={handlePress} />);
+    const btn = screen.getByRole('button', { name: 'PAUSE' });
+    expect(btn).toBeDisabled();
+    fireEvent.click(btn);
+    expect(handlePress).not.toHaveBeenCalled();
+  });
+
+  it('does not trigger onPress and displays spinner alongside content when loading', () => {
+    const handlePress = vi.fn();
+    render(<Button label="BREWING" loading onPress={handlePress} />);
+    const btn = screen.getByRole('button', { name: 'BREWING' });
+    expect(btn).toBeDisabled();
+    expect(screen.getByTestId('button-spinner')).toBeInTheDocument();
+    expect(screen.getByText('BREWING')).toBeInTheDocument();
+    fireEvent.click(btn);
+    expect(handlePress).not.toHaveBeenCalled();
+  });
+
   it('renders danger button with status error text and border', () => {
     render(<Button label="DELETE" variant="danger" />);
     const btn = screen.getByRole('button', { name: 'DELETE' });

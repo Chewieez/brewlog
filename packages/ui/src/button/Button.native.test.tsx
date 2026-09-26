@@ -59,4 +59,11 @@ describe('Button (native)', () => {
     );
     expect(screen.getByTestId('custom-child')).toBeInTheDocument();
   });
+
+  it('renders ActivityIndicator alongside label and disables press when loading', () => {
+    render(<Button label="START BREW" loading testID="start-btn" />);
+    expect(screen.getByTestId('button-loading')).toBeInTheDocument();
+    expect(screen.getByText('START BREW')).toBeInTheDocument();
+    expect(screen.getByTestId('start-btn')).toBeDisabled();
+  });
 });

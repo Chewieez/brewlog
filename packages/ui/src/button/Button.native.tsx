@@ -54,22 +54,24 @@ export const Button: React.FC<ButtonProps> = ({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? colors.canvas : colors.accent} size="small" />
+        <ActivityIndicator
+          testID="button-loading"
+          color={variant === 'primary' ? colors.canvas : variant === 'danger' ? colors.statusError : colors.accent}
+          size="small"
+        />
       ) : (
-        <>
-          {icon && iconPosition === 'left' && <View style={styles.iconSlot}>{icon}</View>}
-          {children !== undefined && children !== null ? (
-            typeof children === 'string' || typeof children === 'number' ? (
-              <Text style={textStyles}>{children}</Text>
-            ) : (
-              children
-            )
-          ) : (
-            <Text style={textStyles}>{label}</Text>
-          )}
-          {icon && iconPosition === 'right' && <View style={styles.iconSlot}>{icon}</View>}
-        </>
+        icon && iconPosition === 'left' && <View style={styles.iconSlot}>{icon}</View>
       )}
+      {children !== undefined && children !== null ? (
+        typeof children === 'string' || typeof children === 'number' ? (
+          <Text style={textStyles}>{children}</Text>
+        ) : (
+          children
+        )
+      ) : (
+        <Text style={textStyles}>{label}</Text>
+      )}
+      {!loading && icon && iconPosition === 'right' && <View style={styles.iconSlot}>{icon}</View>}
     </Pressable>
   );
 };
