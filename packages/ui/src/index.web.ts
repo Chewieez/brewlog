@@ -12,3 +12,6 @@ export { Button } from './button/Button.web';
 export * from './input/Input.types';
 export { Input } from './input/Input.web';
 
+export * from './metric-tile/MetricTile.types';
+export { MetricTile } from './metric-tile/MetricTile.web';
+

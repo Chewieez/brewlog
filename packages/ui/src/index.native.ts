@@ -12,3 +12,6 @@ export { Button } from './button/Button.native';
 export * from './input/Input.types';
 export { Input } from './input/Input.native';
 
+export * from './metric-tile/MetricTile.types';
+export { MetricTile } from './metric-tile/MetricTile.native';
+
