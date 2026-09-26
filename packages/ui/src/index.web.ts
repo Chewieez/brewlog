@@ -15,3 +15,6 @@ export { Input } from './input/Input.web';
 export * from './metric-tile/MetricTile.types';
 export { MetricTile } from './metric-tile/MetricTile.web';
 
+export * from './showcase/UiShowcase.types';
+export { UiShowcase } from './showcase/UiShowcase.web';
+

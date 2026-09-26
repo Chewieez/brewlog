@@ -35,7 +35,7 @@
 - Consumes: `@brewlog/core` (`INDUSTRIAL_PRECISION_THEME`, `ThemeColors`)
 - Produces: `@brewlog/ui` module resolvable in `@brewlog/web` (web entry) and `@brewlog/mobile` (native entry).
 
-- [ ] **Step 1: Create `packages/ui/package.json`**
+- [x] **Step 1: Create `packages/ui/package.json`**
 
 ```json
 {
@@ -79,7 +79,7 @@
 }
 ```
 
-- [ ] **Step 2: Create `packages/ui/tsconfig.json` and `packages/ui/vitest.config.ts`**
+- [x] **Step 2: Create `packages/ui/tsconfig.json` and `packages/ui/vitest.config.ts`**
 
 `packages/ui/tsconfig.json`:
 ```json
@@ -119,7 +119,7 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 3: Create initial entrypoints `src/index.web.ts` and `src/index.native.ts`**
+- [x] **Step 3: Create initial entrypoints `src/index.web.ts` and `src/index.native.ts`**
 
 `packages/ui/src/index.web.ts`:
 ```typescript
@@ -131,7 +131,7 @@ export const UI_PACKAGE_VERSION = '0.1.0';
 export const UI_PACKAGE_VERSION = '0.1.0';
 ```
 
-- [ ] **Step 4: Add `@brewlog/ui` dependency to `apps/web/package.json` and `apps/mobile/package.json`**
+- [x] **Step 4: Add `@brewlog/ui` dependency to `apps/web/package.json` and `apps/mobile/package.json`**
 
 In `apps/web/package.json` under `"dependencies"`:
 ```json
@@ -143,12 +143,12 @@ In `apps/mobile/package.json` under `"dependencies"`:
 "@brewlog/ui": "*",
 ```
 
-- [ ] **Step 5: Run npm install and typecheck to verify workspace linkage**
+- [x] **Step 5: Run npm install and typecheck to verify workspace linkage**
 
 Run: `npm install && npm run typecheck`
 Expected: Zero type errors across all workspaces.
 
-- [ ] **Step 6: Commit scaffolding**
+- [x] **Step 6: Commit scaffolding**
 
 ```bash
 git add packages/ui apps/web/package.json apps/mobile/package.json package-lock.json
@@ -171,7 +171,7 @@ git commit -m "feat(ui): scaffold @brewlog/ui workspace package and configure ex
 - Consumes: `@brewlog/core` (`INDUSTRIAL_PRECISION_THEME`)
 - Produces: `<Badge label="V60" variant="mono" />` and `<Badge label="Natural" variant="default" />`
 
-- [ ] **Step 1: Write failing test in `packages/ui/src/badge/Badge.web.test.tsx`**
+- [x] **Step 1: Write failing test in `packages/ui/src/badge/Badge.web.test.tsx`**
 
 ```tsx
 import { render, screen } from '@testing-library/react';
@@ -204,12 +204,12 @@ describe('Badge (web)', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm run test --workspace=@brewlog/ui`
 Expected: FAIL with "Cannot find module './Badge.web'"
 
-- [ ] **Step 3: Implement `Badge.types.ts`, `Badge.web.tsx`, and `Badge.native.tsx`**
+- [x] **Step 3: Implement `Badge.types.ts`, `Badge.web.tsx`, and `Badge.native.tsx`**
 
 `packages/ui/src/badge/Badge.types.ts`:
 ```typescript
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
 });
 ```
 
-- [ ] **Step 4: Export from `src/index.web.ts` and `src/index.native.ts`**
+- [x] **Step 4: Export from `src/index.web.ts` and `src/index.native.ts`**
 
 In `packages/ui/src/index.web.ts`:
 ```typescript
@@ -344,12 +344,12 @@ export * from './badge/Badge.types';
 export { Badge } from './badge/Badge.native';
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `npm run test --workspace=@brewlog/ui`
 Expected: PASS (3 tests passed).
 
-- [ ] **Step 6: Commit Badge primitive**
+- [x] **Step 6: Commit Badge primitive**
 
 ```bash
 git add packages/ui/src/badge packages/ui/src/index.web.ts packages/ui/src/index.native.ts
@@ -372,7 +372,7 @@ git commit -m "feat(ui): implement Badge primitive with strict JetBrains Mono vs
 - Consumes: `@brewlog/core` (`INDUSTRIAL_PRECISION_THEME.colors`)
 - Produces: `<Card variant="default">...</Card>` and `<Card variant="interactive" onPress={fn}>...</Card>`
 
-- [ ] **Step 1: Write failing test in `packages/ui/src/card/Card.web.test.tsx`**
+- [x] **Step 1: Write failing test in `packages/ui/src/card/Card.web.test.tsx`**
 
 ```tsx
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -403,12 +403,12 @@ describe('Card (web)', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm run test --workspace=@brewlog/ui`
 Expected: FAIL with "Cannot find module './Card.web'"
 
-- [ ] **Step 3: Implement `Card.types.ts`, `Card.web.tsx`, and `Card.native.tsx`**
+- [x] **Step 3: Implement `Card.types.ts`, `Card.web.tsx`, and `Card.native.tsx`**
 
 `packages/ui/src/card/Card.types.ts`:
 ```typescript
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
 });
 ```
 
-- [ ] **Step 4: Export from `src/index.web.ts` and `src/index.native.ts`**
+- [x] **Step 4: Export from `src/index.web.ts` and `src/index.native.ts`**
 
 In `packages/ui/src/index.web.ts`:
 ```typescript
@@ -555,12 +555,12 @@ export * from './card/Card.types';
 export { Card } from './card/Card.native';
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `npm run test --workspace=@brewlog/ui`
 Expected: PASS (all Card tests pass).
 
-- [ ] **Step 6: Commit Card primitive**
+- [x] **Step 6: Commit Card primitive**
 
 ```bash
 git add packages/ui/src/card packages/ui/src/index.web.ts packages/ui/src/index.native.ts
@@ -583,7 +583,7 @@ git commit -m "feat(ui): implement Card primitive with standardized borderSubtle
 - Consumes: `@brewlog/core` (`INDUSTRIAL_PRECISION_THEME.colors`)
 - Produces: `<Button label="START BREW" variant="primary" onPress={fn} />`
 
-- [ ] **Step 1: Write failing test in `packages/ui/src/button/Button.web.test.tsx`**
+- [x] **Step 1: Write failing test in `packages/ui/src/button/Button.web.test.tsx`**
 
 ```tsx
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -618,12 +618,12 @@ describe('Button (web)', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm run test --workspace=@brewlog/ui`
 Expected: FAIL with "Cannot find module './Button.web'"
 
-- [ ] **Step 3: Implement `Button.types.ts`, `Button.web.tsx`, and `Button.native.tsx`**
+- [x] **Step 3: Implement `Button.types.ts`, `Button.web.tsx`, and `Button.native.tsx`**
 
 `packages/ui/src/button/Button.types.ts`:
 ```typescript
@@ -811,7 +811,7 @@ const styles = StyleSheet.create({
 });
 ```
 
-- [ ] **Step 4: Export from `src/index.web.ts` and `src/index.native.ts`**
+- [x] **Step 4: Export from `src/index.web.ts` and `src/index.native.ts`**
 
 In `packages/ui/src/index.web.ts`:
 ```typescript
@@ -825,12 +825,12 @@ export * from './button/Button.types';
 export { Button } from './button/Button.native';
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `npm run test --workspace=@brewlog/ui`
 Expected: PASS (all Button tests pass).
 
-- [ ] **Step 6: Commit Button primitive**
+- [x] **Step 6: Commit Button primitive**
 
 ```bash
 git add packages/ui/src/button packages/ui/src/index.web.ts packages/ui/src/index.native.ts
@@ -853,7 +853,7 @@ git commit -m "feat(ui): implement Button primitive with copper/recessed variant
 - Consumes: `@brewlog/core` (`INDUSTRIAL_PRECISION_THEME.colors`)
 - Produces: `<Input variant="numeric" value={15} onChangeText={fn} unit="g" label="COFFEE DOSE" />`
 
-- [ ] **Step 1: Write failing test in `packages/ui/src/input/Input.web.test.tsx`**
+- [x] **Step 1: Write failing test in `packages/ui/src/input/Input.web.test.tsx`**
 
 ```tsx
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -888,12 +888,12 @@ describe('Input (web)', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm run test --workspace=@brewlog/ui`
 Expected: FAIL with "Cannot find module './Input.web'"
 
-- [ ] **Step 3: Implement `Input.types.ts`, `Input.web.tsx`, and `Input.native.tsx`**
+- [x] **Step 3: Implement `Input.types.ts`, `Input.web.tsx`, and `Input.native.tsx`**
 
 `packages/ui/src/input/Input.types.ts`:
 ```typescript
@@ -1068,7 +1068,7 @@ const styles = StyleSheet.create({
 });
 ```
 
-- [ ] **Step 4: Export from `src/index.web.ts` and `src/index.native.ts`**
+- [x] **Step 4: Export from `src/index.web.ts` and `src/index.native.ts`**
 
 In `packages/ui/src/index.web.ts`:
 ```typescript
@@ -1082,12 +1082,12 @@ export * from './input/Input.types';
 export { Input } from './input/Input.native';
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `npm run test --workspace=@brewlog/ui`
 Expected: PASS (all Input tests pass).
 
-- [ ] **Step 6: Commit Input primitive**
+- [x] **Step 6: Commit Input primitive**
 
 ```bash
 git add packages/ui/src/input packages/ui/src/index.web.ts packages/ui/src/index.native.ts
@@ -1110,7 +1110,7 @@ git commit -m "feat(ui): implement Input primitive enforcing Outfit tabular figu
 - Consumes: `@brewlog/core` (`INDUSTRIAL_PRECISION_THEME.colors`)
 - Produces: `<MetricTile label="COFFEE DOSE" value={15.0} unit="g" />`
 
-- [ ] **Step 1: Write failing test in `packages/ui/src/metric-tile/MetricTile.web.test.tsx`**
+- [x] **Step 1: Write failing test in `packages/ui/src/metric-tile/MetricTile.web.test.tsx`**
 
 ```tsx
 import { render, screen } from '@testing-library/react';
@@ -1140,12 +1140,12 @@ describe('MetricTile (web)', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm run test --workspace=@brewlog/ui`
 Expected: FAIL with "Cannot find module './MetricTile.web'"
 
-- [ ] **Step 3: Implement `MetricTile.types.ts`, `MetricTile.web.tsx`, and `MetricTile.native.tsx`**
+- [x] **Step 3: Implement `MetricTile.types.ts`, `MetricTile.web.tsx`, and `MetricTile.native.tsx`**
 
 `packages/ui/src/metric-tile/MetricTile.types.ts`:
 ```typescript
@@ -1277,7 +1277,7 @@ const styles = StyleSheet.create({
 });
 ```
 
-- [ ] **Step 4: Export from `src/index.web.ts` and `src/index.native.ts`**
+- [x] **Step 4: Export from `src/index.web.ts` and `src/index.native.ts`**
 
 In `packages/ui/src/index.web.ts`:
 ```typescript
@@ -1291,12 +1291,12 @@ export * from './metric-tile/MetricTile.types';
 export { MetricTile } from './metric-tile/MetricTile.native';
 ```
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `npm run test --workspace=@brewlog/ui`
 Expected: PASS (all MetricTile tests pass).
 
-- [ ] **Step 6: Commit MetricTile primitive**
+- [x] **Step 6: Commit MetricTile primitive**
 
 ```bash
 git add packages/ui/src/metric-tile packages/ui/src/index.web.ts packages/ui/src/index.native.ts
@@ -1319,7 +1319,7 @@ git commit -m "feat(ui): implement MetricTile primitive with faceplate eyebrow a
 - Consumes: `Button`, `Card`, `Badge`, `Input`, `MetricTile`
 - Produces: Mounted fixture demonstrating all 5 primitives across variants.
 
-- [ ] **Step 1: Write test for `UiShowcase.web.test.tsx`**
+- [x] **Step 1: Write test for `UiShowcase.web.test.tsx`**
 
 ```tsx
 import { render, screen } from '@testing-library/react';
@@ -1338,7 +1338,7 @@ describe('UiShowcase (web)', () => {
 });
 ```
 
-- [ ] **Step 2: Implement `UiShowcase.types.ts`, `UiShowcase.web.tsx`, and `UiShowcase.native.tsx`**
+- [x] **Step 2: Implement `UiShowcase.types.ts`, `UiShowcase.web.tsx`, and `UiShowcase.native.tsx`**
 
 `packages/ui/src/showcase/UiShowcase.types.ts`:
 ```typescript
@@ -1487,7 +1487,7 @@ const styles = StyleSheet.create({
 });
 ```
 
-- [ ] **Step 3: Export `UiShowcase` from `src/index.web.ts` and `src/index.native.ts`**
+- [x] **Step 3: Export `UiShowcase` from `src/index.web.ts` and `src/index.native.ts`**
 
 In `packages/ui/src/index.web.ts`:
 ```typescript
@@ -1501,17 +1501,17 @@ export * from './showcase/UiShowcase.types';
 export { UiShowcase } from './showcase/UiShowcase.native';
 ```
 
-- [ ] **Step 4: Run full test suite and type check**
+- [x] **Step 4: Run full test suite and type check**
 
 Run: `npm run test --workspace=@brewlog/ui && npm run typecheck`
 Expected: PASS across all tests and zero typecheck errors.
 
-- [ ] **Step 5: Verify web production build**
+- [x] **Step 5: Verify web production build**
 
 Run: `npm run build --workspace=@brewlog/web`
 Expected: Successful Vite production bundle.
 
-- [ ] **Step 6: Commit showcase and final integration**
+- [x] **Step 6: Commit showcase and final integration**
 
 ```bash
 git add packages/ui docs/superpowers/plans/2026-09-26-phase-7-design-system.md

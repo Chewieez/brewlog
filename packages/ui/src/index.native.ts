@@ -15,3 +15,6 @@ export { Input } from './input/Input.native';
 export * from './metric-tile/MetricTile.types';
 export { MetricTile } from './metric-tile/MetricTile.native';
 
+export * from './showcase/UiShowcase.types';
+export { UiShowcase } from './showcase/UiShowcase.native';
+
