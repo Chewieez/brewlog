@@ -206,6 +206,7 @@ vi.mock('lucide-react-native', () => ({
   Search: () => <span data-testid="search-icon" />,
   X: () => <span data-testid="clear-icon" />,
   Coffee: () => <span data-testid="coffee-icon" />,
+  Bean: () => <span data-testid="bean-icon" />,
   Archive: () => <span data-testid="archive-icon" />,
   Snowflake: () => <span data-testid="snowflake-icon" />,
   Star: () => <span data-testid="star-icon" />,

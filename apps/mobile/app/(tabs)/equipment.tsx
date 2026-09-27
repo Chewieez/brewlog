@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import { Wrench } from 'lucide-react-native';
+import { Scale } from 'lucide-react-native';
 import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 
 export default function EquipmentScreen() {
@@ -10,7 +10,7 @@ export default function EquipmentScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.placeholderCard}>
         <View style={styles.iconWrapper}>
-          <Wrench size={36} color={colors.accent} />
+          <Scale size={36} color={colors.accent} />
         </View>
         <Text style={styles.eyebrow}>HARDWARE LOCKER</Text>
         <Text style={styles.title}>Brewers & Grinders</Text>
