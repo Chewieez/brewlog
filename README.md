@@ -43,8 +43,9 @@ brewlog/
   - **Phase 4 (Mobile Recipe Studio & Catalog)**: Complete ✅ (Native stack/modal navigation, recipe builder lifecycle, bidirectional timer handoff).
   - **Phase 5 (Stash Manager & Cellar Inventory)**: Complete ✅ (Native bean cellar, roast resting status indicators, dose deduction handoff to timer, pure resting engine, and offline-first cache).
   - **Phase 6 (Free Brew Timer & Ratio Translator)**: Complete ✅ (Stopwatch mode, manual split tags, nested ratio translator, cupping/recipe export, mobile & web parity).
-  - **Phase 7 (Centralized Cross-Platform Design System)**: Complete ✅ (`@brewlog/ui` shared monorepo package with platform-split primitives [`.web` / `.native`], unified TypeScript contracts, and showcase fixture).
-  - **Phase 8 (User Preferences & Settings Subsystem)**: Active / Next 🚀 (Cross-platform Supabase `user_settings`, default timer mode, unit conversions).
+  - **Phase 7A (Design System Primitives & Foundation)**: Complete ✅ (`@brewlog/ui` shared monorepo package with platform-split primitives [`.web` / `.native`], unified TypeScript contracts, Outfit tabular figure enforcement, and showcase fixture).
+  - **Phase 7B (Design System App Migration & Integration)**: Active / Next 🚀 (Migrate existing UI surfaces in `apps/web` and `apps/mobile` to consume `@brewlog/ui` Button, Card, Badge, Input, and MetricTile primitives).
+  - **Phase 8 (User Preferences & Settings Subsystem)**: Upcoming ⏳ (Cross-platform Supabase `user_settings`, default timer mode, unit conversions).
   - **Phase 9 (Native Cupping Session Logging)**: Upcoming ⏳ (SCA 10-attribute scoring protocol).
   - **Phase 10 (Platform-Adaptive Navigation)**: Upcoming ⏳ (iOS Liquid Glass & Android Material Design 3).
   - **Phase 11 (Responsive Adaptive Layouts)**: Upcoming ⏳ (Landscape, foldables, tablets).

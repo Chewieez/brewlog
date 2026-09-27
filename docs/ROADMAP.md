@@ -104,7 +104,7 @@ This document tracks upcoming milestones, architectural refactors, and technical
   - 100% test pass rate across 442 unit tests monorepo-wide (`@brewlog/core`: 66, `@brewlog/mobile`: 277, `@brewlog/web`: 99).
   - Clean TypeScript verification across all workspaces (`npm run typecheck`) and verified Metro production bundles for iOS and Android.
 
-### Phase 7: Centralized Cross-Platform Design System (`@brewlog/ui`) (Complete ✅)
+### Phase 7A: Centralized Cross-Platform Design System Primitives (`@brewlog/ui`) (Complete ✅)
 - **Monorepo Workspace Scaffolding (`packages/ui`)**:
   - Established dedicated `@brewlog/ui` package consuming `@brewlog/core` theme tokens (`INDUSTRIAL_PRECISION_THEME`).
   - Implemented platform-split file resolution architecture (`.web.tsx` for web with Tailwind v4, `.native.tsx` for React Native with StyleSheet) bound by common TypeScript contracts (`Component.types.ts`), completely avoiding `react-native-web` runtime overhead.
@@ -121,6 +121,25 @@ This document tracks upcoming milestones, architectural refactors, and technical
 - **Quality Checks & Showcase**:
   - Created interactive component showcase fixture (`UiShowcase.web.tsx` / `UiShowcase.native.tsx`) showcasing all variants, states, and disabled/loading modes.
   - Unit tests verifying contract adherence, accessibility labels, and platform rendering across web and native.
+
+### Phase 7B: Design System App Migration & Integration (`apps/web` & `apps/mobile`) (Active / Next 🚀)
+- **Goal**: Systematically migrate existing custom components and ad-hoc styling across `apps/web` and `apps/mobile` to consume `@brewlog/ui` shared primitives (`Button`, `Card`, `Badge`, `Input`, `MetricTile`), eliminating styling drift and guaranteeing cross-platform consistency.
+- **Timer Chassis Migration**:
+  - Replace faceplate telemetry displays with `MetricTile` (small caps uppercase eyebrow label + Outfit tabular numerals).
+  - Replace brew action triggers (`START BREW`, `PAUSE`, `RESUME`, `RESET`) and mode switchers with `@brewlog/ui` `Button`.
+- **Bean Stash Migration**:
+  - Refactor `BeanCard` across web and mobile to use `@brewlog/ui` `Card` and `Badge` (roast resting freshness indicators).
+  - Refactor bean creation and edit modal forms (`BeanModalScreen`) to use `@brewlog/ui` `Input` with paired labels and numeric variants.
+- **Recipes Migration**:
+  - Refactor `RecipeCard` and catalog list to consume `Card` and `Badge`.
+  - Migrate Recipe Specs grid to `MetricTile` and recipe builder stage forms to `Input` and `Button`.
+- **Equipment & Reviews Migration**:
+  - Replace gear cards with design system `Card` primitives and action buttons with `Button`.
+  - Standardize sensory scoring inputs and review cards.
+- **Modals & Overlays**:
+  - Standardize `AuthSheet`, confirmation dialogs, and modal wrappers to consume design system primitives.
+- **AI Agent Guardrails**:
+  - Mandate `@brewlog/ui` primitives in developer guidelines / agent instructions for all UI tasks.
 
 ---
 
@@ -181,7 +200,7 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
   - **Core Domain Math (`@brewlog/core`)**: Expand `calculator.ts` with bidirectional proportional calculation helpers (`calculateRatio`, `calculateTargetWater`, `calculateTargetCoffee`, `solveProportionalScale`, `splitsToRecipeStages`).
   - **Nested Ratio Translator (`CollapsibleCalculator`)**: Nested collapsible drawer inside the existing calculator card solving for target coffee/water with 1-tap dose application.
   - **Free Brew Mode (Timer Subsystem)**: Dedicated recipe-free mode directly on the Timer screen (web and mobile) with precision stopwatch, manual split/lap markers (bloom, first pour, draw-down), stash deduction, cupping journal logging, and custom recipe creation.
-- [x] **Phase 7: Centralized Cross-Platform Design System (`@brewlog/ui`) (Complete ✅)** *(Issue: [#22](https://github.com/Chewieez/brewlog/issues/22))*:
+- [x] **Phase 7A: Centralized Cross-Platform Design System Primitives (`@brewlog/ui`) (Complete ✅)** *(Issue: [#22](https://github.com/Chewieez/brewlog/issues/22))*:
   - **Problem & Motivation**: UI divergence frequently occurs across `@brewlog/web` (Vite, React 19, Tailwind v4) and `@brewlog/mobile` (Expo SDK 57, React Native 0.86, StyleSheet) during AI-driven feature development due to the lack of a shared component contract and primitives.
   - **Architecture (Platform Split with Unified Contract)**:
     - Scaffold workspace package `@brewlog/ui` at `packages/ui` consuming `@brewlog/core` theme tokens (`INDUSTRIAL_PRECISION_THEME`).
@@ -193,10 +212,17 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
     - `Badge` / `Pill` (method badges, roast level tags, status indicators).
     - `Input` / `TextInput` (label, helper text, error state, monospaced numeric variant).
     - `MetricTile` (chassis instrumentation display: small caps uppercase label + tabular monospaced value).
-    - `Modal` / `Sheet` (confirmation dialogues and bottom sheets).
-  - **AI Agent Guardrails**:
-    - Mandate `@brewlog/ui` primitives in developer guidelines / agent instructions for all UI tasks, eliminating style hallucinations and visual divergence.
-- [ ] **Phase 8: User Preferences & Settings Subsystem (Cross-Platform) (Active / Next 🚀)**:
+    - `UiShowcase` (cross-platform interactive showcase fixture).
+  - **Typography Enforcement**:
+    - Purged monospace `JetBrains Mono` from numeric values/inputs/metrics; enforced `Outfit` tabular figures.
+- [ ] **Phase 7B: Design System App Migration & Integration (`apps/web` & `apps/mobile`) (Active / Next 🚀)**:
+  - **Timer Chassis**: Migrate faceplate metrics to `MetricTile` and controls (`START BREW`, `PAUSE`, `RESUME`, `RESET`) to `Button`.
+  - **Bean Stash**: Refactor `BeanCard`, shelf switcher pills, and modal inputs to design system `Card`, `Badge`, and `Input`.
+  - **Recipes**: Refactor `RecipeCard`, specs grid (`MetricTile`), and builder form controls.
+  - **Equipment & Reviews**: Unify gear cards, action buttons, and cupping rating controls onto `@brewlog/ui` primitives.
+  - **Modals & Sheets**: Standardize `AuthSheet`, confirmation modals, and dialog overlays.
+  - **AI Agent Guardrails**: Mandate `@brewlog/ui` primitives in agent instructions for all UI work, preventing ad-hoc CSS or styling drift.
+- [ ] **Phase 8: User Preferences & Settings Subsystem (Cross-Platform) (Upcoming ⏳)**:
   - **Supabase Cloud Schema (`@brewlog/supabase`)**: `user_settings` table keyed to `user_id` with Row-Level Security (RLS) policies and offline-first local cache fallback. Initial schema stores `default_timer_mode` (`'recipe'` | `'manual'`), `date_format` (`'locale'` | `'MM/DD/YYYY'` | `'DD/MM/YYYY'` | `'YYYY-MM-DD'`), `weight_unit` (`'metric'` [grams/g] | `'imperial'` [ounces/oz, pounds/lb]), and `temperature_unit` (`'celsius'` | `'fahrenheit'`), architected to scale for future preferences (haptic/audio cues, default brew method).
   - **Settings UI & Navigation**:
     - **Mobile**: Settings entry button situated in the slide-up account tray (`AuthSheet` opened via `ProfileHeaderButton`), preserving Apple HIG 5-tab ergonomics. Includes selectors for weight scale (metric/imperial), temperature units, and date format.
