@@ -4,8 +4,8 @@ import { Tabs } from 'expo-router';
 import {
   Timer,
   BookOpen,
-  Coffee,
-  Wrench,
+  Bean,
+  Scale,
   Award,
 } from 'lucide-react-native';
 import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
@@ -59,7 +59,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Timer',
+            title: 'Brew Timer',
             tabBarIcon: ({ color, size }) => (
               <Timer size={size} color={color} />
             ),
@@ -79,7 +79,7 @@ export default function TabLayout() {
           options={{
             title: 'Stash',
             tabBarIcon: ({ color, size }) => (
-              <Coffee size={size} color={color} />
+              <Bean size={size} color={color} />
             ),
           }}
         />
@@ -88,14 +88,14 @@ export default function TabLayout() {
           options={{
             title: 'Equipment',
             tabBarIcon: ({ color, size }) => (
-              <Wrench size={size} color={color} />
+              <Scale size={size} color={color} />
             ),
           }}
         />
         <Tabs.Screen
           name="cupping"
           options={{
-            title: 'Cupping',
+            title: 'Reviews',
             tabBarIcon: ({ color, size }) => (
               <Award size={size} color={color} />
             ),

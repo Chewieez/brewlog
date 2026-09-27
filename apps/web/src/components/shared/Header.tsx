@@ -1,6 +1,6 @@
 import { UserMenu } from "../../features/auth/UserMenu";
 import React from 'react';
-import { Coffee, Timer, Package, Sliders, BookOpen, Sparkles } from 'lucide-react';
+import { Coffee, Timer, Bean, Scale, BookOpen, Sparkles } from 'lucide-react';
 import { Link, NavLink } from 'react-router';
 
 export interface HeaderProps {
@@ -15,11 +15,11 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAuthModal,
 }) => {
   const tabs = [
-    { id: 'timer', path: '/timer', label: 'Brew Assistant', icon: Timer },
-    { id: 'stash', path: '/stash', label: 'Coffee Stash', icon: Package, badge: beanCount },
-    { id: 'recipes', path: '/recipes', label: 'Recipe Studio', icon: BookOpen },
-    { id: 'equipment', path: '/equipment', label: 'Gear & Grinders', icon: Sliders },
-    { id: 'cupping', path: '/cupping', label: 'Cupping & Wheel', icon: Sparkles, badge: brewCount },
+    { id: 'timer', path: '/timer', label: 'Brew Timer', icon: Timer },
+    { id: 'stash', path: '/stash', label: 'Bean Stash', icon: Bean, badge: beanCount },
+    { id: 'recipes', path: '/recipes', label: 'Recipes', icon: BookOpen },
+    { id: 'equipment', path: '/equipment', label: 'Equipment', icon: Scale },
+    { id: 'cupping', path: '/cupping', label: 'Reviews', icon: Sparkles, badge: brewCount },
   ];
 
   return (
@@ -30,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
           <Link
             to="/timer"
             className="group flex items-center space-x-2.5 cursor-pointer select-none flex-shrink-0 bg-transparent border-0 p-0 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-xl"
-            aria-label="BrewLog Home, switch to Brew Assistant"
+            aria-label="BrewLog Home, switch to Brew Timer"
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-panel border border-border-subtle group-hover:border-accent/60 transition-colors flex items-center justify-center flex-shrink-0 shadow-sm">
               <Coffee className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />

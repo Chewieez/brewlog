@@ -49,7 +49,7 @@ describe("EquipmentView", () => {
   it("renders category headers and equipment items correctly", () => {
     render(<EquipmentView equipment={MOCK_EQUIPMENT} onAddEquipment={vi.fn()} />);
 
-    expect(screen.getByText(/Gear & Equipment/i)).toBeDefined();
+    expect(screen.getByRole('heading', { level: 2, name: 'Equipment' })).toBeDefined();
     expect(screen.getByText(/Grinders \(1\)/i)).toBeDefined();
     expect(screen.getByText(/Brewers & Drippers \(1\)/i)).toBeDefined();
     expect(screen.getByText(/Precision Scales \(1\)/i)).toBeDefined();

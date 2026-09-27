@@ -20,11 +20,11 @@ describe('Header', () => {
       </MemoryRouter>
     );
 
-    const timerLink = screen.getAllByRole('link', { name: /Brew Assistant/i })[0];
-    const stashLink = screen.getAllByRole('link', { name: /Coffee Stash/i })[0];
-    const recipesLink = screen.getAllByRole('link', { name: /Recipe Studio/i })[0];
-    const equipmentLink = screen.getAllByRole('link', { name: /Gear & Grinders/i })[0];
-    const cuppingLink = screen.getAllByRole('link', { name: /Cupping & Wheel/i })[0];
+    const timerLink = screen.getAllByRole('link', { name: /Brew Timer/i })[0];
+    const stashLink = screen.getAllByRole('link', { name: /Bean Stash/i })[0];
+    const recipesLink = screen.getAllByRole('link', { name: /Recipes/i })[0];
+    const equipmentLink = screen.getAllByRole('link', { name: /Equipment/i })[0];
+    const cuppingLink = screen.getAllByRole('link', { name: /Reviews/i })[0];
 
     expect(timerLink.getAttribute('href')).toBe('/timer');
     expect(stashLink.getAttribute('href')).toBe('/stash');
@@ -40,7 +40,7 @@ describe('Header', () => {
       </MemoryRouter>
     );
 
-    const stashLink = screen.getAllByRole('link', { name: /Coffee Stash/i })[0];
+    const stashLink = screen.getAllByRole('link', { name: /Bean Stash/i })[0];
     expect(stashLink.className).toContain('text-accent');
   });
 
@@ -51,7 +51,7 @@ describe('Header', () => {
       </MemoryRouter>
     );
 
-    const logoLink = screen.getByRole('link', { name: /BrewLog Home, switch to Brew Assistant/i });
+    const logoLink = screen.getByRole('link', { name: /BrewLog Home, switch to Brew Timer/i });
     expect(logoLink.getAttribute('href')).toBe('/timer');
   });
 });

@@ -13,7 +13,7 @@ describe('NotFoundRoute', () => {
 
     expect(screen.getByText(/404/i)).toBeDefined();
     expect(screen.getByText(/Brew Spilled/i)).toBeDefined();
-    const returnLink = screen.getByRole('link', { name: /Return to Brew Assistant/i });
+    const returnLink = screen.getByRole('link', { name: /Return to Brew Timer/i });
     expect(returnLink).toBeDefined();
     expect(returnLink.getAttribute('href')).toBe('/timer');
   });

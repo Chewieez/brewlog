@@ -10,7 +10,7 @@ import {
   ListRenderItemInfo,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Plus, Search, X, Coffee, Archive, Snowflake } from 'lucide-react-native';
+import { Plus, Search, X, Bean as BeanIcon, Archive, Snowflake } from 'lucide-react-native';
 import { Bean, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { FONTS } from '../../../theme/fonts';
 import { useStash } from '../StashContext';
@@ -234,7 +234,7 @@ export const StashCatalogScreen: React.FC = () => {
     return (
       <View style={styles.emptyContainer}>
         <View style={styles.emptyIconCircle}>
-          <Coffee size={28} color={colors.accent} />
+          <BeanIcon size={28} color={colors.accent} />
         </View>
         <Text style={styles.emptyTitle}>Cellar is Empty</Text>
         <Text style={styles.emptySubtitle}>
@@ -259,7 +259,7 @@ export const StashCatalogScreen: React.FC = () => {
       <View style={styles.titleRow}>
         <View style={styles.titleTextContainer}>
           <Text style={styles.headerEyebrow}>CELLAR INVENTORY</Text>
-          <Text style={styles.headerTitle}>Coffee Stash</Text>
+          <Text style={styles.headerTitle}>Bean Stash</Text>
           <Text style={styles.headerSubtitle}>
             Manage roast dates, resting curves, and freezer storage.
           </Text>

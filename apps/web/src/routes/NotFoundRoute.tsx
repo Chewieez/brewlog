@@ -22,7 +22,7 @@ export const NotFoundRoute: React.FC = () => {
         className="inline-flex items-center space-x-2 px-5 py-2.5 rounded bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold transition-all active:scale-95 cursor-pointer"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span>Return to Brew Assistant</span>
+        <span>Return to Brew Timer</span>
       </Link>
     </div>
   );
