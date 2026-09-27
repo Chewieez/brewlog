@@ -26,10 +26,10 @@ This document tracks upcoming milestones, architectural refactors, and technical
 
 ### Phase 3A: Mobile App — Bottom Tab Navigation Shell (Complete ✅)
 - Implemented Expo Router `app/(tabs)/_layout.tsx` native bottom tabs navigator.
-- Integrated `react-native-svg` and `lucide-react-native` for 1-to-1 visual icon parity with the web app (`Timer`, `BookOpen`, `Coffee`, `Wrench`, `Award`).
+- Integrated `react-native-svg` and `lucide-react-native` for 1-to-1 visual icon parity with the web app (`Timer`, `BookOpen`, `Bean`, `Scale`, `Award`).
 - Styled tab bar, screen headers, and panel cards strictly with `INDUSTRIAL_PRECISION_THEME.colors` (zero hardcoded hex values).
 - Migrated interactive smoke features to default tab route `/` (`app/(tabs)/index.tsx`).
-- Created dedicated tab screens for Recipes catalog (`app/(tabs)/recipes.tsx`), Stash (`app/(tabs)/stash.tsx`), Equipment (`app/(tabs)/equipment.tsx`), and Cupping (`app/(tabs)/cupping.tsx`).
+- Created dedicated tab screens for Recipes catalog (`app/(tabs)/recipes.tsx`), Stash (`app/(tabs)/stash.tsx`), Equipment (`app/(tabs)/equipment.tsx`), and Reviews (`app/(tabs)/cupping.tsx`).
 - Verified zero errors across 21/21 `npx expo-doctor` checks, 132/132 monorepo unit tests, and production Metro bundling for both iOS (3,089 modules) and Android (3,234 modules).
 
 ### Phase 3B: Mobile App — Interactive Brew Timer Subsystem (Complete ✅)
@@ -104,6 +104,24 @@ This document tracks upcoming milestones, architectural refactors, and technical
   - 100% test pass rate across 442 unit tests monorepo-wide (`@brewlog/core`: 66, `@brewlog/mobile`: 277, `@brewlog/web`: 99).
   - Clean TypeScript verification across all workspaces (`npm run typecheck`) and verified Metro production bundles for iOS and Android.
 
+### Phase 7: Centralized Cross-Platform Design System (`@brewlog/ui`) (Complete ✅)
+- **Monorepo Workspace Scaffolding (`packages/ui`)**:
+  - Established dedicated `@brewlog/ui` package consuming `@brewlog/core` theme tokens (`INDUSTRIAL_PRECISION_THEME`).
+  - Implemented platform-split file resolution architecture (`.web.tsx` for web with Tailwind v4, `.native.tsx` for React Native with StyleSheet) bound by common TypeScript contracts (`Component.types.ts`), completely avoiding `react-native-web` runtime overhead.
+- **Core Primitives & Apple HIG Touch Ergonomics**:
+  - `Button`: Primary copper, secondary recessed, ghost, danger; icon slot support, loading spinners, and Apple HIG-compliant $\ge 44\text{pt}$ touch targets.
+  - `Card` / `Panel`: Standard chassis surface (`#18181b`), recessed panel (`#202024`), interactive active border highlight states, and platform-specific press handling.
+  - `Badge` / `Pill`: `mono` uppercase technical badges (roast methods/presets) vs `default` Outfit descriptive tags, resting freshness variants.
+  - `Input`: Standard text input and dedicated numeric variant with unit suffix, defensive stringification, active focus ring, and web label `htmlFor` pairing.
+  - `MetricTile`: Hardware faceplate instrumentation tile with small-caps uppercase eyebrow label and prominent Outfit tabular numeric display.
+- **Strict Typography Enforcement**:
+  - Strictly purged `JetBrains Mono` from numeric values, inputs, weights, timestamps, and metrics across both web and native apps.
+  - Restricted `JetBrains Mono` exclusively to uppercase technical tags and chassis instrument eyebrow labels.
+  - Standardized all numeric and readable UI figures on `Outfit` tabular figures.
+- **Quality Checks & Showcase**:
+  - Created interactive component showcase fixture (`UiShowcase.web.tsx` / `UiShowcase.native.tsx`) showcasing all variants, states, and disabled/loading modes.
+  - Unit tests verifying contract adherence, accessibility labels, and platform rendering across web and native.
+
 ---
 
 ## 📋 Technical Debt & Component Refactoring (TODO)
@@ -126,9 +144,9 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
   - `RecipeCard.tsx` — Individual recipe card with method badges, ratio summary, and selection/delete actions.
   - `MethodFilterTabs.tsx` — Reusable brew method filter buttons.
 
-### 🫘 Coffee Stash Deep-Linking (Phase 2B - Web Only `@brewlog/web`)
+### 🫘 Bean Stash Deep-Linking (Phase 2B - Web Only `@brewlog/web`)
 > [!NOTE]
-> Coffee Stash deep-linking and dedicated screens are already fully implemented on mobile (`@brewlog/mobile`) via Expo Router routes `app/stash/[id].tsx` and `app/stash/modal.tsx`. The items below represent technical debt specific to the web client (`apps/web`).
+> Bean Stash deep-linking and dedicated screens are already fully implemented on mobile (`@brewlog/mobile`) via Expo Router routes `app/stash/[id].tsx` and `app/stash/modal.tsx`. The items below represent technical debt specific to the web client (`apps/web`).
 
 - [ ] *(Web Only)* Implement Approach B (single component route with `useParams`) for `/stash/:beanId` to explore the alternative dynamic routing pattern in `@brewlog/web`.
 - [ ] *(Web Only)* Create dedicated bean detail view / modal route on web.
@@ -163,7 +181,7 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
   - **Core Domain Math (`@brewlog/core`)**: Expand `calculator.ts` with bidirectional proportional calculation helpers (`calculateRatio`, `calculateTargetWater`, `calculateTargetCoffee`, `solveProportionalScale`, `splitsToRecipeStages`).
   - **Nested Ratio Translator (`CollapsibleCalculator`)**: Nested collapsible drawer inside the existing calculator card solving for target coffee/water with 1-tap dose application.
   - **Free Brew Mode (Timer Subsystem)**: Dedicated recipe-free mode directly on the Timer screen (web and mobile) with precision stopwatch, manual split/lap markers (bloom, first pour, draw-down), stash deduction, cupping journal logging, and custom recipe creation.
-- [ ] **Phase 7: Centralized Cross-Platform Design System (`@brewlog/ui`) (Active / Next 🚀)** *(Issue: [#22](https://github.com/Chewieez/brewlog/issues/22))*:
+- [x] **Phase 7: Centralized Cross-Platform Design System (`@brewlog/ui`) (Complete ✅)** *(Issue: [#22](https://github.com/Chewieez/brewlog/issues/22))*:
   - **Problem & Motivation**: UI divergence frequently occurs across `@brewlog/web` (Vite, React 19, Tailwind v4) and `@brewlog/mobile` (Expo SDK 57, React Native 0.86, StyleSheet) during AI-driven feature development due to the lack of a shared component contract and primitives.
   - **Architecture (Platform Split with Unified Contract)**:
     - Scaffold workspace package `@brewlog/ui` at `packages/ui` consuming `@brewlog/core` theme tokens (`INDUSTRIAL_PRECISION_THEME`).
@@ -178,7 +196,7 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
     - `Modal` / `Sheet` (confirmation dialogues and bottom sheets).
   - **AI Agent Guardrails**:
     - Mandate `@brewlog/ui` primitives in developer guidelines / agent instructions for all UI tasks, eliminating style hallucinations and visual divergence.
-- [ ] **Phase 8: User Preferences & Settings Subsystem (Cross-Platform)**:
+- [ ] **Phase 8: User Preferences & Settings Subsystem (Cross-Platform) (Active / Next 🚀)**:
   - **Supabase Cloud Schema (`@brewlog/supabase`)**: `user_settings` table keyed to `user_id` with Row-Level Security (RLS) policies and offline-first local cache fallback. Initial schema stores `default_timer_mode` (`'recipe'` | `'manual'`), `date_format` (`'locale'` | `'MM/DD/YYYY'` | `'DD/MM/YYYY'` | `'YYYY-MM-DD'`), `weight_unit` (`'metric'` [grams/g] | `'imperial'` [ounces/oz, pounds/lb]), and `temperature_unit` (`'celsius'` | `'fahrenheit'`), architected to scale for future preferences (haptic/audio cues, default brew method).
   - **Settings UI & Navigation**:
     - **Mobile**: Settings entry button situated in the slide-up account tray (`AuthSheet` opened via `ProfileHeaderButton`), preserving Apple HIG 5-tab ergonomics. Includes selectors for weight scale (metric/imperial), temperature units, and date format.

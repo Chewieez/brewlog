@@ -2,7 +2,7 @@
 
 > A specialty coffee brewing companion built to learn React, React Native, Expo, Wear OS, watchOS, and agentic AI-driven development.
 
-Multi-platform specialty coffee tracking, custom recipe studio, interactive brewing assistant, and SCA cupping logbook. Built with **React 19**, **Tailwind CSS v4**, **React Native (Expo)**, **TypeScript**, and **Supabase (PostgreSQL)**.
+Multi-platform specialty coffee tracking, custom recipe manager, interactive brew timer, and SCA cupping logbook. Built with **React 19**, **Tailwind CSS v4**, **React Native (Expo)**, **TypeScript**, and **Supabase (PostgreSQL)**.
 
 ---
 
@@ -17,6 +17,7 @@ brewlog/
 │   └── watchos/           # (Planned) Apple watchOS Companion App & Complications (SwiftUI)
 ├── packages/
 │   ├── core/              # Shared types, brew math, presets & SCA flavor wheel
+│   ├── ui/                # Shared cross-platform design system primitives (.web / .native)
 │   └── supabase/          # Shared database schema, client & RLS policies
 └── docs/
     ├── adr/               # Architecture Decision Records
@@ -27,11 +28,12 @@ brewlog/
 
 ## 🚀 Key Features
 
-* **🫘 Coffee Stash Manager & Cellar Inventory**: Track origins, processing methods (Washed, Natural, Anaerobic), roast dates, resting/freshness windows, and remaining weight. Includes a pure mathematical resting engine with adaptive roaster curves, freezer vault preservation pause math, offline-first local caching (`@brewlog/mobile:stash_cache`), shelf partitioning (Active Cellar, Deep Freeze, Archive), and a 1-tap post-brew dose deduction bridge directly from the live brew timer.
-* **⚙️ Equipment & Gear Tracking**: Log your grinders (burr type, dial settings), brewers (V60, AeroPress, Flair 58, Chemex), and gear settings.
-* **📖 Interactive Recipe Studio**: Build and scale multi-stage recipes (bloom, pours, agitation, drawdown target) with real-time auto-scaling.
-* **⏱️ Interactive Brew Assistant & Ratio Translator**: Live visual stage timer with target weight indicators, synthesized bell chimes (Web Audio on web, `expo-audio` on mobile), tactile haptics (`expo-haptics`), dynamic method selector, inline dose scaling, dual-mode operation (Guided Recipe Mode + Free Brew manual stopwatch with milestone split tags), and a nested bidirectional proportional Ratio Translator.
-* **📝 SCA Cupping Logbook & Flavor Wheel**: Score fragrance/aroma, flavor, aftertaste, acidity, body, balance, uniformity, clean cup, sweetness, and overall impression with interactive flavor tags to calculate authentic 0–100 SCA scores.
+* **🫘 Bean Stash & Cellar Inventory**: Track origins, processing methods (Washed, Natural, Anaerobic), roast dates, resting/freshness windows, and remaining weight. Includes a pure mathematical resting engine with adaptive roaster curves, freezer vault preservation pause math, offline-first local caching (`@brewlog/mobile:stash_cache`), shelf partitioning (Active Cellar, Deep Freeze, Archive), and a 1-tap post-brew dose deduction bridge directly from the live brew timer.
+* **⚙️ Equipment Tracking**: Log your grinders (burr type, dial settings), brewers (V60, AeroPress, Flair 58, Chemex), and gear settings.
+* **📖 Recipes & Interactive Scaling**: Build and scale multi-stage recipes (bloom, pours, agitation, drawdown target) with real-time auto-scaling.
+* **⏱️ Interactive Brew Timer & Ratio Translator**: Live visual stage timer with target weight indicators, synthesized bell chimes (Web Audio on web, `expo-audio` on mobile), tactile haptics (`expo-haptics`), dynamic method selector, inline dose scaling, dual-mode operation (Guided Recipe Mode + Free Brew manual stopwatch with milestone split tags), and a nested bidirectional proportional Ratio Translator.
+* **📝 Reviews & SCA Cupping Logbook**: Score fragrance/aroma, flavor, aftertaste, acidity, body, balance, uniformity, clean cup, sweetness, and overall impression with interactive flavor tags to calculate authentic 0–100 SCA scores.
+* **🎨 Centralized Cross-Platform Design System (`@brewlog/ui`)**: Shared monorepo component package with platform-split rendering layers (`.web.tsx` with Tailwind v4, `.native.tsx` with React Native StyleSheet), unified TypeScript contracts, and industrial precision matte hardware aesthetic across web and mobile (`Button`, `Card`, `Badge`, `Input`, `MetricTile`).
 * **☁️ Cloud Sync, Multi-User & Secure Storage**: Supabase PostgreSQL backend with Row Level Security (RLS), cross-platform authentication (`AuthSheet` modal bottom sheet with sign-in/up/reset, `ProfileHeaderButton` avatar indicator), and hardware-secured session storage (`LargeSecureStore` AES-256 CTR hybrid encryption backed by `expo-secure-store` with `WHEN_UNLOCKED_THIS_DEVICE_ONLY` keychain accessibility).
 * **📱 Active Project Milestones & Roadmap**:
   - **Phase 1 (Web App Core Routing)**: Complete ✅ (Declarative client routing, 404 handler, persistent shell).
@@ -41,8 +43,8 @@ brewlog/
   - **Phase 4 (Mobile Recipe Studio & Catalog)**: Complete ✅ (Native stack/modal navigation, recipe builder lifecycle, bidirectional timer handoff).
   - **Phase 5 (Stash Manager & Cellar Inventory)**: Complete ✅ (Native bean cellar, roast resting status indicators, dose deduction handoff to timer, pure resting engine, and offline-first cache).
   - **Phase 6 (Free Brew Timer & Ratio Translator)**: Complete ✅ (Stopwatch mode, manual split tags, nested ratio translator, cupping/recipe export, mobile & web parity).
-  - **Phase 7 (Centralized Cross-Platform Design System)**: Active / Next 🚀 (`@brewlog/ui` shared monorepo package, platform-split primitives, unified TypeScript contracts).
-  - **Phase 8 (User Preferences & Settings Subsystem)**: Upcoming ⏳ (Cross-platform Supabase `user_settings`, default timer mode).
+  - **Phase 7 (Centralized Cross-Platform Design System)**: Complete ✅ (`@brewlog/ui` shared monorepo package with platform-split primitives [`.web` / `.native`], unified TypeScript contracts, and showcase fixture).
+  - **Phase 8 (User Preferences & Settings Subsystem)**: Active / Next 🚀 (Cross-platform Supabase `user_settings`, default timer mode, unit conversions).
   - **Phase 9 (Native Cupping Session Logging)**: Upcoming ⏳ (SCA 10-attribute scoring protocol).
   - **Phase 10 (Platform-Adaptive Navigation)**: Upcoming ⏳ (iOS Liquid Glass & Android Material Design 3).
   - **Phase 11 (Responsive Adaptive Layouts)**: Upcoming ⏳ (Landscape, foldables, tablets).
@@ -124,7 +126,7 @@ Once Metro is running in your terminal, choose your testing target:
 * **Mobile Web Preview**: Press <kbd>w</kbd> in the terminal (or run `npm run web --workspace=@brewlog/mobile`).
 
 > [!TIP]
-> **Metro Cache Reset**: When switching branches or after making changes to shared monorepo packages (`@brewlog/core`, `@brewlog/supabase`), start Metro with a clean cache:
+> **Metro Cache Reset**: When switching branches or after making changes to shared monorepo packages (`@brewlog/core`, `@brewlog/ui`, `@brewlog/supabase`), start Metro with a clean cache:
 > ```bash
 > npm run dev:mobile -- -c
 > ```
@@ -139,7 +141,7 @@ Run project-wide validation across all workspaces from the monorepo root:
 # Run TypeScript strict typechecking across all workspaces
 npm run typecheck
 
-# Run Vitest test suites across core, web, and mobile
+# Run Vitest test suites across core, ui, web, and mobile
 npm test
 
 # Build production artifacts

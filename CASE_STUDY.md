@@ -29,6 +29,9 @@ Mobile baristas manage roasted bean cellar inventory with instant local responsi
 ### 7. Bidirectional Ratio Translation & Manual Free Brew Stopwatch Engine
 BrewLog bridges structured recipe execution with intuitive, unguided brewing via a unified dual-mode timing state machine (`recipe` vs `free_brew`). A pure mathematical proportional engine (`@brewlog/core`) computes bidirectional targets ($C_{target}$ from water or $W_{target}$ from coffee) with zero-division protections. Live split-interval tracking records milestone timestamps (+Bloom, +Pours, +Drawdown) and seamlessly serializes unstructured extractions into formal recipe stages or SCA cupping sensory logs across web and mobile.
 
+### 8. Centralized Cross-Platform Design System (`@brewlog/ui`)
+To eliminate styling drift and maintain instrument-grade visual continuity across web (React 19 + Tailwind v4) and mobile (Expo SDK 57 + React Native StyleSheet), `@brewlog/ui` introduces platform-split primitives (`.web.tsx` and `.native.tsx`) bound by strict shared TypeScript prop contracts. It enforces project-wide typography standards (purging monospace fonts from numeric values, restricting `JetBrains Mono` strictly to uppercase tags and chassis eyebrows, and standardizing all numeric metrics on `Outfit` tabular figures) without bundling overhead from `react-native-web`.
+
 ---
 
 ## 📈 Learning Roadmap & Architecture Decision Records
