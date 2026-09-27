@@ -105,7 +105,7 @@ Open each `.env` file and provide your project URL and public anon key:
 npm run dev:web
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser to view the application.
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
 
 ---
 
