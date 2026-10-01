@@ -9,7 +9,7 @@ import { Plus, Search, Star, Calendar, MapPin, Snowflake } from 'lucide-react';
 
 interface StashViewProps {
   beans: Bean[];
-  onAddBean: (bean: Bean) => void;
+  onAddBean: (bean: Bean) => Promise<void> | void;
   onSelectBeanForBrew: (bean: Bean) => void;
 }
 
@@ -62,6 +62,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
   const [flavorNotesStr, setFlavorNotesStr] = useState('');
   const [price, setPrice] = useState<number | ''>('');
   const [notes, setNotes] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   const resetForm = () => {
@@ -82,6 +83,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
     setFlavorNotesStr('');
     setPrice('');
     setNotes('');
+    setErrorMessage(null);
   };
 
   const handleSelectPreset = (grams: number) => {
@@ -99,14 +101,15 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
     return matchesSearch && matchesProcess;
   });
 
-  const handleSubmitNewBean = (e: React.FormEvent) => {
+  const handleSubmitNewBean = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !roaster.trim()) return;
     setIsSaving(true);
+    setErrorMessage(null);
 
-    const parsedBagWeight = bagWeightGrams ? Number(bagWeightGrams) : 340;
+    const parsedBagWeight = bagWeightGrams !== '' ? Number(bagWeightGrams) : 340;
     const parsedRemaining = remainingGrams !== '' ? Number(remainingGrams) : parsedBagWeight;
-    const parsedAltitude = altitudeMeters ? Number(altitudeMeters) : undefined;
+    const parsedAltitude = altitudeMeters !== '' ? Number(altitudeMeters) : undefined;
     const parsedPrice = price !== '' ? Number(price) : undefined;
     const parsedRestDays = recommendedRestDays !== '' ? Number(recommendedRestDays) : 5;
 
@@ -134,10 +137,16 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
       createdAt: new Date().toISOString(),
     };
 
-    onAddBean(newBean);
-    setIsModalOpen(false);
-    setIsSaving(false);
-    resetForm();
+    try {
+      await onAddBean(newBean);
+      setIsModalOpen(false);
+      resetForm();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to save bean.';
+      setErrorMessage(msg);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const getRestingStatusBadgeClass = (status: 'resting' | 'peak' | 'aging' | 'past-peak', frozen: boolean) => {
@@ -358,6 +367,12 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
             </div>
 
             <form onSubmit={handleSubmitNewBean} className="space-y-4 text-sm">
+              {errorMessage && (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+                  {errorMessage}
+                </div>
+              )}
+
               {/* Section 1: Coffee Identity */}
               <div className="space-y-3">
                 <span className="text-[11px] font-mono font-bold text-accent tracking-wider uppercase">
@@ -576,6 +591,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                     </label>
                     <input
                       type="number"
+                      aria-label="Bag Weight (grams)"
                       placeholder="340"
                       value={bagWeightGrams}
                       onChange={(e) =>
@@ -591,6 +607,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                     </label>
                     <input
                       type="number"
+                      aria-label="Remaining Weight (grams)"
                       placeholder="340"
                       value={remainingGrams}
                       onChange={(e) =>

@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import { StashView } from './StashView';
 import { Bean } from '@brewlog/core';
 
@@ -186,7 +186,7 @@ describe('StashView', () => {
     expect(screen.getByText(/No coffee beans found matching your search/i)).toBeDefined();
   });
 
-  it('opens Add Bean modal and handles form submission', () => {
+  it('opens Add Bean modal and handles form submission', async () => {
     const onAddBean = vi.fn();
     render(
       <StashView
@@ -226,10 +226,10 @@ describe('StashView', () => {
     );
 
     // Modal closed
-    expect(screen.queryByRole('dialog')).toBeNull();
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
-  it('submits comprehensive bean attributes including cellar, origin, and inventory fields', () => {
+  it('submits comprehensive bean attributes including cellar, origin, and inventory fields', async () => {
     const onAddBean = vi.fn();
     render(
       <StashView
@@ -286,6 +286,9 @@ describe('StashView', () => {
         isFrozen: true,
       })
     );
+
+    // Modal closed
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
   it('renders frozen badge and frozen resting status for frozen beans', () => {
@@ -316,5 +319,69 @@ describe('StashView', () => {
     expect(screen.getByText('FROZEN')).toBeDefined();
     expect(screen.getByText(/Frozen at Day 9/i)).toBeDefined();
   });
+
+  it('preserves 0g bag weight without resetting to default 340g', async () => {
+    const onAddBean = vi.fn();
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={onAddBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /ADD BEAN/i }));
+
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Sey Coffee/i), {
+      target: { value: 'Sey Coffee' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Worka Sakaro/i), {
+      target: { value: 'Empty Worka Bag' },
+    });
+
+    // Enter 0 for bag weight
+    const bagWeightInput = screen.getByLabelText('Bag Weight (grams)');
+    fireEvent.change(bagWeightInput, { target: { value: '0' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /SAVE BEAN/i }));
+
+    expect(onAddBean).toHaveBeenCalledWith(
+      expect.objectContaining({
+        bagWeightGrams: 0,
+        bagWeightOz: 0,
+      })
+    );
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('awaits asynchronous onAddBean and shows error banner if submission rejects', async () => {
+    const onAddBean = vi.fn().mockRejectedValue(new Error('Database offline'));
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={onAddBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /ADD BEAN/i }));
+
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Sey Coffee/i), {
+      target: { value: 'Sey Coffee' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Worka Sakaro/i), {
+      target: { value: 'Worka' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /SAVE BEAN/i }));
+
+    // Wait for the rejection to process
+    expect(await screen.findByText('Database offline')).toBeDefined();
+
+    // Modal should remain open
+    expect(screen.getByRole('dialog')).toBeDefined();
+  });
 });
+
 
