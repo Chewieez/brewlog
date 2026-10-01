@@ -228,4 +228,93 @@ describe('StashView', () => {
     // Modal closed
     expect(screen.queryByRole('dialog')).toBeNull();
   });
+
+  it('submits comprehensive bean attributes including cellar, origin, and inventory fields', () => {
+    const onAddBean = vi.fn();
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={onAddBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /ADD BEAN/i }));
+
+    // Required fields
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Sey Coffee/i), {
+      target: { value: 'Sey Coffee' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Worka Sakaro/i), {
+      target: { value: 'Worka' },
+    });
+
+    // Extended origin & inventory fields
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Finca El Paraiso/i), {
+      target: { value: 'Worka Sakaro Washing Station' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Gesha, Bourbon/i), {
+      target: { value: 'Heirloom, Kurume' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. 1950/i), {
+      target: { value: '2000' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('5'), {
+      target: { value: '14' },
+    });
+
+    // Presets
+    fireEvent.click(screen.getByRole('button', { name: '250g' }));
+
+    // Freezer toggle
+    const freezerCheckbox = screen.getByRole('checkbox');
+    fireEvent.click(freezerCheckbox);
+
+    // Save
+    fireEvent.click(screen.getByRole('button', { name: /SAVE BEAN/i }));
+
+    expect(onAddBean).toHaveBeenCalledWith(
+      expect.objectContaining({
+        roaster: 'Sey Coffee',
+        name: 'Worka',
+        farm: 'Worka Sakaro Washing Station',
+        variety: ['Heirloom', 'Kurume'],
+        altitudeMeters: 2000,
+        recommendedRestDays: 14,
+        bagWeightGrams: 250,
+        remainingGrams: 250,
+        isFrozen: true,
+      })
+    );
+  });
+
+  it('renders frozen badge and frozen resting status for frozen beans', () => {
+    const frozenBean: Bean = {
+      id: 'bean-frozen',
+      name: 'Frozen Gesha',
+      roaster: 'Onyx',
+      originCountry: 'Panama',
+      process: 'washed',
+      roastLevel: 'light',
+      roastDate: '2026-08-01',
+      isFrozen: true,
+      frozenDate: '2026-08-10',
+      flavorNotes: ['Bergamot'],
+      bagWeightGrams: 250,
+      remainingGrams: 250,
+      createdAt: '2026-08-01',
+    };
+
+    render(
+      <StashView
+        beans={[frozenBean]}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('FROZEN')).toBeDefined();
+    expect(screen.getByText(/Frozen at Day 9/i)).toBeDefined();
+  });
 });
+
