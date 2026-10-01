@@ -491,4 +491,21 @@ describe('RecipeContext', () => {
     const parsed = JSON.parse(stored!);
     expect(parsed.recipeId).toBe(DEFAULT_PRESET_RECIPES[0].id);
   });
+
+  it('self-heals AsyncStorage with fallback preset when stored recipe ID cannot be found', async () => {
+    await AsyncStorage.setItem(
+      ACTIVE_RECIPE_STORAGE_KEY,
+      JSON.stringify({ recipeId: 'non-existent-or-deleted-id', dose: 18 })
+    );
+
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.activeTimerRecipe.id).toBe(DEFAULT_PRESET_RECIPES[0].id);
+
+    const stored = await AsyncStorage.getItem(ACTIVE_RECIPE_STORAGE_KEY);
+    expect(stored).toBeTruthy();
+    const parsed = JSON.parse(stored!);
+    expect(parsed.recipeId).toBe(DEFAULT_PRESET_RECIPES[0].id);
+  });
 });

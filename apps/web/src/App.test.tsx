@@ -133,4 +133,19 @@ describe('App Routing', () => {
     render(<TestApp initialPath="/timer" />);
     expect(screen.getByText('My Special Filter V60')).toBeDefined();
   });
+
+  it('self-heals localStorage with fallback preset when stored recipe ID cannot be found', () => {
+    localStorage.setItem(
+      WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY,
+      JSON.stringify({ recipeId: 'non-existent-or-deleted-id' })
+    );
+
+    render(<TestApp initialPath="/timer" />);
+    expect(screen.getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
+
+    const stored = localStorage.getItem(WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY);
+    expect(stored).toBeTruthy();
+    const parsed = JSON.parse(stored!);
+    expect(parsed.recipeId).toBe(DEFAULT_PRESET_RECIPES[0].id);
+  });
 });

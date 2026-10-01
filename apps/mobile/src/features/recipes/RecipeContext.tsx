@@ -129,6 +129,13 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       }
 
       if (!supabase || !user) {
+        if (pendingSavedRecipeRef.current && !activeRecipeSetByUserRef.current) {
+          const fallback = DEFAULT_PRESET_RECIPES[0];
+          setActiveTimerRecipeState(fallback);
+          setActiveTimerDose(fallback.coffeeDoseGrams);
+          await persistSavedActiveRecipe(fallback.id, fallback.coffeeDoseGrams);
+          pendingSavedRecipeRef.current = null;
+        }
         return;
       }
 
@@ -189,6 +196,11 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             const scaled = rescaleRecipeDose(match, dose);
             setActiveTimerRecipeState(scaled);
             setActiveTimerDose(dose);
+          } else {
+            const fallback = DEFAULT_PRESET_RECIPES[0];
+            setActiveTimerRecipeState(fallback);
+            setActiveTimerDose(fallback.coffeeDoseGrams);
+            await persistSavedActiveRecipe(fallback.id, fallback.coffeeDoseGrams);
           }
           pendingSavedRecipeRef.current = null;
         }

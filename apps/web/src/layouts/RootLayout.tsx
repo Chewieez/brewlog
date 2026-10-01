@@ -108,6 +108,13 @@ export const RootLayout: React.FC = () => {
         }
         return;
       }
+      // Stored recipe was deleted or corrupted: self-heal by writing fallback
+      const fallback = recipes[0] || DEFAULT_PRESET_RECIPES[0];
+      if (selectedRecipe !== fallback) {
+        setSelectedRecipeState(fallback);
+      }
+      persistSavedActiveRecipeId(fallback.id);
+      return;
     }
 
     if (recipes.length > 0 && !recipes.some((r) => r.id === selectedRecipe.id)) {
