@@ -19,6 +19,13 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/AuthContext';
 
 const STORAGE_KEY = '@brewlog/custom_recipes';
+/**
+ * Storage schema note: Mobile persists { recipeId, dose } in AsyncStorage because
+ * the mobile timer relies on RecipeContext's activeTimerDose to sync dial adjustments
+ * across tab navigations (Catalog -> Timer -> Bean Stash).
+ * Web currently persists { recipeId } in localStorage because custom dose adjustments
+ * are held locally within TimerView state rather than in RootLayout context.
+ */
 export const ACTIVE_RECIPE_STORAGE_KEY = '@brewlog/mobile:last_active_recipe';
 
 export interface SavedActiveRecipe {
@@ -32,7 +39,11 @@ async function loadSavedActiveRecipe(): Promise<SavedActiveRecipe | null> {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed.recipeId === 'string') {
-        return parsed;
+        const dose =
+          typeof parsed.dose === 'number' && Number.isFinite(parsed.dose) && parsed.dose > 0
+            ? parsed.dose
+            : undefined;
+        return { recipeId: parsed.recipeId, dose };
       }
     }
   } catch (err) {
@@ -110,7 +121,9 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const match = availableRecipes.find((r) => r.id === saved.recipeId);
       if (match) {
         const dose =
-          saved.dose && saved.dose > 0 ? saved.dose : match.coffeeDoseGrams;
+          typeof saved.dose === 'number' && Number.isFinite(saved.dose) && saved.dose > 0
+            ? saved.dose
+            : match.coffeeDoseGrams;
         const scaled = rescaleRecipeDose(match, dose);
         setActiveTimerRecipeState(scaled);
         setActiveTimerDose(dose);

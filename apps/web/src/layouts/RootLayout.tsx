@@ -32,6 +32,12 @@ export interface RootOutletContext {
 
 export const useRootOutletContext = () => useOutletContext<RootOutletContext>();
 
+/**
+ * Storage schema note: Web persists { recipeId } in localStorage because custom dose
+ * adjustments are managed locally within TimerView state rather than in RootLayout context.
+ * In contrast, Mobile persists { recipeId, dose } in AsyncStorage because its timer relies
+ * on RecipeContext's activeTimerDose to keep dial adjustments synced across tab navigations.
+ */
 export const WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY = 'brewlog_last_active_recipe';
 
 const loadSavedActiveRecipeId = (): string | null => {
