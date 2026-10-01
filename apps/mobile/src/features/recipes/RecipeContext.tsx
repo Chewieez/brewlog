@@ -105,6 +105,22 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const pendingSavedRecipeRef = useRef<SavedActiveRecipe | null>(null);
   const activeRecipeSetByUserRef = useRef<boolean>(false);
 
+  const applySavedActiveRecipe = useCallback(
+    (availableRecipes: BrewRecipe[], saved: SavedActiveRecipe): boolean => {
+      const match = availableRecipes.find((r) => r.id === saved.recipeId);
+      if (match) {
+        const dose =
+          saved.dose && saved.dose > 0 ? saved.dose : match.coffeeDoseGrams;
+        const scaled = rescaleRecipeDose(match, dose);
+        setActiveTimerRecipeState(scaled);
+        setActiveTimerDose(dose);
+        return true;
+      }
+      return false;
+    },
+    []
+  );
+
   const fetchRecipes = useCallback(async () => {
     setLoading(true);
     try {
@@ -117,13 +133,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       if (savedActive && !activeRecipeSetByUserRef.current) {
         pendingSavedRecipeRef.current = savedActive;
         const allKnown = [...local, ...DEFAULT_PRESET_RECIPES];
-        const match = allKnown.find((r) => r.id === savedActive.recipeId);
-        if (match) {
-          const dose =
-            savedActive.dose && savedActive.dose > 0 ? savedActive.dose : match.coffeeDoseGrams;
-          const scaled = rescaleRecipeDose(match, dose);
-          setActiveTimerRecipeState(scaled);
-          setActiveTimerDose(dose);
+        if (applySavedActiveRecipe(allKnown, savedActive)) {
           pendingSavedRecipeRef.current = null;
         }
       }
@@ -187,16 +197,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         if (pendingSavedRecipeRef.current && !activeRecipeSetByUserRef.current) {
           const allKnown = [...merged, ...DEFAULT_PRESET_RECIPES];
-          const match = allKnown.find((r) => r.id === pendingSavedRecipeRef.current!.recipeId);
-          if (match) {
-            const dose =
-              pendingSavedRecipeRef.current.dose && pendingSavedRecipeRef.current.dose > 0
-                ? pendingSavedRecipeRef.current.dose
-                : match.coffeeDoseGrams;
-            const scaled = rescaleRecipeDose(match, dose);
-            setActiveTimerRecipeState(scaled);
-            setActiveTimerDose(dose);
-          } else {
+          if (!applySavedActiveRecipe(allKnown, pendingSavedRecipeRef.current)) {
             const fallback = DEFAULT_PRESET_RECIPES[0];
             setActiveTimerRecipeState(fallback);
             setActiveTimerDose(fallback.coffeeDoseGrams);
@@ -210,7 +211,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, applySavedActiveRecipe]);
 
   useEffect(() => {
     fetchRecipes();
@@ -339,7 +340,12 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       setCustomRecipes(nextRecipes);
       await persistCachedRecipes(nextRecipes);
 
+      if (pendingSavedRecipeRef.current?.recipeId === id) {
+        pendingSavedRecipeRef.current = null;
+      }
+
       if (activeTimerRecipe.id === id) {
+        pendingSavedRecipeRef.current = null;
         const fallback = DEFAULT_PRESET_RECIPES[0];
         setActiveTimerRecipeState(fallback);
         setActiveTimerDose(fallback.coffeeDoseGrams);
