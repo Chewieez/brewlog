@@ -256,10 +256,12 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
 
                   {/* Origin & Specs */}
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-400 mt-2">
-                    <div className="flex items-center space-x-1">
-                      <MapPin className="w-3.5 h-3.5 text-zinc-500" />
-                      <span>{bean.originCountry}{bean.region ? `, ${bean.region}` : ''}</span>
-                    </div>
+                    {(bean.originCountry || bean.region) && (
+                      <div className="flex items-center space-x-1" data-testid="bean-origin">
+                        <MapPin className="w-3.5 h-3.5 text-zinc-500" />
+                        <span>{[bean.originCountry, bean.region].filter(Boolean).join(', ')}</span>
+                      </div>
+                    )}
                     {bean.process && (
                       <>
                         <span className="text-zinc-600">•</span>
@@ -283,7 +285,9 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                     <div className="flex items-center space-x-2 tabular-nums text-xs text-zinc-300">
                       <Calendar className="w-3.5 h-3.5 text-zinc-400" />
                       <span>
-                        {bean.isFrozen
+                        {!bean.roastDate
+                          ? 'No roast date'
+                          : bean.isFrozen
                           ? `Frozen at Day ${restInfo.effectiveDays}`
                           : `${restInfo.effectiveDays} days off roast`}
                       </span>

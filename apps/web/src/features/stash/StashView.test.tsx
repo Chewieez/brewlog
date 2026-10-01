@@ -382,6 +382,70 @@ describe('StashView', () => {
     // Modal should remain open
     expect(screen.getByRole('dialog')).toBeDefined();
   });
+
+  it('displays "No roast date" when roastDate is unspecified', () => {
+    const noRoastBean: Bean = {
+      id: 'bean-no-roast',
+      name: 'Mystery Roast',
+      roaster: 'Sey Coffee',
+      roastDate: undefined,
+      flavorNotes: [],
+      createdAt: '2026-01-01',
+    };
+
+    render(
+      <StashView
+        beans={[noRoastBean]}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('No roast date')).toBeDefined();
+    expect(screen.queryByText(/0 days off roast/i)).toBeNull();
+  });
+
+  it('renders origin cleanly without leading comma and omits location when both country and region are empty', () => {
+    const regionOnlyBean: Bean = {
+      id: 'bean-region-only',
+      name: 'Region Bean',
+      roaster: 'Sey Coffee',
+      region: 'Antioquia',
+      flavorNotes: [],
+      createdAt: '2026-01-01',
+    };
+
+    const emptyOriginBean: Bean = {
+      id: 'bean-empty-origin',
+      name: 'Blank Origin Bean',
+      roaster: 'Sey Coffee',
+      flavorNotes: [],
+      createdAt: '2026-01-01',
+    };
+
+    const { rerender } = render(
+      <StashView
+        beans={[regionOnlyBean]}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    // Region only: should be "Antioquia", not ", Antioquia"
+    expect(screen.getByTestId('bean-origin').textContent).toBe('Antioquia');
+
+    rerender(
+      <StashView
+        beans={[emptyOriginBean]}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    // No country and no region: origin block is completely omitted
+    expect(screen.queryByTestId('bean-origin')).toBeNull();
+  });
 });
+
 
 
