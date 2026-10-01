@@ -508,4 +508,59 @@ describe('RecipeContext', () => {
     const parsed = JSON.parse(stored!);
     expect(parsed.recipeId).toBe(DEFAULT_PRESET_RECIPES[0].id);
   });
+
+  it('hydrates activeTimerRecipe from cloud recipes when stored ID arrives asynchronously from Supabase', async () => {
+    mockAuthUser = mockUser;
+
+    await AsyncStorage.setItem(
+      ACTIVE_RECIPE_STORAGE_KEY,
+      JSON.stringify({ recipeId: 'cloud-rec-async-test', dose: 22 })
+    );
+
+    const mockOrder = vi.fn().mockResolvedValue({
+      data: [
+        {
+          id: 'cloud-rec-async-test',
+          user_id: mockUser.id,
+          name: 'Cloud Dialed Geisha',
+          brew_method: 'v60',
+          recommended_brewer_id: null,
+          recommended_grinder_id: null,
+          description: 'From cloud',
+          author: null,
+          coffee_dose_grams: 15,
+          water_amount_grams: 250,
+          ratio: 16.67,
+          grind_size: 'Medium',
+          water_temp_celsius: 93,
+          total_time_seconds: 150,
+          is_preset: false,
+          is_favorite: false,
+          notes: null,
+          created_at: new Date().toISOString(),
+          recipe_stages: [],
+        },
+      ],
+      error: null,
+    });
+
+    const mockSelect = vi.fn().mockReturnValue({ order: mockOrder });
+
+    mockSupabaseFrom.mockImplementation((table: string) => {
+      if (table === 'recipes') {
+        return { select: mockSelect };
+      }
+      return {};
+    });
+
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.activeTimerRecipe.id).toBe('cloud-rec-async-test');
+    expect(result.current.activeTimerDose).toBe(22);
+    expect(result.current.activeTimerRecipe.coffeeDoseGrams).toBe(22);
+  });
 });
