@@ -11,7 +11,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run --exclude 'dist/**' --exclude '**/node_modules/**'"
   },
   "devDependencies": {
     "typescript": "^5.7.3",

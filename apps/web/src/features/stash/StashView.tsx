@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Bean,
   ProcessMethod,
@@ -64,6 +64,19 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
   const [notes, setNotes] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsModalOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen]);
 
   const resetForm = () => {
     setName('');
@@ -157,8 +170,9 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
       case 'peak':
         return 'bg-emerald-500 text-zinc-950';
       case 'resting':
-      case 'aging':
         return 'bg-amber-500 text-zinc-950';
+      case 'aging':
+        return 'bg-orange-500 text-zinc-950';
       case 'past-peak':
       default:
         return 'bg-slate-600 text-zinc-100';
@@ -383,10 +397,11 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                   COFFEE IDENTITY
                 </span>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                  <label htmlFor="add-bean-roaster" className="block text-xs font-medium text-zinc-300 mb-1">
                     Roaster Name <span className="text-accent font-bold">*</span>
                   </label>
                   <input
+                    id="add-bean-roaster"
                     type="text"
                     required
                     placeholder="e.g. Sey Coffee, Onyx, Tim Wendelboe"
@@ -397,10 +412,11 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                  <label htmlFor="add-bean-name" className="block text-xs font-medium text-zinc-300 mb-1">
                     Coffee / Lot Name <span className="text-accent font-bold">*</span>
                   </label>
                   <input
+                    id="add-bean-name"
                     type="text"
                     required
                     placeholder="e.g. Worka Sakaro, Southern Weather"
@@ -418,10 +434,11 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    <label htmlFor="add-bean-origin-country" className="block text-xs font-medium text-zinc-300 mb-1">
                       Origin Country
                     </label>
                     <input
+                      id="add-bean-origin-country"
                       type="text"
                       placeholder="e.g. Ethiopia, Colombia"
                       value={originCountry}
@@ -431,10 +448,11 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    <label htmlFor="add-bean-region" className="block text-xs font-medium text-zinc-300 mb-1">
                       Region
                     </label>
                     <input
+                      id="add-bean-region"
                       type="text"
                       placeholder="e.g. Yirgacheffe, Huila"
                       value={region}
@@ -446,10 +464,11 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    <label htmlFor="add-bean-farm" className="block text-xs font-medium text-zinc-300 mb-1">
                       Farm / Producer
                     </label>
                     <input
+                      id="add-bean-farm"
                       type="text"
                       placeholder="e.g. Finca El Paraiso"
                       value={farm}
@@ -459,10 +478,11 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    <label htmlFor="add-bean-variety" className="block text-xs font-medium text-zinc-300 mb-1">
                       Variety
                     </label>
                     <input
+                      id="add-bean-variety"
                       type="text"
                       placeholder="e.g. Gesha, Bourbon"
                       value={varietyStr}
@@ -472,11 +492,13 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    <label htmlFor="add-bean-altitude" className="block text-xs font-medium text-zinc-300 mb-1">
                       Altitude (m)
                     </label>
                     <input
+                      id="add-bean-altitude"
                       type="number"
+                      min="0"
                       placeholder="e.g. 1950"
                       value={altitudeMeters}
                       onChange={(e) =>
@@ -495,10 +517,11 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    <label htmlFor="add-bean-process" className="block text-xs font-medium text-zinc-300 mb-1">
                       Process Method
                     </label>
                     <select
+                      id="add-bean-process"
                       value={process}
                       onChange={(e) => setProcess(e.target.value as ProcessMethod)}
                       className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-zinc-100 text-sm focus:outline-none focus:border-accent transition-colors cursor-pointer"
@@ -512,10 +535,11 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    <label htmlFor="add-bean-roast-level" className="block text-xs font-medium text-zinc-300 mb-1">
                       Roast Level
                     </label>
                     <select
+                      id="add-bean-roast-level"
                       value={roastLevel}
                       onChange={(e) => setRoastLevel(e.target.value as RoastLevel)}
                       className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-zinc-100 text-sm focus:outline-none focus:border-accent transition-colors cursor-pointer"
@@ -531,10 +555,11 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    <label htmlFor="add-bean-roast-date" className="block text-xs font-medium text-zinc-300 mb-1">
                       Roast Date
                     </label>
                     <input
+                      id="add-bean-roast-date"
                       type="date"
                       value={roastDate}
                       onChange={(e) => setRoastDate(e.target.value)}
@@ -543,10 +568,11 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    <label htmlFor="add-bean-rest-days" className="block text-xs font-medium text-zinc-300 mb-1">
                       Recommended Rest Days
                     </label>
                     <input
+                      id="add-bean-rest-days"
                       type="number"
                       placeholder="5"
                       min="0"
@@ -590,11 +616,13 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    <label htmlFor="add-bean-bag-weight" className="block text-xs font-medium text-zinc-300 mb-1">
                       Bag Weight (grams)
                     </label>
                     <input
+                      id="add-bean-bag-weight"
                       type="number"
+                      min="0"
                       aria-label="Bag Weight (grams)"
                       placeholder="340"
                       value={bagWeightGrams}
@@ -606,11 +634,13 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    <label htmlFor="add-bean-remaining-weight" className="block text-xs font-medium text-zinc-300 mb-1">
                       Remaining Weight (grams)
                     </label>
                     <input
+                      id="add-bean-remaining-weight"
                       type="number"
+                      min="0"
                       aria-label="Remaining Weight (grams)"
                       placeholder="340"
                       value={remainingGrams}
@@ -623,8 +653,9 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                 </div>
 
                 {/* Freezer Vault Toggle */}
-                <label className="flex items-center space-x-3 p-3 rounded-xl bg-panel-recessed border border-border-subtle cursor-pointer hover:border-zinc-700 transition-colors">
+                <label htmlFor="add-bean-is-frozen" className="flex items-center space-x-3 p-3 rounded-xl bg-panel-recessed border border-border-subtle cursor-pointer hover:border-zinc-700 transition-colors">
                   <input
+                    id="add-bean-is-frozen"
                     type="checkbox"
                     checked={isFrozen}
                     onChange={(e) => setIsFrozen(e.target.checked)}
@@ -652,10 +683,11 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="sm:col-span-2">
-                    <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    <label htmlFor="add-bean-flavor-notes" className="block text-xs font-medium text-zinc-300 mb-1">
                       Flavor Notes (Comma separated)
                     </label>
                     <input
+                      id="add-bean-flavor-notes"
                       type="text"
                       placeholder="e.g. Jasmine, Peach, Bergamot, Honey"
                       value={flavorNotesStr}
@@ -665,12 +697,14 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    <label htmlFor="add-bean-price" className="block text-xs font-medium text-zinc-300 mb-1">
                       Price ($)
                     </label>
                     <input
+                      id="add-bean-price"
                       type="number"
                       step="0.01"
+                      min="0"
                       placeholder="24.00"
                       value={price}
                       onChange={(e) =>
@@ -682,10 +716,11 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                  <label htmlFor="add-bean-notes" className="block text-xs font-medium text-zinc-300 mb-1">
                     Notes & Impressions
                   </label>
                   <textarea
+                    id="add-bean-notes"
                     rows={2}
                     placeholder="Tasting impressions, brew ratio recommendations, grinder settings..."
                     value={notes}

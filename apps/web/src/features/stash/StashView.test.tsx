@@ -445,7 +445,77 @@ describe('StashView', () => {
     // No country and no region: origin block is completely omitted
     expect(screen.queryByTestId('bean-origin')).toBeNull();
   });
+
+  it('renders aging badge with terracotta bg-orange-500 class', () => {
+    const agingBean: Bean = {
+      id: 'bean-aging',
+      name: 'Aging Lot',
+      roaster: 'Sey Coffee',
+      // 40 days ago = aging window
+      roastDate: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      flavorNotes: [],
+      createdAt: '2026-01-01',
+    };
+
+    render(
+      <StashView
+        beans={[agingBean]}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    const agingBadge = screen.getByText('Good (Drink Soon)');
+    expect(agingBadge).toBeDefined();
+    expect(agingBadge.className).toContain('bg-orange-500');
+    expect(agingBadge.className).toContain('text-zinc-950');
+  });
+
+  it('closes Add Bean modal when Escape key is pressed', () => {
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /ADD BEAN/i }));
+    expect(screen.getByRole('dialog')).toBeDefined();
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('configures form labels with htmlFor pairings and number inputs with min="0"', () => {
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /ADD BEAN/i }));
+
+    const altitudeInput = screen.getByLabelText(/Altitude \(m\)/i);
+    expect(altitudeInput.getAttribute('min')).toBe('0');
+    expect(altitudeInput.id).toBe('add-bean-altitude');
+
+    const bagWeightInput = screen.getByLabelText('Bag Weight (grams)');
+    expect(bagWeightInput.getAttribute('min')).toBe('0');
+    expect(bagWeightInput.id).toBe('add-bean-bag-weight');
+
+    const remainingWeightInput = screen.getByLabelText('Remaining Weight (grams)');
+    expect(remainingWeightInput.getAttribute('min')).toBe('0');
+    expect(remainingWeightInput.id).toBe('add-bean-remaining-weight');
+
+    const priceInput = screen.getByLabelText(/Price \(\$\)/i);
+    expect(priceInput.getAttribute('min')).toBe('0');
+    expect(priceInput.id).toBe('add-bean-price');
+  });
 });
+
 
 
 
