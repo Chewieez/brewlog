@@ -114,4 +114,23 @@ describe('App Routing', () => {
     const parsed = JSON.parse(stored!);
     expect(parsed.recipeId).toBe('preset-v60-hoffmann');
   });
+
+  it('defaults active recipe on first load to cached custom recipe from localStorage', () => {
+    const customRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      id: 'local-rec-my-custom',
+      name: 'My Special Filter V60',
+    };
+    localStorage.setItem(
+      'brewlog_custom_recipes_cache',
+      JSON.stringify([customRecipe])
+    );
+    localStorage.setItem(
+      WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY,
+      JSON.stringify({ recipeId: customRecipe.id })
+    );
+
+    render(<TestApp initialPath="/timer" />);
+    expect(screen.getByText('My Special Filter V60')).toBeDefined();
+  });
 });

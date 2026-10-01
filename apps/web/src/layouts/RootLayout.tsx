@@ -85,7 +85,7 @@ export const RootLayout: React.FC = () => {
   const [selectedRecipe, setSelectedRecipeState] = useState<BrewRecipe>(() => {
     const savedId = loadSavedActiveRecipeId();
     if (savedId) {
-      const match = DEFAULT_PRESET_RECIPES.find((r) => r.id === savedId);
+      const match = recipes.find((r) => r.id === savedId);
       if (match) return match;
     }
     return recipes[0] || DEFAULT_PRESET_RECIPES[0];
