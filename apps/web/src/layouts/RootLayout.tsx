@@ -103,7 +103,7 @@ export const RootLayout: React.FC = () => {
     if (savedId) {
       const match = recipes.find((r) => r.id === savedId);
       if (match) {
-        if (selectedRecipe.id !== match.id) {
+        if (selectedRecipe !== match) {
           setSelectedRecipeState(match);
         }
         return;
@@ -115,7 +115,7 @@ export const RootLayout: React.FC = () => {
       setSelectedRecipeState(fallback);
       persistSavedActiveRecipeId(fallback.id);
     }
-  }, [recipes, selectedRecipe.id]);
+  }, [recipes, selectedRecipe]);
 
   useEffect(() => {
     if (!selectedBean && beans.length > 0) {
