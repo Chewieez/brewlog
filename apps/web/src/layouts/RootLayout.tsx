@@ -32,6 +32,34 @@ export interface RootOutletContext {
 
 export const useRootOutletContext = () => useOutletContext<RootOutletContext>();
 
+export const WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY = 'brewlog_last_active_recipe';
+
+const loadSavedActiveRecipeId = (): string | null => {
+  try {
+    const raw = localStorage.getItem(WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.recipeId === 'string') {
+        return parsed.recipeId;
+      }
+    }
+  } catch (err) {
+    console.error('Failed to load last active recipe from localStorage:', err);
+  }
+  return null;
+};
+
+const persistSavedActiveRecipeId = (recipeId: string): void => {
+  try {
+    localStorage.setItem(
+      WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY,
+      JSON.stringify({ recipeId })
+    );
+  } catch (err) {
+    console.error('Failed to save last active recipe to localStorage:', err);
+  }
+};
+
 export const RootLayout: React.FC = () => {
   const { beans, addBean } = useBeans();
   const { logs: tastingLogs, addTastingLog } = useTastingLogs();
@@ -54,15 +82,38 @@ export const RootLayout: React.FC = () => {
     }
   }, [isPasswordRecovery, authUrlError]);
 
-  const [selectedRecipe, setSelectedRecipe] = useState<BrewRecipe>(
-    recipes[0] || DEFAULT_PRESET_RECIPES[0]
-  );
+  const [selectedRecipe, setSelectedRecipeState] = useState<BrewRecipe>(() => {
+    const savedId = loadSavedActiveRecipeId();
+    if (savedId) {
+      const match = DEFAULT_PRESET_RECIPES.find((r) => r.id === savedId);
+      if (match) return match;
+    }
+    return recipes[0] || DEFAULT_PRESET_RECIPES[0];
+  });
   const [selectedBean, setSelectedBean] = useState<Bean | null>(INITIAL_BEANS[0] || null);
   const [pendingBrewSession, setPendingBrewSession] = useState<PendingBrewSession | null>(null);
 
+  const setSelectedRecipe = useCallback((recipe: BrewRecipe) => {
+    setSelectedRecipeState(recipe);
+    persistSavedActiveRecipeId(recipe.id);
+  }, []);
+
   useEffect(() => {
+    const savedId = loadSavedActiveRecipeId();
+    if (savedId) {
+      const match = recipes.find((r) => r.id === savedId);
+      if (match) {
+        if (selectedRecipe.id !== match.id) {
+          setSelectedRecipeState(match);
+        }
+        return;
+      }
+    }
+
     if (recipes.length > 0 && !recipes.some((r) => r.id === selectedRecipe.id)) {
-      setSelectedRecipe(recipes[0]);
+      const fallback = recipes[0] || DEFAULT_PRESET_RECIPES[0];
+      setSelectedRecipeState(fallback);
+      persistSavedActiveRecipeId(fallback.id);
     }
   }, [recipes, selectedRecipe.id]);
 
@@ -93,6 +144,18 @@ export const RootLayout: React.FC = () => {
     [addTastingLog]
   );
 
+  const onDeleteRecipe = useCallback(
+    async (id: string) => {
+      await deleteRecipe(id);
+      if (selectedRecipe.id === id) {
+        const fallback = DEFAULT_PRESET_RECIPES[0];
+        setSelectedRecipeState(fallback);
+        persistSavedActiveRecipeId(fallback.id);
+      }
+    },
+    [deleteRecipe, selectedRecipe.id]
+  );
+
   const contextValue: RootOutletContext = useMemo(
     () => ({
       beans,
@@ -109,7 +172,7 @@ export const RootLayout: React.FC = () => {
       onAddEquipment,
       onDeleteEquipment: deleteEquipment,
       onAddRecipe: addRecipe,
-      onDeleteRecipe: deleteRecipe,
+      onDeleteRecipe,
       onAddTastingLog,
     }),
     [
@@ -127,7 +190,7 @@ export const RootLayout: React.FC = () => {
       onAddEquipment,
       deleteEquipment,
       addRecipe,
-      deleteRecipe,
+      onDeleteRecipe,
       onAddTastingLog,
     ]
   );

@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DEFAULT_PRESET_RECIPES, BrewRecipe } from '@brewlog/core';
-import { RecipeProvider, useRecipes } from './RecipeContext';
+import { RecipeProvider, useRecipes, ACTIVE_RECIPE_STORAGE_KEY } from './RecipeContext';
 
 const mockUser: any = { id: 'test-user-uuid', email: 'barista@brewlog.dev' };
 let mockAuthUser: any = null;
@@ -385,5 +385,110 @@ describe('RecipeContext', () => {
     expect(result.current.customRecipes).toHaveLength(2);
     expect(result.current.customRecipes.some((r) => r.id === 'local-rec-failed-sync')).toBe(true);
     expect(result.current.customRecipes.some((r) => r.id === 'cloud-rec-existing')).toBe(true);
+  });
+
+  it('persists activeTimerRecipe and dose to AsyncStorage when setActiveTimerRecipe is called', async () => {
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    const aeropressPreset = DEFAULT_PRESET_RECIPES[1];
+    act(() => {
+      result.current.setActiveTimerRecipe(aeropressPreset, 18);
+    });
+
+    const stored = await AsyncStorage.getItem(ACTIVE_RECIPE_STORAGE_KEY);
+    expect(stored).toBeTruthy();
+    const parsed = JSON.parse(stored!);
+    expect(parsed).toEqual({
+      recipeId: aeropressPreset.id,
+      dose: 18,
+    });
+  });
+
+  it('hydrates activeTimerRecipe and dose from AsyncStorage on initial load', async () => {
+    const aeropressPreset = DEFAULT_PRESET_RECIPES[1];
+    await AsyncStorage.setItem(
+      ACTIVE_RECIPE_STORAGE_KEY,
+      JSON.stringify({ recipeId: aeropressPreset.id, dose: 18 })
+    );
+
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.activeTimerRecipe.id).toBe(aeropressPreset.id);
+    expect(result.current.activeTimerDose).toBe(18);
+    expect(result.current.activeTimerRecipe.coffeeDoseGrams).toBe(18);
+  });
+
+  it('hydrates activeTimerRecipe from custom recipes when stored ID matches custom recipe', async () => {
+    const customRecipe: BrewRecipe = {
+      id: 'local-rec-active-test',
+      name: 'Dialed Espresso',
+      brewMethod: 'espresso',
+      description: 'Dialed shot',
+      coffeeDoseGrams: 18,
+      waterAmountGrams: 36,
+      ratio: 2,
+      grindSize: 'Fine',
+      waterTempCelsius: 93,
+      totalTimeSeconds: 30,
+      stages: [],
+      isPreset: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    await AsyncStorage.setItem(
+      '@brewlog/custom_recipes',
+      JSON.stringify([customRecipe])
+    );
+    await AsyncStorage.setItem(
+      ACTIVE_RECIPE_STORAGE_KEY,
+      JSON.stringify({ recipeId: customRecipe.id, dose: 20 })
+    );
+
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.activeTimerRecipe.id).toBe(customRecipe.id);
+    expect(result.current.activeTimerDose).toBe(20);
+    expect(result.current.activeTimerRecipe.coffeeDoseGrams).toBe(20);
+  });
+
+  it('falls back to default preset and updates AsyncStorage when currently active recipe is deleted', async () => {
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    let created: BrewRecipe | null = null;
+    await act(async () => {
+      created = await result.current.addRecipe({
+        name: 'Temporary Recipe',
+        brewMethod: 'v60',
+        coffeeDoseGrams: 15,
+        waterAmountGrams: 250,
+        ratio: 16.67,
+        grindSize: 'Medium',
+        waterTempCelsius: 93,
+        totalTimeSeconds: 150,
+        description: 'Temp',
+        stages: [],
+      });
+    });
+
+    act(() => {
+      result.current.setActiveTimerRecipe(created!, 15);
+    });
+
+    expect(result.current.activeTimerRecipe.id).toBe(created!.id);
+
+    await act(async () => {
+      await result.current.deleteRecipe(created!.id);
+    });
+
+    expect(result.current.activeTimerRecipe.id).toBe(DEFAULT_PRESET_RECIPES[0].id);
+    expect(result.current.activeTimerDose).toBe(DEFAULT_PRESET_RECIPES[0].coffeeDoseGrams);
+
+    const stored = await AsyncStorage.getItem(ACTIVE_RECIPE_STORAGE_KEY);
+    const parsed = JSON.parse(stored!);
+    expect(parsed.recipeId).toBe(DEFAULT_PRESET_RECIPES[0].id);
   });
 });

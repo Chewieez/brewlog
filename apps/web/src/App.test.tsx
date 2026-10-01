@@ -1,9 +1,10 @@
 /** @vitest-environment jsdom */
 import React from 'react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, act } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, Navigate } from 'react-router';
-import { RootLayout } from './layouts/RootLayout';
+import { DEFAULT_PRESET_RECIPES } from '@brewlog/core';
+import { RootLayout, WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY } from './layouts/RootLayout';
 import { TimerRoute } from './routes/TimerRoute';
 import { StashRoute } from './routes/StashRoute';
 import { NotFoundRoute } from './routes/NotFoundRoute';
@@ -39,6 +40,7 @@ function TestApp({ initialPath = '/' }: { initialPath?: string }) {
 describe('App Routing', () => {
   afterEach(() => {
     cleanup();
+    localStorage.clear();
     window.history.pushState({}, 'Test', '/');
   });
   it('redirects from / to /timer', () => {
@@ -85,5 +87,31 @@ describe('App Routing', () => {
 
     expect(await screen.findByRole('heading', { level: 3, name: 'Select a Recipe' })).toBeDefined();
     expect(screen.getByText(/choose a recipe from the catalog/i)).toBeDefined();
+  });
+
+  it('defaults active recipe on first load of timer to last used recipe from localStorage', () => {
+    const aeropressPreset = DEFAULT_PRESET_RECIPES[1];
+    localStorage.setItem(
+      WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY,
+      JSON.stringify({ recipeId: aeropressPreset.id })
+    );
+
+    render(<TestApp initialPath="/timer" />);
+    expect(screen.getByText(aeropressPreset.name)).toBeDefined();
+  });
+
+  it('updates localStorage when a recipe is chosen to brew from recipe details', async () => {
+    window.history.pushState({}, 'Test', '/recipes/preset-v60-hoffmann');
+    render(<App />);
+
+    const brewBtn = await screen.findByRole('button', { name: /brew with this recipe/i });
+    act(() => {
+      brewBtn.click();
+    });
+
+    const stored = localStorage.getItem(WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY);
+    expect(stored).toBeTruthy();
+    const parsed = JSON.parse(stored!);
+    expect(parsed.recipeId).toBe('preset-v60-hoffmann');
   });
 });

@@ -5,10 +5,11 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  useRef,
   ReactNode,
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BrewRecipe, DEFAULT_PRESET_RECIPES } from '@brewlog/core';
+import { BrewRecipe, DEFAULT_PRESET_RECIPES, rescaleRecipeDose } from '@brewlog/core';
 import {
   mapRecipeRowToDomain,
   mapRecipeDomainToInsert,
@@ -18,6 +19,38 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/AuthContext';
 
 const STORAGE_KEY = '@brewlog/custom_recipes';
+export const ACTIVE_RECIPE_STORAGE_KEY = '@brewlog/mobile:last_active_recipe';
+
+export interface SavedActiveRecipe {
+  recipeId: string;
+  dose?: number;
+}
+
+async function loadSavedActiveRecipe(): Promise<SavedActiveRecipe | null> {
+  try {
+    const raw = await AsyncStorage.getItem(ACTIVE_RECIPE_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.recipeId === 'string') {
+        return parsed;
+      }
+    }
+  } catch (err) {
+    console.error('Failed to read last active recipe from AsyncStorage:', err);
+  }
+  return null;
+}
+
+async function persistSavedActiveRecipe(recipeId: string, dose?: number): Promise<void> {
+  try {
+    await AsyncStorage.setItem(
+      ACTIVE_RECIPE_STORAGE_KEY,
+      JSON.stringify({ recipeId, dose })
+    );
+  } catch (err) {
+    console.error('Failed to write last active recipe to AsyncStorage:', err);
+  }
+}
 
 export interface RecipeContextValue {
   recipes: BrewRecipe[];
@@ -69,11 +102,31 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     DEFAULT_PRESET_RECIPES[0].coffeeDoseGrams
   );
 
+  const pendingSavedRecipeRef = useRef<SavedActiveRecipe | null>(null);
+  const activeRecipeSetByUserRef = useRef<boolean>(false);
+
   const fetchRecipes = useCallback(async () => {
     setLoading(true);
     try {
-      const local = await loadCachedRecipes();
+      const [local, savedActive] = await Promise.all([
+        loadCachedRecipes(),
+        loadSavedActiveRecipe(),
+      ]);
       setCustomRecipes(local);
+
+      if (savedActive && !activeRecipeSetByUserRef.current) {
+        pendingSavedRecipeRef.current = savedActive;
+        const allKnown = [...local, ...DEFAULT_PRESET_RECIPES];
+        const match = allKnown.find((r) => r.id === savedActive.recipeId);
+        if (match) {
+          const dose =
+            savedActive.dose && savedActive.dose > 0 ? savedActive.dose : match.coffeeDoseGrams;
+          const scaled = rescaleRecipeDose(match, dose);
+          setActiveTimerRecipeState(scaled);
+          setActiveTimerDose(dose);
+          pendingSavedRecipeRef.current = null;
+        }
+      }
 
       if (!supabase || !user) {
         return;
@@ -124,6 +177,21 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         const merged = [...remainingUnsynced, ...mapped];
         setCustomRecipes(merged);
         await persistCachedRecipes(merged);
+
+        if (pendingSavedRecipeRef.current && !activeRecipeSetByUserRef.current) {
+          const allKnown = [...merged, ...DEFAULT_PRESET_RECIPES];
+          const match = allKnown.find((r) => r.id === pendingSavedRecipeRef.current!.recipeId);
+          if (match) {
+            const dose =
+              pendingSavedRecipeRef.current.dose && pendingSavedRecipeRef.current.dose > 0
+                ? pendingSavedRecipeRef.current.dose
+                : match.coffeeDoseGrams;
+            const scaled = rescaleRecipeDose(match, dose);
+            setActiveTimerRecipeState(scaled);
+            setActiveTimerDose(dose);
+          }
+          pendingSavedRecipeRef.current = null;
+        }
       }
     } catch (err) {
       console.error('fetchRecipes error:', err);
@@ -238,9 +306,14 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
       }
 
+      if (activeTimerRecipe.id === id) {
+        const rescaled = rescaleRecipeDose(updatedTarget, activeTimerDose);
+        setActiveTimerRecipeState(rescaled);
+      }
+
       return updatedTarget;
     },
-    [user, customRecipes]
+    [user, customRecipes, activeTimerRecipe.id, activeTimerDose]
   );
 
   const deleteRecipe = useCallback(
@@ -254,6 +327,13 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       setCustomRecipes(nextRecipes);
       await persistCachedRecipes(nextRecipes);
 
+      if (activeTimerRecipe.id === id) {
+        const fallback = DEFAULT_PRESET_RECIPES[0];
+        setActiveTimerRecipeState(fallback);
+        setActiveTimerDose(fallback.coffeeDoseGrams);
+        persistSavedActiveRecipe(fallback.id, fallback.coffeeDoseGrams);
+      }
+
       if (supabase && user && !id.startsWith('local-rec-')) {
         try {
           await supabase.from('recipes').delete().eq('id', id);
@@ -262,16 +342,16 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
       }
     },
-    [user, customRecipes]
+    [user, customRecipes, activeTimerRecipe.id]
   );
 
   const setActiveTimerRecipe = useCallback((recipe: BrewRecipe, dose?: number) => {
+    activeRecipeSetByUserRef.current = true;
+    pendingSavedRecipeRef.current = null;
     setActiveTimerRecipeState(recipe);
-    if (dose !== undefined && dose > 0) {
-      setActiveTimerDose(dose);
-    } else {
-      setActiveTimerDose(recipe.coffeeDoseGrams);
-    }
+    const targetDose = dose !== undefined && dose > 0 ? dose : recipe.coffeeDoseGrams;
+    setActiveTimerDose(targetDose);
+    persistSavedActiveRecipe(recipe.id, targetDose);
   }, []);
 
   const recipes = useMemo(
