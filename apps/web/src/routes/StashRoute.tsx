@@ -5,7 +5,7 @@ import { useRootOutletContext } from '../layouts/RootLayout';
 import { Bean } from '@brewlog/core';
 
 export const StashRoute: React.FC = () => {
-  const { beans, onAddBean, onUpdateBean, setSelectedBean } = useRootOutletContext();
+  const { beans, onAddBean, onUpdateBean, onDeleteBean, setSelectedBean } = useRootOutletContext();
   const navigate = useNavigate();
 
   const handleSelectBeanForBrew = (bean: Bean) => {
@@ -18,6 +18,7 @@ export const StashRoute: React.FC = () => {
       beans={beans}
       onAddBean={onAddBean}
       onUpdateBean={onUpdateBean}
+      onDeleteBean={onDeleteBean}
       onSelectBeanForBrew={handleSelectBeanForBrew}
     />
   );

@@ -560,6 +560,35 @@ describe('StashView', () => {
 
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
+
+  it('calls onDeleteBean when DELETE BEAN is clicked in edit modal', async () => {
+    const onDeleteBean = vi.fn().mockResolvedValue(undefined);
+    const targetBean = MOCK_BEANS[0];
+
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={vi.fn()}
+        onUpdateBean={vi.fn()}
+        onDeleteBean={onDeleteBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    // Open edit modal
+    const editBtn = screen.getByRole('button', { name: `Edit ${targetBean.name}` });
+    fireEvent.click(editBtn);
+
+    // Click DELETE BEAN
+    const deleteBtn = screen.getByRole('button', { name: /DELETE BEAN/i });
+    expect(deleteBtn).toBeDefined();
+    fireEvent.click(deleteBtn);
+
+    expect(onDeleteBean).toHaveBeenCalledTimes(1);
+    expect(onDeleteBean).toHaveBeenCalledWith(targetBean.id);
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
 });
 
 

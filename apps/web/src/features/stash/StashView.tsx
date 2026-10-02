@@ -11,6 +11,7 @@ interface StashViewProps {
   beans: Bean[];
   onAddBean: (bean: Bean) => Promise<void> | void;
   onUpdateBean?: (bean: Bean) => Promise<void> | void;
+  onDeleteBean?: (id: string) => Promise<void> | void;
   onSelectBeanForBrew: (bean: Bean) => void;
 }
 
@@ -44,6 +45,7 @@ export const StashView: React.FC<StashViewProps> = ({
   beans,
   onAddBean,
   onUpdateBean,
+  onDeleteBean,
   onSelectBeanForBrew,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -71,6 +73,7 @@ export const StashView: React.FC<StashViewProps> = ({
   const [notes, setNotes] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!isModalOpen) return;
@@ -203,6 +206,22 @@ export const StashView: React.FC<StashViewProps> = ({
       setErrorMessage(msg);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!editingBean || !onDeleteBean) return;
+    setIsDeleting(true);
+    try {
+      await onDeleteBean(editingBean.id);
+      setIsModalOpen(false);
+      setEditingBean(null);
+      resetForm();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete bean.';
+      setErrorMessage(msg);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -784,21 +803,36 @@ export const StashView: React.FC<StashViewProps> = ({
               </div>
 
               {/* Action Buttons */}
-              <div className="flex justify-end space-x-3 pt-3 border-t border-zinc-800/80">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-zinc-100 font-mono text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer"
-                >
-                  CANCEL
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="px-5 py-2 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-sm transition-colors cursor-pointer disabled:opacity-50"
-                >
-                  {isSaving ? 'SAVING...' : editingBean ? 'SAVE CHANGES' : 'SAVE BEAN'}
-                </button>
+              <div className="flex items-center justify-between pt-3 border-t border-zinc-800/80">
+                {editingBean && onDeleteBean ? (
+                  <button
+                    type="button"
+                    disabled={isDeleting || isSaving}
+                    onClick={handleDelete}
+                    className="px-3.5 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 hover:text-red-300 font-mono text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {isDeleting ? 'DELETING...' : 'DELETE BEAN'}
+                  </button>
+                ) : (
+                  <div />
+                )}
+
+                <div className="flex space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-zinc-100 font-mono text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer"
+                  >
+                    CANCEL
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSaving || isDeleting}
+                    className="px-5 py-2 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-sm transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {isSaving ? 'SAVING...' : editingBean ? 'SAVE CHANGES' : 'SAVE BEAN'}
+                  </button>
+                </div>
               </div>
             </form>
           </div>
