@@ -130,8 +130,9 @@ describe('StashView', () => {
       />
     );
 
-    const brewButtons = screen.getAllByRole('button', { name: /BREW →/i });
+    const brewButtons = screen.getAllByRole('button', { name: /Brew with/i });
     expect(brewButtons.length).toBe(3);
+    expect(brewButtons[0].getAttribute('aria-label')).toBe(`Brew with ${MOCK_BEANS[0].name}`);
 
     fireEvent.click(brewButtons[0]);
     expect(onSelect).toHaveBeenCalledWith(MOCK_BEANS[0]);
@@ -383,7 +384,7 @@ describe('StashView', () => {
     expect(screen.getByRole('dialog')).toBeDefined();
   });
 
-  it('displays "No roast date" when roastDate is unspecified', () => {
+  it('displays "No roast date" and neutral gray badge when roastDate is unspecified', () => {
     const noRoastBean: Bean = {
       id: 'bean-no-roast',
       name: 'Mystery Roast',
@@ -403,6 +404,33 @@ describe('StashView', () => {
 
     expect(screen.getByText('No roast date')).toBeDefined();
     expect(screen.queryByText(/0 days off roast/i)).toBeNull();
+
+    const badge = screen.getByText('No Date Specified');
+    expect(badge).toBeDefined();
+    expect(badge.className).toContain('bg-zinc-700');
+    expect(badge.className).not.toContain('bg-amber-500');
+  });
+
+  it('renders "0g" for 0g bag weight instead of falling back to default 12 oz', () => {
+    const zeroWeightBean: Bean = {
+      id: 'bean-zero-weight',
+      name: 'Zero Gram Bean',
+      roaster: 'Sey Coffee',
+      bagWeightGrams: 0,
+      flavorNotes: [],
+      createdAt: '2026-01-01',
+    };
+
+    render(
+      <StashView
+        beans={[zeroWeightBean]}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('0g')).toBeDefined();
+    expect(screen.queryByText('12 oz')).toBeNull();
   });
 
   it('renders origin cleanly without leading comma and omits location when both country and region are empty', () => {

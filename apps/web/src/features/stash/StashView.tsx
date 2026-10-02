@@ -241,7 +241,14 @@ export const StashView: React.FC<StashViewProps> = ({
     }
   };
 
-  const getRestingStatusBadgeClass = (status: 'resting' | 'peak' | 'aging' | 'past-peak', frozen: boolean) => {
+  const getRestingStatusBadgeClass = (
+    status: 'resting' | 'peak' | 'aging' | 'past-peak',
+    frozen: boolean,
+    hasRoastDate: boolean = true
+  ) => {
+    if (!hasRoastDate) {
+      return 'bg-zinc-700 text-zinc-300';
+    }
     if (frozen) {
       return 'bg-sky-500 text-zinc-950';
     }
@@ -388,7 +395,8 @@ export const StashView: React.FC<StashViewProps> = ({
                     <span
                       className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${getRestingStatusBadgeClass(
                         restInfo.status,
-                        Boolean(bean.isFrozen)
+                        Boolean(bean.isFrozen),
+                        Boolean(bean.roastDate)
                       )}`}
                     >
                       {restInfo.stageLabel}
@@ -415,9 +423,9 @@ export const StashView: React.FC<StashViewProps> = ({
                   <span className="text-xs tabular-nums text-zinc-400">
                     {bean.remainingGrams !== undefined
                       ? `${bean.remainingGrams}g remaining`
-                      : bean.bagWeightGrams
+                      : bean.bagWeightGrams !== undefined
                       ? `${bean.bagWeightGrams}g`
-                      : bean.bagWeightOz
+                      : bean.bagWeightOz !== undefined
                       ? `${bean.bagWeightOz} oz`
                       : '12 oz'}
                   </span>
@@ -432,6 +440,7 @@ export const StashView: React.FC<StashViewProps> = ({
                     </button>
                     <button
                       onClick={() => onSelectBeanForBrew(bean)}
+                      aria-label={`Brew with ${bean.name}`}
                       className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 text-xs font-mono uppercase tracking-wider font-semibold transition-colors cursor-pointer shadow-sm"
                     >
                       BREW →
