@@ -260,6 +260,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSaving) return;
     setValidationError(null);
 
     if (!name.trim()) {
@@ -523,7 +524,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                     type="number"
                     min="1"
                     max="30"
-                    step="0.1"
+                    step="any"
                     value={ratio}
                     onChange={(e) => handleRatioChange(Number(e.target.value))}
                     className="w-full px-3 py-2 rounded bg-panel border border-border-subtle text-text-primary text-base font-light tabular-nums focus:outline-none focus:border-accent"
@@ -769,7 +770,6 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
             <button
               type="submit"
               disabled={isSaving}
-              onClick={handleSubmit}
               className="px-6 py-2 rounded bg-accent hover:bg-accent-hover disabled:opacity-50 text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-md transition-all active:scale-95 flex items-center space-x-2 cursor-pointer"
             >
               {isSaving ? (

@@ -7,6 +7,7 @@ import {
   offsetRoastDateForThaw,
 } from '@brewlog/core';
 import { Plus, Search, Star, Calendar, MapPin, Snowflake } from 'lucide-react';
+import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 
 interface StashViewProps {
   beans: Bean[];
@@ -75,11 +76,13 @@ export const StashView: React.FC<StashViewProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (!isModalOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (isDeleteConfirmOpen) return;
       if (e.key === 'Escape') {
         setIsModalOpen(false);
       }
@@ -87,7 +90,7 @@ export const StashView: React.FC<StashViewProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isModalOpen]);
+  }, [isModalOpen, isDeleteConfirmOpen]);
 
   const resetForm = () => {
     setName('');
@@ -108,6 +111,7 @@ export const StashView: React.FC<StashViewProps> = ({
     setPrice('');
     setNotes('');
     setErrorMessage(null);
+    setIsDeleteConfirmOpen(false);
   };
 
   const handleOpenAddModal = () => {
@@ -224,12 +228,14 @@ export const StashView: React.FC<StashViewProps> = ({
     setIsDeleting(true);
     try {
       await onDeleteBean(editingBean.id);
+      setIsDeleteConfirmOpen(false);
       setIsModalOpen(false);
       setEditingBean(null);
       resetForm();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to delete bean.';
       setErrorMessage(msg);
+      setIsDeleteConfirmOpen(false);
     } finally {
       setIsDeleting(false);
     }
@@ -818,7 +824,7 @@ export const StashView: React.FC<StashViewProps> = ({
                   <button
                     type="button"
                     disabled={isDeleting || isSaving}
-                    onClick={handleDelete}
+                    onClick={() => setIsDeleteConfirmOpen(true)}
                     className="px-3.5 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 hover:text-red-300 font-mono text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer disabled:opacity-50"
                   >
                     {isDeleting ? 'DELETING...' : 'DELETE BEAN'}
@@ -848,6 +854,22 @@ export const StashView: React.FC<StashViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isDeleteConfirmOpen}
+        title="Delete Coffee Bean?"
+        message={
+          <>
+            Are you sure you want to delete{' '}
+            <strong className="text-zinc-200">"{editingBean?.name}"</strong> from your stash? This action cannot be undone.
+          </>
+        }
+        confirmLabel={isDeleting ? 'Deleting...' : 'Delete Bean'}
+        variant="danger"
+        onClose={() => setIsDeleteConfirmOpen(false)}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 };

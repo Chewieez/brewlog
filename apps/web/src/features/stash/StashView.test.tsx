@@ -600,7 +600,7 @@ describe('StashView', () => {
     );
   });
 
-  it('calls onDeleteBean when DELETE BEAN is clicked in edit modal', async () => {
+  it('prompts confirmation modal before deleting bean and calls onDeleteBean upon confirmation', async () => {
     const onDeleteBean = vi.fn().mockResolvedValue(undefined);
     const targetBean = MOCK_BEANS[0];
 
@@ -623,10 +623,53 @@ describe('StashView', () => {
     expect(deleteBtn).toBeDefined();
     fireEvent.click(deleteBtn);
 
+    // Confirmation modal should be visible, onDeleteBean should not be called yet
+    expect(screen.getByText('Delete Coffee Bean?')).toBeDefined();
+    expect(onDeleteBean).not.toHaveBeenCalled();
+
+    // Confirm deletion
+    const confirmBtn = screen.getByRole('button', { name: 'Delete Bean' });
+    fireEvent.click(confirmBtn);
+
     expect(onDeleteBean).toHaveBeenCalledTimes(1);
     expect(onDeleteBean).toHaveBeenCalledWith(targetBean.id);
 
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('does not call onDeleteBean if delete confirmation modal is cancelled', async () => {
+    const onDeleteBean = vi.fn().mockResolvedValue(undefined);
+    const targetBean = MOCK_BEANS[0];
+
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={vi.fn()}
+        onUpdateBean={vi.fn()}
+        onDeleteBean={onDeleteBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    // Open edit modal
+    const editBtn = screen.getByRole('button', { name: `Edit ${targetBean.name}` });
+    fireEvent.click(editBtn);
+
+    // Click DELETE BEAN
+    const deleteBtn = screen.getByRole('button', { name: /DELETE BEAN/i });
+    fireEvent.click(deleteBtn);
+
+    expect(screen.getByText('Delete Coffee Bean?')).toBeDefined();
+
+    // Click Cancel in confirmation modal
+    const cancelBtn = screen.getByRole('button', { name: 'Cancel' });
+    fireEvent.click(cancelBtn);
+
+    // Confirmation modal dismissed, onDeleteBean not called
+    expect(screen.queryByText('Delete Coffee Bean?')).toBeNull();
+    expect(onDeleteBean).not.toHaveBeenCalled();
+    // Edit modal remains open
+    expect(screen.getByRole('heading', { level: 3, name: 'Edit Coffee Bean' })).toBeDefined();
   });
 
   it('offsets roast date using offsetRoastDateForThaw when unfreezing a bean in edit modal', async () => {

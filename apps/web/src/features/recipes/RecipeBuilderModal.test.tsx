@@ -133,4 +133,35 @@ describe('RecipeBuilderModal', () => {
       expect(onClose).toHaveBeenCalledTimes(1);
     });
   });
+
+  it('guards against double-invocation when submitting while save is in-flight', async () => {
+    let resolveSave: () => void = () => {};
+    const onSave = vi.fn().mockImplementation(() => new Promise<void>((resolve) => {
+      resolveSave = resolve;
+    }));
+    const onClose = vi.fn();
+
+    render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={onClose}
+        onSaveRecipe={onSave}
+        initialRecipe={sampleRecipe}
+      />
+    );
+
+    const submitBtn = screen.getByRole('button', { name: /save changes/i });
+    fireEvent.click(submitBtn);
+
+    expect(onSave).toHaveBeenCalledTimes(1);
+
+    // Attempt second submission while in flight
+    fireEvent.click(submitBtn);
+    expect(onSave).toHaveBeenCalledTimes(1);
+
+    resolveSave();
+    await waitFor(() => {
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
 });
