@@ -325,4 +325,91 @@ describe("useBeans hook", () => {
     expect(stored).toHaveLength(1);
     expect(stored[0].id).toBe("local-bean-failed");
   });
+
+  it("reverts local state and localStorage and rethrows if updateBean fails in Supabase", async () => {
+    const originalBean: Bean = {
+      id: "db-bean-rollback",
+      name: "Original Bourbon",
+      roaster: "Sey Coffee",
+      originCountry: "Burundi",
+      flavorNotes: ["Red Currant", "Honey"],
+      createdAt: new Date().toISOString(),
+    };
+    localStorage.setItem("brewlog_beans_cache", JSON.stringify([originalBean]));
+
+    const mockUpdate = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: null,
+            error: new Error("Network timeout during bean update"),
+          }),
+        }),
+      }),
+    });
+
+    const mockOrder = vi.fn().mockResolvedValue({
+      data: [
+        {
+          id: "db-bean-rollback",
+          user_id: "user-123",
+          name: "Original Bourbon",
+          roaster: "Sey Coffee",
+          origin_country: "Burundi",
+          flavor_notes: ["Red Currant", "Honey"],
+          created_at: new Date().toISOString(),
+        },
+      ],
+      error: null,
+    });
+    const mockSelect = vi.fn().mockReturnValue({ order: mockOrder });
+
+    vi.mocked(supabase!.from).mockImplementation((table: string) => {
+      if (table === "beans") {
+        return {
+          select: mockSelect,
+          update: mockUpdate,
+        } as any;
+      }
+      return {} as any;
+    });
+
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: "user-123", email: "test@example.com" } as any,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useBeans());
+
+    await waitFor(() => {
+      expect(result.current.beans).toHaveLength(1);
+    });
+
+    await act(async () => {
+      await expect(
+        result.current.updateBean({
+          ...originalBean,
+          name: "Faulty Bourbon Update",
+        })
+      ).rejects.toThrow("Network timeout during bean update");
+    });
+
+    // Verify state was reverted
+    expect(result.current.beans[0].name).toBe("Original Bourbon");
+
+    // Verify localStorage was reverted
+    const stored = JSON.parse(localStorage.getItem("brewlog_beans_cache") || "[]");
+    expect(stored[0].name).toBe("Original Bourbon");
+  });
 });

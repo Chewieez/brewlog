@@ -4,6 +4,7 @@ import {
   ProcessMethod,
   RoastLevel,
   calculateBeanRestingInfo,
+  offsetRoastDateForThaw,
 } from '@brewlog/core';
 import { Plus, Search, Star, Calendar, MapPin, Snowflake } from 'lucide-react';
 
@@ -165,6 +166,12 @@ export const StashView: React.FC<StashViewProps> = ({
     const parsedPrice = price !== '' ? Number(price) : undefined;
     const parsedRestDays = recommendedRestDays !== '' ? Number(recommendedRestDays) : 5;
 
+    const isUnfreezing = Boolean(editingBean?.isFrozen && !isFrozen);
+    const computedRoastDate =
+      isUnfreezing && editingBean?.roastDate && editingBean?.frozenDate
+        ? offsetRoastDateForThaw(editingBean.roastDate, editingBean.frozenDate)
+        : (roastDate || undefined);
+
     const beanData: Bean = {
       id: editingBean ? editingBean.id : 'bean-' + Date.now(),
       userId: editingBean?.userId,
@@ -177,7 +184,7 @@ export const StashView: React.FC<StashViewProps> = ({
       altitudeMeters: parsedAltitude,
       process: process || undefined,
       roastLevel: roastLevel || undefined,
-      roastDate: roastDate || undefined,
+      roastDate: computedRoastDate,
       recommendedRestDays: parsedRestDays,
       bagWeightGrams: parsedBagWeight,
       bagWeightOz: Number((parsedBagWeight / 28.3495).toFixed(1)),

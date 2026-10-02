@@ -157,6 +157,8 @@ export const useBeans = () => {
   };
 
   const updateBean = async (updatedBean: Bean): Promise<Bean> => {
+    const existing = beans.find((b) => b.id === updatedBean.id);
+
     setBeans((prev) => {
       const updated = prev.map((b) => (b.id === updatedBean.id ? updatedBean : b));
       saveLocalBeans(updated);
@@ -192,6 +194,13 @@ export const useBeans = () => {
       }
     } catch (err) {
       console.error("updateBean exception:", err);
+      if (existing) {
+        setBeans((prev) => {
+          const reverted = prev.map((b) => (b.id === updatedBean.id ? existing : b));
+          saveLocalBeans(reverted);
+          return reverted;
+        });
+      }
       throw err;
     }
 

@@ -628,6 +628,47 @@ describe('StashView', () => {
 
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
+
+  it('offsets roast date using offsetRoastDateForThaw when unfreezing a bean in edit modal', async () => {
+    const onUpdateBean = vi.fn();
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const fortyDaysAgo = new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    const frozenBean: Bean = {
+      ...MOCK_BEANS[0],
+      id: 'bean-frozen-thaw',
+      isFrozen: true,
+      frozenDate: thirtyDaysAgo,
+      roastDate: fortyDaysAgo,
+    };
+
+    render(
+      <StashView
+        beans={[frozenBean]}
+        onAddBean={vi.fn()}
+        onUpdateBean={onUpdateBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    const editBtn = screen.getByRole('button', { name: `Edit ${frozenBean.name}` });
+    fireEvent.click(editBtn);
+
+    const freezerCheckbox = screen.getByLabelText(/Freezer Vault Storage/i);
+    expect((freezerCheckbox as HTMLInputElement).checked).toBe(true);
+    fireEvent.click(freezerCheckbox);
+    expect((freezerCheckbox as HTMLInputElement).checked).toBe(false);
+
+    const saveBtn = screen.getByRole('button', { name: /SAVE CHANGES/i });
+    fireEvent.click(saveBtn);
+
+    expect(onUpdateBean).toHaveBeenCalledTimes(1);
+    const updatedPayload = onUpdateBean.mock.calls[0][0];
+    expect(updatedPayload.isFrozen).toBe(false);
+    expect(updatedPayload.frozenDate).toBeUndefined();
+    expect(updatedPayload.roastDate).not.toBe(fortyDaysAgo);
+    expect(new Date(updatedPayload.roastDate).getTime()).toBeGreaterThan(new Date(fortyDaysAgo).getTime());
+  });
 });
 
 
