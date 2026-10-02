@@ -258,7 +258,7 @@ export const useRecipes = () => {
           .eq("id", id);
 
         if (updateErr) {
-          console.error("Supabase recipe update error:", updateErr);
+          throw new Error(updateErr.message || "Failed to update recipe in Supabase");
         }
 
         if (updates.stages) {
@@ -268,28 +268,35 @@ export const useRecipes = () => {
             .eq("recipe_id", id);
 
           if (deleteStagesErr) {
-            console.error(
-              "Supabase recipe stages delete error:",
-              deleteStagesErr
+            throw new Error(
+              deleteStagesErr.message || "Failed to clear old stages in Supabase"
             );
           }
 
-          const stageInserts = updates.stages.map((st, idx) =>
-            mapRecipeStageDomainToInsert(st, id, idx)
-          );
-          const { error: insertStagesErr } = await supabase
-            .from("recipe_stages")
-            .insert(stageInserts);
-
-          if (insertStagesErr) {
-            console.error(
-              "Supabase recipe stages insert error:",
-              insertStagesErr
+          if (updates.stages.length > 0) {
+            const stageInserts = updates.stages.map((st, idx) =>
+              mapRecipeStageDomainToInsert(st, id, idx)
             );
+            const { error: insertStagesErr } = await supabase
+              .from("recipe_stages")
+              .insert(stageInserts);
+
+            if (insertStagesErr) {
+              throw new Error(
+                insertStagesErr.message || "Failed to save updated stages in Supabase"
+              );
+            }
           }
         }
       } catch (err) {
         console.error("updateRecipe exception:", err);
+        // Roll back local state and cache to existing snapshot
+        setCustomRecipes((prev) => {
+          const reverted = prev.map((item) => (item.id === id ? existing : item));
+          saveLocalCustomRecipes(reverted);
+          return reverted;
+        });
+        throw err;
       }
     }
 

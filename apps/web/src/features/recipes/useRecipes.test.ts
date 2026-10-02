@@ -751,5 +751,154 @@ describe("useRecipes hook", () => {
     expect(saved).toHaveLength(1);
     expect(saved[0].id).toBe("local-rec-failed-1");
   });
+
+  it("reverts local state and localStorage and rethrows if stage replacement fails in Supabase", async () => {
+    const originalRecipe: BrewRecipe = {
+      id: "uuid-db-recipe-atomic",
+      name: "Original Chemex",
+      brewMethod: "chemex",
+      description: "Original description",
+      coffeeDoseGrams: 30,
+      waterAmountGrams: 500,
+      ratio: 16.67,
+      grindSize: "Coarse",
+      waterTempCelsius: 96,
+      totalTimeSeconds: 300,
+      stages: [
+        {
+          id: "orig-stage-1",
+          name: "Original Bloom",
+          startSecond: 0,
+          durationSeconds: 45,
+          targetWaterWeightGrams: 100,
+          instruction: "Bloom",
+          stageType: "bloom",
+        },
+      ],
+      isPreset: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem(
+      "brewlog_custom_recipes_cache",
+      JSON.stringify([originalRecipe])
+    );
+
+    const mockUser = { id: "user-atomic-1" } as any;
+
+    vi.mocked(useAuth).mockReturnValue({
+      user: mockUser,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const mockRecipeUpdate = vi.fn().mockReturnValue({
+      eq: vi.fn().mockResolvedValue({ error: null }),
+    });
+    const mockStageDelete = vi.fn().mockReturnValue({
+      eq: vi.fn().mockResolvedValue({ error: null }),
+    });
+    const mockStageInsert = vi.fn().mockResolvedValue({
+      error: new Error("Network timeout during stage insertion"),
+    });
+
+    const mockSelectOrder = vi.fn().mockResolvedValue({
+      data: [
+        {
+          id: "uuid-db-recipe-atomic",
+          user_id: "user-atomic-1",
+          name: "Original Chemex",
+          brew_method: "chemex",
+          description: "Original description",
+          coffee_dose_grams: 30,
+          water_amount_grams: 500,
+          ratio: 16.67,
+          grind_size: "Coarse",
+          water_temp_celsius: 96,
+          total_time_seconds: 300,
+          is_preset: false,
+          is_favorite: false,
+          created_at: new Date().toISOString(),
+          recipe_stages: [
+            {
+              id: "orig-stage-1",
+              recipe_id: "uuid-db-recipe-atomic",
+              step_order: 0,
+              name: "Original Bloom",
+              start_second: 0,
+              duration_seconds: 45,
+              target_water_weight_grams: 100,
+              instruction: "Bloom",
+              stage_type: "bloom",
+            },
+          ],
+        },
+      ],
+      error: null,
+    });
+    const mockSelect = vi.fn().mockReturnValue({ order: mockSelectOrder });
+
+    vi.mocked(supabase!.from).mockImplementation((table: string) => {
+      if (table === "recipes") {
+        return {
+          select: mockSelect,
+          update: mockRecipeUpdate,
+        } as any;
+      }
+      if (table === "recipe_stages") {
+        return {
+          delete: mockStageDelete,
+          insert: mockStageInsert,
+        } as any;
+      }
+      return {} as any;
+    });
+
+    const { result } = renderHook(() => useRecipes());
+
+    await waitFor(() => {
+      expect(result.current.customRecipes).toHaveLength(1);
+    });
+
+    await act(async () => {
+      await expect(
+        result.current.updateRecipe("uuid-db-recipe-atomic", {
+          name: "Faulty Chemex Update",
+          stages: [
+            {
+              id: "new-stage-fail",
+              name: "Failing Pour",
+              startSecond: 0,
+              durationSeconds: 120,
+              targetWaterWeightGrams: 500,
+              instruction: "Pour",
+              stageType: "pour",
+            },
+          ],
+        })
+      ).rejects.toThrow("Network timeout during stage insertion");
+    });
+
+    // Verify local state was reverted to original
+    expect(result.current.customRecipes[0].name).toBe("Original Chemex");
+    expect(result.current.customRecipes[0].stages[0].name).toBe("Original Bloom");
+
+    // Verify localStorage was also reverted
+    const saved = JSON.parse(
+      localStorage.getItem("brewlog_custom_recipes_cache") || "[]"
+    );
+    expect(saved[0].name).toBe("Original Chemex");
+    expect(saved[0].stages[0].name).toBe("Original Bloom");
+  });
 });
 
