@@ -28,6 +28,7 @@ export interface RootOutletContext {
   onAddEquipment: (item: Omit<Equipment, 'id' | 'createdAt'>) => Promise<void>;
   onDeleteEquipment: (id: string) => Promise<void>;
   onAddRecipe: (recipe: Omit<BrewRecipe, 'id' | 'createdAt'>) => Promise<BrewRecipe>;
+  onUpdateRecipe: (id: string, updates: Partial<BrewRecipe>) => Promise<BrewRecipe>;
   onDeleteRecipe: (id: string) => Promise<void>;
   onAddTastingLog: (log: Omit<TastingLog, 'id' | 'createdAt'>) => Promise<void>;
 }
@@ -72,7 +73,7 @@ export const RootLayout: React.FC = () => {
   const { beans, addBean, updateBean, deleteBean } = useBeans();
   const { logs: tastingLogs, addTastingLog } = useTastingLogs();
   const { equipment, addEquipment, deleteEquipment } = useEquipment();
-  const { recipes, addRecipe, deleteRecipe } = useRecipes();
+  const { recipes, addRecipe, updateRecipe, deleteRecipe } = useRecipes();
   const { isPasswordRecovery, authUrlError } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
@@ -179,6 +180,17 @@ export const RootLayout: React.FC = () => {
     [addTastingLog]
   );
 
+  const onUpdateRecipe = useCallback(
+    async (id: string, updates: Partial<BrewRecipe>) => {
+      const updated = await updateRecipe(id, updates);
+      if (selectedRecipe.id === id) {
+        setSelectedRecipeState(updated);
+      }
+      return updated;
+    },
+    [updateRecipe, selectedRecipe.id]
+  );
+
   const onDeleteRecipe = useCallback(
     async (id: string) => {
       await deleteRecipe(id);
@@ -209,6 +221,7 @@ export const RootLayout: React.FC = () => {
       onAddEquipment,
       onDeleteEquipment: deleteEquipment,
       onAddRecipe: addRecipe,
+      onUpdateRecipe,
       onDeleteRecipe,
       onAddTastingLog,
     }),
@@ -229,6 +242,7 @@ export const RootLayout: React.FC = () => {
       onAddEquipment,
       deleteEquipment,
       addRecipe,
+      onUpdateRecipe,
       onDeleteRecipe,
       onAddTastingLog,
     ]

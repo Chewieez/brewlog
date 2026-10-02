@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router';
 import { BrewRecipe } from '@brewlog/core';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Pencil } from 'lucide-react';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 
 export interface RecipeCatalogListProps {
@@ -10,6 +10,7 @@ export interface RecipeCatalogListProps {
   selectedMethodFilter: string;
   onSelectMethodFilter: (method: string) => void;
   onSelectRecipe?: (recipe: BrewRecipe) => void;
+  onEditRecipe?: (recipe: BrewRecipe) => void;
   onDeleteRecipe?: (recipe: BrewRecipe) => void;
 }
 
@@ -21,6 +22,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
   selectedMethodFilter,
   onSelectMethodFilter,
   onSelectRecipe,
+  onEditRecipe,
   onDeleteRecipe,
 }) => {
   const [recipeToDelete, setRecipeToDelete] = useState<BrewRecipe | null>(null);
@@ -106,6 +108,21 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                       <span className="text-xs text-zinc-400 font-mono truncate max-w-[120px]">
                         {r.author}
                       </span>
+                    )}
+                    {isCustom && onEditRecipe && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onEditRecipe(r);
+                        }}
+                        className="pointer-events-auto p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors cursor-pointer"
+                        title="Edit Recipe"
+                        aria-label={`Edit custom recipe ${r.name}`}
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
                     )}
                     {isCustom && onDeleteRecipe && (
                       <button

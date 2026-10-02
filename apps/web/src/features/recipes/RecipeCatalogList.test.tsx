@@ -155,4 +155,65 @@ describe('RecipeCatalogList', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Delete Recipe' }));
     expect(onDelete).toHaveBeenCalledWith(customRecipe);
   });
+
+  it('renders edit button for custom recipes and calls onEditRecipe when clicked', () => {
+    const customRecipe: BrewRecipe = {
+      id: 'custom-cat-1',
+      name: 'Card Edit Test',
+      brewMethod: 'v60',
+      description: 'Card edit description',
+      coffeeDoseGrams: 15,
+      waterAmountGrams: 250,
+      waterTempCelsius: 93,
+      ratio: 16.7,
+      grindSize: 'Medium-Fine',
+      totalTimeSeconds: 180,
+      stages: [],
+      isPreset: false,
+      createdAt: '2026-01-01',
+    };
+
+    const onEdit = vi.fn();
+    render(
+      <MemoryRouter>
+        <RecipeCatalogList
+          recipes={[customRecipe]}
+          activeRecipeId=""
+          selectedMethodFilter="all"
+          onSelectMethodFilter={vi.fn()}
+          onEditRecipe={onEdit}
+        />
+      </MemoryRouter>
+    );
+
+    const editBtn = screen.getByRole('button', {
+      name: `Edit custom recipe ${customRecipe.name}`,
+    });
+    expect(editBtn).toBeDefined();
+
+    fireEvent.click(editBtn);
+    expect(onEdit).toHaveBeenCalledTimes(1);
+    expect(onEdit).toHaveBeenCalledWith(customRecipe);
+  });
+
+  it('does not render edit button for preset recipes in catalog list', () => {
+    const onEdit = vi.fn();
+    render(
+      <MemoryRouter>
+        <RecipeCatalogList
+          recipes={DEFAULT_PRESET_RECIPES}
+          activeRecipeId=""
+          selectedMethodFilter="all"
+          onSelectMethodFilter={vi.fn()}
+          onEditRecipe={onEdit}
+        />
+      </MemoryRouter>
+    );
+
+    expect(
+      screen.queryByRole('button', {
+        name: `Edit custom recipe ${DEFAULT_PRESET_RECIPES[0].name}`,
+      })
+    ).toBeNull();
+  });
 });

@@ -204,6 +204,91 @@ export const useRecipes = () => {
     }
   };
 
+  const updateRecipe = async (
+    id: string,
+    updates: Partial<BrewRecipe>
+  ): Promise<BrewRecipe> => {
+    // Guard against editing preset recipes
+    if (
+      id.startsWith("preset-") ||
+      DEFAULT_PRESET_RECIPES.some((p) => p.id === id)
+    ) {
+      console.warn("Cannot edit built-in preset recipe:", id);
+      return DEFAULT_PRESET_RECIPES.find((p) => p.id === id)!;
+    }
+
+    const existing = customRecipes.find((r) => r.id === id);
+    if (!existing) {
+      console.warn("Cannot find recipe to update:", id);
+      throw new Error(`Recipe with id ${id} not found`);
+    }
+
+    const stagesWithIds = updates.stages
+      ? updates.stages.map((stage, index) => ({
+          ...stage,
+          id: stage.id || `local-stage-${Date.now()}-${index}`,
+        }))
+      : existing.stages;
+
+    const updatedTarget: BrewRecipe = {
+      ...existing,
+      ...updates,
+      stages: stagesWithIds,
+    };
+
+    setCustomRecipes((prev) => {
+      const updated = prev.map((item) => (item.id === id ? updatedTarget : item));
+      saveLocalCustomRecipes(updated);
+      return updated;
+    });
+
+    if (supabase && user && !id.startsWith("local-rec-")) {
+      try {
+        const payload = mapRecipeDomainToInsert(updatedTarget, user.id);
+        const { error: updateErr } = await supabase
+          .from("recipes")
+          .update(payload)
+          .eq("id", id);
+
+        if (updateErr) {
+          console.error("Supabase recipe update error:", updateErr);
+        }
+
+        if (updates.stages) {
+          const { error: deleteStagesErr } = await supabase
+            .from("recipe_stages")
+            .delete()
+            .eq("recipe_id", id);
+
+          if (deleteStagesErr) {
+            console.error(
+              "Supabase recipe stages delete error:",
+              deleteStagesErr
+            );
+          }
+
+          const stageInserts = updates.stages.map((st, idx) =>
+            mapRecipeStageDomainToInsert(st, id, idx)
+          );
+          const { error: insertStagesErr } = await supabase
+            .from("recipe_stages")
+            .insert(stageInserts);
+
+          if (insertStagesErr) {
+            console.error(
+              "Supabase recipe stages insert error:",
+              insertStagesErr
+            );
+          }
+        }
+      } catch (err) {
+        console.error("updateRecipe exception:", err);
+      }
+    }
+
+    return updatedTarget;
+  };
+
   const deleteRecipe = async (id: string): Promise<void> => {
     // Guard against deleting built-in presets
     if (
@@ -245,6 +330,7 @@ export const useRecipes = () => {
     customRecipes,
     presets: DEFAULT_PRESET_RECIPES,
     addRecipe,
+    updateRecipe,
     deleteRecipe,
     loading,
     refreshRecipes: fetchRecipes,
