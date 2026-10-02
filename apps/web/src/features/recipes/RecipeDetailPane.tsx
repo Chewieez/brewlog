@@ -8,6 +8,7 @@ import {
   Droplets,
   Thermometer,
   Trash2,
+  Pencil,
   ArrowLeft,
 } from 'lucide-react';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
@@ -15,6 +16,7 @@ import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 export interface RecipeDetailPaneProps {
   recipe: BrewRecipe;
   onSelectRecipeForTimer: (recipe: BrewRecipe) => void;
+  onEditRecipe?: (recipe: BrewRecipe) => void;
   onDeleteRecipe?: (recipe: BrewRecipe) => void;
   showMobileBackButton?: boolean;
 }
@@ -22,6 +24,7 @@ export interface RecipeDetailPaneProps {
 export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
   recipe,
   onSelectRecipeForTimer,
+  onEditRecipe,
   onDeleteRecipe,
   showMobileBackButton = false,
 }) => {
@@ -93,6 +96,18 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
         </div>
 
         <div className="flex items-center space-x-2 shrink-0">
+          {isCustom && onEditRecipe && (
+            <button
+              type="button"
+              onClick={() => onEditRecipe(recipe)}
+              className="p-2.5 rounded-xl text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 border border-transparent hover:border-zinc-700 transition-colors cursor-pointer"
+              title="Edit Recipe"
+              aria-label={`Edit custom recipe ${recipe.name}`}
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+          )}
+
           {isCustom && onDeleteRecipe && (
             <button
               type="button"

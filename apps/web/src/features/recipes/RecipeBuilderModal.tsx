@@ -25,6 +25,7 @@ interface RecipeBuilderModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSaveRecipe: (recipe: Omit<BrewRecipe, "id" | "createdAt">) => Promise<void> | void;
+  initialRecipe?: BrewRecipe | null;
 }
 
 const BREW_METHODS: { value: BrewMethodType; label: string }[] = [
@@ -99,6 +100,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
   isOpen,
   onClose,
   onSaveRecipe,
+  initialRecipe,
 }) => {
   const { user } = useAuth();
 
@@ -122,19 +124,46 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Initialize author on open
+  // Initialize or populate form on open / initialRecipe change
   useEffect(() => {
     if (isOpen) {
-      const defaultAuthor =
-        user?.user_metadata?.display_name ||
-        user?.user_metadata?.name ||
-        user?.email?.split("@")[0] ||
-        "";
-      if (defaultAuthor && !author) {
+      setValidationError(null);
+      if (initialRecipe) {
+        setName(initialRecipe.name || "");
+        setAuthor(initialRecipe.author || "");
+        setBrewMethod(initialRecipe.brewMethod || "v60");
+        setGrindSize(initialRecipe.grindSize || "Medium");
+        setWaterTempCelsius(initialRecipe.waterTempCelsius || 93);
+        setDescription(initialRecipe.description || "");
+        setNotes(initialRecipe.notes || "");
+        setCoffeeDoseGrams(initialRecipe.coffeeDoseGrams || 15);
+        setRatio(initialRecipe.ratio || 16.67);
+        setWaterAmountGrams(initialRecipe.waterAmountGrams || 250);
+        setStages(
+          initialRecipe.stages && initialRecipe.stages.length > 0
+            ? initialRecipe.stages
+            : DEFAULT_STAGES
+        );
+      } else {
+        setName("");
+        const defaultAuthor =
+          user?.user_metadata?.display_name ||
+          user?.user_metadata?.name ||
+          user?.email?.split("@")[0] ||
+          "";
         setAuthor(defaultAuthor);
+        setBrewMethod("v60");
+        setGrindSize("Medium-Fine (20 clicks)");
+        setWaterTempCelsius(93);
+        setDescription("");
+        setNotes("");
+        setCoffeeDoseGrams(15);
+        setRatio(16.67);
+        setWaterAmountGrams(250);
+        setStages(DEFAULT_STAGES);
       }
     }
-  }, [isOpen, user, author]);
+  }, [isOpen, initialRecipe, user]);
 
   // Handle Escape key
   useEffect(() => {
@@ -231,6 +260,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSaving) return;
     setValidationError(null);
 
     if (!name.trim()) {
@@ -268,8 +298,8 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
         description: description.trim() || "",
         notes: notes.trim() || undefined,
         stages,
-        isPreset: false,
-        isFavorite: false,
+        isPreset: initialRecipe ? initialRecipe.isPreset : false,
+        isFavorite: initialRecipe ? initialRecipe.isFavorite : false,
       });
       onClose();
     } catch (err: any) {
@@ -301,10 +331,12 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                 id="recipe-builder-title"
                 className="text-xl font-bold tracking-tight text-text-primary"
               >
-                Custom Recipe Studio
+                {initialRecipe ? "Edit Recipe" : "Create New Custom Recipe"}
               </h2>
               <p className="text-xs text-text-secondary mt-0.5">
-                Design custom brew profiles with multi-stage pour timelines.
+                {initialRecipe
+                  ? "Update brew parameters, ratio, and multi-stage pour timeline."
+                  : "Design custom brew profiles with multi-stage pour timelines."}
               </p>
             </div>
           </div>
@@ -492,7 +524,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                     type="number"
                     min="1"
                     max="30"
-                    step="0.1"
+                    step="any"
                     value={ratio}
                     onChange={(e) => handleRatioChange(Number(e.target.value))}
                     className="w-full px-3 py-2 rounded bg-panel border border-border-subtle text-text-primary text-base font-light tabular-nums focus:outline-none focus:border-accent"
@@ -738,7 +770,6 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
             <button
               type="submit"
               disabled={isSaving}
-              onClick={handleSubmit}
               className="px-6 py-2 rounded bg-accent hover:bg-accent-hover disabled:opacity-50 text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-md transition-all active:scale-95 flex items-center space-x-2 cursor-pointer"
             >
               {isSaving ? (
@@ -746,7 +777,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  <span>SAVE RECIPE</span>
+                  <span>{initialRecipe ? "SAVE CHANGES" : "SAVE RECIPE"}</span>
                 </>
               )}
             </button>

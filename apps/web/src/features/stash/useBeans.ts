@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Bean } from "@brewlog/core";
 import {
   mapBeanRowToDomain,
@@ -8,19 +8,74 @@ import { supabase } from "../../lib/supabase";
 import { useAuth } from "../auth/AuthContext";
 import { INITIAL_BEANS } from "../../lib/sampleData";
 
+const STORAGE_KEY = "brewlog_beans_cache";
+
+const loadLocalBeans = (): Bean[] => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+    }
+  } catch (err) {
+    console.error("Failed to load local beans cache:", err);
+  }
+  return INITIAL_BEANS;
+};
+
+const saveLocalBeans = (items: Bean[]) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  } catch (err) {
+    console.error("Failed to save local beans cache:", err);
+  }
+};
+
 export const useBeans = () => {
   const { user } = useAuth();
-  const [beans, setBeans] = useState<Bean[]>(INITIAL_BEANS);
+  const [beans, setBeans] = useState<Bean[]>(loadLocalBeans);
   const [loading, setLoading] = useState(false);
 
-  const fetchBeans = async () => {
+  const fetchBeans = useCallback(async () => {
     if (!supabase || !user) {
-      setBeans(INITIAL_BEANS);
+      const local = loadLocalBeans();
+      setBeans(local);
       return;
     }
 
     setLoading(true);
     try {
+      // 1. Sync offline items (created with local-bean- prefix)
+      const localItems = loadLocalBeans();
+      const unsyncedItems = localItems.filter((item) =>
+        item.id.startsWith("local-bean-")
+      );
+      const syncedIds = new Set<string>();
+
+      if (unsyncedItems.length > 0) {
+        console.log(
+          `Auto-syncing ${unsyncedItems.length} offline bean(s) to Supabase...`
+        );
+        for (const item of unsyncedItems) {
+          try {
+            const payload = mapBeanDomainToInsert(item, user.id);
+            const { error: insertErr } = await supabase
+              .from("beans")
+              .insert(payload);
+            if (insertErr) {
+              console.error("Failed to sync offline bean:", item.name, insertErr);
+            } else {
+              syncedIds.add(item.id);
+            }
+          } catch (syncErr) {
+            console.error("Failed to sync bean:", item, syncErr);
+          }
+        }
+      }
+
+      // 2. Fetch all user beans from Supabase
       const { data, error } = await supabase
         .from("beans")
         .select("*")
@@ -30,23 +85,26 @@ export const useBeans = () => {
         console.error("Supabase fetchBeans error:", error);
       } else if (data) {
         const mapped: Bean[] = data.map(mapBeanRowToDomain);
-        // If user has no beans yet, start empty so they can add their own
-        setBeans(mapped);
+        const remainingUnsynced = localItems.filter(
+          (b) => b.id.startsWith("local-bean-") && !syncedIds.has(b.id)
+        );
+        const merged = [...remainingUnsynced, ...mapped];
+        setBeans(merged);
+        saveLocalBeans(merged);
       }
     } catch (err) {
       console.error("fetchBeans exception:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchBeans();
-  }, [user]);
+  }, [fetchBeans]);
 
-  const addBean = async (newBean: Omit<Bean, "id" | "createdAt">) => {
-    // Optimistic / Local Fallback
-    const localId = "bean-" + Date.now();
+  const addBean = async (newBean: Omit<Bean, "id" | "createdAt">): Promise<Bean> => {
+    const localId = `local-bean-${Date.now()}`;
     const fallbackBean: Bean = {
       ...newBean,
       id: localId,
@@ -54,39 +112,126 @@ export const useBeans = () => {
     };
 
     if (!supabase || !user) {
-      setBeans((prev) => [fallbackBean, ...prev]);
+      setBeans((prev) => {
+        const updated = [fallbackBean, ...prev];
+        saveLocalBeans(updated);
+        return updated;
+      });
       return fallbackBean;
     }
 
     try {
       const payload = mapBeanDomainToInsert(newBean, user.id);
-
-      console.log("Saving bean payload to Supabase:", payload);
-
       const { data, error } = await supabase
         .from("beans")
         .insert(payload)
         .select()
         .single();
 
-      if (error) {
+      if (error || !data) {
         console.error("Supabase insert error:", error);
-        // Still add to local UI so user sees their bean!
-        setBeans((prev) => [fallbackBean, ...prev]);
+        setBeans((prev) => {
+          const updated = [fallbackBean, ...prev];
+          saveLocalBeans(updated);
+          return updated;
+        });
         return fallbackBean;
       }
 
-      if (data) {
-        const created: Bean = mapBeanRowToDomain(data);
-        setBeans((prev) => [created, ...prev.filter((item) => item.id !== localId)]);
-        return created;
-      }
+      const created: Bean = mapBeanRowToDomain(data);
+      setBeans((prev) => {
+        const updated = [created, ...prev.filter((item) => item.id !== localId)];
+        saveLocalBeans(updated);
+        return updated;
+      });
+      return created;
     } catch (err) {
       console.error("addBean exception:", err);
-      setBeans((prev) => [fallbackBean, ...prev]);
+      setBeans((prev) => {
+        const updated = [fallbackBean, ...prev];
+        saveLocalBeans(updated);
+        return updated;
+      });
       return fallbackBean;
     }
   };
 
-  return { beans, addBean, loading, refreshBeans: fetchBeans };
+  const updateBean = async (updatedBean: Bean): Promise<Bean> => {
+    const existing = beans.find((b) => b.id === updatedBean.id);
+
+    setBeans((prev) => {
+      const updated = prev.map((b) => (b.id === updatedBean.id ? updatedBean : b));
+      saveLocalBeans(updated);
+      return updated;
+    });
+
+    if (!supabase || !user || updatedBean.id.startsWith("local-bean-")) {
+      return updatedBean;
+    }
+
+    try {
+      const payload = mapBeanDomainToInsert(updatedBean, user.id);
+      const { data, error } = await supabase
+        .from("beans")
+        .update(payload)
+        .eq("id", updatedBean.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Supabase update error:", error);
+        throw error;
+      }
+
+      if (data) {
+        const saved: Bean = mapBeanRowToDomain(data);
+        setBeans((prev) => {
+          const updated = prev.map((b) => (b.id === saved.id ? saved : b));
+          saveLocalBeans(updated);
+          return updated;
+        });
+        return saved;
+      }
+    } catch (err) {
+      console.error("updateBean exception:", err);
+      if (existing) {
+        setBeans((prev) => {
+          const reverted = prev.map((b) => (b.id === updatedBean.id ? existing : b));
+          saveLocalBeans(reverted);
+          return reverted;
+        });
+      }
+      throw err;
+    }
+
+    return updatedBean;
+  };
+
+  const deleteBean = async (id: string): Promise<void> => {
+    setBeans((prev) => {
+      const updated = prev.filter((b) => b.id !== id);
+      saveLocalBeans(updated);
+      return updated;
+    });
+
+    if (supabase && user && !id.startsWith("local-bean-")) {
+      try {
+        const { error } = await supabase.from("beans").delete().eq("id", id);
+        if (error) {
+          console.error("Supabase delete error:", error);
+        }
+      } catch (err) {
+        console.error("deleteBean exception:", err);
+      }
+    }
+  };
+
+  return {
+    beans,
+    addBean,
+    updateBean,
+    deleteBean,
+    loading,
+    refreshBeans: fetchBeans,
+  };
 };

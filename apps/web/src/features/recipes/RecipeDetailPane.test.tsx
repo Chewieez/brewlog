@@ -164,4 +164,62 @@ describe('RecipeDetailPane', () => {
     expect(slider.getAttribute('max')).toBe('85');
     expect(screen.getAllByText('85g').length).toBeGreaterThanOrEqual(2);
   });
+
+  it('renders edit button for custom recipes and calls onEditRecipe when clicked', () => {
+    const customRecipe: BrewRecipe = {
+      id: 'custom-edit-1',
+      name: 'Custom V60',
+      brewMethod: 'v60',
+      description: 'Editable custom brew',
+      author: 'Greg',
+      coffeeDoseGrams: 15,
+      waterAmountGrams: 250,
+      ratio: 16.7,
+      grindSize: 'Medium-Fine',
+      waterTempCelsius: 93,
+      totalTimeSeconds: 150,
+      stages: [],
+      isPreset: false,
+      createdAt: '2026-01-01',
+    };
+
+    const onEdit = vi.fn();
+    render(
+      <MemoryRouter>
+        <RecipeDetailPane
+          recipe={customRecipe}
+          onSelectRecipeForTimer={vi.fn()}
+          onEditRecipe={onEdit}
+        />
+      </MemoryRouter>
+    );
+
+    const editBtn = screen.getByRole('button', {
+      name: `Edit custom recipe ${customRecipe.name}`,
+    });
+    expect(editBtn).toBeDefined();
+
+    fireEvent.click(editBtn);
+    expect(onEdit).toHaveBeenCalledTimes(1);
+    expect(onEdit).toHaveBeenCalledWith(customRecipe);
+  });
+
+  it('does not render edit button for preset recipes', () => {
+    const onEdit = vi.fn();
+    render(
+      <MemoryRouter>
+        <RecipeDetailPane
+          recipe={recipe}
+          onSelectRecipeForTimer={vi.fn()}
+          onEditRecipe={onEdit}
+        />
+      </MemoryRouter>
+    );
+
+    expect(
+      screen.queryByRole('button', {
+        name: `Edit custom recipe ${recipe.name}`,
+      })
+    ).toBeNull();
+  });
 });

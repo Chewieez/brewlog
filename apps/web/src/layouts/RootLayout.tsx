@@ -23,9 +23,12 @@ export interface RootOutletContext {
   setSelectedRecipe: (recipe: BrewRecipe) => void;
   setPendingBrewSession: (session: PendingBrewSession | null) => void;
   onAddBean: (bean: Bean) => Promise<void>;
+  onUpdateBean: (bean: Bean) => Promise<void>;
+  onDeleteBean: (id: string) => Promise<void>;
   onAddEquipment: (item: Omit<Equipment, 'id' | 'createdAt'>) => Promise<void>;
   onDeleteEquipment: (id: string) => Promise<void>;
   onAddRecipe: (recipe: Omit<BrewRecipe, 'id' | 'createdAt'>) => Promise<BrewRecipe>;
+  onUpdateRecipe: (id: string, updates: Partial<BrewRecipe>) => Promise<BrewRecipe>;
   onDeleteRecipe: (id: string) => Promise<void>;
   onAddTastingLog: (log: Omit<TastingLog, 'id' | 'createdAt'>) => Promise<void>;
 }
@@ -67,10 +70,10 @@ const persistSavedActiveRecipeId = (recipeId: string): void => {
 };
 
 export const RootLayout: React.FC = () => {
-  const { beans, addBean } = useBeans();
+  const { beans, addBean, updateBean, deleteBean } = useBeans();
   const { logs: tastingLogs, addTastingLog } = useTastingLogs();
   const { equipment, addEquipment, deleteEquipment } = useEquipment();
-  const { recipes, addRecipe, deleteRecipe } = useRecipes();
+  const { recipes, addRecipe, updateRecipe, deleteRecipe } = useRecipes();
   const { isPasswordRecovery, authUrlError } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
@@ -143,6 +146,26 @@ export const RootLayout: React.FC = () => {
     [addBean]
   );
 
+  const onUpdateBean = useCallback(
+    async (bean: Bean) => {
+      await updateBean(bean);
+      if (selectedBean?.id === bean.id) {
+        setSelectedBean(bean);
+      }
+    },
+    [updateBean, selectedBean]
+  );
+
+  const onDeleteBean = useCallback(
+    async (id: string) => {
+      await deleteBean(id);
+      if (selectedBean?.id === id) {
+        setSelectedBean(beans.find((b) => b.id !== id) || null);
+      }
+    },
+    [deleteBean, selectedBean, beans]
+  );
+
   const onAddEquipment = useCallback(
     async (item: Omit<Equipment, 'id' | 'createdAt'>) => {
       await addEquipment(item);
@@ -155,6 +178,17 @@ export const RootLayout: React.FC = () => {
       await addTastingLog(log);
     },
     [addTastingLog]
+  );
+
+  const onUpdateRecipe = useCallback(
+    async (id: string, updates: Partial<BrewRecipe>) => {
+      const updated = await updateRecipe(id, updates);
+      if (selectedRecipe.id === id) {
+        setSelectedRecipeState(updated);
+      }
+      return updated;
+    },
+    [updateRecipe, selectedRecipe.id]
   );
 
   const onDeleteRecipe = useCallback(
@@ -182,9 +216,12 @@ export const RootLayout: React.FC = () => {
       setSelectedRecipe,
       setPendingBrewSession,
       onAddBean,
+      onUpdateBean,
+      onDeleteBean,
       onAddEquipment,
       onDeleteEquipment: deleteEquipment,
       onAddRecipe: addRecipe,
+      onUpdateRecipe,
       onDeleteRecipe,
       onAddTastingLog,
     }),
@@ -200,9 +237,12 @@ export const RootLayout: React.FC = () => {
       setSelectedRecipe,
       setPendingBrewSession,
       onAddBean,
+      onUpdateBean,
+      onDeleteBean,
       onAddEquipment,
       deleteEquipment,
       addRecipe,
+      onUpdateRecipe,
       onDeleteRecipe,
       onAddTastingLog,
     ]

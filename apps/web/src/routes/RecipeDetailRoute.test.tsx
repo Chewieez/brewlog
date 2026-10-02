@@ -54,6 +54,7 @@ describe('RecipeDetailRoute', () => {
     mockContext = {
       recipes: [mockCustomRecipe, ...DEFAULT_PRESET_RECIPES],
       onSelectRecipeForTimer: vi.fn(),
+      onEditRecipe: vi.fn(),
       onDeleteRecipe: vi.fn(),
     };
   });
@@ -82,6 +83,17 @@ describe('RecipeDetailRoute', () => {
 
     expect(mockContext.onSelectRecipeForTimer).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('location-display').textContent).toBe('/timer');
+  });
+
+  it('calls onEditRecipe when edit button is clicked on a custom recipe', () => {
+    renderWithContext(`/recipes/${mockCustomRecipe.id}`);
+
+    const editButton = screen.getByRole('button', {
+      name: `Edit custom recipe ${mockCustomRecipe.name}`,
+    });
+    fireEvent.click(editButton);
+
+    expect(mockContext.onEditRecipe).toHaveBeenCalledWith(mockCustomRecipe);
   });
 
   it('prompts confirmation modal and calls onDeleteRecipe and navigates to /recipes on confirm', async () => {

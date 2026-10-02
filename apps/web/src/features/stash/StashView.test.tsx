@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import { StashView } from './StashView';
 import { Bean } from '@brewlog/core';
 
@@ -130,8 +130,9 @@ describe('StashView', () => {
       />
     );
 
-    const brewButtons = screen.getAllByRole('button', { name: /BREW →/i });
+    const brewButtons = screen.getAllByRole('button', { name: /Brew with/i });
     expect(brewButtons.length).toBe(3);
+    expect(brewButtons[0].getAttribute('aria-label')).toBe(`Brew with ${MOCK_BEANS[0].name}`);
 
     fireEvent.click(brewButtons[0]);
     expect(onSelect).toHaveBeenCalledWith(MOCK_BEANS[0]);
@@ -186,7 +187,7 @@ describe('StashView', () => {
     expect(screen.getByText(/No coffee beans found matching your search/i)).toBeDefined();
   });
 
-  it('opens Add Bean modal and handles form submission', () => {
+  it('opens Add Bean modal and handles form submission', async () => {
     const onAddBean = vi.fn();
     render(
       <StashView
@@ -226,6 +227,522 @@ describe('StashView', () => {
     );
 
     // Modal closed
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('submits comprehensive bean attributes including cellar, origin, and inventory fields', async () => {
+    const onAddBean = vi.fn();
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={onAddBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /ADD BEAN/i }));
+
+    // Required fields
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Sey Coffee/i), {
+      target: { value: 'Sey Coffee' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Worka Sakaro/i), {
+      target: { value: 'Worka' },
+    });
+
+    // Extended origin & inventory fields
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Finca El Paraiso/i), {
+      target: { value: 'Worka Sakaro Washing Station' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Gesha, Bourbon/i), {
+      target: { value: 'Heirloom, Kurume' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. 1950/i), {
+      target: { value: '2000' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('5'), {
+      target: { value: '14' },
+    });
+
+    // Presets
+    fireEvent.click(screen.getByRole('button', { name: '250g' }));
+
+    // Freezer toggle
+    const freezerCheckbox = screen.getByRole('checkbox');
+    fireEvent.click(freezerCheckbox);
+
+    // Save
+    fireEvent.click(screen.getByRole('button', { name: /SAVE BEAN/i }));
+
+    expect(onAddBean).toHaveBeenCalledWith(
+      expect.objectContaining({
+        roaster: 'Sey Coffee',
+        name: 'Worka',
+        farm: 'Worka Sakaro Washing Station',
+        variety: ['Heirloom', 'Kurume'],
+        altitudeMeters: 2000,
+        recommendedRestDays: 14,
+        bagWeightGrams: 250,
+        remainingGrams: 250,
+        isFrozen: true,
+      })
+    );
+
+    // Modal closed
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('renders frozen badge and frozen resting status for frozen beans', () => {
+    const frozenBean: Bean = {
+      id: 'bean-frozen',
+      name: 'Frozen Gesha',
+      roaster: 'Onyx',
+      originCountry: 'Panama',
+      process: 'washed',
+      roastLevel: 'light',
+      roastDate: '2026-08-01',
+      isFrozen: true,
+      frozenDate: '2026-08-10',
+      flavorNotes: ['Bergamot'],
+      bagWeightGrams: 250,
+      remainingGrams: 250,
+      createdAt: '2026-08-01',
+    };
+
+    render(
+      <StashView
+        beans={[frozenBean]}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('FROZEN')).toBeDefined();
+    expect(screen.getByText(/Frozen at Day 9/i)).toBeDefined();
+  });
+
+  it('preserves 0g bag weight without resetting to default 340g', async () => {
+    const onAddBean = vi.fn();
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={onAddBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /ADD BEAN/i }));
+
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Sey Coffee/i), {
+      target: { value: 'Sey Coffee' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Worka Sakaro/i), {
+      target: { value: 'Empty Worka Bag' },
+    });
+
+    // Enter 0 for bag weight
+    const bagWeightInput = screen.getByLabelText('Bag Weight (grams)');
+    fireEvent.change(bagWeightInput, { target: { value: '0' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /SAVE BEAN/i }));
+
+    expect(onAddBean).toHaveBeenCalledWith(
+      expect.objectContaining({
+        bagWeightGrams: 0,
+        bagWeightOz: 0,
+      })
+    );
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('awaits asynchronous onAddBean and shows error banner if submission rejects', async () => {
+    const onAddBean = vi.fn().mockRejectedValue(new Error('Database offline'));
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={onAddBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /ADD BEAN/i }));
+
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Sey Coffee/i), {
+      target: { value: 'Sey Coffee' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. Worka Sakaro/i), {
+      target: { value: 'Worka' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /SAVE BEAN/i }));
+
+    // Wait for the rejection to process
+    expect(await screen.findByText('Database offline')).toBeDefined();
+
+    // Modal should remain open
+    expect(screen.getByRole('dialog')).toBeDefined();
+  });
+
+  it('displays "No roast date" and neutral gray badge when roastDate is unspecified', () => {
+    const noRoastBean: Bean = {
+      id: 'bean-no-roast',
+      name: 'Mystery Roast',
+      roaster: 'Sey Coffee',
+      roastDate: undefined,
+      flavorNotes: [],
+      createdAt: '2026-01-01',
+    };
+
+    render(
+      <StashView
+        beans={[noRoastBean]}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('No roast date')).toBeDefined();
+    expect(screen.queryByText(/0 days off roast/i)).toBeNull();
+
+    const badge = screen.getByText('No Date Specified');
+    expect(badge).toBeDefined();
+    expect(badge.className).toContain('bg-zinc-700');
+    expect(badge.className).not.toContain('bg-amber-500');
+  });
+
+  it('renders "0g" for 0g bag weight instead of falling back to default 12 oz', () => {
+    const zeroWeightBean: Bean = {
+      id: 'bean-zero-weight',
+      name: 'Zero Gram Bean',
+      roaster: 'Sey Coffee',
+      bagWeightGrams: 0,
+      flavorNotes: [],
+      createdAt: '2026-01-01',
+    };
+
+    render(
+      <StashView
+        beans={[zeroWeightBean]}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('0g')).toBeDefined();
+    expect(screen.queryByText('12 oz')).toBeNull();
+  });
+
+  it('renders origin cleanly without leading comma and omits location when both country and region are empty', () => {
+    const regionOnlyBean: Bean = {
+      id: 'bean-region-only',
+      name: 'Region Bean',
+      roaster: 'Sey Coffee',
+      region: 'Antioquia',
+      flavorNotes: [],
+      createdAt: '2026-01-01',
+    };
+
+    const emptyOriginBean: Bean = {
+      id: 'bean-empty-origin',
+      name: 'Blank Origin Bean',
+      roaster: 'Sey Coffee',
+      flavorNotes: [],
+      createdAt: '2026-01-01',
+    };
+
+    const { rerender } = render(
+      <StashView
+        beans={[regionOnlyBean]}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    // Region only: should be "Antioquia", not ", Antioquia"
+    expect(screen.getByTestId('bean-origin').textContent).toBe('Antioquia');
+
+    rerender(
+      <StashView
+        beans={[emptyOriginBean]}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    // No country and no region: origin block is completely omitted
+    expect(screen.queryByTestId('bean-origin')).toBeNull();
+  });
+
+  it('renders aging badge with terracotta bg-orange-500 class', () => {
+    const agingBean: Bean = {
+      id: 'bean-aging',
+      name: 'Aging Lot',
+      roaster: 'Sey Coffee',
+      // 40 days ago = aging window
+      roastDate: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      flavorNotes: [],
+      createdAt: '2026-01-01',
+    };
+
+    render(
+      <StashView
+        beans={[agingBean]}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    const agingBadge = screen.getByText('Good (Drink Soon)');
+    expect(agingBadge).toBeDefined();
+    expect(agingBadge.className).toContain('bg-orange-500');
+    expect(agingBadge.className).toContain('text-zinc-950');
+  });
+
+  it('closes Add Bean modal when Escape key is pressed', () => {
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /ADD BEAN/i }));
+    expect(screen.getByRole('dialog')).toBeDefined();
+
+    fireEvent.keyDown(window, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).toBeNull();
   });
+
+  it('configures form labels with htmlFor pairings and number inputs with min="0"', () => {
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /ADD BEAN/i }));
+
+    const altitudeInput = screen.getByLabelText(/Altitude \(m\)/i);
+    expect(altitudeInput.getAttribute('min')).toBe('0');
+    expect(altitudeInput.id).toBe('add-bean-altitude');
+
+    const bagWeightInput = screen.getByLabelText('Bag Weight (grams)');
+    expect(bagWeightInput.getAttribute('min')).toBe('0');
+    expect(bagWeightInput.id).toBe('add-bean-bag-weight');
+
+    const remainingWeightInput = screen.getByLabelText('Remaining Weight (grams)');
+    expect(remainingWeightInput.getAttribute('min')).toBe('0');
+    expect(remainingWeightInput.id).toBe('add-bean-remaining-weight');
+
+    const priceInput = screen.getByLabelText(/Price \(\$\)/i);
+    expect(priceInput.getAttribute('min')).toBe('0');
+    expect(priceInput.id).toBe('add-bean-price');
+  });
+
+  it('opens edit modal pre-filled with bean details and saves changes via onUpdateBean', async () => {
+    const onUpdateBean = vi.fn();
+    const targetBean = MOCK_BEANS[0];
+
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={vi.fn()}
+        onUpdateBean={onUpdateBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    // Click EDIT on the first bean card
+    const editBtn = screen.getByRole('button', { name: `Edit ${targetBean.name}` });
+    fireEvent.click(editBtn);
+
+    // Modal title indicates edit mode
+    expect(screen.getByRole('heading', { level: 3, name: 'Edit Coffee Bean' })).toBeDefined();
+
+    // Verify fields are pre-populated
+    const roasterInput = screen.getByLabelText(/Roaster Name/i) as HTMLInputElement;
+    expect(roasterInput.value).toBe(targetBean.roaster);
+
+    const nameInput = screen.getByLabelText(/Coffee \/ Lot Name/i) as HTMLInputElement;
+    expect(nameInput.value).toBe(targetBean.name);
+
+    // Make an edit
+    fireEvent.change(nameInput, { target: { value: 'Worka Sakaro Natural' } });
+
+    // Submit button shows SAVE CHANGES
+    const saveBtn = screen.getByRole('button', { name: /SAVE CHANGES/i });
+    fireEvent.click(saveBtn);
+
+    expect(onUpdateBean).toHaveBeenCalledTimes(1);
+    expect(onUpdateBean).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: targetBean.id,
+        name: 'Worka Sakaro Natural',
+        roaster: targetBean.roaster,
+        rating: 4.8,
+        isFavorite: false,
+        isArchived: false,
+      })
+    );
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('preserves rating, isFavorite, and isArchived when editing a bean with active flags', async () => {
+    const onUpdateBean = vi.fn();
+    const flaggedBean: Bean = {
+      ...MOCK_BEANS[0],
+      id: 'bean-flagged',
+      rating: 4.9,
+      isFavorite: true,
+      isArchived: true,
+    };
+
+    render(
+      <StashView
+        beans={[flaggedBean]}
+        onAddBean={vi.fn()}
+        onUpdateBean={onUpdateBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    const editBtn = screen.getByRole('button', { name: `Edit ${flaggedBean.name}` });
+    fireEvent.click(editBtn);
+
+    const saveBtn = screen.getByRole('button', { name: /SAVE CHANGES/i });
+    fireEvent.click(saveBtn);
+
+    expect(onUpdateBean).toHaveBeenCalledTimes(1);
+    expect(onUpdateBean).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'bean-flagged',
+        rating: 4.9,
+        isFavorite: true,
+        isArchived: true,
+      })
+    );
+  });
+
+  it('prompts confirmation modal before deleting bean and calls onDeleteBean upon confirmation', async () => {
+    const onDeleteBean = vi.fn().mockResolvedValue(undefined);
+    const targetBean = MOCK_BEANS[0];
+
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={vi.fn()}
+        onUpdateBean={vi.fn()}
+        onDeleteBean={onDeleteBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    // Open edit modal
+    const editBtn = screen.getByRole('button', { name: `Edit ${targetBean.name}` });
+    fireEvent.click(editBtn);
+
+    // Click DELETE BEAN
+    const deleteBtn = screen.getByRole('button', { name: /DELETE BEAN/i });
+    expect(deleteBtn).toBeDefined();
+    fireEvent.click(deleteBtn);
+
+    // Confirmation modal should be visible, onDeleteBean should not be called yet
+    expect(screen.getByText('Delete Coffee Bean?')).toBeDefined();
+    expect(onDeleteBean).not.toHaveBeenCalled();
+
+    // Confirm deletion
+    const confirmBtn = screen.getByRole('button', { name: 'Delete Bean' });
+    fireEvent.click(confirmBtn);
+
+    expect(onDeleteBean).toHaveBeenCalledTimes(1);
+    expect(onDeleteBean).toHaveBeenCalledWith(targetBean.id);
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('does not call onDeleteBean if delete confirmation modal is cancelled', async () => {
+    const onDeleteBean = vi.fn().mockResolvedValue(undefined);
+    const targetBean = MOCK_BEANS[0];
+
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={vi.fn()}
+        onUpdateBean={vi.fn()}
+        onDeleteBean={onDeleteBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    // Open edit modal
+    const editBtn = screen.getByRole('button', { name: `Edit ${targetBean.name}` });
+    fireEvent.click(editBtn);
+
+    // Click DELETE BEAN
+    const deleteBtn = screen.getByRole('button', { name: /DELETE BEAN/i });
+    fireEvent.click(deleteBtn);
+
+    expect(screen.getByText('Delete Coffee Bean?')).toBeDefined();
+
+    // Click Cancel in confirmation modal
+    const cancelBtn = screen.getByRole('button', { name: 'Cancel' });
+    fireEvent.click(cancelBtn);
+
+    // Confirmation modal dismissed, onDeleteBean not called
+    expect(screen.queryByText('Delete Coffee Bean?')).toBeNull();
+    expect(onDeleteBean).not.toHaveBeenCalled();
+    // Edit modal remains open
+    expect(screen.getByRole('heading', { level: 3, name: 'Edit Coffee Bean' })).toBeDefined();
+  });
+
+  it('offsets roast date using offsetRoastDateForThaw when unfreezing a bean in edit modal', async () => {
+    const onUpdateBean = vi.fn();
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const fortyDaysAgo = new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    const frozenBean: Bean = {
+      ...MOCK_BEANS[0],
+      id: 'bean-frozen-thaw',
+      isFrozen: true,
+      frozenDate: thirtyDaysAgo,
+      roastDate: fortyDaysAgo,
+    };
+
+    render(
+      <StashView
+        beans={[frozenBean]}
+        onAddBean={vi.fn()}
+        onUpdateBean={onUpdateBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    const editBtn = screen.getByRole('button', { name: `Edit ${frozenBean.name}` });
+    fireEvent.click(editBtn);
+
+    const freezerCheckbox = screen.getByLabelText(/Freezer Vault Storage/i);
+    expect((freezerCheckbox as HTMLInputElement).checked).toBe(true);
+    fireEvent.click(freezerCheckbox);
+    expect((freezerCheckbox as HTMLInputElement).checked).toBe(false);
+
+    const saveBtn = screen.getByRole('button', { name: /SAVE CHANGES/i });
+    fireEvent.click(saveBtn);
+
+    expect(onUpdateBean).toHaveBeenCalledTimes(1);
+    const updatedPayload = onUpdateBean.mock.calls[0][0];
+    expect(updatedPayload.isFrozen).toBe(false);
+    expect(updatedPayload.frozenDate).toBeUndefined();
+    expect(updatedPayload.roastDate).not.toBe(fortyDaysAgo);
+    expect(new Date(updatedPayload.roastDate).getTime()).toBeGreaterThan(new Date(fortyDaysAgo).getTime());
+  });
 });
+
+
+
+
+

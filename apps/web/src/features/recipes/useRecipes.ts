@@ -53,6 +53,7 @@ export const useRecipes = () => {
       const unsyncedItems = localItems.filter((item) =>
         item.id.startsWith("local-rec-")
       );
+      const syncedIds = new Set<string>();
 
       if (unsyncedItems.length > 0) {
         console.log(
@@ -67,12 +68,14 @@ export const useRecipes = () => {
               .select()
               .single();
 
-            if (recErr) {
+            if (recErr || !recData) {
               console.error("Failed to sync offline recipe:", item.name, recErr);
               continue;
             }
 
-            if (recData && item.stages && item.stages.length > 0) {
+            syncedIds.add(item.id);
+
+            if (item.stages && item.stages.length > 0) {
               const stagePayloads = item.stages.map((stage, idx) =>
                 mapRecipeStageDomainToInsert(stage, recData.id, idx)
               );
@@ -106,8 +109,12 @@ export const useRecipes = () => {
         const mapped: BrewRecipe[] = data.map((row: any) =>
           mapRecipeRowToDomain(row, row.recipe_stages || [])
         );
-        setCustomRecipes(mapped);
-        saveLocalCustomRecipes(mapped);
+        const remainingUnsynced = localItems.filter(
+          (r) => r.id.startsWith("local-rec-") && !syncedIds.has(r.id)
+        );
+        const merged = [...remainingUnsynced, ...mapped];
+        setCustomRecipes(merged);
+        saveLocalCustomRecipes(merged);
       }
     } catch (err) {
       console.error("fetchRecipes exception:", err);
@@ -204,6 +211,98 @@ export const useRecipes = () => {
     }
   };
 
+  const updateRecipe = async (
+    id: string,
+    updates: Partial<BrewRecipe>
+  ): Promise<BrewRecipe> => {
+    // Guard against editing preset recipes
+    if (
+      id.startsWith("preset-") ||
+      DEFAULT_PRESET_RECIPES.some((p) => p.id === id)
+    ) {
+      console.warn("Cannot edit built-in preset recipe:", id);
+      return DEFAULT_PRESET_RECIPES.find((p) => p.id === id)!;
+    }
+
+    const existing = customRecipes.find((r) => r.id === id);
+    if (!existing) {
+      console.warn("Cannot find recipe to update:", id);
+      throw new Error(`Recipe with id ${id} not found`);
+    }
+
+    const stagesWithIds = updates.stages
+      ? updates.stages.map((stage, index) => ({
+          ...stage,
+          id: stage.id || `local-stage-${Date.now()}-${index}`,
+        }))
+      : existing.stages;
+
+    const updatedTarget: BrewRecipe = {
+      ...existing,
+      ...updates,
+      stages: stagesWithIds,
+    };
+
+    setCustomRecipes((prev) => {
+      const updated = prev.map((item) => (item.id === id ? updatedTarget : item));
+      saveLocalCustomRecipes(updated);
+      return updated;
+    });
+
+    if (supabase && user && !id.startsWith("local-rec-")) {
+      try {
+        const payload = mapRecipeDomainToInsert(updatedTarget, user.id);
+        const { error: updateErr } = await supabase
+          .from("recipes")
+          .update(payload)
+          .eq("id", id);
+
+        if (updateErr) {
+          throw new Error(updateErr.message || "Failed to update recipe in Supabase");
+        }
+
+        if (updates.stages) {
+          const { error: deleteStagesErr } = await supabase
+            .from("recipe_stages")
+            .delete()
+            .eq("recipe_id", id);
+
+          if (deleteStagesErr) {
+            throw new Error(
+              deleteStagesErr.message || "Failed to clear old stages in Supabase"
+            );
+          }
+
+          if (updates.stages.length > 0) {
+            const stageInserts = updates.stages.map((st, idx) =>
+              mapRecipeStageDomainToInsert(st, id, idx)
+            );
+            const { error: insertStagesErr } = await supabase
+              .from("recipe_stages")
+              .insert(stageInserts);
+
+            if (insertStagesErr) {
+              throw new Error(
+                insertStagesErr.message || "Failed to save updated stages in Supabase"
+              );
+            }
+          }
+        }
+      } catch (err) {
+        console.error("updateRecipe exception:", err);
+        // Roll back local state and cache to existing snapshot
+        setCustomRecipes((prev) => {
+          const reverted = prev.map((item) => (item.id === id ? existing : item));
+          saveLocalCustomRecipes(reverted);
+          return reverted;
+        });
+        throw err;
+      }
+    }
+
+    return updatedTarget;
+  };
+
   const deleteRecipe = async (id: string): Promise<void> => {
     // Guard against deleting built-in presets
     if (
@@ -245,6 +344,7 @@ export const useRecipes = () => {
     customRecipes,
     presets: DEFAULT_PRESET_RECIPES,
     addRecipe,
+    updateRecipe,
     deleteRecipe,
     loading,
     refreshRecipes: fetchRecipes,

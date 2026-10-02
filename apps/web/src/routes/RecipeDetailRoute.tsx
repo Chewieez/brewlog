@@ -8,7 +8,7 @@ import { NotFoundRoute } from './NotFoundRoute';
 export const RecipeDetailRoute: React.FC = () => {
   const { recipeId } = useParams<{ recipeId: string }>();
   const navigate = useNavigate();
-  const { recipes, onSelectRecipeForTimer, onDeleteRecipe } = useRecipeOutletContext();
+  const { recipes, onSelectRecipeForTimer, onEditRecipe, onDeleteRecipe } = useRecipeOutletContext();
 
   const recipe = recipes.find((r) => r.id === recipeId);
 
@@ -38,6 +38,7 @@ export const RecipeDetailRoute: React.FC = () => {
     <RecipeDetailPane
       recipe={recipe}
       onSelectRecipeForTimer={handleSelectRecipeForTimer}
+      onEditRecipe={onEditRecipe}
       onDeleteRecipe={handleDeleteRecipe}
       showMobileBackButton={true}
     />
