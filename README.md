@@ -45,6 +45,7 @@ brewlog/
   - **Phase 6 (Free Brew Timer & Ratio Translator)**: Complete ✅ (Stopwatch mode, manual split tags, nested ratio translator, cupping/recipe export, mobile & web parity).
   - **Phase 7A (Design System Primitives & Foundation)**: Complete ✅ (`@brewlog/ui` shared monorepo package with platform-split primitives [`.web` / `.native`], unified TypeScript contracts, Outfit tabular figure enforcement, and showcase fixture).
   - **Phase 7B (Design System App Migration & Integration)**: Active / Next 🚀 (Migrate existing UI surfaces in `apps/web` and `apps/mobile` to consume `@brewlog/ui` Button, Card, Badge, Input, and MetricTile primitives).
+  - **Phase 7C (Web Stash Persistence & Recipe Flow Alignment)**: Complete ✅ (Supabase migrations 002/003, core resting engine promotion, Web Stash modal parity & offline sync resilience, Web Recipe Studio custom recipe editing flow).
   - **Phase 8 (User Preferences & Settings Subsystem)**: Upcoming ⏳ (Cross-platform Supabase `user_settings`, default timer mode, unit conversions).
   - **Phase 9 (Native Cupping Session Logging)**: Upcoming ⏳ (SCA 10-attribute scoring protocol).
   - **Phase 10 (Platform-Adaptive Navigation)**: Upcoming ⏳ (iOS Liquid Glass & Android Material Design 3).

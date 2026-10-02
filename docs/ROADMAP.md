@@ -141,6 +141,25 @@ This document tracks upcoming milestones, architectural refactors, and technical
 - **AI Agent Guardrails**:
   - Mandate `@brewlog/ui` primitives in developer guidelines / agent instructions for all UI tasks.
 
+### Phase 7C: Web Stash Persistence, Core Resting Engine & Recipe Studio Flow Alignment (Complete ✅)
+- **Supabase Cloud Schema Alignment**:
+  - Executed database migrations `002_align_sca_cupping_attributes.sql` and `003_add_bean_cellar_status.sql` against remote Supabase, resolving PostgREST `42703` errors.
+- **Core Domain Promotion (`@brewlog/core`)**:
+  - Promoted `calculateBeanRestingInfo` and `offsetRoastDateForThaw` into `@brewlog/core` domain (`resting.ts`), providing pure calculation of resting curves, status badges, freezer pauses, and thaw offsets across web and mobile.
+  - Added 12-case comprehensive unit test suite in `packages/core/src/restingUtils.test.ts`.
+- **Web Stash Flow Alignment & Persistence**:
+  - **Full Attribute Modal**: Expanded Add/Edit Bean modal with full origin, terroir, 9 process methods, 5 roast levels, HTML5 date picker, recommended rest days, bag presets, remaining weight, and Freezer Vault storage checkbox.
+  - **Adaptive Resting Badges & Thaw Math**: Real-time resting status badges (`peak`, `resting`, `aging`, `past-peak`) and frozen pause indicators (`Frozen at Day X`). Undated beans receive neutral gray badges (`bg-zinc-700 text-zinc-300`). Thawing beans offsets roast dates forward by duration frozen.
+  - **Bean Editing & Deletion**: Added `updateBean` and `deleteBean` with danger-variant `ConfirmationModal` to prevent accidental data loss. Editing preserves star ratings, `isFavorite`, and `isArchived`.
+  - **Offline Resilience & Rollback**: Added `brewlog_beans_cache` in `localStorage`, retained unsynced offline records (`local-bean-*`) upon sync failure, and rolled back local state on Supabase update rejections.
+  - **Accessibility & Strict Fallbacks**: Added `htmlFor` label pairings, `Escape` key dismissal with nested confirmation isolation, strict `!== undefined` weight display (preventing `0g` fallback to `'12 oz'`), and accessible `aria-label="Brew with {bean.name}"`.
+- **Web Recipe Studio Editing Flow Alignment (`Opportunity 2`)**:
+  - **`useRecipes.updateRecipe`**: Guarded against mutating presets (`preset-*`), optimistically updated local state and cache, and executed atomic stage replacement with snapshot rollback on error.
+  - **`RecipeBuilderModal` in Edit Mode**: Pre-populates all recipe fields, supports dynamic titles and buttons ("SAVE CHANGES" vs "SAVE RECIPE"), guards against double-invocation during save, and supports 2-decimal brew ratios with `step="any"`.
+  - **Catalog & Detail Pane Integration**: Added `EDIT` action buttons on custom recipe cards in `RecipeCatalogList.tsx` and `RecipeDetailPane.tsx`.
+- **Quality Checks & Verification**:
+  - 100% test pass rate across 144 unit tests monorepo-wide (20 test suites), zero TypeScript errors across all 5 workspaces, and verified via Chrome DevTools in live browser.
+
 ---
 
 ## 📋 Technical Debt & Component Refactoring (TODO)
@@ -222,6 +241,11 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
   - **Equipment & Reviews**: Unify gear cards, action buttons, and cupping rating controls onto `@brewlog/ui` primitives.
   - **Modals & Sheets**: Standardize `AuthSheet`, confirmation modals, and dialog overlays.
   - **AI Agent Guardrails**: Mandate `@brewlog/ui` primitives in agent instructions for all UI work, preventing ad-hoc CSS or styling drift.
+- [x] **Phase 7C: Web Stash Persistence & Recipe Studio Flow Alignment (Complete ✅)** *(Issue: [#32](https://github.com/Chewieez/brewlog/issues/32), PR: [#33](https://github.com/Chewieez/brewlog/pull/33))*:
+  - Supabase database migrations `002` and `003` executed (columns `recommended_rest_days`, `is_frozen`, `frozen_date`, `is_archived`, etc.).
+  - Core domain promotion (`calculateBeanRestingInfo`, `offsetRoastDateForThaw`) into `@brewlog/core`.
+  - Web Stash attribute parity, resting status badges, edit/delete with confirmation modal, and offline sync resilience.
+  - Web Recipe Studio custom recipe editing flow, `useRecipes.updateRecipe`, atomic stage replacement with rollback, and double-invocation guards.
 - [ ] **Phase 8: User Preferences & Settings Subsystem (Cross-Platform) (Upcoming ⏳)**:
   - **Supabase Cloud Schema (`@brewlog/supabase`)**: `user_settings` table keyed to `user_id` with Row-Level Security (RLS) policies and offline-first local cache fallback. Initial schema stores `default_timer_mode` (`'recipe'` | `'manual'`), `date_format` (`'locale'` | `'MM/DD/YYYY'` | `'DD/MM/YYYY'` | `'YYYY-MM-DD'`), `weight_unit` (`'metric'` [grams/g] | `'imperial'` [ounces/oz, pounds/lb]), and `temperature_unit` (`'celsius'` | `'fahrenheit'`), architected to scale for future preferences (haptic/audio cues, default brew method).
   - **Settings UI & Navigation**:
