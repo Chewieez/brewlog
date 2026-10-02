@@ -514,7 +514,54 @@ describe('StashView', () => {
     expect(priceInput.getAttribute('min')).toBe('0');
     expect(priceInput.id).toBe('add-bean-price');
   });
+
+  it('opens edit modal pre-filled with bean details and saves changes via onUpdateBean', async () => {
+    const onUpdateBean = vi.fn();
+    const targetBean = MOCK_BEANS[0];
+
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={vi.fn()}
+        onUpdateBean={onUpdateBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    // Click EDIT on the first bean card
+    const editBtn = screen.getByRole('button', { name: `Edit ${targetBean.name}` });
+    fireEvent.click(editBtn);
+
+    // Modal title indicates edit mode
+    expect(screen.getByRole('heading', { level: 3, name: 'Edit Coffee Bean' })).toBeDefined();
+
+    // Verify fields are pre-populated
+    const roasterInput = screen.getByLabelText(/Roaster Name/i) as HTMLInputElement;
+    expect(roasterInput.value).toBe(targetBean.roaster);
+
+    const nameInput = screen.getByLabelText(/Coffee \/ Lot Name/i) as HTMLInputElement;
+    expect(nameInput.value).toBe(targetBean.name);
+
+    // Make an edit
+    fireEvent.change(nameInput, { target: { value: 'Worka Sakaro Natural' } });
+
+    // Submit button shows SAVE CHANGES
+    const saveBtn = screen.getByRole('button', { name: /SAVE CHANGES/i });
+    fireEvent.click(saveBtn);
+
+    expect(onUpdateBean).toHaveBeenCalledTimes(1);
+    expect(onUpdateBean).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: targetBean.id,
+        name: 'Worka Sakaro Natural',
+        roaster: targetBean.roaster,
+      })
+    );
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
 });
+
 
 
 

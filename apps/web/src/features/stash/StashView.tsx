@@ -10,6 +10,7 @@ import { Plus, Search, Star, Calendar, MapPin, Snowflake } from 'lucide-react';
 interface StashViewProps {
   beans: Bean[];
   onAddBean: (bean: Bean) => Promise<void> | void;
+  onUpdateBean?: (bean: Bean) => Promise<void> | void;
   onSelectBeanForBrew: (bean: Bean) => void;
 }
 
@@ -39,10 +40,16 @@ const BAG_PRESETS = [
   { label: '1kg', grams: 1000 },
 ];
 
-export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelectBeanForBrew }) => {
+export const StashView: React.FC<StashViewProps> = ({
+  beans,
+  onAddBean,
+  onUpdateBean,
+  onSelectBeanForBrew,
+}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProcess, setSelectedProcess] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingBean, setEditingBean] = useState<Bean | null>(null);
 
   // Form State
   const [name, setName] = useState('');
@@ -99,6 +106,35 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
     setErrorMessage(null);
   };
 
+  const handleOpenAddModal = () => {
+    setEditingBean(null);
+    resetForm();
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (bean: Bean) => {
+    setEditingBean(bean);
+    setErrorMessage(null);
+    setName(bean.name);
+    setRoaster(bean.roaster);
+    setOriginCountry(bean.originCountry ?? '');
+    setRegion(bean.region ?? '');
+    setFarm(bean.farm ?? '');
+    setVarietyStr(bean.variety ? bean.variety.join(', ') : '');
+    setAltitudeMeters(bean.altitudeMeters ?? '');
+    setProcess(bean.process ?? 'washed');
+    setRoastLevel(bean.roastLevel ?? 'light');
+    setRoastDate(bean.roastDate ?? new Date().toISOString().split('T')[0]);
+    setRecommendedRestDays(bean.recommendedRestDays ?? 5);
+    setBagWeightGrams(bean.bagWeightGrams ?? 340);
+    setRemainingGrams(bean.remainingGrams ?? 340);
+    setIsFrozen(Boolean(bean.isFrozen));
+    setFlavorNotesStr(bean.flavorNotes ? bean.flavorNotes.join(', ') : '');
+    setPrice(bean.price ?? '');
+    setNotes(bean.notes ?? '');
+    setIsModalOpen(true);
+  };
+
   const handleSelectPreset = (grams: number) => {
     setBagWeightGrams(grams);
     setRemainingGrams(grams);
@@ -114,7 +150,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
     return matchesSearch && matchesProcess;
   });
 
-  const handleSubmitNewBean = async (e: React.FormEvent) => {
+  const handleSubmitBean = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !roaster.trim()) return;
     setIsSaving(true);
@@ -126,8 +162,9 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
     const parsedPrice = price !== '' ? Number(price) : undefined;
     const parsedRestDays = recommendedRestDays !== '' ? Number(recommendedRestDays) : 5;
 
-    const newBean: Bean = {
-      id: 'bean-' + Date.now(),
+    const beanData: Bean = {
+      id: editingBean ? editingBean.id : 'bean-' + Date.now(),
+      userId: editingBean?.userId,
       name: name.trim(),
       roaster: roaster.trim(),
       originCountry: originCountry.trim() || undefined,
@@ -143,16 +180,23 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
       bagWeightOz: Number((parsedBagWeight / 28.3495).toFixed(1)),
       remainingGrams: parsedRemaining,
       isFrozen,
-      frozenDate: isFrozen ? new Date().toISOString().split('T')[0] : undefined,
+      frozenDate: isFrozen
+        ? (editingBean?.frozenDate || new Date().toISOString().split('T')[0])
+        : undefined,
       flavorNotes: flavorNotesStr.split(',').map((s) => s.trim()).filter(Boolean),
       price: parsedPrice,
       notes: notes.trim() || undefined,
-      createdAt: new Date().toISOString(),
+      createdAt: editingBean ? editingBean.createdAt : new Date().toISOString(),
     };
 
     try {
-      await onAddBean(newBean);
+      if (editingBean && onUpdateBean) {
+        await onUpdateBean(beanData);
+      } else {
+        await onAddBean(beanData);
+      }
       setIsModalOpen(false);
+      setEditingBean(null);
       resetForm();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to save bean.';
@@ -191,7 +235,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
         </div>
 
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleOpenAddModal}
           className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-sm transition-colors cursor-pointer"
         >
           <Plus className="w-4 h-4" />
@@ -343,12 +387,21 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                       : '12 oz'}
                   </span>
 
-                  <button
-                    onClick={() => onSelectBeanForBrew(bean)}
-                    className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 text-xs font-mono uppercase tracking-wider font-semibold transition-colors cursor-pointer shadow-sm"
-                  >
-                    BREW →
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handleOpenEditModal(bean)}
+                      aria-label={`Edit ${bean.name}`}
+                      className="px-2.5 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 border border-zinc-700/80 text-zinc-300 hover:text-zinc-100 text-xs font-mono uppercase tracking-wider font-semibold transition-colors cursor-pointer shadow-sm"
+                    >
+                      EDIT
+                    </button>
+                    <button
+                      onClick={() => onSelectBeanForBrew(bean)}
+                      className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 text-xs font-mono uppercase tracking-wider font-semibold transition-colors cursor-pointer shadow-sm"
+                    >
+                      BREW →
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -356,7 +409,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
         </div>
       )}
 
-      {/* Add Bean Modal */}
+      {/* Add / Edit Bean Modal */}
       {isModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4"
@@ -372,7 +425,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
           <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 rounded-2xl bg-panel border border-border-subtle shadow-2xl space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-zinc-800 sticky top-0 bg-panel z-10">
               <h3 id="add-bean-modal-title" className="text-lg font-bold text-zinc-100">
-                Add New Whole Bean
+                {editingBean ? 'Edit Coffee Bean' : 'Add New Whole Bean'}
               </h3>
               <button
                 type="button"
@@ -384,7 +437,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
               </button>
             </div>
 
-            <form onSubmit={handleSubmitNewBean} className="space-y-4 text-sm">
+            <form onSubmit={handleSubmitBean} className="space-y-4 text-sm">
               {errorMessage && (
                 <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
                   {errorMessage}
@@ -744,7 +797,7 @@ export const StashView: React.FC<StashViewProps> = ({ beans, onAddBean, onSelect
                   disabled={isSaving}
                   className="px-5 py-2 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-sm transition-colors cursor-pointer disabled:opacity-50"
                 >
-                  {isSaving ? 'SAVING...' : 'SAVE BEAN'}
+                  {isSaving ? 'SAVING...' : editingBean ? 'SAVE CHANGES' : 'SAVE BEAN'}
                 </button>
               </div>
             </form>

@@ -88,5 +88,42 @@ export const useBeans = () => {
     }
   };
 
-  return { beans, addBean, loading, refreshBeans: fetchBeans };
+  const updateBean = async (updatedBean: Bean) => {
+    // Optimistic local state update
+    setBeans((prev) =>
+      prev.map((b) => (b.id === updatedBean.id ? updatedBean : b))
+    );
+
+    if (!supabase || !user) {
+      return updatedBean;
+    }
+
+    try {
+      const payload = mapBeanDomainToInsert(updatedBean, user.id);
+      const { data, error } = await supabase
+        .from("beans")
+        .update(payload)
+        .eq("id", updatedBean.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Supabase update error:", error);
+        throw error;
+      }
+
+      if (data) {
+        const saved: Bean = mapBeanRowToDomain(data);
+        setBeans((prev) =>
+          prev.map((b) => (b.id === saved.id ? saved : b))
+        );
+        return saved;
+      }
+    } catch (err) {
+      console.error("updateBean exception:", err);
+      throw err;
+    }
+  };
+
+  return { beans, addBean, updateBean, loading, refreshBeans: fetchBeans };
 };

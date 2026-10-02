@@ -23,6 +23,7 @@ export interface RootOutletContext {
   setSelectedRecipe: (recipe: BrewRecipe) => void;
   setPendingBrewSession: (session: PendingBrewSession | null) => void;
   onAddBean: (bean: Bean) => Promise<void>;
+  onUpdateBean: (bean: Bean) => Promise<void>;
   onAddEquipment: (item: Omit<Equipment, 'id' | 'createdAt'>) => Promise<void>;
   onDeleteEquipment: (id: string) => Promise<void>;
   onAddRecipe: (recipe: Omit<BrewRecipe, 'id' | 'createdAt'>) => Promise<BrewRecipe>;
@@ -67,7 +68,7 @@ const persistSavedActiveRecipeId = (recipeId: string): void => {
 };
 
 export const RootLayout: React.FC = () => {
-  const { beans, addBean } = useBeans();
+  const { beans, addBean, updateBean } = useBeans();
   const { logs: tastingLogs, addTastingLog } = useTastingLogs();
   const { equipment, addEquipment, deleteEquipment } = useEquipment();
   const { recipes, addRecipe, deleteRecipe } = useRecipes();
@@ -143,6 +144,16 @@ export const RootLayout: React.FC = () => {
     [addBean]
   );
 
+  const onUpdateBean = useCallback(
+    async (bean: Bean) => {
+      await updateBean(bean);
+      if (selectedBean?.id === bean.id) {
+        setSelectedBean(bean);
+      }
+    },
+    [updateBean, selectedBean]
+  );
+
   const onAddEquipment = useCallback(
     async (item: Omit<Equipment, 'id' | 'createdAt'>) => {
       await addEquipment(item);
@@ -182,6 +193,7 @@ export const RootLayout: React.FC = () => {
       setSelectedRecipe,
       setPendingBrewSession,
       onAddBean,
+      onUpdateBean,
       onAddEquipment,
       onDeleteEquipment: deleteEquipment,
       onAddRecipe: addRecipe,
@@ -200,6 +212,7 @@ export const RootLayout: React.FC = () => {
       setSelectedRecipe,
       setPendingBrewSession,
       onAddBean,
+      onUpdateBean,
       onAddEquipment,
       deleteEquipment,
       addRecipe,
