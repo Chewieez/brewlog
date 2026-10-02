@@ -53,6 +53,7 @@ export const useRecipes = () => {
       const unsyncedItems = localItems.filter((item) =>
         item.id.startsWith("local-rec-")
       );
+      const syncedIds = new Set<string>();
 
       if (unsyncedItems.length > 0) {
         console.log(
@@ -67,12 +68,14 @@ export const useRecipes = () => {
               .select()
               .single();
 
-            if (recErr) {
+            if (recErr || !recData) {
               console.error("Failed to sync offline recipe:", item.name, recErr);
               continue;
             }
 
-            if (recData && item.stages && item.stages.length > 0) {
+            syncedIds.add(item.id);
+
+            if (item.stages && item.stages.length > 0) {
               const stagePayloads = item.stages.map((stage, idx) =>
                 mapRecipeStageDomainToInsert(stage, recData.id, idx)
               );
@@ -106,8 +109,12 @@ export const useRecipes = () => {
         const mapped: BrewRecipe[] = data.map((row: any) =>
           mapRecipeRowToDomain(row, row.recipe_stages || [])
         );
-        setCustomRecipes(mapped);
-        saveLocalCustomRecipes(mapped);
+        const remainingUnsynced = localItems.filter(
+          (r) => r.id.startsWith("local-rec-") && !syncedIds.has(r.id)
+        );
+        const merged = [...remainingUnsynced, ...mapped];
+        setCustomRecipes(merged);
+        saveLocalCustomRecipes(merged);
       }
     } catch (err) {
       console.error("fetchRecipes exception:", err);

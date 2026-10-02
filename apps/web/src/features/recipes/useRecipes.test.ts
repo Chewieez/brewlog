@@ -670,5 +670,86 @@ describe("useRecipes hook", () => {
     expect(result.current.customRecipes[0].name).toBe("Updated Chemex Brew");
     expect(result.current.customRecipes[0].stages).toHaveLength(2);
   });
+
+  it("retains pending unsynced offline recipes if cloud insert fails during sync", async () => {
+    const offlineRecipe: BrewRecipe = {
+      id: "local-rec-failed-1",
+      name: "Pending Offline Recipe",
+      brewMethod: "v60",
+      description: "Should not be lost",
+      coffeeDoseGrams: 15,
+      waterAmountGrams: 250,
+      ratio: 16.67,
+      grindSize: "Medium",
+      waterTempCelsius: 93,
+      totalTimeSeconds: 150,
+      stages: [],
+      isPreset: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem(
+      "brewlog_custom_recipes_cache",
+      JSON.stringify([offlineRecipe])
+    );
+
+    const mockUser = { id: "user-sync-fail-123" } as any;
+
+    vi.mocked(useAuth).mockReturnValue({
+      user: mockUser,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const mockRecipeInsert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: null,
+          error: new Error("Network failure"),
+        }),
+      }),
+    });
+
+    const mockSelectOrder = vi.fn().mockResolvedValue({
+      data: [],
+      error: null,
+    });
+    const mockSelect = vi.fn().mockReturnValue({ order: mockSelectOrder });
+
+    vi.mocked(supabase!.from).mockImplementation((table: string) => {
+      if (table === "recipes") {
+        return {
+          insert: mockRecipeInsert,
+          select: mockSelect,
+        } as any;
+      }
+      return {} as any;
+    });
+
+    const { result } = renderHook(() => useRecipes());
+
+    await waitFor(() => {
+      expect(mockRecipeInsert).toHaveBeenCalledTimes(1);
+      expect(result.current.customRecipes).toHaveLength(1);
+      expect(result.current.customRecipes[0].id).toBe("local-rec-failed-1");
+      expect(result.current.customRecipes[0].name).toBe("Pending Offline Recipe");
+    });
+
+    const saved = JSON.parse(
+      localStorage.getItem("brewlog_custom_recipes_cache") || "[]"
+    );
+    expect(saved).toHaveLength(1);
+    expect(saved[0].id).toBe("local-rec-failed-1");
+  });
 });
 

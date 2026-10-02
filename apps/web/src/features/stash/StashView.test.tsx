@@ -555,10 +555,49 @@ describe('StashView', () => {
         id: targetBean.id,
         name: 'Worka Sakaro Natural',
         roaster: targetBean.roaster,
+        rating: 4.8,
+        isFavorite: false,
+        isArchived: false,
       })
     );
 
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('preserves rating, isFavorite, and isArchived when editing a bean with active flags', async () => {
+    const onUpdateBean = vi.fn();
+    const flaggedBean: Bean = {
+      ...MOCK_BEANS[0],
+      id: 'bean-flagged',
+      rating: 4.9,
+      isFavorite: true,
+      isArchived: true,
+    };
+
+    render(
+      <StashView
+        beans={[flaggedBean]}
+        onAddBean={vi.fn()}
+        onUpdateBean={onUpdateBean}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    const editBtn = screen.getByRole('button', { name: `Edit ${flaggedBean.name}` });
+    fireEvent.click(editBtn);
+
+    const saveBtn = screen.getByRole('button', { name: /SAVE CHANGES/i });
+    fireEvent.click(saveBtn);
+
+    expect(onUpdateBean).toHaveBeenCalledTimes(1);
+    expect(onUpdateBean).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'bean-flagged',
+        rating: 4.9,
+        isFavorite: true,
+        isArchived: true,
+      })
+    );
   });
 
   it('calls onDeleteBean when DELETE BEAN is clicked in edit modal', async () => {

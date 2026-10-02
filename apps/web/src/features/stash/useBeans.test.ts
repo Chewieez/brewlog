@@ -267,4 +267,62 @@ describe("useBeans hook", () => {
     const stored = JSON.parse(localStorage.getItem("brewlog_beans_cache") || "[]");
     expect(stored[0].id).toBe("db-bean-1");
   });
+
+  it("retains pending unsynced offline beans if cloud insert fails during sync", async () => {
+    const offlineBean: Bean = {
+      id: "local-bean-failed",
+      name: "Pending Offline Geisha",
+      roaster: "Local Roaster",
+      originCountry: "Panama",
+      flavorNotes: ["Jasmine", "Bergamot"],
+      createdAt: new Date().toISOString(),
+    };
+    localStorage.setItem("brewlog_beans_cache", JSON.stringify([offlineBean]));
+
+    const mockInsert = vi.fn().mockResolvedValue({ error: new Error("Network timeout") });
+    const mockOrder = vi.fn().mockResolvedValue({
+      data: [],
+      error: null,
+    });
+    const mockSelect = vi.fn().mockReturnValue({ order: mockOrder });
+
+    vi.mocked(supabase!.from).mockImplementation((table: string) => {
+      if (table === "beans") {
+        return {
+          insert: mockInsert,
+          select: mockSelect,
+        } as any;
+      }
+      return {} as any;
+    });
+
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: "user-123", email: "test@example.com" } as any,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useBeans());
+
+    await waitFor(() => {
+      expect(mockInsert).toHaveBeenCalledTimes(1);
+      expect(result.current.beans).toHaveLength(1);
+      expect(result.current.beans[0].id).toBe("local-bean-failed");
+      expect(result.current.beans[0].name).toBe("Pending Offline Geisha");
+    });
+
+    const stored = JSON.parse(localStorage.getItem("brewlog_beans_cache") || "[]");
+    expect(stored).toHaveLength(1);
+    expect(stored[0].id).toBe("local-bean-failed");
+  });
 });

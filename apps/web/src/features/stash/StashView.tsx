@@ -189,6 +189,9 @@ export const StashView: React.FC<StashViewProps> = ({
       flavorNotes: flavorNotesStr.split(',').map((s) => s.trim()).filter(Boolean),
       price: parsedPrice,
       notes: notes.trim() || undefined,
+      rating: editingBean?.rating,
+      isFavorite: editingBean?.isFavorite ?? false,
+      isArchived: editingBean?.isArchived ?? false,
       createdAt: editingBean ? editingBean.createdAt : new Date().toISOString(),
     };
 

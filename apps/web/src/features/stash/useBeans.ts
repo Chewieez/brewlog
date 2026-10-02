@@ -52,6 +52,7 @@ export const useBeans = () => {
       const unsyncedItems = localItems.filter((item) =>
         item.id.startsWith("local-bean-")
       );
+      const syncedIds = new Set<string>();
 
       if (unsyncedItems.length > 0) {
         console.log(
@@ -65,6 +66,8 @@ export const useBeans = () => {
               .insert(payload);
             if (insertErr) {
               console.error("Failed to sync offline bean:", item.name, insertErr);
+            } else {
+              syncedIds.add(item.id);
             }
           } catch (syncErr) {
             console.error("Failed to sync bean:", item, syncErr);
@@ -82,8 +85,12 @@ export const useBeans = () => {
         console.error("Supabase fetchBeans error:", error);
       } else if (data) {
         const mapped: Bean[] = data.map(mapBeanRowToDomain);
-        setBeans(mapped);
-        saveLocalBeans(mapped);
+        const remainingUnsynced = localItems.filter(
+          (b) => b.id.startsWith("local-bean-") && !syncedIds.has(b.id)
+        );
+        const merged = [...remainingUnsynced, ...mapped];
+        setBeans(merged);
+        saveLocalBeans(merged);
       }
     } catch (err) {
       console.error("fetchBeans exception:", err);
