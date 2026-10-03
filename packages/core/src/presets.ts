@@ -1,4 +1,4 @@
-import { BrewRecipe } from "./types";
+import { BrewRecipe, Equipment } from "./types";
 
 export const DEFAULT_PRESET_RECIPES: BrewRecipe[] = [
   {
@@ -224,5 +224,80 @@ export const DEFAULT_PRESET_RECIPES: BrewRecipe[] = [
         stageType: "pour",
       },
     ],
+  },
+];
+
+export const DEFAULT_INITIAL_EQUIPMENT: Equipment[] = [
+  {
+    id: 'eq-1',
+    type: 'grinder',
+    brand: 'Fellow',
+    model: 'Ode Gen 2',
+    subType: 'flat-burr',
+    settingScaleType: 'stepped-numbers',
+    isFavorite: true,
+    notes: '64mm Gen 2 burrs. 4.1 for standard V60.',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'eq-2',
+    type: 'grinder',
+    brand: 'Comandante',
+    model: 'C40 MK4 Nitro Blade',
+    subType: 'conical-burr',
+    settingScaleType: 'clicks',
+    isFavorite: true,
+    notes: '22-26 clicks for pour-over, 12 clicks for AeroPress.',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'eq-3',
+    type: 'brewer',
+    brand: 'Hario',
+    model: 'V60 02 (Clear Plastic)',
+    subType: 'pour-over',
+    isFavorite: true,
+    notes: 'Plastic retains temperature best during brew.',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'eq-4',
+    type: 'brewer',
+    brand: 'AeroPress',
+    model: 'AeroPress Clear',
+    subType: 'immersion',
+    isFavorite: true,
+    notes: 'Standard immersion with metal/paper filters.',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'eq-5',
+    type: 'brewer',
+    brand: 'Flair',
+    model: 'Flair 58+',
+    subType: 'lever-espresso',
+    isFavorite: true,
+    notes: '58mm commercial portafilter manual lever espresso machine.',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'eq-6',
+    type: 'scale',
+    brand: 'Timemore',
+    model: 'Black Mirror Basic 2',
+    subType: 'smart-scale',
+    isFavorite: true,
+    notes: '0.1g resolution with auto-flow rate and auto-timer.',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'eq-7',
+    type: 'kettle',
+    brand: 'Fellow',
+    model: 'Stagg EKG (0.9L)',
+    subType: 'gooseneck-electric',
+    isFavorite: true,
+    notes: 'Precision gooseneck pour with PID temperature hold.',
+    createdAt: '2026-01-01T00:00:00.000Z',
   },
 ];
