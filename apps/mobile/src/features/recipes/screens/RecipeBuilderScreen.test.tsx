@@ -72,6 +72,14 @@ vi.mock('react-native', () => ({
   Alert: {
     alert: vi.fn(),
   },
+  Platform: {
+    OS: 'ios',
+    select: (obj: any) => obj.ios,
+  },
+  Keyboard: {
+    addListener: vi.fn(() => ({ remove: vi.fn() })),
+    dismiss: vi.fn(),
+  },
   StyleSheet: {
     create: (styles: any) => styles,
   },
