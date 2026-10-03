@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Alert,
   StyleSheet,
 } from 'react-native';
+import { useKeyboardBottomOffset } from '../../../hooks/useKeyboardBottomOffset';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { X, Check, Snowflake } from 'lucide-react-native';
@@ -104,6 +105,14 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
   const { beans, addBean, updateBean } = useStash();
   const sourceBean: Bean | undefined = id ? beans.find((b) => b.id === id) : undefined;
   const isEditMode = Boolean(sourceBean);
+  const bottomPadding = useKeyboardBottomOffset(48);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 150);
+  };
 
   // Form field states
   const [roaster, setRoaster] = useState<string>(sourceBean?.roaster ?? '');
@@ -323,8 +332,9 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ScrollView
+        ref={scrollViewRef}
         style={styles.container}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}
         keyboardShouldPersistTaps="handled"
         automaticallyAdjustKeyboardInsets={true}
       >
@@ -660,6 +670,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
         <TextInput
           value={flavorNotesText}
           onChangeText={setFlavorNotesText}
+          onFocus={scrollToBottom}
           placeholder="e.g. Peach, Jasmine, Bergamot"
           placeholderTextColor={colors.textMuted}
           numberOfLines={1}
@@ -670,6 +681,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
         <TextInput
           value={priceText}
           onChangeText={setPriceText}
+          onFocus={scrollToBottom}
           placeholder="e.g. 24.00"
           placeholderTextColor={colors.textMuted}
           keyboardType="numeric"
@@ -681,6 +693,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
         <TextInput
           value={notes}
           onChangeText={setNotes}
+          onFocus={scrollToBottom}
           placeholder="Tasting notes, brew tips, impressions..."
           placeholderTextColor={colors.textMuted}
           multiline

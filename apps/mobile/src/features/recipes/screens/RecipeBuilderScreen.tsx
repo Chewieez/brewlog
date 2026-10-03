@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Alert,
   StyleSheet,
 } from 'react-native';
+import { useKeyboardBottomOffset } from '../../../hooks/useKeyboardBottomOffset';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -108,6 +109,15 @@ export const RecipeBuilderScreen: React.FC = () => {
     ? recipes.find((r) => r.id === duplicateId)
     : null;
 
+  const bottomPadding = useKeyboardBottomOffset(48);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 150);
+  };
+
   const parsedParamStages = React.useMemo(() => {
     if (!paramStages) return null;
     try {
@@ -197,6 +207,7 @@ export const RecipeBuilderScreen: React.FC = () => {
       instruction: '',
     };
     setStages(recalculateTiming([...stages, newStage]));
+    scrollToBottom();
   };
 
   const handleRemoveStage = (idx: number) => {
@@ -283,9 +294,11 @@ export const RecipeBuilderScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ScrollView
+        ref={scrollViewRef}
         style={styles.container}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: bottomPadding }]}
         keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets={true}
       >
       <View style={styles.navHeader}>
         <Pressable
@@ -555,6 +568,7 @@ export const RecipeBuilderScreen: React.FC = () => {
                   onChangeText={(val) =>
                     handleUpdateStage(idx, { durationSeconds: parseInt(val, 10) || 0 })
                   }
+                  onFocus={scrollToBottom}
                   keyboardType="number-pad"
                   numberOfLines={1}
                   style={styles.textInput}
@@ -567,6 +581,7 @@ export const RecipeBuilderScreen: React.FC = () => {
                   onChangeText={(val) =>
                     handleUpdateStage(idx, { targetWaterWeightGrams: parseFloat(val) || 0 })
                   }
+                  onFocus={scrollToBottom}
                   keyboardType="decimal-pad"
                   numberOfLines={1}
                   style={styles.textInput}
@@ -577,6 +592,7 @@ export const RecipeBuilderScreen: React.FC = () => {
             <TextInput
               value={st.instruction}
               onChangeText={(val) => handleUpdateStage(idx, { instruction: val })}
+              onFocus={scrollToBottom}
               placeholder="Pour technique, notes..."
               placeholderTextColor={colors.textMuted}
               numberOfLines={1}
