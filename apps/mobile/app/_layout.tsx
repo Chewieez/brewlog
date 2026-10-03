@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import * as SplashScreen from 'expo-splash-screen';
 import {
   useFonts,
@@ -51,60 +52,62 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <RecipeProvider>
-          <StashProvider>
-            <StatusBar style="light" />
-            <NavigationBar style="light" />
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: {
-                  backgroundColor: colors.canvas,
-                },
-              }}
-            >
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="recipe/[id]"
-                options={{
-                  headerShown: true,
-                  title: 'Recipe Details',
-                  headerBackTitle: 'Back',
-                  headerStyle: { backgroundColor: colors.panel },
-                  headerTintColor: colors.textPrimary,
-                  headerTitleStyle: { fontWeight: '700' },
-                }}
-              />
-              <Stack.Screen
-                name="recipe/builder"
-                options={{
+      <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
+        <AuthProvider>
+          <RecipeProvider>
+            <StashProvider>
+              <StatusBar style="light" />
+              <NavigationBar style="light" />
+              <Stack
+                screenOptions={{
                   headerShown: false,
-                  presentation: 'modal',
+                  contentStyle: {
+                    backgroundColor: colors.canvas,
+                  },
                 }}
-              />
-              <Stack.Screen
-                name="stash/[id]"
-                options={{
-                  headerShown: true,
-                  title: 'Coffee Details',
-                  headerBackTitle: 'Back',
-                  headerStyle: { backgroundColor: colors.canvas },
-                  headerTintColor: colors.textPrimary,
-                  headerTitleStyle: { fontWeight: '700' },
-                }}
-              />
-              <Stack.Screen
-                name="stash/modal"
-                options={{
-                  presentation: 'modal',
-                  headerShown: false,
-                }}
-              />
-            </Stack>
-          </StashProvider>
-        </RecipeProvider>
-      </AuthProvider>
+              >
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="recipe/[id]"
+                  options={{
+                    headerShown: true,
+                    title: 'Recipe Details',
+                    headerBackTitle: 'Back',
+                    headerStyle: { backgroundColor: colors.panel },
+                    headerTintColor: colors.textPrimary,
+                    headerTitleStyle: { fontWeight: '700' },
+                  }}
+                />
+                <Stack.Screen
+                  name="recipe/builder"
+                  options={{
+                    headerShown: false,
+                    presentation: 'modal',
+                  }}
+                />
+                <Stack.Screen
+                  name="stash/[id]"
+                  options={{
+                    headerShown: true,
+                    title: 'Coffee Details',
+                    headerBackTitle: 'Back',
+                    headerStyle: { backgroundColor: colors.canvas },
+                    headerTintColor: colors.textPrimary,
+                    headerTitleStyle: { fontWeight: '700' },
+                  }}
+                />
+                <Stack.Screen
+                  name="stash/modal"
+                  options={{
+                    presentation: 'modal',
+                    headerShown: false,
+                  }}
+                />
+              </Stack>
+            </StashProvider>
+          </RecipeProvider>
+        </AuthProvider>
+      </KeyboardProvider>
     </SafeAreaProvider>
   );
 }
