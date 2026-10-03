@@ -11,6 +11,13 @@ vi.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }));
 
+vi.mock('react-native-keyboard-controller', () => ({
+  KeyboardAwareScrollView: React.forwardRef(({ children, ...props }: any, ref: any) => (
+    <div ref={ref} {...props}>{children}</div>
+  )),
+  KeyboardProvider: ({ children }: any) => <>{children}</>,
+}));
+
 vi.mock('react-native', () => ({
   View: ({ children, style, ...props }: any) => <div {...props}>{children}</div>,
   Text: ({ children, style, numberOfLines, ...props }: any) => <span {...props}>{children}</span>,

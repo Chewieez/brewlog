@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { X, Check, Snowflake } from 'lucide-react-native';
 import {
   Bean,
@@ -322,11 +323,11 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <ScrollView
+      <KeyboardAwareScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
+        bottomOffset={32}
         keyboardShouldPersistTaps="handled"
-        automaticallyAdjustKeyboardInsets={true}
       >
       {/* Header with Cancel / Save */}
       <View style={styles.navHeader}>
@@ -688,7 +689,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
           style={[styles.textInput, styles.textArea]}
         />
       </View>
-    </ScrollView>
+    </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };

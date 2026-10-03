@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,10 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  KeyboardAwareScrollView,
+  KeyboardAwareScrollViewRef,
+} from 'react-native-keyboard-controller';
 import {
   X,
   Check,
@@ -185,6 +189,8 @@ export const RecipeBuilderScreen: React.FC = () => {
   const calculatedWater = calculateWaterAmount(coffeeDoseGrams, ratio);
   const totalBrewTime = calculateTotalBrewTime(stages);
 
+  const scrollViewRef = useRef<KeyboardAwareScrollViewRef>(null);
+
   const handleAddStage = () => {
     const nextIdx = stages.length + 1;
     const newStage: BrewStage = {
@@ -197,6 +203,9 @@ export const RecipeBuilderScreen: React.FC = () => {
       instruction: '',
     };
     setStages(recalculateTiming([...stages, newStage]));
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
   };
 
   const handleRemoveStage = (idx: number) => {
@@ -282,9 +291,11 @@ export const RecipeBuilderScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <ScrollView
+      <KeyboardAwareScrollView
+        ref={scrollViewRef}
         style={styles.container}
         contentContainerStyle={styles.content}
+        bottomOffset={32}
         keyboardShouldPersistTaps="handled"
       >
       <View style={styles.navHeader}>
@@ -590,7 +601,7 @@ export const RecipeBuilderScreen: React.FC = () => {
           <Text style={styles.addStageButtonText}>ADD STAGE</Text>
         </Pressable>
       </View>
-    </ScrollView>
+    </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };

@@ -13,6 +13,10 @@ vi.mock('react-native-safe-area-context', () => ({
   SafeAreaProvider: ({ children }: any) => <div data-testid="mock-safe-area-provider">{children}</div>,
 }));
 
+vi.mock('react-native-keyboard-controller', () => ({
+  KeyboardProvider: ({ children }: any) => <div data-testid="mock-keyboard-provider">{children}</div>,
+}));
+
 vi.mock('expo-status-bar', () => ({
   StatusBar: () => null,
 }));
@@ -76,6 +80,7 @@ describe('RootLayout', () => {
   it('renders AuthProvider, RecipeProvider, and StashProvider wrapping Stack with routes', () => {
     const { getByTestId } = render(<RootLayout />);
 
+    expect(getByTestId('mock-keyboard-provider')).toBeDefined();
     expect(getByTestId('mock-auth-provider')).toBeDefined();
     expect(getByTestId('mock-recipe-provider')).toBeDefined();
     expect(getByTestId('mock-stash-provider')).toBeDefined();
