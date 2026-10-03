@@ -12,9 +12,13 @@ vi.mock('react-native-safe-area-context', () => ({
 }));
 
 vi.mock('react-native-keyboard-controller', () => ({
-  KeyboardAwareScrollView: React.forwardRef(({ children, ...props }: any, ref: any) => (
-    <div ref={ref} {...props}>{children}</div>
-  )),
+  KeyboardAwareScrollView: React.forwardRef(({ children, ...props }: any, ref: any) => {
+    React.useImperativeHandle(ref, () => ({
+      scrollToEnd: vi.fn(),
+      scrollTo: vi.fn(),
+    }));
+    return <div {...props}>{children}</div>;
+  }),
   KeyboardProvider: ({ children }: any) => <>{children}</>,
 }));
 
