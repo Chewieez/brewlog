@@ -8,7 +8,7 @@ Mobile currently renders a static placeholder in `app/(tabs)/equipment.tsx`. Web
 
 ### Key Goals
 1. **Mobile Equipment Catalog (`app/(tabs)/equipment.tsx`)**: Replace the placeholder with an interactive equipment catalog featuring a search bar, category filter chips (`All`, `Grinders`, `Brewers`, `Scales`, `Kettles`), grouped category sections matching Web (`Sliders`, `Coffee`, `Scale`, `Flame` icons), item counts, and category-level empty states.
-2. **Standardized Industrial Precision Wording**: Clean, uncluttered titles and copy aligning with Web. Avoid terms like "Hardware" or "Locker", and omit unnecessary eyebrow text above the title.
+2. **Standardized Industrial Precision Wording**: Clean, uncluttered titles and copy aligning with Web and mobile catalog screens (`BREW GEAR` eyebrow matching `CELLAR INVENTORY` and `RECIPE CATALOG`, `Equipment` title, `Manage your grinders, brewers, scales, and kettles.` subtitle).
 3. **Native Add/Edit Modal (`app/equipment/modal.tsx`)**: Full CRUD modal supporting both creation and editing, dirty-checking with discard confirmation alerts, and a destructive delete action in edit mode.
 4. **Modern Mobile Keyboard & Scroll Setup**: Utilize the exact scrolling architecture established in `BeanModalScreen` and `RecipeBuilderScreen` using `KeyboardAwareScrollView` from `react-native-keyboard-controller` with `bottomOffset={32}`, `keyboardShouldPersistTaps="handled"`, and safe unmount cleanup.
 5. **Offline-First Resilience & Cloud Sync (`EquipmentContext.tsx`)**: Dedicated React context backed by `AsyncStorage` (`@brewlog/mobile:equipment_cache`) that seeds `DEFAULT_INITIAL_EQUIPMENT` for new/guest users, supports optimistic updates, and synchronizes with Supabase's `equipment` table upon authentication.
@@ -113,10 +113,10 @@ export interface EquipmentContextValue {
 Rendered by `apps/mobile/app/(tabs)/equipment.tsx`:
 
 - **Header Component**:
+  - Eyebrow: `BREW GEAR` (`fonts.monoBold`, 11px, `colors.accent`, uppercase, letter spacing 1.2, matching `CELLAR INVENTORY` and `RECIPE CATALOG`).
   - Title: `Equipment` (`fonts.sansBold`, 22px, `colors.textPrimary`).
   - Subtitle: `Manage your grinders, brewers, scales, and kettles.` (`colors.textSecondary`, 13px).
   - Top Action Button: `+ ADD EQUIPMENT` (`colors.accent` background, dark text, minimum 44px touch target) navigating to `/equipment/modal`.
-  - *No eyebrow text above the title.*
 - **Search Bar**:
   - `Search` icon on left, text input, clear (`X`) button on right.
   - Filters across `brand`, `model`, `subType`, and `notes`.
