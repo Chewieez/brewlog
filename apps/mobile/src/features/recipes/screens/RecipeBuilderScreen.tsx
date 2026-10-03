@@ -204,7 +204,7 @@ export const RecipeBuilderScreen: React.FC = () => {
     };
     setStages(recalculateTiming([...stages, newStage]));
     setTimeout(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: true });
+      scrollViewRef.current?.scrollToEnd?.({ animated: true });
     }, 100);
   };
 
