@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -190,6 +190,15 @@ export const RecipeBuilderScreen: React.FC = () => {
   const totalBrewTime = calculateTotalBrewTime(stages);
 
   const scrollViewRef = useRef<KeyboardAwareScrollViewRef>(null);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleAddStage = () => {
     const nextIdx = stages.length + 1;
@@ -203,7 +212,10 @@ export const RecipeBuilderScreen: React.FC = () => {
       instruction: '',
     };
     setStages(recalculateTiming([...stages, newStage]));
-    setTimeout(() => {
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    scrollTimeoutRef.current = setTimeout(() => {
       scrollViewRef.current?.scrollToEnd?.({ animated: true });
     }, 100);
   };

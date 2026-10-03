@@ -689,7 +689,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
           style={[styles.textInput, styles.textArea]}
         />
       </View>
-    </KeyboardAwareScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };
