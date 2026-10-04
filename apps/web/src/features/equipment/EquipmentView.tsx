@@ -472,7 +472,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                     type === "grinder"
                       ? "e.g. Ode Gen 2, C40 MK4, Encore ESP"
                       : type === "brewer"
-                        ? "e.g. V60 02 Plastic, Wave 185, Flair 58"
+                        ? "e.g. V60 02, Aeropress, Kalita Wave"
                         : type === "scale"
                           ? "e.g. Lunar, Black Mirror Basic 2, Arc"
                           : "e.g. Stagg EKG (0.9L), Artisan Gooseneck"

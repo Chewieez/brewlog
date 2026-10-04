@@ -232,7 +232,7 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
       case 'grinder':
         return 'e.g. Ode Gen 2, C40 MK4, Encore';
       case 'brewer':
-        return 'e.g. V60 02 Plastic, Wave 185';
+        return 'e.g. V60 02, Aeropress, Kalita Wave';
       case 'scale':
         return 'e.g. Black Mirror Basic 2, Lunar';
       case 'kettle':

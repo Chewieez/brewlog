@@ -195,7 +195,6 @@ export const EquipmentCatalogScreen: React.FC = () => {
               style={styles.searchInput}
               accessibilityLabel="Search equipment"
               returnKeyType="search"
-              clearButtonMode="while-editing"
             />
             {searchQuery.length > 0 ? (
               <Pressable
