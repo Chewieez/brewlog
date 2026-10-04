@@ -23,6 +23,7 @@ import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { AuthProvider } from '../src/features/auth/AuthContext';
 import { RecipeProvider } from '../src/features/recipes/RecipeContext';
 import { StashProvider } from '../src/features/stash/StashContext';
+import { EquipmentProvider } from '../src/features/equipment/EquipmentContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -56,9 +57,10 @@ export default function RootLayout() {
         <AuthProvider>
           <RecipeProvider>
             <StashProvider>
-              <StatusBar style="light" />
-              <NavigationBar style="light" />
-              <Stack
+              <EquipmentProvider>
+                <StatusBar style="light" />
+                <NavigationBar style="light" />
+                <Stack
                 screenOptions={{
                   headerShown: false,
                   contentStyle: {
@@ -103,7 +105,8 @@ export default function RootLayout() {
                     headerShown: false,
                   }}
                 />
-              </Stack>
+                </Stack>
+              </EquipmentProvider>
             </StashProvider>
           </RecipeProvider>
         </AuthProvider>
