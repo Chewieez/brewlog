@@ -41,7 +41,7 @@ We have made the architectural decision to retire the "Cupping" naming across th
    - Mobile: `(tabs)/cupping.tsx` is deleted and replaced with `(tabs)/reviews.tsx`. The mobile feature directory is `src/features/reviews/`, with modal at `/reviews/modal` and detail at `/reviews/[id]`. Timer completion button is renamed to "LOG REVIEW".
    - Domain model: Under the hood, domain models reuse `@brewlog/core`'s `TastingLog`, `CuppingAttributes`, `calculateScaScore`, and Supabase's `tasting_logs` table.
 2. **Catalog + Modal Architecture**:
-   - Matches the Bean Stash and Equipment pattern: `ReviewsCatalogScreen` on the tab with search, filters, and summary metrics, an `+ NEW REVIEW` header button opening `ReviewModalScreen` as a modal sheet, and `ReviewDetailScreen` for in-depth inspection of a past brew.
+   - Matches the Bean Stash and Equipment pattern: `ReviewsCatalogScreen` on the tab with search, filters, and summary metrics, an `+ ADD REVIEW` header button opening `ReviewModalScreen` as a modal sheet, and `ReviewDetailScreen` for in-depth inspection of a past brew.
 3. **Equipment Tracking in Reviews**:
    - Connects to `EquipmentContext` on mobile and `useEquipment()` on web so users can record the exact **Grinder** (with specific grind setting, e.g. "18 clicks", "5.2", "Medium-Fine") and **Brewer** used. Stores `grinderSnapshot` and `brewerSnapshot` to ensure historical logs survive future equipment deletions.
 4. **Responsive Sensory Flavor Selector**:
@@ -49,7 +49,7 @@ We have made the architectural decision to retire the "Cupping" naming across th
    - On standard portrait phones (<600px), defaults to thumb-friendly **Categorized Tag Chips** (with an optional toggle to an interactive SVG wheel featuring tap-to-inspect category callouts).
    - On foldables and tablets (>=600px), unlocks the full-scale interactive 2-ring SVG wheel.
 5. **Seamless Timer Completion Handoff**:
-   - When a brew completes on the Timer tab (web or mobile), tapping "RATE & REVIEW CUP" / "LOG REVIEW" navigates directly to `/reviews/modal` (mobile) or `/reviews` (web) prefilled with the active bean, brew method, dose, water volume, actual brew time, and split timeline notes.
+   - When a brew completes on the Timer tab (web or mobile), tapping "ADD REVIEW" navigates directly to `/reviews/modal` (mobile) or `/reviews` (web) prefilled with the active bean, brew method, dose, water volume, actual brew time, and split timeline notes.
 
 ---
 
@@ -160,7 +160,7 @@ export interface ReviewsContextValue {
   - Eyebrow: `TASTING JOURNAL`
   - Title: `Brew Reviews`
   - Subtitle: `Track tasting notes, flavor profiles, and sensory scores.`
-  - Action Button: `+ NEW REVIEW` (navigates to `/reviews/modal`).
+  - Action Button: `ADD REVIEW` (navigates to `/reviews/modal`).
 - **Summary Chassis Bar (`ReviewsSummaryBar.tsx`)**:
   - Displays 3 tiles: Total Reviews, Average Rating/Score, and Top Flavor Descriptor.
 - **Search Bar**:
@@ -188,7 +188,7 @@ export interface ReviewsContextValue {
 - **Hydration Guard**: Shows `ActivityIndicator` (`testID="review-modal-loading"`) if `id` exists while `loading === true`.
 - **Header**:
   - Close button `X` (triggers dirty discard confirmation).
-  - Title: `New Review` or `Edit Review`.
+  - Title: `Add Review` or `Edit Review`.
   - Save button `✓` or `SAVE`.
 - **Pending Brew Banner**:
   - If loaded from a completed timer session, displays `Completed Brew Loaded: [Bean] • [Recipe] ([time]s)` with `CLEAR` button.
