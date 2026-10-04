@@ -234,5 +234,97 @@ describe("useEquipment hook", () => {
       expect(result.current.equipment[0].id).toBe("uuid-synced-1");
     });
   });
+
+  it("updates equipment offline and updates state and localStorage", async () => {
+    const cachedGear = [
+      {
+        id: "eq-update-me",
+        type: "grinder" as const,
+        brand: "Fellow",
+        model: "Ode Gen 1",
+        createdAt: new Date().toISOString(),
+      },
+    ];
+    localStorage.setItem("brewlog_equipment_cache", JSON.stringify(cachedGear));
+
+    vi.mocked(useAuth).mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: false,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useEquipment());
+
+    await act(async () => {
+      await result.current.updateEquipment("eq-update-me", {
+        model: "Ode Gen 2",
+        subType: "SSP MP Burrs",
+      });
+    });
+
+    expect(result.current.equipment[0].model).toBe("Ode Gen 2");
+    expect(result.current.equipment[0].subType).toBe("SSP MP Burrs");
+    const saved = JSON.parse(localStorage.getItem("brewlog_equipment_cache") || "[]");
+    expect(saved[0].model).toBe("Ode Gen 2");
+    expect(saved[0].subType).toBe("SSP MP Burrs");
+  });
+
+  it("toggles favorite on equipment and persists", async () => {
+    const cachedGear = [
+      {
+        id: "eq-fav-me",
+        type: "brewer" as const,
+        brand: "Hario",
+        model: "V60",
+        isFavorite: false,
+        createdAt: new Date().toISOString(),
+      },
+    ];
+    localStorage.setItem("brewlog_equipment_cache", JSON.stringify(cachedGear));
+
+    vi.mocked(useAuth).mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: false,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useEquipment());
+
+    expect(result.current.equipment[0].isFavorite).toBe(false);
+
+    await act(async () => {
+      await result.current.toggleFavorite("eq-fav-me");
+    });
+
+    expect(result.current.equipment[0].isFavorite).toBe(true);
+    const saved = JSON.parse(localStorage.getItem("brewlog_equipment_cache") || "[]");
+    expect(saved[0].isFavorite).toBe(true);
+
+    await act(async () => {
+      await result.current.toggleFavorite("eq-fav-me");
+    });
+
+    expect(result.current.equipment[0].isFavorite).toBe(false);
+  });
 });
 

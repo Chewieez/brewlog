@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { Equipment } from "@brewlog/core";
+import { Equipment, DEFAULT_INITIAL_EQUIPMENT } from "@brewlog/core";
 import {
   mapEquipmentRowToDomain,
   mapEquipmentDomainToInsert,
 } from "@brewlog/supabase";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../auth/AuthContext";
-import { INITIAL_EQUIPMENT } from "../../lib/sampleData";
 
 const STORAGE_KEY = "brewlog_equipment_cache";
 
@@ -22,7 +21,7 @@ const loadLocalEquipment = (): Equipment[] => {
   } catch (err) {
     console.error("Failed to load local equipment cache:", err);
   }
-  return INITIAL_EQUIPMENT;
+  return DEFAULT_INITIAL_EQUIPMENT;
 };
 
 const saveLocalEquipment = (items: Equipment[]) => {
@@ -148,6 +147,53 @@ export const useEquipment = () => {
     return fallbackItem;
   };
 
+  const updateEquipment = async (
+    id: string,
+    updates: Partial<Equipment>
+  ): Promise<Equipment> => {
+    let updatedItem: Equipment | undefined;
+    setEquipment((prev) => {
+      const updated = prev.map((item) => {
+        if (item.id === id) {
+          updatedItem = { ...item, ...updates };
+          return updatedItem;
+        }
+        return item;
+      });
+      saveLocalEquipment(updated);
+      return updated;
+    });
+
+    if (
+      supabase &&
+      user &&
+      !id.startsWith("local-eq-") &&
+      !id.startsWith("eq-") &&
+      updatedItem
+    ) {
+      try {
+        const payload = mapEquipmentDomainToInsert(updatedItem, user.id);
+        const { error } = await supabase
+          .from("equipment")
+          .update(payload)
+          .eq("id", id);
+        if (error) {
+          console.error("Supabase equipment update error:", error);
+        }
+      } catch (err) {
+        console.error("updateEquipment exception:", err);
+      }
+    }
+
+    return updatedItem || ({} as Equipment);
+  };
+
+  const toggleFavorite = async (id: string): Promise<void> => {
+    const current = equipment.find((e) => e.id === id);
+    if (!current) return;
+    await updateEquipment(id, { isFavorite: !current.isFavorite });
+  };
+
   const deleteEquipment = async (id: string): Promise<void> => {
     setEquipment((prev) => {
       const updated = prev.filter((item) => item.id !== id);
@@ -170,7 +216,9 @@ export const useEquipment = () => {
   return {
     equipment,
     addEquipment,
+    updateEquipment,
     deleteEquipment,
+    toggleFavorite,
     loading,
     refreshEquipment: fetchEquipment,
   };

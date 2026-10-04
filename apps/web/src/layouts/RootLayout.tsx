@@ -26,7 +26,9 @@ export interface RootOutletContext {
   onUpdateBean: (bean: Bean) => Promise<void>;
   onDeleteBean: (id: string) => Promise<void>;
   onAddEquipment: (item: Omit<Equipment, 'id' | 'createdAt'>) => Promise<void>;
+  onUpdateEquipment: (id: string, updates: Partial<Equipment>) => Promise<Equipment>;
   onDeleteEquipment: (id: string) => Promise<void>;
+  onToggleFavorite: (id: string) => Promise<void>;
   onAddRecipe: (recipe: Omit<BrewRecipe, 'id' | 'createdAt'>) => Promise<BrewRecipe>;
   onUpdateRecipe: (id: string, updates: Partial<BrewRecipe>) => Promise<BrewRecipe>;
   onDeleteRecipe: (id: string) => Promise<void>;
@@ -72,7 +74,13 @@ const persistSavedActiveRecipeId = (recipeId: string): void => {
 export const RootLayout: React.FC = () => {
   const { beans, addBean, updateBean, deleteBean } = useBeans();
   const { logs: tastingLogs, addTastingLog } = useTastingLogs();
-  const { equipment, addEquipment, deleteEquipment } = useEquipment();
+  const {
+    equipment,
+    addEquipment,
+    updateEquipment,
+    deleteEquipment,
+    toggleFavorite,
+  } = useEquipment();
   const { recipes, addRecipe, updateRecipe, deleteRecipe } = useRecipes();
   const { isPasswordRecovery, authUrlError } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -173,6 +181,20 @@ export const RootLayout: React.FC = () => {
     [addEquipment]
   );
 
+  const onUpdateEquipment = useCallback(
+    async (id: string, updates: Partial<Equipment>) => {
+      return await updateEquipment(id, updates);
+    },
+    [updateEquipment]
+  );
+
+  const onToggleFavorite = useCallback(
+    async (id: string) => {
+      await toggleFavorite(id);
+    },
+    [toggleFavorite]
+  );
+
   const onAddTastingLog = useCallback(
     async (log: Omit<TastingLog, 'id' | 'createdAt'>) => {
       await addTastingLog(log);
@@ -219,7 +241,9 @@ export const RootLayout: React.FC = () => {
       onUpdateBean,
       onDeleteBean,
       onAddEquipment,
+      onUpdateEquipment,
       onDeleteEquipment: deleteEquipment,
+      onToggleFavorite,
       onAddRecipe: addRecipe,
       onUpdateRecipe,
       onDeleteRecipe,
@@ -240,7 +264,9 @@ export const RootLayout: React.FC = () => {
       onUpdateBean,
       onDeleteBean,
       onAddEquipment,
+      onUpdateEquipment,
       deleteEquipment,
+      onToggleFavorite,
       addRecipe,
       onUpdateRecipe,
       onDeleteRecipe,
