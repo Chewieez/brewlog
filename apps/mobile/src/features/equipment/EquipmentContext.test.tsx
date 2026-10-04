@@ -397,4 +397,52 @@ describe('EquipmentContext', () => {
     expect(loadingDuringRefresh).toBe(false);
     expect(result.current.loading).toBe(false);
   });
+
+  it('11. deleting a starter preset (eq-1) does NOT queue into pending deletes or call Supabase delete', async () => {
+    const mockDelete = vi.fn();
+    mockSupabaseFrom.mockImplementation((table: unknown) => {
+      if (table === 'equipment') {
+        return {
+          delete: mockDelete,
+          select: vi.fn().mockReturnValue({ order: vi.fn().mockResolvedValue({ data: [], error: null }) }),
+        };
+      }
+      return {};
+    });
+
+    const { result } = renderHook(() => useEquipment(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // Preset eq-1 exists from default seed
+    expect(result.current.equipment.some((e) => e.id === 'eq-1')).toBe(true);
+
+    // Now user is authenticated
+    mockAuthUser = mockUser;
+
+    await act(async () => {
+      await result.current.deleteEquipment('eq-1');
+    });
+
+    expect(result.current.equipment.some((e) => e.id === 'eq-1')).toBe(false);
+    expect(mockDelete).not.toHaveBeenCalled();
+
+    const pendingDeletes = await AsyncStorage.getItem(EQUIPMENT_PENDING_DELETES_KEY);
+    expect(pendingDeletes).toBeNull();
+
+    // Refreshing does not attempt to delete eq-1 from Supabase
+    await act(async () => {
+      await result.current.refreshEquipment();
+    });
+    expect(mockDelete).not.toHaveBeenCalled();
+  });
+
+  it('12. respects empty array in cache so deleting all equipment does not re-seed on reload', async () => {
+    await AsyncStorage.setItem(EQUIPMENT_STORAGE_KEY, JSON.stringify([]));
+
+    const { result } = renderHook(() => useEquipment(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.equipment).toEqual([]);
+    expect(result.current.grinders).toEqual([]);
+  });
 });

@@ -50,9 +50,9 @@ export const EquipmentContext = createContext<EquipmentContextValue | null>(null
 async function loadCachedEquipment(): Promise<Equipment[]> {
   try {
     const raw = await AsyncStorage.getItem(EQUIPMENT_STORAGE_KEY);
-    if (raw) {
+    if (raw !== null) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed;
       }
     }
@@ -292,7 +292,9 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
 
   const addEquipment = useCallback(
     async (item: AddEquipmentInput): Promise<Equipment> => {
-      const id = item.id || `local-eq-${Date.now()}`;
+      const id =
+        item.id ||
+        `local-eq-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
       const createdAt = item.createdAt || new Date().toISOString();
       const isFavorite = Boolean(item.isFavorite);
 
@@ -369,7 +371,7 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
       );
       await persistCachedEquipment(nextList);
 
-      if (id.startsWith('local-eq-')) {
+      if (id.startsWith('local-eq-') || id.startsWith('eq-') || !updatedTarget.userId) {
         return updatedTarget;
       }
 
@@ -406,7 +408,7 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
       setEquipment((prev) => prev.filter((e) => e.id !== id));
       await persistCachedEquipment(nextList);
 
-      if (id.startsWith('local-eq-')) {
+      if (id.startsWith('local-eq-') || id.startsWith('eq-') || !target?.userId) {
         if (pendingUpdatesRef.current.has(id)) {
           pendingUpdatesRef.current.delete(id);
           await persistPendingUpdates(pendingUpdatesRef.current);
