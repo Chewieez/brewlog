@@ -305,5 +305,6 @@ export interface ReviewsContextValue {
      - Cold-start hydration loading guard.
      - Renders complete brew specs, equipment snapshots, and SCA score breakdown.
      - Edit and delete actions.
-2. **Quality Gate Rule**:
-   - In strict compliance with user instructions, no test suites will be run during development until ready to commit and push. All verification commands (`tsc --noEmit`, focused tests) will only be run at the final verification step.
+2. **Testing Workflow & Execution**:
+   - Focused unit tests can be run during development when verifying complex logic (e.g. `ReviewsContext` offline sync, state reconciliation, scoring calculations).
+   - Broad or full repository test suites will **not** be run for small intermediate edits or UI styling tweaks; full suite verification will be reserved for milestone completion before committing and pushing.
