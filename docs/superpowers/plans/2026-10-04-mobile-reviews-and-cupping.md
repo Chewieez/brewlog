@@ -191,12 +191,12 @@ Expected: FAIL
 - [ ] **Step 3: Implement `ReviewsCatalogScreen.tsx`**
 
 Implement:
-- Header: Eyebrow `TASTING JOURNAL`, Title `Brew Reviews`, Subtitle, and `ADD REVIEW` button.
+- Header: Eyebrow `TASTING JOURNAL`, Title `Brew Reviews`, Subtitle, and `<Plus size={16} color={colors.canvas} />` + `ADD REVIEW` button (styled identically to `StashCatalogScreen` and `EquipmentCatalogScreen`).
 - `ReviewsSummaryBar` at top.
 - Search input with custom `X` clear button (no redundant iOS clear button).
 - Method filter scrollable chips and rating filter chips.
 - FlatList of `ReviewCard`s.
-- Empty states with call-to-action buttons.
+- Empty states with CTA button using `<Plus size={16} color={colors.canvas} />` + `ADD YOUR FIRST REVIEW`.
 
 - [ ] **Step 4: Update Tab Navigation**
 

@@ -160,7 +160,7 @@ export interface ReviewsContextValue {
   - Eyebrow: `TASTING JOURNAL`
   - Title: `Brew Reviews`
   - Subtitle: `Track tasting notes, flavor profiles, and sensory scores.`
-  - Action Button: `ADD REVIEW` (navigates to `/reviews/modal`).
+  - Action Button: `<Plus size={16} color={colors.canvas} />` + `ADD REVIEW` (styled identically to `StashCatalogScreen` and `EquipmentCatalogScreen`, navigating to `/reviews/modal`).
 - **Summary Chassis Bar (`ReviewsSummaryBar.tsx`)**:
   - Displays 3 tiles: Total Reviews, Average Rating/Score, and Top Flavor Descriptor.
 - **Search Bar**:
@@ -171,7 +171,7 @@ export interface ReviewsContextValue {
   - Star rating filter: `All`, `5 Stars`, `4+ Stars`, `3+ Stars`.
 - **Review List**:
   - FlatList of `ReviewCard` items.
-  - Empty states for zero reviews and unmatched search queries.
+  - Empty states for zero reviews and unmatched search queries, with CTA button `<Plus size={16} color={colors.canvas} />` + `ADD YOUR FIRST REVIEW`.
 
 ### 4.2. Review Card (`apps/mobile/src/features/reviews/components/ReviewCard.tsx`)
 - Displays:
