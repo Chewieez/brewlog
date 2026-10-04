@@ -308,3 +308,22 @@ export interface ReviewsContextValue {
 2. **Testing Workflow & Execution**:
    - Focused unit tests can be run during development when verifying complex logic (e.g. `ReviewsContext` offline sync, state reconciliation, scoring calculations).
    - Broad or full repository test suites will **not** be run for small intermediate edits or UI styling tweaks; full suite verification will be reserved for milestone completion before committing and pushing.
+
+---
+
+## 7. Web Parity Enhancements (`apps/web`)
+
+To maintain strict cross-platform parity, any capability added to mobile must also be supported on web:
+
+1. **Equipment Context Wiring (`apps/web/src/routes/CuppingRoute.tsx`)**:
+   - Pass `equipment={equipment}` from `useRootOutletContext()` to `CuppingView`.
+2. **Equipment Selection in `CuppingView.tsx`**:
+   - Add Grinder selection dropdown (from `equipment.filter(e => e.type === 'grinder')` plus "+ Enter Custom Grinder" and "None").
+   - Add Grind Setting text input (e.g. `18 clicks`, `5.2`, `Medium-Fine`). Pre-fills from `pendingBrewSession.recipe.grindSize`.
+   - Add Brewer selection dropdown (from `equipment.filter(e => e.type === 'brewer')` plus "+ Enter Custom Brewer"). Pre-fills from `pendingBrewSession.recipe.recommendedBrewerId`.
+3. **Saving Equipment Snapshots (`handleSaveTastingLog`)**:
+   - Save `grinderId`, `brewerId`, `grinderSnapshot`, `brewerSnapshot`, and `grindSetting` in the `newLogPayload`.
+4. **History Display Parity**:
+   - In "Past Brew Sessions & Cupping Notes" on web, display the grinder snapshot, grind setting, and brewer snapshot alongside the coffee dose, water, and time.
+5. **Web Unit Testing**:
+   - Add tests in `apps/web/src/features/cupping/CuppingView.test.tsx` verifying grinder/brewer selection, snapshot creation, and pre-filling from completed brew session.
