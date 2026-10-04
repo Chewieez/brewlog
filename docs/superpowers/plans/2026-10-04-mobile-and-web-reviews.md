@@ -1,18 +1,18 @@
-# Mobile Reviews Subsystem & Web Cupping Parity Implementation Plan
+# Reviews Subsystem & Web Parity Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a complete mobile Reviews (cupping & tasting log) subsystem with full parity to web cupping, aligned with the mobile Bean Stash and Equipment catalog + modal patterns, including equipment tracking and a responsive sensory wheel.
+**Goal:** Build a complete Reviews (tasting log & sensory review) subsystem across mobile and web with full cross-platform parity, aligned with the mobile Bean Stash and Equipment catalog + modal patterns, including equipment tracking, a responsive sensory wheel, and retiring all legacy "Cupping" naming.
 
-**Architecture:** A dedicated offline-first `ReviewsContext` backed by `AsyncStorage` and Supabase cloud sync (`tasting_logs`), structured into a Catalog Tab (`ReviewsCatalogScreen`), a full CRUD Modal (`ReviewModalScreen`), and an Inspection Detail view (`ReviewDetailScreen`), with timer completion integration.
+**Architecture:** An offline-first `ReviewsContext` backed by `AsyncStorage` and Supabase cloud sync (`tasting_logs`), structured into a Catalog Tab (`ReviewsCatalogScreen`), a full CRUD Modal (`ReviewModalScreen`), and an Inspection Detail view (`ReviewDetailScreen`) on mobile, with a parallel `ReviewsView` and `ReviewsRoute` on web.
 
 **Tech Stack:** React 19.2.8, React Native (Expo SDK 57), Expo Router, `react-native-keyboard-controller`, `react-native-svg`, `@brewlog/core`, `@brewlog/supabase`, Vitest, `@testing-library/react-native`.
 
-**Spec:** `docs/superpowers/specs/2026-10-04-mobile-reviews-and-cupping-design.md`
+**Spec:** `docs/superpowers/specs/2026-10-04-mobile-and-web-reviews-design.md`
 
 ## Global Constraints
 
-- **Terminology:** User-facing labels use "Reviews" / "Tasting Journal" / "ADD REVIEW" / "Add Review", domain types reuse `@brewlog/core`'s `TastingLog` and Supabase's `tasting_logs`.
+- **Terminology:** User-facing labels use "Reviews" / "Tasting Journal" / `<Plus size={16} ... /> ADD REVIEW` / `Add Review`. Domain types reuse `@brewlog/core`'s `TastingLog` and Supabase's `tasting_logs`.
 - **Postgres 22P02 Guard:** Only query Supabase `.eq('id', id)` for updates/deletes if `target.userId === user.id` and the ID is a valid synced server UUID.
 - **Cold-Start Hydration Guard:** `ReviewModalScreen` and `ReviewDetailScreen` must render `ActivityIndicator` (`testID="review-modal-loading"`) while `loading === true` if an `id` param is present.
 - **Empty Cache Retention:** `raw !== null` and `Array.isArray(parsed)` ensures empty arrays `[]` do not resurrect sample data.
@@ -45,7 +45,7 @@
 - [ ] **Step 1: Write the failing unit tests for `ReviewsContext`**
 
 Create `apps/mobile/src/features/reviews/ReviewsContext.test.tsx` testing:
-1. Hydrating from AsyncStorage cache.
+1. Hydrating from AsyncStorage cache (`@brewlog/mobile:reviews_cache`).
 2. Respecting empty array `[]` in cache without re-seeding sample data.
 3. Adding a review optimistically offline with client UUID.
 4. Updating and deleting reviews optimistically.
@@ -107,9 +107,9 @@ git commit -m "feat(reviews): implement ReviewsContext with offline persistence 
   - `react-native-svg`: `Svg`, `Path`, `G`, `Circle`, `Text`
 - Produces:
   - `ReviewsSummaryBar`: Renders total reviews, avg rating, top flavor note.
-  - `ScaAttributeScoring`: Interactive 10-attribute scoring with presets and live score hero.
+  - `ScaAttributeScoring`: Interactive 10-attribute scoring with steppers, Baseline (82.5) / Clear (0) presets, and live score hero.
   - `ScaFlavorWheelSvg`: SVG flavor wheel with touchable categories and tap-to-inspect readout.
-  - `FlavorTagSelector`: Responsive tag chips / wheel switcher.
+  - `FlavorTagSelector`: Responsive tag chips / wheel switcher (`width >= 600px`).
   - `ReviewCard`: Card component for catalog list with $\ge 44\text{pt}$ touch target.
 
 - [ ] **Step 1: Write unit tests for `ReviewCard` and `ScaAttributeScoring`**
@@ -160,9 +160,9 @@ git commit -m "feat(reviews): add ReviewsSummaryBar, ReviewCard, ScaAttributeSco
 **Files:**
 - Create: `apps/mobile/src/features/reviews/screens/ReviewsCatalogScreen.tsx`
 - Create: `apps/mobile/src/features/reviews/screens/ReviewsCatalogScreen.test.tsx`
-- Modify: `apps/mobile/app/(tabs)/_layout.tsx`
 - Create: `apps/mobile/app/(tabs)/reviews.tsx`
-- Delete/Replace: `apps/mobile/app/(tabs)/cupping.tsx`
+- Delete: `apps/mobile/app/(tabs)/cupping.tsx`
+- Modify: `apps/mobile/app/(tabs)/_layout.tsx`
 
 **Interfaces:**
 - Consumes:
@@ -180,7 +180,7 @@ Create `apps/mobile/src/features/reviews/screens/ReviewsCatalogScreen.test.tsx`:
 - Tests brew method filter chips (`All`, `V60`, `Espresso`, etc.).
 - Tests rating filter chips.
 - Tests empty state for 0 reviews and empty search results.
-- Tests tapping `ADD REVIEW` navigates to `/reviews/modal`.
+- Tests tapping `<Plus size={16} ... /> ADD REVIEW` navigates to `/reviews/modal` via `handleAddReview`.
 - Tests tapping a card navigates to `/reviews/${id}`.
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -191,18 +191,18 @@ Expected: FAIL
 - [ ] **Step 3: Implement `ReviewsCatalogScreen.tsx`**
 
 Implement:
-- Header: Eyebrow `TASTING JOURNAL`, Title `Brew Reviews`, Subtitle, and `<Plus size={16} color={colors.canvas} />` + `ADD REVIEW` button (styled identically to `StashCatalogScreen` and `EquipmentCatalogScreen`).
+- Header: Eyebrow `TASTING JOURNAL`, Title `Brew Reviews`, Subtitle, and `<Plus size={16} color={colors.canvas} />` + `ADD REVIEW` button (handler: `handleAddReview`).
 - `ReviewsSummaryBar` at top.
 - Search input with custom `X` clear button (no redundant iOS clear button).
 - Method filter scrollable chips and rating filter chips.
 - FlatList of `ReviewCard`s.
-- Empty states with CTA button using `<Plus size={16} color={colors.canvas} />` + `ADD YOUR FIRST REVIEW`.
+- Empty states with CTA button `<Plus size={16} color={colors.canvas} />` + `ADD YOUR FIRST REVIEW` (handler: `handleAddReview`).
 
-- [ ] **Step 4: Update Tab Navigation**
+- [ ] **Step 4: Update Tab Navigation and Delete Legacy Placeholder**
 
 - In `apps/mobile/app/(tabs)/_layout.tsx`: update 5th tab screen to `name="reviews"`.
 - Create `apps/mobile/app/(tabs)/reviews.tsx` rendering `<ReviewsCatalogScreen />`.
-- Remove legacy placeholder `apps/mobile/app/(tabs)/cupping.tsx`.
+- Delete `apps/mobile/app/(tabs)/cupping.tsx` via `git rm`.
 
 - [ ] **Step 5: Run tests to verify they pass**
 
@@ -212,7 +212,8 @@ Expected: PASS
 - [ ] **Step 6: Commit**
 
 ```bash
-git add apps/mobile/src/features/reviews/screens/ReviewsCatalogScreen.tsx apps/mobile/src/features/reviews/screens/ReviewsCatalogScreen.test.tsx apps/mobile/app/\(tabs\)/_layout.tsx apps/mobile/app/\(tabs\)/reviews.tsx apps/mobile/app/\(tabs\)/cupping.tsx
+git add apps/mobile/src/features/reviews/screens/ReviewsCatalogScreen.tsx apps/mobile/src/features/reviews/screens/ReviewsCatalogScreen.test.tsx apps/mobile/app/\(tabs\)/_layout.tsx apps/mobile/app/\(tabs\)/reviews.tsx
+git rm apps/mobile/app/\(tabs\)/cupping.tsx
 git commit -m "feat(reviews): implement ReviewsCatalogScreen and wire (tabs)/reviews route"
 ```
 
@@ -259,14 +260,14 @@ Implement:
 - Outer wrapper checking `id && loading` to render `<ActivityIndicator testID="review-modal-loading" />`.
 - Inner `ReviewModalForm` keyed by `sourceItem?.id || id || 'new'`.
 - `KeyboardAwareScrollView` with `bottomOffset={32}`.
-- Top header with `X`, title ("Add Review" / "Edit Review"), and `✓` / `SAVE` button.
+- Top header with `X` (calls `handleClose`), title ("Add Review" / "Edit Review"), and `SAVE REVIEW` / `✓` button (calls `handleSave`).
 - Pending brew banner if coming from timer session with `CLEAR` action.
 - Coffee Section: Stash picker or custom Name + Roaster inputs.
 - Equipment Section: Grinder picker, Grind setting input, Brewer picker, Brew method, Dose, Water, Time, Temp.
 - Flavor Tag Selector (Tags/Wheel).
 - SCA Sensory Scoring (10 attributes with live score hero).
 - Tasting notes textarea, 1–5 star rating, "Would brew again" checkbox.
-- Delete button in edit mode with confirmation alert.
+- Delete button in edit mode with confirmation alert via `handleDelete`.
 
 - [ ] **Step 4: Register route in `apps/mobile/app/_layout.tsx` and create `app/reviews/modal.tsx`**
 
@@ -308,7 +309,7 @@ git commit -m "feat(reviews): implement ReviewModalScreen with equipment trackin
 
 Create `apps/mobile/src/features/reviews/screens/ReviewDetailScreen.test.tsx`:
 - Tests cold-start hydration loading guard.
-- Tests rendering complete review data (coffee, roaster, date, method, rating, grinder snapshot, brewer snapshot, dose : water, time, temp).
+- Tests rendering complete review data (coffee, roaster, brew date, method, rating, grinder snapshot, brewer snapshot, dose : water, time, temp).
 - Tests rendering all 10 SCA attribute scores and classification badge.
 - Tests rendering flavor tags and tasting notes.
 - Tests tapping "Edit" navigates to `/reviews/modal?id=${id}`.
@@ -328,7 +329,7 @@ Implement:
 - SCA Sensory Breakdown: Calculated score, classification badge, and full 10-attribute score table/bars.
 - Flavor Notes card: Color-coded descriptor chips.
 - Notes card: Cupper impressions.
-- Actions: Edit button (navigates to `/reviews/modal?id=${id}`) and Delete button with confirmation alert.
+- Actions: Edit button (navigates to `/reviews/modal?id=${id}`) and Delete button with confirmation alert via `handleDelete`.
 
 - [ ] **Step 4: Register route in `apps/mobile/app/_layout.tsx` and create `app/reviews/[id].tsx`**
 
@@ -337,8 +338,8 @@ Create `apps/mobile/app/reviews/[id].tsx` and register `<Stack.Screen name="revi
 - [ ] **Step 5: Wire Timer completion in `apps/mobile/app/(tabs)/index.tsx`**
 
 In `apps/mobile/app/(tabs)/index.tsx`:
-- Rename `handleLogCupping` to `handleLogReview`.
-- Update button text to `ADD REVIEW` (accessibilityLabel="Add Review").
+- Rename `handleLogCupping` to `handleAddReview`.
+- Update button text to `<Plus size={16} color={colors.canvas} />` + `ADD REVIEW` (accessibilityLabel="Add Review").
 - Navigate to `/reviews/modal` passing:
   - `fromTimer: 'true'`
   - `beanId: activeBrewBean?.id`
@@ -369,7 +370,7 @@ git commit -m "feat(reviews): implement ReviewDetailScreen and wire timer comple
 
 ---
 
-### Task 6: Web Parity & Complete Reviews Renaming
+### Task 6: Web Reviews Subsystem Alignment & Parity
 
 **Files:**
 - Rename/Move: `apps/web/src/features/cupping` to `apps/web/src/features/reviews`
@@ -396,14 +397,14 @@ git commit -m "feat(reviews): implement ReviewDetailScreen and wire timer comple
   - `useReviews` hook replacing `useTastingLogs`
   - Web equipment selection (grinder dropdown + grind setting input, brewer dropdown)
   - Snapshots saved to `tasting_logs` (`grinderSnapshot`, `brewerSnapshot`, `grindSetting`)
-  - Equipment snapshots displayed in past logs history on web
-  - Timer view finish button renamed from "RATE & LOG TO CUPPING SHEET" to "RATE & REVIEW CUP"
+  - Equipment snapshots displayed in past reviews history on web
+  - Timer view finish button renamed to `ADD REVIEW` (handler: `handleAddReview`)
 
 - [ ] **Step 1: Write failing unit tests for web equipment tracking and review route in `ReviewsView.test.tsx`, `Header.test.tsx`, `TimerView.test.tsx`**
 
 Update/add tests:
 - Tests that the Reviews tab link navigates to `/reviews`.
-- Tests that TimerView renders "RATE & REVIEW CUP" and navigates to `/reviews`.
+- Tests that TimerView renders "ADD REVIEW" button and navigates to `/reviews` via `handleAddReview`.
 - Tests that grinder selection and grind setting input render when `equipment` is provided.
 - Tests that brewer selection renders when `equipment` is provided.
 - Tests that submitting the review includes `grinderId`, `brewerId`, `grinderSnapshot`, `brewerSnapshot`, and `grindSetting`.
@@ -433,11 +434,11 @@ In `apps/web/src/features/reviews/ReviewsView.tsx`:
   - Add Grind Setting text input.
   - Add Brewer dropdown (filtered `type === 'brewer'` + custom/default options).
   - Pre-fill grinder, grind setting, and brewer from `pendingBrewSession?.recipe` when loaded.
-- In `handleSaveTastingLog`:
-  - Calculate `grinderSnapshot` and `brewerSnapshot` and include `grinderId`, `brewerId`, and `grindSetting` in `newLogPayload`.
+- In `handleSave`:
+  - Calculate `grinderSnapshot` and `brewerSnapshot` and include `grinderId`, `brewerId`, and `grindSetting` in review payload. Button text is `SAVE REVIEW`.
 - In Past Reviews History:
   - Render equipment snapshots (`log.grinderSnapshot` @ `log.grindSetting` • `log.brewerSnapshot`) alongside brew parameters.
-  - Update card titles and labels from "Cupping" to "Review".
+  - Section title: "Past Brew Reviews".
 
 - [ ] **Step 5: Update web routes and timer completion**
 
@@ -445,9 +446,9 @@ In `apps/web/src/features/reviews/ReviewsView.tsx`:
 - In `apps/web/src/components/shared/Header.tsx`: update reviews tab path to `'/reviews'`.
 - In `apps/web/src/routes/TimerRoute.tsx`: update `handleLogCompletedBrew` to `navigate('/reviews')`.
 - In `apps/web/src/features/timer/TimerView.tsx`:
-  - Rename `handleLogFreeBrewCupping` to `handleLogFreeBrewReview`.
-  - Update banner text: "BREW COMPLETE! RATE & REVIEW CUP".
-  - Update button text: "RATE & REVIEW CUP" (aria-label="RATE & REVIEW CUP").
+  - Rename `handleLogFreeBrewCupping` to `handleAddReview`.
+  - Update banner text: "BREW COMPLETE! ADD REVIEW".
+  - Update button text: "ADD REVIEW" (aria-label="Add Review").
 - In `apps/web/src/layouts/RootLayout.tsx`: update imports from `features/reviews`.
 
 - [ ] **Step 6: Run web tests to verify they pass**
@@ -481,12 +482,11 @@ Expected: All tests pass across `@brewlog/core`, `@brewlog/supabase`, `@brewlog/
 
 - [ ] **Step 3: Document milestone devlog**
 
-Create `docs/devlogs/2026-10-04-mobile-reviews-and-cupping-parity.md` summarizing the completed work, verified test results, and cross-platform parity.
+Create `docs/devlogs/2026-10-04-mobile-and-web-reviews-parity.md` summarizing the completed work, verified test results, and cross-platform parity.
 
 - [ ] **Step 4: Final commit**
 
 ```bash
-git add docs/devlogs/2026-10-04-mobile-reviews-and-cupping-parity.md
-git commit -m "docs: document mobile reviews subsystem and web cupping parity milestone"
+git add docs/devlogs/2026-10-04-mobile-and-web-reviews-parity.md
+git commit -m "docs: document mobile and web reviews subsystem parity milestone"
 ```
-

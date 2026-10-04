@@ -1,7 +1,7 @@
-# Design Spec: Mobile Reviews Subsystem & Web Reviews Parity
+# Reviews Subsystem & Web Parity Design Spec
 
 - **Date:** 2026-10-04
-- **Status:** Approved Draft
+- **Status:** Approved
 - **Target Files:**
   - `apps/mobile/src/features/reviews/ReviewsContext.tsx`
   - `apps/mobile/src/features/reviews/screens/ReviewsCatalogScreen.tsx`
@@ -37,11 +37,11 @@ The mobile application currently has a placeholder screen for the 5th tab (`app/
 We have made the architectural decision to retire the "Cupping" naming across the entire codebase—including routes, views, components, folders, and UI text—in favor of **"Reviews"** and **"Tasting Journal"**:
 
 1. **Complete Renaming from "Cupping" to "Reviews"**:
-   - Web: `features/cupping/` is renamed to `features/reviews/`, `CuppingView.tsx` becomes `ReviewsView.tsx`, `CuppingRoute.tsx` becomes `ReviewsRoute.tsx`, and URL route is `/reviews` (with `/cupping` redirect). Timer completion button is renamed to "RATE & REVIEW CUP".
-   - Mobile: `(tabs)/cupping.tsx` is deleted and replaced with `(tabs)/reviews.tsx`. The mobile feature directory is `src/features/reviews/`, with modal at `/reviews/modal` and detail at `/reviews/[id]`. Timer completion button is renamed to "LOG REVIEW".
+   - Web: `features/cupping/` is renamed to `features/reviews/`, `CuppingView.tsx` becomes `ReviewsView.tsx`, `CuppingRoute.tsx` becomes `ReviewsRoute.tsx`, and URL route is `/reviews` (with `/cupping` redirect). Timer completion button is renamed to `<Plus size={16} ... /> ADD REVIEW`.
+   - Mobile: `(tabs)/cupping.tsx` is deleted and replaced with `(tabs)/reviews.tsx`. The mobile feature directory is `src/features/reviews/`, with modal at `/reviews/modal` and detail at `/reviews/[id]`. Timer completion button is renamed to `<Plus size={16} ... /> ADD REVIEW`.
    - Domain model: Under the hood, domain models reuse `@brewlog/core`'s `TastingLog`, `CuppingAttributes`, `calculateScaScore`, and Supabase's `tasting_logs` table.
 2. **Catalog + Modal Architecture**:
-   - Matches the Bean Stash and Equipment pattern: `ReviewsCatalogScreen` on the tab with search, filters, and summary metrics, an `+ ADD REVIEW` header button opening `ReviewModalScreen` as a modal sheet, and `ReviewDetailScreen` for in-depth inspection of a past brew.
+   - Matches the Bean Stash and Equipment pattern: `ReviewsCatalogScreen` on the tab with search, filters, and summary metrics, an `<Plus size={16} ... /> ADD REVIEW` header button opening `ReviewModalScreen` as a modal sheet, and `ReviewDetailScreen` for in-depth inspection of a past brew.
 3. **Equipment Tracking in Reviews**:
    - Connects to `EquipmentContext` on mobile and `useEquipment()` on web so users can record the exact **Grinder** (with specific grind setting, e.g. "18 clicks", "5.2", "Medium-Fine") and **Brewer** used. Stores `grinderSnapshot` and `brewerSnapshot` to ensure historical logs survive future equipment deletions.
 4. **Responsive Sensory Flavor Selector**:
@@ -49,7 +49,7 @@ We have made the architectural decision to retire the "Cupping" naming across th
    - On standard portrait phones (<600px), defaults to thumb-friendly **Categorized Tag Chips** (with an optional toggle to an interactive SVG wheel featuring tap-to-inspect category callouts).
    - On foldables and tablets (>=600px), unlocks the full-scale interactive 2-ring SVG wheel.
 5. **Seamless Timer Completion Handoff**:
-   - When a brew completes on the Timer tab (web or mobile), tapping "ADD REVIEW" navigates directly to `/reviews/modal` (mobile) or `/reviews` (web) prefilled with the active bean, brew method, dose, water volume, actual brew time, and split timeline notes.
+   - When a brew completes on the Timer tab (web or mobile), tapping `<Plus size={16} ... /> ADD REVIEW` navigates directly to `/reviews/modal` (mobile) or `/reviews` (web) prefilled with the active bean, brew method, dose, water volume, actual brew time, and split timeline notes via handler `handleAddReview`.
 
 ---
 
@@ -110,20 +110,20 @@ export interface PendingBrewSession {
 
 ### Context Value Interface
 ```typescript
-export type AddTastingLogInput = Omit<TastingLog, 'id' | 'createdAt'> & {
+export type AddReviewInput = Omit<TastingLog, 'id' | 'createdAt'> & {
   id?: string;
   createdAt?: string;
 };
 
-export type TastingLogUpdater =
+export type ReviewUpdater =
   | Partial<TastingLog>
   | ((prev: TastingLog) => Partial<TastingLog>);
 
 export interface ReviewsContextValue {
   reviews: TastingLog[];
   loading: boolean;
-  addReview: (review: AddTastingLogInput) => Promise<TastingLog>;
-  updateReview: (id: string, updates: TastingLogUpdater) => Promise<TastingLog>;
+  addReview: (review: AddReviewInput) => Promise<TastingLog>;
+  updateReview: (id: string, updates: ReviewUpdater) => Promise<TastingLog>;
   deleteReview: (id: string) => Promise<void>;
   refreshReviews: () => Promise<void>;
   pendingBrewSession: PendingBrewSession | null;
@@ -160,7 +160,7 @@ export interface ReviewsContextValue {
   - Eyebrow: `TASTING JOURNAL`
   - Title: `Brew Reviews`
   - Subtitle: `Track tasting notes, flavor profiles, and sensory scores.`
-  - Action Button: `<Plus size={16} color={colors.canvas} />` + `ADD REVIEW` (styled identically to `StashCatalogScreen` and `EquipmentCatalogScreen`, navigating to `/reviews/modal`).
+  - Action Button: `<Plus size={16} color={colors.canvas} />` + `ADD REVIEW` (handler: `handleAddReview`, styled identically to `StashCatalogScreen` and `EquipmentCatalogScreen`, navigating to `/reviews/modal`).
 - **Summary Chassis Bar (`ReviewsSummaryBar.tsx`)**:
   - Displays 3 tiles: Total Reviews, Average Rating/Score, and Top Flavor Descriptor.
 - **Search Bar**:
@@ -171,7 +171,7 @@ export interface ReviewsContextValue {
   - Star rating filter: `All`, `5 Stars`, `4+ Stars`, `3+ Stars`.
 - **Review List**:
   - FlatList of `ReviewCard` items.
-  - Empty states for zero reviews and unmatched search queries, with CTA button `<Plus size={16} color={colors.canvas} />` + `ADD YOUR FIRST REVIEW`.
+  - Empty states for zero reviews and unmatched search queries, with CTA button `<Plus size={16} color={colors.canvas} />` + `ADD YOUR FIRST REVIEW` (handler: `handleAddReview`).
 
 ### 4.2. Review Card (`apps/mobile/src/features/reviews/components/ReviewCard.tsx`)
 - Displays:
@@ -187,9 +187,9 @@ export interface ReviewsContextValue {
 - **Route**: `apps/mobile/app/reviews/modal.tsx` (presentation: `modal`, `headerShown: false`).
 - **Hydration Guard**: Shows `ActivityIndicator` (`testID="review-modal-loading"`) if `id` exists while `loading === true`.
 - **Header**:
-  - Close button `X` (triggers dirty discard confirmation).
+  - Close button `X` (triggers dirty discard confirmation via `handleClose`).
   - Title: `Add Review` or `Edit Review`.
-  - Save button `✓` or `SAVE`.
+  - Save button `SAVE REVIEW` / `✓` (triggers `handleSave`).
 - **Pending Brew Banner**:
   - If loaded from a completed timer session, displays `Completed Brew Loaded: [Bean] • [Recipe] ([time]s)` with `CLEAR` button.
 - **Form Sections**:
@@ -212,7 +212,7 @@ export interface ReviewsContextValue {
      - 1–5 star rating selector.
      - "Would brew again" checkbox.
   6. **Destructive Action** (Edit mode only):
-     - Delete button with confirmation alert.
+     - Delete button with confirmation alert via `handleDelete`.
 
 ### 4.4. Review Detail Screen (`apps/mobile/src/features/reviews/screens/ReviewDetailScreen.tsx`)
 - **Route**: `apps/mobile/app/reviews/[id].tsx`
@@ -223,7 +223,7 @@ export interface ReviewsContextValue {
   - SCA Score Card: Calculated score, classification badge, and breakdown of all 10 attribute scores.
   - Flavor Notes section: Displaying all selected flavor tags with category color hints.
   - Tasting Impressions: Complete cupper notes.
-  - Delete action button with confirmation dialog.
+  - Delete action button with confirmation dialog via `handleDelete`.
 
 ---
 
@@ -266,7 +266,7 @@ export interface ReviewsContextValue {
      />
      ```
 3. **`apps/mobile/app/(tabs)/index.tsx` (Timer Completion)**:
-   - In `handleLogCupping`, navigate to `/reviews/modal` passing:
+   - In `handleAddReview`, navigate to `/reviews/modal` passing:
      ```typescript
      router.push({
        pathname: '/reviews/modal',
@@ -331,14 +331,14 @@ To maintain strict cross-platform parity, web routes and components are aligned 
    - In `apps/web/src/components/shared/Header.tsx`, update tab path to `/reviews`.
    - In `apps/web/src/routes/TimerRoute.tsx`, update completion navigation to `navigate('/reviews')`.
 2. **Equipment Context Wiring (`apps/web/src/routes/ReviewsRoute.tsx`)**:
-   - Pass `equipment={equipment}` from `useRootOutletContext()` to `CuppingView`.
-3. **Equipment Selection in `CuppingView.tsx`**:
+   - Pass `equipment={equipment}` from `useRootOutletContext()` to `ReviewsView`.
+3. **Equipment Selection in `ReviewsView.tsx`**:
    - Add Grinder selection dropdown (from `equipment.filter(e => e.type === 'grinder')` plus "+ Enter Custom Grinder" and "None").
    - Add Grind Setting text input (e.g. `18 clicks`, `5.2`, `Medium-Fine`). Pre-fills from `pendingBrewSession.recipe.grindSize`.
    - Add Brewer selection dropdown (from `equipment.filter(e => e.type === 'brewer')` plus "+ Enter Custom Brewer"). Pre-fills from `pendingBrewSession.recipe.recommendedBrewerId`.
-4. **Saving Equipment Snapshots (`handleSaveTastingLog`)**:
-   - Save `grinderId`, `brewerId`, `grinderSnapshot`, `brewerSnapshot`, and `grindSetting` in the `newLogPayload`.
+4. **Saving Equipment Snapshots (`handleSave`)**:
+   - Save `grinderId`, `brewerId`, `grinderSnapshot`, `brewerSnapshot`, and `grindSetting` in the review payload. Button text is `SAVE REVIEW`.
 5. **History Display Parity**:
-   - In "Past Brew Sessions & Cupping Notes" on web, display the grinder snapshot, grind setting, and brewer snapshot alongside the coffee dose, water, and time.
+   - In "Past Brew Reviews" on web, display the grinder snapshot, grind setting, and brewer snapshot alongside the coffee dose, water, and time.
 6. **Web Unit Testing**:
-   - Add tests in `apps/web/src/features/cupping/CuppingView.test.tsx`, `apps/web/src/components/shared/Header.test.tsx`, and `apps/web/src/App.test.tsx` verifying route navigation to `/reviews`, equipment selection, snapshot creation, and pre-filling from completed brew session.
+   - Add tests in `apps/web/src/features/reviews/ReviewsView.test.tsx`, `apps/web/src/components/shared/Header.test.tsx`, and `apps/web/src/App.test.tsx` verifying route navigation to `/reviews`, equipment selection, snapshot creation, and pre-filling from completed brew session.
