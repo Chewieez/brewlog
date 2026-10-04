@@ -1,28 +1,27 @@
 import { useState, useEffect, useCallback } from "react";
-import { Equipment } from "@brewlog/core";
+import { Equipment, DEFAULT_INITIAL_EQUIPMENT } from "@brewlog/core";
 import {
   mapEquipmentRowToDomain,
   mapEquipmentDomainToInsert,
 } from "@brewlog/supabase";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../auth/AuthContext";
-import { INITIAL_EQUIPMENT } from "../../lib/sampleData";
 
 const STORAGE_KEY = "brewlog_equipment_cache";
 
 const loadLocalEquipment = (): Equipment[] => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
+    if (raw !== null) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed;
       }
     }
   } catch (err) {
     console.error("Failed to load local equipment cache:", err);
   }
-  return INITIAL_EQUIPMENT;
+  return DEFAULT_INITIAL_EQUIPMENT;
 };
 
 const saveLocalEquipment = (items: Equipment[]) => {
@@ -51,13 +50,19 @@ export const useEquipment = () => {
       // 1. Check for unsynced offline items (created with local-eq- prefix)
       const localItems = loadLocalEquipment();
       const unsyncedItems = localItems.filter((item) => item.id.startsWith("local-eq-"));
+      const syncedIds = new Set<string>();
 
       if (unsyncedItems.length > 0) {
         console.log(`Auto-syncing ${unsyncedItems.length} offline equipment item(s) to Supabase...`);
         for (const item of unsyncedItems) {
           try {
             const payload = mapEquipmentDomainToInsert(item, user.id);
-            await supabase.from("equipment").insert(payload);
+            const { error: insertErr } = await supabase.from("equipment").insert(payload);
+            if (!insertErr) {
+              syncedIds.add(item.id);
+            } else {
+              console.error("Failed to sync item:", item, insertErr);
+            }
           } catch (syncErr) {
             console.error("Failed to sync item:", item, syncErr);
           }
@@ -74,8 +79,12 @@ export const useEquipment = () => {
         console.error("Supabase fetchEquipment error:", error);
       } else if (data) {
         const mapped: Equipment[] = data.map(mapEquipmentRowToDomain);
-        setEquipment(mapped);
-        saveLocalEquipment(mapped);
+        const remainingUnsynced = localItems.filter(
+          (item) => item.id.startsWith("local-eq-") && !syncedIds.has(item.id)
+        );
+        const merged = [...remainingUnsynced, ...mapped];
+        setEquipment(merged);
+        saveLocalEquipment(merged);
       }
     } catch (err) {
       console.error("fetchEquipment exception:", err);
@@ -148,6 +157,53 @@ export const useEquipment = () => {
     return fallbackItem;
   };
 
+  const updateEquipment = async (
+    id: string,
+    updates: Partial<Equipment>
+  ): Promise<Equipment> => {
+    let updatedItem: Equipment | undefined;
+    setEquipment((prev) => {
+      const updated = prev.map((item) => {
+        if (item.id === id) {
+          updatedItem = { ...item, ...updates };
+          return updatedItem;
+        }
+        return item;
+      });
+      saveLocalEquipment(updated);
+      return updated;
+    });
+
+    if (
+      supabase &&
+      user &&
+      !id.startsWith("local-eq-") &&
+      !id.startsWith("eq-") &&
+      updatedItem
+    ) {
+      try {
+        const payload = mapEquipmentDomainToInsert(updatedItem, user.id);
+        const { error } = await supabase
+          .from("equipment")
+          .update(payload)
+          .eq("id", id);
+        if (error) {
+          console.error("Supabase equipment update error:", error);
+        }
+      } catch (err) {
+        console.error("updateEquipment exception:", err);
+      }
+    }
+
+    return updatedItem || ({} as Equipment);
+  };
+
+  const toggleFavorite = async (id: string): Promise<void> => {
+    const current = equipment.find((e) => e.id === id);
+    if (!current) return;
+    await updateEquipment(id, { isFavorite: !current.isFavorite });
+  };
+
   const deleteEquipment = async (id: string): Promise<void> => {
     setEquipment((prev) => {
       const updated = prev.filter((item) => item.id !== id);
@@ -170,7 +226,9 @@ export const useEquipment = () => {
   return {
     equipment,
     addEquipment,
+    updateEquipment,
     deleteEquipment,
+    toggleFavorite,
     loading,
     refreshEquipment: fetchEquipment,
   };
