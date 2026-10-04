@@ -46,6 +46,12 @@ export const mapTastingLogDomainToInsert = (
   userId: string
 ): TastingLogInsert => ({
   user_id: userId,
+  bean_id: log.beanId || null,
+  recipe_id: log.recipeId || null,
+  grinder_id: log.grinderId || null,
+  brewer_id: log.brewerId || null,
+  grinder_snapshot: log.grinderSnapshot || null,
+  brewer_snapshot: log.brewerSnapshot || null,
   bean_name_snapshot: log.beanNameSnapshot,
   roaster_snapshot: log.roasterSnapshot,
   recipe_name_snapshot: log.recipeNameSnapshot,
