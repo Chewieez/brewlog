@@ -445,4 +445,78 @@ describe('EquipmentContext', () => {
     expect(result.current.equipment).toEqual([]);
     expect(result.current.grinders).toEqual([]);
   });
+
+  it('13. swaps local-eq-* ID to server ID immediately when remote insert succeeds even if subsequent remote fetch fails', async () => {
+    const offlineItem: Equipment = {
+      id: 'local-eq-offline-1',
+      type: 'grinder',
+      brand: 'Baratza',
+      model: 'Sette 270',
+      createdAt: '2026-02-01T00:00:00.000Z',
+    };
+    await AsyncStorage.setItem(EQUIPMENT_STORAGE_KEY, JSON.stringify([offlineItem]));
+
+    mockAuthUser = mockUser;
+
+    const mockUpsert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: {
+            id: 'server-uuid-12345',
+            user_id: mockUser.id,
+            type: 'grinder',
+            brand: 'Baratza',
+            model: 'Sette 270',
+            created_at: '2026-02-01T00:00:00.000Z',
+          },
+          error: null,
+        }),
+      }),
+    });
+
+    const mockSelect = vi.fn().mockReturnValue({
+      order: vi.fn().mockResolvedValue({
+        data: null,
+        error: new Error('Network timeout fetching remote equipment'),
+      }),
+    });
+
+    mockSupabaseFrom.mockImplementation((table: unknown) => {
+      if (table === 'equipment') {
+        return {
+          upsert: mockUpsert,
+          select: mockSelect,
+        };
+      }
+      return {};
+    });
+
+    const { result } = renderHook(() => useEquipment(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // Even though Step 4 threw/failed, Step 2 swapped the ID immediately
+    await waitFor(async () => {
+      const stored = JSON.parse((await AsyncStorage.getItem(EQUIPMENT_STORAGE_KEY)) || '[]');
+      expect(stored[0]?.id).toBe('server-uuid-12345');
+    });
+
+    expect(result.current.equipment[0]?.id).toBe('server-uuid-12345');
+  });
+
+  it('14. filters other equipment into other array', async () => {
+    const otherGear: Equipment = {
+      id: 'custom-eq-other',
+      type: 'other',
+      brand: 'Normcore',
+      model: 'WDT Tool V2',
+      createdAt: '2026-02-01T00:00:00.000Z',
+    };
+    await AsyncStorage.setItem(EQUIPMENT_STORAGE_KEY, JSON.stringify([otherGear]));
+
+    const { result } = renderHook(() => useEquipment(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.other).toHaveLength(1);
+    expect(result.current.other[0].model).toBe('WDT Tool V2');
+  });
 });

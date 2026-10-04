@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Equipment, EquipmentType, GrinderSettingScale } from "@brewlog/core";
-import { Sliders, Plus, Coffee, Scale, Flame, Trash2, Search, X, Star } from "lucide-react";
+import { Sliders, Plus, Coffee, Scale, Flame, Trash2, Search, X, Star, Layers } from "lucide-react";
 import { ConfirmationModal } from "../../components/shared/ConfirmationModal";
 
 export type CategoryFilter = "all" | EquipmentType;
@@ -16,6 +16,7 @@ const CATEGORIES: CategoryOption[] = [
   { id: "brewer", label: "Brewers" },
   { id: "scale", label: "Scales" },
   { id: "kettle", label: "Kettles" },
+  { id: "other", label: "Other" },
 ];
 
 interface EquipmentViewProps {
@@ -109,6 +110,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
   const brewers = filteredEquipment.filter((e) => e.type === "brewer");
   const scales = filteredEquipment.filter((e) => e.type === "scale");
   const kettles = filteredEquipment.filter((e) => e.type === "kettle");
+  const other = filteredEquipment.filter((e) => e.type === "other");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -363,6 +365,28 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
         </div>
       )}
 
+      {/* Other Equipment Section */}
+      {(selectedCategory === "all" || selectedCategory === "other") && (
+        <div>
+          <div className="flex items-center space-x-2 mb-4">
+            <Layers className="w-5 h-5 text-accent" />
+            <h3 className="text-lg font-bold text-zinc-100">Other Equipment & Accessories ({other.length})</h3>
+          </div>
+
+          {other.length === 0 ? (
+            <div className="p-6 rounded-2xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-zinc-500">
+              {searchQuery
+                ? "No other equipment matching your search."
+                : "No other equipment logged yet. Add accessories, WDT tools, or custom gear."}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {other.map(renderCard)}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Add / Edit Modal */}
       {isModalOpen && (
         <div
@@ -411,6 +435,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                   <option value="brewer" className="bg-panel-recessed text-zinc-100">Brewer / Dripper</option>
                   <option value="scale" className="bg-panel-recessed text-zinc-100">Precision Scale</option>
                   <option value="kettle" className="bg-panel-recessed text-zinc-100">Kettle</option>
+                  <option value="other" className="bg-panel-recessed text-zinc-100">Other Equipment</option>
                 </select>
               </div>
 

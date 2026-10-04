@@ -16,6 +16,7 @@ import {
   Coffee,
   Scale,
   Flame,
+  Layers,
 } from 'lucide-react-native';
 import { Equipment, EquipmentType, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { FONTS } from '../../../theme/fonts';
@@ -24,7 +25,7 @@ import { EquipmentCard } from '../components/EquipmentCard';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
-export type CategoryFilter = 'all' | 'grinder' | 'brewer' | 'scale' | 'kettle';
+export type CategoryFilter = 'all' | 'grinder' | 'brewer' | 'scale' | 'kettle' | 'other';
 
 interface CategoryOption {
   id: CategoryFilter;
@@ -37,6 +38,7 @@ const CATEGORIES: CategoryOption[] = [
   { id: 'brewer', label: 'Brewers' },
   { id: 'scale', label: 'Scales' },
   { id: 'kettle', label: 'Kettles' },
+  { id: 'other', label: 'Other' },
 ];
 
 export const EquipmentCatalogScreen: React.FC = () => {
@@ -47,6 +49,7 @@ export const EquipmentCatalogScreen: React.FC = () => {
     brewers,
     scales,
     kettles,
+    other,
     toggleFavorite,
   } = useEquipment();
 
@@ -72,17 +75,20 @@ export const EquipmentCatalogScreen: React.FC = () => {
   const filteredBrewers = useMemo(() => filterItems(brewers), [filterItems, brewers]);
   const filteredScales = useMemo(() => filterItems(scales), [filterItems, scales]);
   const filteredKettles = useMemo(() => filterItems(kettles), [filterItems, kettles]);
+  const filteredOther = useMemo(() => filterItems(other), [filterItems, other]);
 
   const totalFilteredCount = useMemo(() => {
     if (selectedCategory === 'grinder') return filteredGrinders.length;
     if (selectedCategory === 'brewer') return filteredBrewers.length;
     if (selectedCategory === 'scale') return filteredScales.length;
     if (selectedCategory === 'kettle') return filteredKettles.length;
+    if (selectedCategory === 'other') return filteredOther.length;
     return (
       filteredGrinders.length +
       filteredBrewers.length +
       filteredScales.length +
-      filteredKettles.length
+      filteredKettles.length +
+      filteredOther.length
     );
   }, [
     selectedCategory,
@@ -90,6 +96,7 @@ export const EquipmentCatalogScreen: React.FC = () => {
     filteredBrewers.length,
     filteredScales.length,
     filteredKettles.length,
+    filteredOther.length,
   ]);
 
   const handleAddEquipment = useCallback(() => {
@@ -311,6 +318,14 @@ export const EquipmentCatalogScreen: React.FC = () => {
                 filteredKettles,
                 Flame,
                 'No kettles logged yet. Add your gooseneck kettle.'
+              )}
+
+            {(selectedCategory === 'all' || selectedCategory === 'other') &&
+              renderSection(
+                'Other Equipment & Accessories',
+                filteredOther,
+                Layers,
+                'No other equipment logged yet.'
               )}
           </View>
         )}

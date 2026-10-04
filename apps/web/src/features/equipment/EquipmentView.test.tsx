@@ -39,6 +39,14 @@ const MOCK_EQUIPMENT: Equipment[] = [
     subType: "Variable Temp Gooseneck",
     createdAt: "2026-01-04",
   },
+  {
+    id: "other-1",
+    type: "other",
+    brand: "Fellow",
+    model: "Atmos Canister",
+    subType: "Vacuum Seal Canister",
+    createdAt: "2026-01-05",
+  },
 ];
 
 describe("EquipmentView", () => {
@@ -54,6 +62,7 @@ describe("EquipmentView", () => {
     expect(screen.getByText(/Brewers & Drippers \(1\)/i)).toBeDefined();
     expect(screen.getByText(/Precision Scales \(1\)/i)).toBeDefined();
     expect(screen.getByText(/Kettles & Water Gear \(1\)/i)).toBeDefined();
+    expect(screen.getByText(/Other Equipment & Accessories \(1\)/i)).toBeDefined();
 
     expect(screen.getByText("Ode Gen 2")).toBeDefined();
     expect(screen.getByText("64mm Flat Burrs")).toBeDefined();
@@ -63,6 +72,7 @@ describe("EquipmentView", () => {
     expect(screen.getByText("V60 02 Ceramic")).toBeDefined();
     expect(screen.getByText("Lunar")).toBeDefined();
     expect(screen.getByText("Stagg EKG")).toBeDefined();
+    expect(screen.getByText("Atmos Canister")).toBeDefined();
   });
 
   it("renders empty placeholders when no equipment in categories", () => {
@@ -72,6 +82,7 @@ describe("EquipmentView", () => {
     expect(screen.getByText(/No brewers logged yet\./i)).toBeDefined();
     expect(screen.getByText(/No scales logged yet\./i)).toBeDefined();
     expect(screen.getByText(/No kettles logged yet\./i)).toBeDefined();
+    expect(screen.getByText(/No other equipment logged yet\./i)).toBeDefined();
   });
 
   it("opens add equipment modal and handles submitting a new item", async () => {
@@ -161,6 +172,20 @@ describe("EquipmentView", () => {
     expect(screen.getByText(/Brewers & Drippers \(1\)/i)).toBeDefined();
     expect(screen.getByText("V60 02 Ceramic")).toBeDefined();
     expect(screen.queryByRole("heading", { name: /Grinders/i })).toBeNull();
+    expect(screen.queryByRole("heading", { name: /Precision Scales/i })).toBeNull();
+    expect(screen.queryByRole("heading", { name: /Kettles & Water Gear/i })).toBeNull();
+    expect(screen.queryByRole("heading", { name: /Other Equipment & Accessories/i })).toBeNull();
+  });
+
+  it("filters equipment by other category", () => {
+    render(<EquipmentView equipment={MOCK_EQUIPMENT} onAddEquipment={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Other" }));
+
+    expect(screen.getByText(/Other Equipment & Accessories \(1\)/i)).toBeDefined();
+    expect(screen.getByText("Atmos Canister")).toBeDefined();
+    expect(screen.queryByRole("heading", { name: /Grinders/i })).toBeNull();
+    expect(screen.queryByRole("heading", { name: /Brewers & Drippers/i })).toBeNull();
     expect(screen.queryByRole("heading", { name: /Precision Scales/i })).toBeNull();
     expect(screen.queryByRole("heading", { name: /Kettles & Water Gear/i })).toBeNull();
   });

@@ -10,7 +10,7 @@ import { Equipment } from '@brewlog/core';
 (globalThis as unknown as { __DEV__: boolean }).__DEV__ = false;
 
 vi.mock('react-native-safe-area-context', () => ({
-  SafeAreaView: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+  SafeAreaView: ({ children, style: _style, edges: _edges, ...props }: any) => <div {...props}>{children}</div>,
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }));
 
@@ -95,6 +95,9 @@ vi.mock('react-native', () => ({
       {typeof children === 'function' ? children({ pressed: false }) : children}
     </div>
   ),
+  ActivityIndicator: ({ testID, style: _style, size: _size, color: _color, ...props }: any) => (
+    <div data-testid={testID} role="progressbar" {...props} />
+  ),
   StyleSheet: {
     create: (styles: any) => styles,
   },
@@ -139,6 +142,7 @@ const createMockContext = (overrides?: Partial<EquipmentContextValue>): Equipmen
   brewers: [],
   scales: [],
   kettles: [],
+  other: [],
   loading: false,
   addEquipment: vi.fn().mockResolvedValue(mockSampleEquipment[0]),
   updateEquipment: vi.fn().mockResolvedValue(mockSampleEquipment[0]),
@@ -345,4 +349,47 @@ describe('EquipmentModalScreen', () => {
       );
     });
   });
+
+  it('renders loading indicator when id is present and context is still loading (cold-start / deep-link)', () => {
+    mockParams = { id: 'eq-edit-1' };
+    const mockContext = createMockContext({
+      equipment: [],
+      loading: true,
+    });
+    const { getByTestId, queryByText } = render(
+      <EquipmentContext.Provider value={mockContext}>
+        <EquipmentModalScreen />
+      </EquipmentContext.Provider>
+    );
+
+    expect(getByTestId('equipment-modal-loading')).toBeDefined();
+    expect(queryByText('NEW EQUIPMENT')).toBeNull();
+    expect(queryByText('EDIT EQUIPMENT')).toBeNull();
+  });
+
+  it('supports creating and saving equipment with type other', async () => {
+    const mockContext = createMockContext();
+    const { getByRole, getByLabelText } = render(
+      <EquipmentContext.Provider value={mockContext}>
+        <EquipmentModalScreen />
+      </EquipmentContext.Provider>
+    );
+
+    rtlFireEvent.click(getByRole('button', { name: 'Select Other' }));
+    rtlFireEvent.change(getByLabelText('Brand Name'), { target: { value: 'Fellow' } });
+    rtlFireEvent.change(getByLabelText('Model Name'), { target: { value: 'Atmos Vacuum Canister' } });
+
+    rtlFireEvent.click(getByRole('button', { name: 'Save Equipment' }));
+
+    await waitFor(() => {
+      expect(mockContext.addEquipment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'other',
+          brand: 'Fellow',
+          model: 'Atmos Vacuum Canister',
+        })
+      );
+    });
+  });
 });
+

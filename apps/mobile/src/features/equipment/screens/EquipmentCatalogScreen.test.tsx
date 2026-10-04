@@ -75,6 +75,7 @@ vi.mock('lucide-react-native', () => ({
   Scale: () => null,
   Flame: () => null,
   Star: () => null,
+  Layers: () => null,
 }));
 
 const mockPush = vi.fn();
@@ -121,6 +122,15 @@ const mockItems: Equipment[] = [
     isFavorite: true,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
+  {
+    id: 'eq-5',
+    type: 'other',
+    brand: 'Fellow',
+    model: 'Atmos Canister',
+    subType: 'container',
+    isFavorite: false,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
 ];
 
 const mockEquipmentContext = {
@@ -129,6 +139,7 @@ const mockEquipmentContext = {
   brewers: mockItems.filter((i) => i.type === 'brewer'),
   scales: mockItems.filter((i) => i.type === 'scale'),
   kettles: mockItems.filter((i) => i.type === 'kettle'),
+  other: mockItems.filter((i) => i.type === 'other'),
   loading: false,
   addEquipment: vi.fn(),
   updateEquipment: vi.fn(),
@@ -137,14 +148,17 @@ const mockEquipmentContext = {
   refreshEquipment: vi.fn(),
 };
 
+let activeEquipmentContext = mockEquipmentContext;
+
 vi.mock('../EquipmentContext', () => ({
-  useEquipment: () => mockEquipmentContext,
+  useEquipment: () => activeEquipmentContext,
 }));
 
 describe('EquipmentCatalogScreen', () => {
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+    activeEquipmentContext = mockEquipmentContext;
   });
 
   it('renders BREW GEAR eyebrow, Equipment title, and ADD EQUIPMENT button', () => {
@@ -156,18 +170,20 @@ describe('EquipmentCatalogScreen', () => {
     expect(getByRole('button', { name: 'Add new equipment' })).toBeDefined();
   });
 
-  it('renders all 4 category sections with item counts by default', () => {
+  it('renders all 5 category sections with item counts by default', () => {
     const { getByText } = render(<EquipmentCatalogScreen />);
 
     expect(getByText('Grinders (1)')).toBeDefined();
     expect(getByText('Brewers & Drippers (1)')).toBeDefined();
     expect(getByText('Precision Scales (1)')).toBeDefined();
     expect(getByText('Kettles & Water Gear (1)')).toBeDefined();
+    expect(getByText('Other Equipment & Accessories (1)')).toBeDefined();
 
     expect(getByText('Ode Gen 2')).toBeDefined();
     expect(getByText('V60 02 Plastic')).toBeDefined();
     expect(getByText('Black Mirror')).toBeDefined();
     expect(getByText('Stagg EKG')).toBeDefined();
+    expect(getByText('Atmos Canister')).toBeDefined();
   });
 
   it('filters items when search query is entered', () => {
@@ -192,6 +208,34 @@ describe('EquipmentCatalogScreen', () => {
     expect(getByText('Ode Gen 2')).toBeDefined();
     expect(queryByText('Brewers & Drippers (1)')).toBeNull();
     expect(queryByText('V60 02 Plastic')).toBeNull();
+  });
+
+  it('filters by other category when Other filter chip is pressed', () => {
+    const { getByRole, getByText, queryByText } = render(<EquipmentCatalogScreen />);
+
+    fireEvent.click(getByRole('button', { name: 'Filter by Other' }));
+
+    expect(getByText('Other Equipment & Accessories (1)')).toBeDefined();
+    expect(getByText('Atmos Canister')).toBeDefined();
+    expect(queryByText('Grinders (1)')).toBeNull();
+    expect(queryByText('Brewers & Drippers (1)')).toBeNull();
+  });
+
+  it('displays other equipment without empty catalog screen when only other gear exists', () => {
+    activeEquipmentContext = {
+      ...mockEquipmentContext,
+      equipment: [mockItems[4]],
+      grinders: [],
+      brewers: [],
+      scales: [],
+      kettles: [],
+      other: [mockItems[4]],
+    };
+    const { getByText, queryByText } = render(<EquipmentCatalogScreen />);
+
+    expect(getByText('Other Equipment & Accessories (1)')).toBeDefined();
+    expect(getByText('Atmos Canister')).toBeDefined();
+    expect(queryByText('NO EQUIPMENT FOUND')).toBeNull();
   });
 
   it('navigates to /equipment/modal when ADD EQUIPMENT button is tapped', () => {

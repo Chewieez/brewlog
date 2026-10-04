@@ -37,6 +37,7 @@ export interface EquipmentContextValue {
   brewers: Equipment[];
   scales: Equipment[];
   kettles: Equipment[];
+  other: Equipment[];
   loading: boolean;
   addEquipment: (item: AddEquipmentInput) => Promise<Equipment>;
   updateEquipment: (id: string, updates: EquipmentUpdater) => Promise<Equipment>;
@@ -201,6 +202,24 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
 
             if (!eqErr && eqData) {
               syncedIds.add(item.id);
+              const mapped = mapEquipmentRowToDomain(eqData);
+              equipmentRef.current = equipmentRef.current.map((e) =>
+                e.id === item.id ? mapped : e
+              );
+              setEquipment([...equipmentRef.current]);
+              await persistCachedEquipment(equipmentRef.current);
+
+              if (pendingUpdatesRef.current.has(item.id)) {
+                pendingUpdatesRef.current.delete(item.id);
+                pendingUpdatesRef.current.add(mapped.id);
+                await persistPendingUpdates(pendingUpdatesRef.current);
+              }
+
+              if (pendingDeletesRef.current.has(item.id)) {
+                pendingDeletesRef.current.delete(item.id);
+                pendingDeletesRef.current.add(mapped.id);
+                await persistPendingDeletes(pendingDeletesRef.current);
+              }
             } else if (eqErr) {
               console.error('Failed to sync offline equipment:', item.model, eqErr);
             }
@@ -467,6 +486,11 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
     [equipment]
   );
 
+  const other = useMemo(
+    () => equipment.filter((e) => e.type === 'other'),
+    [equipment]
+  );
+
   const value = useMemo<EquipmentContextValue>(
     () => ({
       equipment,
@@ -474,6 +498,7 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
       brewers,
       scales,
       kettles,
+      other,
       loading,
       addEquipment,
       updateEquipment,

@@ -6,6 +6,7 @@ import {
   Pressable,
   Alert,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -36,6 +37,7 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
   { label: 'Brewer', value: 'brewer' },
   { label: 'Scale', value: 'scale' },
   { label: 'Kettle', value: 'kettle' },
+  { label: 'Other', value: 'other' },
 ];
 
 interface SettingScaleOption {
@@ -50,18 +52,14 @@ const SCALE_TYPE_OPTIONS: SettingScaleOption[] = [
   { label: 'Microns', value: 'microns' },
 ];
 
-export const EquipmentModalScreen: React.FC<EquipmentModalScreenProps> = ({
-  equipmentId,
-}) => {
-  const router = useRouter();
-  const params = useLocalSearchParams<{ id?: string | string[] }>();
-  const id =
-    equipmentId ??
-    (Array.isArray(params.id) ? params.id[0] : params.id) ??
-    '';
+interface EquipmentModalFormProps {
+  id: string;
+  sourceItem?: Equipment;
+}
 
-  const { equipment, addEquipment, updateEquipment, deleteEquipment } = useEquipment();
-  const sourceItem = id ? equipment.find((item) => item.id === id) : undefined;
+const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem }) => {
+  const router = useRouter();
+  const { addEquipment, updateEquipment, deleteEquipment } = useEquipment();
   const isEditMode = Boolean(sourceItem);
 
   // Form field states
@@ -188,6 +186,8 @@ export const EquipmentModalScreen: React.FC<EquipmentModalScreenProps> = ({
         return 'FEATURES / RESOLUTION';
       case 'kettle':
         return 'KETTLE FEATURES / SPOUT';
+      case 'other':
+        return 'EQUIPMENT TYPE / FEATURES';
       default:
         return 'SUBTYPE';
     }
@@ -203,6 +203,8 @@ export const EquipmentModalScreen: React.FC<EquipmentModalScreenProps> = ({
         return 'e.g. 0.1g Smart Scale, Auto-Timer';
       case 'kettle':
         return 'e.g. Variable Temp Gooseneck, Stovetop';
+      case 'other':
+        return 'e.g. WDT Tool, Refractometer, RDT Spray';
       default:
         return 'e.g. Specifications';
     }
@@ -218,6 +220,8 @@ export const EquipmentModalScreen: React.FC<EquipmentModalScreenProps> = ({
         return 'e.g. Timemore, Acaia, Felicita';
       case 'kettle':
         return 'e.g. Fellow, Bonavita, Brewista';
+      case 'other':
+        return 'e.g. Subminimal, SworksDesign, Normcore';
       default:
         return 'e.g. Brand';
     }
@@ -233,6 +237,8 @@ export const EquipmentModalScreen: React.FC<EquipmentModalScreenProps> = ({
         return 'e.g. Black Mirror Basic 2, Lunar';
       case 'kettle':
         return 'e.g. Stagg EKG (0.9L)';
+      case 'other':
+        return 'e.g. Flick WDT, Dipper, Blind Shaker';
       default:
         return 'e.g. Model Name';
     }
@@ -450,10 +456,44 @@ export const EquipmentModalScreen: React.FC<EquipmentModalScreenProps> = ({
   );
 };
 
+export const EquipmentModalScreen: React.FC<EquipmentModalScreenProps> = ({
+  equipmentId,
+}) => {
+  const params = useLocalSearchParams<{ id?: string | string[] }>();
+  const id =
+    equipmentId ??
+    (Array.isArray(params.id) ? params.id[0] : params.id) ??
+    '';
+
+  const { equipment, loading } = useEquipment();
+
+  if (Boolean(id) && loading) {
+    return (
+      <SafeAreaView edges={['top']} style={[styles.safeArea, styles.loadingContainer]}>
+        <ActivityIndicator size="large" color={colors.accent} testID="equipment-modal-loading" />
+      </SafeAreaView>
+    );
+  }
+
+  const sourceItem = id ? equipment.find((item) => item.id === id) : undefined;
+
+  return (
+    <EquipmentModalForm
+      key={sourceItem ? sourceItem.id : (id || 'new')}
+      id={id}
+      sourceItem={sourceItem}
+    />
+  );
+};
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.canvas,
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   container: {
     flex: 1,
