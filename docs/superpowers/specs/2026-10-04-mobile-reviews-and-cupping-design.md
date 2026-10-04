@@ -1,4 +1,4 @@
-# Design Spec: Mobile Reviews Subsystem & Web Cupping Parity
+# Design Spec: Mobile Reviews Subsystem & Web Reviews Parity
 
 - **Date:** 2026-10-04
 - **Status:** Approved Draft
@@ -18,28 +18,38 @@
   - `apps/mobile/app/(tabs)/_layout.tsx`
   - `apps/mobile/app/(tabs)/index.tsx`
   - `apps/mobile/app/_layout.tsx`
+  - `apps/web/src/features/reviews/ReviewsView.tsx` (renamed from `CuppingView.tsx`)
+  - `apps/web/src/features/reviews/ReviewsView.test.tsx` (renamed from `CuppingView.test.tsx`)
+  - `apps/web/src/features/reviews/useReviews.ts` (renamed from `useTastingLogs.ts`)
+  - `apps/web/src/routes/ReviewsRoute.tsx` (renamed from `CuppingRoute.tsx`)
+  - `apps/web/src/routes/TimerRoute.tsx`
+  - `apps/web/src/features/timer/TimerView.tsx`
+  - `apps/web/src/components/shared/Header.tsx`
+  - `apps/web/src/layouts/RootLayout.tsx`
+  - `apps/web/src/App.tsx`
 
 ---
 
 ## 1. Overview & Goals
 
-The mobile application currently has a placeholder screen for the 5th tab (`app/(tabs)/cupping.tsx`), while the web app provides a full SCA 10-attribute cupping scoring sheet and interactive sensory flavor wheel (`CuppingView.tsx`).
+The mobile application currently has a placeholder screen for the 5th tab (`app/(tabs)/cupping.tsx`), while the web app provides an SCA 10-attribute scoring sheet and interactive sensory flavor wheel under the legacy name `CuppingView.tsx`.
 
-This milestone achieves full parity with the web cupping and tasting log capabilities while adapting them to mobile UX patterns established in the Bean Stash and Equipment milestones:
+We have made the architectural decision to retire the "Cupping" naming across the entire codebase—including routes, views, components, folders, and UI text—in favor of **"Reviews"** and **"Tasting Journal"**:
 
-1. **User-Friendly "Reviews" Nomenclature**:
-   - Rather than rigid industry "Cupping" jargon (which refers to multi-bowl protocol rarely performed by daily coffee drinkers), user-facing mobile interfaces refer to this experience as **"Reviews"** and **"Tasting Journal"** (`(tabs)/reviews.tsx`), matching the existing tab label.
-   - Under the hood, domain models reuse `@brewlog/core`'s `TastingLog`, `CuppingAttributes`, `calculateScaScore`, and Supabase's `tasting_logs` table.
+1. **Complete Renaming from "Cupping" to "Reviews"**:
+   - Web: `features/cupping/` is renamed to `features/reviews/`, `CuppingView.tsx` becomes `ReviewsView.tsx`, `CuppingRoute.tsx` becomes `ReviewsRoute.tsx`, and URL route is `/reviews` (with `/cupping` redirect). Timer completion button is renamed to "RATE & REVIEW CUP".
+   - Mobile: `(tabs)/cupping.tsx` is deleted and replaced with `(tabs)/reviews.tsx`. The mobile feature directory is `src/features/reviews/`, with modal at `/reviews/modal` and detail at `/reviews/[id]`. Timer completion button is renamed to "LOG REVIEW".
+   - Domain model: Under the hood, domain models reuse `@brewlog/core`'s `TastingLog`, `CuppingAttributes`, `calculateScaScore`, and Supabase's `tasting_logs` table.
 2. **Catalog + Modal Architecture**:
    - Matches the Bean Stash and Equipment pattern: `ReviewsCatalogScreen` on the tab with search, filters, and summary metrics, an `+ NEW REVIEW` header button opening `ReviewModalScreen` as a modal sheet, and `ReviewDetailScreen` for in-depth inspection of a past brew.
 3. **Equipment Tracking in Reviews**:
-   - Connects to mobile's `EquipmentContext` so users can record the exact **Grinder** (with specific grind setting, e.g. "18 clicks", "5.2", "Medium-Fine") and **Brewer** used. Stores `grinderSnapshot` and `brewerSnapshot` to ensure historical logs survive future equipment deletions.
+   - Connects to `EquipmentContext` on mobile and `useEquipment()` on web so users can record the exact **Grinder** (with specific grind setting, e.g. "18 clicks", "5.2", "Medium-Fine") and **Brewer** used. Stores `grinderSnapshot` and `brewerSnapshot` to ensure historical logs survive future equipment deletions.
 4. **Responsive Sensory Flavor Selector**:
    - Auto-adapts based on screen width (`width >= 600px`).
    - On standard portrait phones (<600px), defaults to thumb-friendly **Categorized Tag Chips** (with an optional toggle to an interactive SVG wheel featuring tap-to-inspect category callouts).
    - On foldables and tablets (>=600px), unlocks the full-scale interactive 2-ring SVG wheel.
 5. **Seamless Timer Completion Handoff**:
-   - When a brew completes on the Timer tab, tapping "Log Cupping" navigates to `/reviews/modal` prefilled with the active bean, brew method, dose, water volume, actual brew time, and split timeline notes.
+   - When a brew completes on the Timer tab (web or mobile), tapping "RATE & REVIEW CUP" / "LOG REVIEW" navigates directly to `/reviews/modal` (mobile) or `/reviews` (web) prefilled with the active bean, brew method, dose, water volume, actual brew time, and split timeline notes.
 
 ---
 
@@ -311,19 +321,24 @@ export interface ReviewsContextValue {
 
 ---
 
-## 7. Web Parity Enhancements (`apps/web`)
+## 7. Web Parity & Route Alignment (`apps/web`)
 
-To maintain strict cross-platform parity, any capability added to mobile must also be supported on web:
+To maintain strict cross-platform parity, web routes and components are aligned with the Reviews nomenclature:
 
-1. **Equipment Context Wiring (`apps/web/src/routes/CuppingRoute.tsx`)**:
+1. **Route Renaming & Path Alignment**:
+   - Rename `apps/web/src/routes/CuppingRoute.tsx` to `apps/web/src/routes/ReviewsRoute.tsx` (exporting `ReviewsRoute`).
+   - In `apps/web/src/App.tsx`, update route to `<Route path="reviews" element={<ReviewsRoute />} />` with a redirect `<Route path="cupping" element={<Navigate to="/reviews" replace />} />` for backward compatibility.
+   - In `apps/web/src/components/shared/Header.tsx`, update tab path to `/reviews`.
+   - In `apps/web/src/routes/TimerRoute.tsx`, update completion navigation to `navigate('/reviews')`.
+2. **Equipment Context Wiring (`apps/web/src/routes/ReviewsRoute.tsx`)**:
    - Pass `equipment={equipment}` from `useRootOutletContext()` to `CuppingView`.
-2. **Equipment Selection in `CuppingView.tsx`**:
+3. **Equipment Selection in `CuppingView.tsx`**:
    - Add Grinder selection dropdown (from `equipment.filter(e => e.type === 'grinder')` plus "+ Enter Custom Grinder" and "None").
    - Add Grind Setting text input (e.g. `18 clicks`, `5.2`, `Medium-Fine`). Pre-fills from `pendingBrewSession.recipe.grindSize`.
    - Add Brewer selection dropdown (from `equipment.filter(e => e.type === 'brewer')` plus "+ Enter Custom Brewer"). Pre-fills from `pendingBrewSession.recipe.recommendedBrewerId`.
-3. **Saving Equipment Snapshots (`handleSaveTastingLog`)**:
+4. **Saving Equipment Snapshots (`handleSaveTastingLog`)**:
    - Save `grinderId`, `brewerId`, `grinderSnapshot`, `brewerSnapshot`, and `grindSetting` in the `newLogPayload`.
-4. **History Display Parity**:
+5. **History Display Parity**:
    - In "Past Brew Sessions & Cupping Notes" on web, display the grinder snapshot, grind setting, and brewer snapshot alongside the coffee dose, water, and time.
-5. **Web Unit Testing**:
-   - Add tests in `apps/web/src/features/cupping/CuppingView.test.tsx` verifying grinder/brewer selection, snapshot creation, and pre-filling from completed brew session.
+6. **Web Unit Testing**:
+   - Add tests in `apps/web/src/features/cupping/CuppingView.test.tsx`, `apps/web/src/components/shared/Header.test.tsx`, and `apps/web/src/App.test.tsx` verifying route navigation to `/reviews`, equipment selection, snapshot creation, and pre-filling from completed brew session.
