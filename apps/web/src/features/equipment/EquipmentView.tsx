@@ -453,7 +453,9 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                         ? "e.g. Hario, Kalita, AeroPress, Flair"
                         : type === "scale"
                           ? "e.g. Acaia, Timemore, Felicita, Hario"
-                          : "e.g. Fellow, Bonavita, Brewista, Hario"
+                          : type === "kettle"
+                            ? "e.g. Fellow, Bonavita, Brewista, Hario"
+                            : "e.g. Subminimal, SworksDesign, Normcore"
                   }
                   value={brand}
                   onChange={(e) => setBrand(e.target.value)}
@@ -475,7 +477,9 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                         ? "e.g. V60 02, Aeropress, Kalita Wave"
                         : type === "scale"
                           ? "e.g. Lunar, Black Mirror Basic 2, Arc"
-                          : "e.g. Stagg EKG (0.9L), Artisan Gooseneck"
+                          : type === "kettle"
+                            ? "e.g. Stagg EKG (0.9L), Artisan Gooseneck"
+                            : "e.g. Flick WDT, Dipper, Blind Shaker"
                   }
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
@@ -491,7 +495,9 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                       ? "Brewing Method / Category"
                       : type === "scale"
                         ? "Features / Resolution"
-                        : "Kettle Features / Spout"}
+                        : type === "kettle"
+                          ? "Kettle Features / Spout"
+                          : "Equipment Type / Features"}
                 </label>
                 <input
                   type="text"
@@ -502,7 +508,9 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                         ? "e.g. Pour-Over, Immersion, Lever Espresso"
                         : type === "scale"
                           ? "e.g. 0.1g Smart Scale, Auto-Timer"
-                          : "e.g. Variable Temp Gooseneck, Stovetop"
+                          : type === "kettle"
+                            ? "e.g. Variable Temp Gooseneck, Stovetop"
+                            : "e.g. WDT Tool, Refractometer, RDT Spray"
                   }
                   value={subType}
                   onChange={(e) => setSubType(e.target.value)}

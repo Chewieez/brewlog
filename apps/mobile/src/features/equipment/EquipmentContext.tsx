@@ -512,6 +512,7 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
       brewers,
       scales,
       kettles,
+      other,
       loading,
       addEquipment,
       updateEquipment,
