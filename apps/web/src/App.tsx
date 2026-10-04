@@ -8,7 +8,7 @@ import { RecipesRoute } from './routes/RecipesRoute';
 import { RecipeIndexRoute } from './routes/RecipeIndexRoute';
 import { RecipeDetailRoute } from './routes/RecipeDetailRoute';
 import { EquipmentRoute } from './routes/EquipmentRoute';
-import { CuppingRoute } from './routes/CuppingRoute';
+import { ReviewsRoute } from './routes/ReviewsRoute';
 import { NotFoundRoute } from './routes/NotFoundRoute';
 
 export const App: React.FC = () => {
@@ -25,7 +25,8 @@ export const App: React.FC = () => {
               <Route path=":recipeId" element={<RecipeDetailRoute />} />
             </Route>
             <Route path="equipment" element={<EquipmentRoute />} />
-            <Route path="cupping" element={<CuppingRoute />} />
+            <Route path="reviews" element={<ReviewsRoute />} />
+            <Route path="cupping" element={<Navigate to="/reviews" replace />} />
             <Route path="*" element={<NotFoundRoute />} />
           </Route>
         </Routes>

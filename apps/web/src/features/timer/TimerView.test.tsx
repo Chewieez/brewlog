@@ -107,10 +107,10 @@ describe('TimerView', () => {
     });
 
     const completeBtn = screen.getByRole('button', {
-      name: /BREW COMPLETE! RATE & LOG TO CUPPING SHEET/,
+      name: /ADD REVIEW/,
     });
     expect(completeBtn).toBeDefined();
-    expect(screen.getByText('BREW COMPLETE! RATE & LOG TO CUPPING SHEET')).toBeDefined();
+    expect(screen.getByText('ADD REVIEW')).toBeDefined();
 
     act(() => {
       fireEvent.click(completeBtn);
@@ -235,7 +235,7 @@ describe('TimerView', () => {
     confirmSpy.mockRestore();
   });
 
-  it('finishes Free Brew, presents cupping log and custom recipe save actions', () => {
+  it('finishes Free Brew, presents review and custom recipe save actions', () => {
     const handleLog = vi.fn();
     const handleSave = vi.fn();
 
@@ -272,14 +272,14 @@ describe('TimerView', () => {
     expect(screen.queryByRole('button', { name: /^SPLIT$/i })).toBeNull();
 
     // Both action buttons should be visible
-    const cuppingBtn = screen.getByRole('button', {
-      name: /RATE & LOG TO CUPPING SHEET/i,
+    const addReviewBtn = screen.getByRole('button', {
+      name: /ADD REVIEW/i,
     });
     const saveRecipeBtn = screen.getByRole('button', {
       name: /SAVE AS CUSTOM RECIPE/i,
     });
 
-    expect(cuppingBtn).toBeDefined();
+    expect(addReviewBtn).toBeDefined();
     expect(saveRecipeBtn).toBeDefined();
 
     act(() => {
@@ -289,7 +289,7 @@ describe('TimerView', () => {
     expect(handleSave.mock.calls[0][0].stages).toHaveLength(1);
 
     act(() => {
-      fireEvent.click(cuppingBtn);
+      fireEvent.click(addReviewBtn);
     });
     expect(handleLog).toHaveBeenCalledTimes(1);
   });

@@ -1,12 +1,13 @@
 import React from 'react';
-import { CuppingView } from '../features/cupping/CuppingView';
+import { ReviewsView } from '../features/reviews/ReviewsView';
 import { useRootOutletContext } from '../layouts/RootLayout';
 import { TastingLog } from '@brewlog/core';
 
-export const CuppingRoute: React.FC = () => {
+export const ReviewsRoute: React.FC = () => {
   const {
     tastingLogs,
     beans,
+    equipment,
     pendingBrewSession,
     setPendingBrewSession,
     onAddTastingLog,
@@ -22,12 +23,15 @@ export const CuppingRoute: React.FC = () => {
   };
 
   return (
-    <CuppingView
+    <ReviewsView
       logs={tastingLogs}
       beans={beans}
+      equipment={equipment}
       pendingBrewSession={pendingBrewSession}
       onClearPendingSession={handleClearPendingSession}
       onAddTastingLog={handleSaveTastingLog}
     />
   );
 };
+
+export const CuppingRoute = ReviewsRoute;

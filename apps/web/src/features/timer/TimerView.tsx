@@ -15,6 +15,7 @@ import {
   BookmarkPlus,
   Trash2,
   Check,
+  Plus,
 } from 'lucide-react';
 
 export interface TimerViewProps {
@@ -147,7 +148,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
     setIsRecipeSaved(true);
   };
 
-  const handleLogFreeBrewCupping = () => {
+  const handleAddReview = () => {
     const generatedStages = splitsToRecipeStages(
       splits,
       elapsedSeconds,
@@ -551,14 +552,15 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 type="button"
                 onClick={() => onLogCompletedBrew(recipe, elapsedSeconds, selectedBean || null)}
                 className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all"
+                aria-label="ADD REVIEW"
               >
-                <Sparkles className="w-4 h-4" />
-                <span>BREW COMPLETE! RATE & LOG TO CUPPING SHEET</span>
+                <Plus className="w-4 h-4" />
+                <span>ADD REVIEW</span>
               </button>
             </div>
           )}
 
-          {/* Free Brew Finish Banner with Cupping and Custom Recipe Actions */}
+          {/* Free Brew Finish Banner with Review and Custom Recipe Actions */}
           {mode === 'free_brew' && isFreeBrewFinished && (
             <div className="p-4 rounded border border-emerald-500/30 bg-emerald-950/20 space-y-3 animate-fade-in">
               <div className="flex items-center space-x-2 text-emerald-400 font-mono text-xs font-bold uppercase tracking-wider">
@@ -568,12 +570,12 @@ export const TimerView: React.FC<TimerViewProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                 <button
                   type="button"
-                  onClick={handleLogFreeBrewCupping}
+                  onClick={handleAddReview}
                   className="flex items-center justify-center space-x-2 py-2.5 px-3 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-all"
-                  aria-label="RATE & LOG TO CUPPING SHEET"
+                  aria-label="ADD REVIEW"
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>RATE & LOG TO CUPPING SHEET</span>
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>ADD REVIEW</span>
                 </button>
                 <button
                   type="button"

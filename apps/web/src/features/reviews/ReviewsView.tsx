@@ -6,6 +6,7 @@ import {
   calculateScaScore,
   SCA_FLAVOR_WHEEL,
   Bean,
+  Equipment,
   BrewRecipe,
   BrewMethodType,
 } from '@brewlog/core';
@@ -43,13 +44,16 @@ export interface PendingBrewSession {
   actualTimeSeconds: number;
 }
 
-interface CuppingViewProps {
+export interface ReviewsViewProps {
   logs: TastingLog[];
   beans?: Bean[];
+  equipment?: Equipment[];
   pendingBrewSession?: PendingBrewSession | null;
   onClearPendingSession?: () => void;
   onAddTastingLog: (log: Omit<TastingLog, 'id' | 'createdAt'>) => Promise<any> | void;
 }
+
+export type CuppingViewProps = ReviewsViewProps;
 
 export const SPECIALTY_BASELINE_SCORES: CuppingAttributes = {
   fragranceAroma: 7.5,
@@ -94,12 +98,13 @@ const BREW_METHODS: { value: BrewMethodType; label: string }[] = [
   { value: 'espresso', label: 'Espresso' },
   { value: 'french-press', label: 'French Press' },
   { value: 'kalita-wave', label: 'Kalita Wave' },
-  { value: 'custom', label: 'Cupping / Bowl' },
+  { value: 'custom', label: 'Tasting Bowl / Other' },
 ];
 
-export const CuppingView: React.FC<CuppingViewProps> = ({
+export const ReviewsView: React.FC<ReviewsViewProps> = ({
   logs,
   beans = [],
+  equipment = [],
   pendingBrewSession,
   onClearPendingSession,
   onAddTastingLog,
@@ -108,12 +113,21 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
   const [flavorViewMode, setFlavorViewMode] = useState<'wheel' | 'tags'>('tags');
   const [scores, setScores] = useState<CuppingAttributes>(DEFAULT_SCORES);
 
+  const grinders = (equipment || []).filter((e) => e.type === 'grinder');
+  const brewers = (equipment || []).filter((e) => e.type === 'brewer');
+
   // Form State
   const [selectedBeanId, setSelectedBeanId] = useState<string>(
     pendingBrewSession?.bean?.id || (beans[0]?.id || 'custom')
   );
   const [customBeanName, setCustomBeanName] = useState<string>('');
   const [customRoaster, setCustomRoaster] = useState<string>('');
+  const [grinderId, setGrinderId] = useState<string>(
+    pendingBrewSession?.recipe.recommendedGrinderId || ''
+  );
+  const [brewerId, setBrewerId] = useState<string>(
+    pendingBrewSession?.recipe.recommendedBrewerId || ''
+  );
   const [brewMethod, setBrewMethod] = useState<BrewMethodType>('v60');
   const [coffeeDoseGrams, setCoffeeDoseGrams] = useState<number>(20);
   const [waterAmountGrams, setWaterAmountGrams] = useState<number>(300);
@@ -137,6 +151,12 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
         setSelectedBeanId('custom');
         setCustomBeanName('Specialty Coffee');
         setCustomRoaster('Local Roaster');
+      }
+      if (pendingBrewSession.recipe.recommendedGrinderId) {
+        setGrinderId(pendingBrewSession.recipe.recommendedGrinderId);
+      }
+      if (pendingBrewSession.recipe.recommendedBrewerId) {
+        setBrewerId(pendingBrewSession.recipe.recommendedBrewerId);
       }
       setBrewMethod(pendingBrewSession.recipe.brewMethod);
       setCoffeeDoseGrams(pendingBrewSession.recipe.coffeeDoseGrams);
@@ -167,6 +187,16 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
     setIsSaving(true);
 
     const chosenBean = beans.find((b) => b.id === selectedBeanId);
+    const selectedGrinder = (equipment || []).find((e) => e.id === grinderId);
+    const selectedBrewer = (equipment || []).find((e) => e.id === brewerId);
+
+    const grinderSnapshot = selectedGrinder
+      ? `${selectedGrinder.brand} ${selectedGrinder.model}`
+      : undefined;
+    const brewerSnapshot = selectedBrewer
+      ? `${selectedBrewer.brand} ${selectedBrewer.model}`
+      : undefined;
+
     const beanNameSnapshot = chosenBean?.name || customBeanName.trim() || 'Specialty Blend';
     const roasterSnapshot = chosenBean?.roaster || customRoaster.trim() || 'Local Roaster';
     const recipeNameSnapshot =
@@ -175,6 +205,10 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
     const newLogPayload: Omit<TastingLog, 'id' | 'createdAt'> = {
       beanId: chosenBean?.id,
       recipeId: pendingBrewSession?.recipe.id,
+      grinderId: selectedGrinder?.id,
+      brewerId: selectedBrewer?.id,
+      grinderSnapshot,
+      brewerSnapshot,
       beanNameSnapshot,
       roasterSnapshot,
       recipeNameSnapshot,
@@ -189,7 +223,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
       calculatedScaScore: Number(scaScore.toFixed(1)),
       rating,
       flavorTags: selectedTags,
-      notes: notes.trim() || 'Evaluated on SCA cupping matrix.',
+      notes: notes.trim() || 'Evaluated on SCA scoring matrix.',
       wouldBrewAgain,
     };
 
@@ -212,6 +246,8 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
     setSelectedTags([]);
     setNotes('');
     setRating(0);
+    setGrinderId('');
+    setBrewerId('');
     if (onClearPendingSession) onClearPendingSession();
   };
 
@@ -220,9 +256,9 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Cupping & Sensory Log</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Reviews & Sensory Log</h2>
           <p className="text-sm text-zinc-400 mt-0.5">
-            Specialty Coffee Association (SCA) 0–100 cupping scoring sheet & interactive sensory flavor wheel.
+            Specialty Coffee Association (SCA) 0–100 scoring sheet & interactive sensory flavor wheel.
           </p>
         </div>
 
@@ -271,7 +307,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-zinc-800">
             <div>
               <span className="text-xs font-mono font-semibold uppercase tracking-wider text-accent">
-                Official SCA Cupping Matrix (10 Attributes)
+                Official SCA Scoring Matrix (10 Attributes)
               </span>
               <div className="flex flex-wrap items-center gap-2 mt-0.5">
                 <h3 className="text-lg font-bold text-zinc-100">Calculated Cup Score</h3>
@@ -404,6 +440,69 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                   />
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="review-grinder-select" className="block text-zinc-400 mb-1">Grinder</label>
+                  <select
+                    id="review-grinder-select"
+                    value={grinderId}
+                    onChange={(e) => setGrinderId(e.target.value)}
+                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-200 font-medium focus:outline-none focus:border-accent cursor-pointer"
+                  >
+                    <option value="">None / Not Specified</option>
+                    {grinders.map((g) => (
+                      <option key={g.id} value={g.id}>
+                        {g.brand} {g.model}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="review-grind-setting" className="block text-zinc-400 mb-1">Grind Setting</label>
+                  <input
+                    id="review-grind-setting"
+                    type="text"
+                    placeholder="e.g. 14 clicks, 2.5"
+                    value={grindSetting}
+                    onChange={(e) => setGrindSetting(e.target.value)}
+                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-100 placeholder-zinc-500 font-mono focus:outline-none focus:border-accent"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="review-brewer-select" className="block text-zinc-400 mb-1">Brewer (Equipment)</label>
+                  <select
+                    id="review-brewer-select"
+                    value={brewerId}
+                    onChange={(e) => setBrewerId(e.target.value)}
+                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-200 font-medium focus:outline-none focus:border-accent cursor-pointer"
+                  >
+                    <option value="">None / Not Specified</option>
+                    {brewers.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.brand} {b.model}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="review-water-temp" className="block text-zinc-400 mb-1">Water Temp (°C)</label>
+                  <input
+                    id="review-water-temp"
+                    type="number"
+                    min="50"
+                    max="100"
+                    value={waterTempCelsius}
+                    onChange={(e) => setWaterTempCelsius(Number(e.target.value))}
+                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-100 font-mono focus:outline-none focus:border-accent"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -518,7 +617,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
           <div className="space-y-3 pt-2 border-t border-zinc-800">
             <div>
               <label className="block text-xs font-medium text-zinc-300 mb-1">
-                Cupping Impressions & Brew Notes
+                Tasting Impressions & Brew Notes
               </label>
               <textarea
                 rows={2}
@@ -571,7 +670,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
             {saveSuccess ? (
               <div className="w-full py-3.5 px-4 rounded-xl bg-emerald-950/40 border border-emerald-800 text-emerald-300 font-bold text-sm flex items-center justify-center space-x-2 animate-fade-in">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>Tasting Log Saved to Book!</span>
+                <span>Review Saved to Book!</span>
               </div>
             ) : (
               <button
@@ -580,7 +679,7 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                 className="w-full flex items-center justify-center space-x-2 py-3.5 px-4 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-sm cursor-pointer transition-all disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? 'SAVING TASTING LOG...' : 'SAVE TASTING LOG'}</span>
+                <span>{isSaving ? 'SAVING REVIEW...' : 'SAVE REVIEW'}</span>
               </button>
             )}
           </div>
@@ -699,16 +798,16 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
         </div>
       </form>
 
-      {/* Past Tasting Logs History */}
+      {/* Past Reviews History */}
       <div className="mt-8 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-zinc-100">Past Brew Sessions & Cupping Notes</h3>
-          <span className="text-xs font-mono text-zinc-400">{logs.length} logged sessions</span>
+          <h3 className="text-lg font-bold text-zinc-100">Past Brew Reviews</h3>
+          <span className="text-xs font-mono text-zinc-400">{logs.length} logged reviews</span>
         </div>
 
         {logs.length === 0 ? (
           <div className="p-8 rounded-xl bg-panel border border-border-subtle text-center text-zinc-400 text-sm">
-            No tasting logs recorded yet. Score your first brew above!
+            No reviews recorded yet. Score your first brew above!
           </div>
         ) : (
           <div className="space-y-3">
@@ -744,6 +843,19 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
                     </span>
                   </h4>
 
+                  {(log.grinderSnapshot || log.brewerSnapshot || log.grindSetting) && (
+                    <div className="text-xs text-zinc-400 mt-1 flex flex-wrap items-center gap-1.5 font-mono">
+                      {log.grinderSnapshot && (
+                        <span>
+                          {log.grinderSnapshot}
+                          {log.grindSetting ? ` @ ${log.grindSetting}` : ''}
+                        </span>
+                      )}
+                      {log.grinderSnapshot && log.brewerSnapshot && <span>•</span>}
+                      {log.brewerSnapshot && <span>{log.brewerSnapshot}</span>}
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {log.flavorTags.map((tag) => (
                       <span
@@ -777,3 +889,5 @@ export const CuppingView: React.FC<CuppingViewProps> = ({
     </div>
   );
 };
+
+export const CuppingView = ReviewsView;

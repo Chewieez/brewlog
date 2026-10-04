@@ -8,7 +8,7 @@ import { supabase } from "../../lib/supabase";
 import { useAuth } from "../auth/AuthContext";
 import { INITIAL_TASTING_LOGS } from "../../lib/sampleData";
 
-export const useTastingLogs = () => {
+export const useReviews = () => {
   const { user } = useAuth();
   const [logs, setLogs] = useState<TastingLog[]>(INITIAL_TASTING_LOGS);
   const [loading, setLoading] = useState(false);
@@ -64,5 +64,13 @@ export const useTastingLogs = () => {
     }
   };
 
-  return { logs, addTastingLog, loading, refreshLogs: fetchLogs };
+  return {
+    logs,
+    addReview: addTastingLog,
+    addTastingLog,
+    loading,
+    refreshLogs: fetchLogs,
+  };
 };
+
+export const useTastingLogs = useReviews;
