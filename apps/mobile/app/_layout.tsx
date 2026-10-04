@@ -114,6 +114,13 @@ export default function RootLayout() {
                     headerShown: false,
                   }}
                 />
+                <Stack.Screen
+                  name="reviews/modal"
+                  options={{
+                    presentation: 'modal',
+                    headerShown: false,
+                  }}
+                />
                 </Stack>
                 </ReviewsProvider>
               </EquipmentProvider>
