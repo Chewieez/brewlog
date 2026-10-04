@@ -367,25 +367,32 @@ git commit -m "feat(reviews): implement ReviewDetailScreen and wire timer comple
 
 ---
 
-### Task 6: Web Parity Enhancements (`CuppingView` & `CuppingRoute`)
+### Task 6: Web Parity & Route Alignment (`ReviewsRoute` & `CuppingView`)
 
 **Files:**
-- Modify: `apps/web/src/routes/CuppingRoute.tsx`
+- Create/Rename: `apps/web/src/routes/ReviewsRoute.tsx` (from `apps/web/src/routes/CuppingRoute.tsx`)
+- Modify: `apps/web/src/App.tsx`
+- Modify: `apps/web/src/components/shared/Header.tsx`
+- Modify: `apps/web/src/routes/TimerRoute.tsx`
 - Modify: `apps/web/src/features/cupping/CuppingView.tsx`
 - Modify: `apps/web/src/features/cupping/CuppingView.test.tsx`
+- Modify: `apps/web/src/components/shared/Header.test.tsx`
+- Modify: `apps/web/src/App.test.tsx`
 
 **Interfaces:**
 - Consumes:
   - `RootOutletContext`: `equipment`, `useRootOutletContext`
   - `@brewlog/core`: `Equipment`
 - Produces:
+  - Web route at `/reviews` with backward-compatible redirect from `/cupping`
   - Web equipment selection (grinder dropdown + grind setting input, brewer dropdown)
   - Snapshots saved to `tasting_logs` (`grinderSnapshot`, `brewerSnapshot`, `grindSetting`)
   - Equipment snapshots displayed in past logs history on web
 
-- [ ] **Step 1: Write failing unit tests for web equipment tracking in `CuppingView.test.tsx`**
+- [ ] **Step 1: Write failing unit tests for web equipment tracking and review route in `CuppingView.test.tsx` and `Header.test.tsx`**
 
-Add tests to `apps/web/src/features/cupping/CuppingView.test.tsx`:
+Add tests to `apps/web/src/features/cupping/CuppingView.test.tsx` and `apps/web/src/components/shared/Header.test.tsx`:
+- Tests that the Reviews tab link navigates to `/reviews`.
 - Tests that grinder selection and grind setting input render when `equipment` is provided.
 - Tests that brewer selection renders when `equipment` is provided.
 - Tests that submitting the cupping log includes `grinderId`, `brewerId`, `grinderSnapshot`, `brewerSnapshot`, and `grindSetting`.
@@ -394,16 +401,18 @@ Add tests to `apps/web/src/features/cupping/CuppingView.test.tsx`:
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `npx vitest run apps/web/src/features/cupping/CuppingView.test.tsx`
+Run: `npx vitest run apps/web/src/features/cupping/CuppingView.test.tsx apps/web/src/components/shared/Header.test.tsx`
 Expected: FAIL
 
-- [ ] **Step 3: Update `CuppingRoute.tsx`**
+- [ ] **Step 3: Rename `CuppingRoute.tsx` to `ReviewsRoute.tsx` and update routes in `App.tsx`, `Header.tsx`, `TimerRoute.tsx`**
 
-In `apps/web/src/routes/CuppingRoute.tsx`:
-- Extract `equipment` from `useRootOutletContext()`.
-- Pass `equipment={equipment}` to `<CuppingView />`.
+- Rename `apps/web/src/routes/CuppingRoute.tsx` to `apps/web/src/routes/ReviewsRoute.tsx`, exporting `ReviewsRoute`.
+- In `apps/web/src/routes/ReviewsRoute.tsx`: extract `equipment` from `useRootOutletContext()` and pass `equipment={equipment}` to `<CuppingView />`.
+- In `apps/web/src/App.tsx`: import `ReviewsRoute`, define `<Route path="reviews" element={<ReviewsRoute />} />` and `<Route path="cupping" element={<Navigate to="/reviews" replace />} />`.
+- In `apps/web/src/components/shared/Header.tsx`: update reviews tab path to `'/reviews'`.
+- In `apps/web/src/routes/TimerRoute.tsx`: update `handleLogCompletedBrew` to `navigate('/reviews')`.
 
-- [ ] **Step 4: Update `CuppingView.tsx`**
+- [ ] **Step 4: Update `CuppingView.tsx` with equipment selection and snapshots**
 
 In `apps/web/src/features/cupping/CuppingView.tsx`:
 - Add `equipment?: Equipment[]` to `CuppingViewProps`.
@@ -419,14 +428,14 @@ In `apps/web/src/features/cupping/CuppingView.tsx`:
 
 - [ ] **Step 5: Run web tests to verify they pass**
 
-Run: `npx vitest run apps/web/src/features/cupping/CuppingView.test.tsx`
+Run: `npx vitest run apps/web/src/features/cupping/CuppingView.test.tsx apps/web/src/components/shared/Header.test.tsx`
 Expected: PASS
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add apps/web/src/routes/CuppingRoute.tsx apps/web/src/features/cupping/CuppingView.tsx apps/web/src/features/cupping/CuppingView.test.tsx
-git commit -m "feat(web): add equipment tracking, grind setting, and snapshots to CuppingView for cross-platform parity"
+git add apps/web/src/routes/ReviewsRoute.tsx apps/web/src/routes/CuppingRoute.tsx apps/web/src/App.tsx apps/web/src/components/shared/Header.tsx apps/web/src/routes/TimerRoute.tsx apps/web/src/features/cupping/CuppingView.tsx apps/web/src/features/cupping/CuppingView.test.tsx apps/web/src/components/shared/Header.test.tsx
+git commit -m "feat(web): align ReviewsRoute /reviews path and add equipment tracking with snapshots"
 ```
 
 ---
