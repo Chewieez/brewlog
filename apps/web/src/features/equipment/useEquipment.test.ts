@@ -77,6 +77,30 @@ describe("useEquipment hook", () => {
     expect(result.current.equipment).toEqual(cachedGear);
   });
 
+  it("initializes with empty array and does not resurrect default equipment when cache is empty array", async () => {
+    localStorage.setItem("brewlog_equipment_cache", JSON.stringify([]));
+
+    vi.mocked(useAuth).mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: false,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useEquipment());
+
+    expect(result.current.equipment).toEqual([]);
+  });
+
   it("adds equipment offline with local-eq- prefix and updates localStorage", async () => {
     vi.mocked(useAuth).mockReturnValue({
       user: null,
@@ -233,6 +257,74 @@ describe("useEquipment hook", () => {
     await waitFor(() => {
       expect(result.current.equipment[0].id).toBe("uuid-synced-1");
     });
+  });
+
+  it("preserves failed offline equipment items if Supabase insert fails during sync", async () => {
+    const offlineItem = {
+      id: "local-eq-fail-1",
+      type: "grinder" as const,
+      brand: "1Zpresso",
+      model: "JX-Pro",
+      createdAt: new Date().toISOString(),
+    };
+    localStorage.setItem("brewlog_equipment_cache", JSON.stringify([offlineItem]));
+
+    const mockUser = { id: "user-123-abc" } as any;
+
+    vi.mocked(useAuth).mockReturnValue({
+      user: mockUser,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    // Supabase insert fails with error
+    const mockInsert = vi.fn().mockResolvedValue({ error: new Error("Network timeout") });
+    const mockOrder = vi.fn().mockResolvedValue({
+      data: [
+        {
+          id: "uuid-remote-1",
+          user_id: "user-123-abc",
+          type: "brewer",
+          brand: "Hario",
+          model: "V60",
+          created_at: new Date().toISOString(),
+        },
+      ],
+      error: null,
+    });
+    const mockSelect = vi.fn().mockReturnValue({ order: mockOrder });
+
+    vi.mocked(supabase!.from).mockImplementation((table: string) => {
+      if (table === "equipment") {
+        return {
+          insert: mockInsert,
+          select: mockSelect,
+        } as any;
+      }
+      return {} as any;
+    });
+
+    const { result } = renderHook(() => useEquipment());
+
+    await waitFor(() => {
+      expect(result.current.equipment.some((e) => e.id === "local-eq-fail-1")).toBe(true);
+      expect(result.current.equipment.some((e) => e.id === "uuid-remote-1")).toBe(true);
+    });
+
+    // Verify localStorage also retains both items
+    const saved = JSON.parse(localStorage.getItem("brewlog_equipment_cache") || "[]");
+    expect(saved.some((e: any) => e.id === "local-eq-fail-1")).toBe(true);
+    expect(saved.some((e: any) => e.id === "uuid-remote-1")).toBe(true);
   });
 
   it("updates equipment offline and updates state and localStorage", async () => {

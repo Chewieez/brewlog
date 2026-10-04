@@ -14,6 +14,7 @@ import { X, Check, Star, Trash2 } from 'lucide-react-native';
 import {
   Equipment,
   EquipmentType,
+  GrinderSettingScale,
   INDUSTRIAL_PRECISION_THEME,
 } from '@brewlog/core';
 import { useEquipment } from '../EquipmentContext';
@@ -39,13 +40,14 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
 
 interface SettingScaleOption {
   label: string;
-  value: 'stepped-numbers' | 'clicks' | 'stepless';
+  value: GrinderSettingScale;
 }
 
 const SCALE_TYPE_OPTIONS: SettingScaleOption[] = [
   { label: 'Stepped Numbers', value: 'stepped-numbers' },
   { label: 'Clicks', value: 'clicks' },
   { label: 'Stepless', value: 'stepless' },
+  { label: 'Microns', value: 'microns' },
 ];
 
 export const EquipmentModalScreen: React.FC<EquipmentModalScreenProps> = ({
@@ -67,11 +69,9 @@ export const EquipmentModalScreen: React.FC<EquipmentModalScreenProps> = ({
   const [brand, setBrand] = useState<string>(sourceItem?.brand ?? '');
   const [model, setModel] = useState<string>(sourceItem?.model ?? '');
   const [subType, setSubType] = useState<string>(sourceItem?.subType ?? '');
-  const [settingScaleType, setSettingScaleType] = useState<
-    'stepped-numbers' | 'clicks' | 'stepless'
-  >(sourceItem?.settingScaleType === 'clicks' || sourceItem?.settingScaleType === 'stepless'
-    ? sourceItem.settingScaleType
-    : 'stepped-numbers');
+  const [settingScaleType, setSettingScaleType] = useState<GrinderSettingScale>(
+    sourceItem?.settingScaleType ?? 'stepped-numbers'
+  );
   const [isFavorite, setIsFavorite] = useState<boolean>(sourceItem?.isFavorite ?? false);
   const [notes, setNotes] = useState<string>(sourceItem?.notes ?? '');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -83,11 +83,7 @@ export const EquipmentModalScreen: React.FC<EquipmentModalScreenProps> = ({
       brand: sourceItem?.brand ?? '',
       model: sourceItem?.model ?? '',
       subType: sourceItem?.subType ?? '',
-      settingScaleType:
-        sourceItem?.settingScaleType === 'clicks' ||
-        sourceItem?.settingScaleType === 'stepless'
-          ? sourceItem.settingScaleType
-          : 'stepped-numbers',
+      settingScaleType: sourceItem?.settingScaleType ?? 'stepped-numbers',
       isFavorite: sourceItem?.isFavorite ?? false,
       notes: sourceItem?.notes ?? '',
     }),

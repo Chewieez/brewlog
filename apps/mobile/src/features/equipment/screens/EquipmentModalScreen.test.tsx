@@ -313,4 +313,36 @@ describe('EquipmentModalScreen', () => {
     expect(mockContext.deleteEquipment).toHaveBeenCalledWith('eq-edit-1');
     expect(mockBack).toHaveBeenCalled();
   });
+
+  it('preserves and saves microns dial setting scale type', async () => {
+    const micronGrinder: Equipment = {
+      id: 'eq-micron-1',
+      type: 'grinder',
+      brand: 'Option-O',
+      model: 'Lagom P64',
+      settingScaleType: 'microns',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    };
+    mockParams = { id: 'eq-micron-1' };
+    const mockContext = createMockContext({
+      equipment: [micronGrinder],
+      grinders: [micronGrinder],
+    });
+    const { getByRole } = render(
+      <EquipmentContext.Provider value={mockContext}>
+        <EquipmentModalScreen />
+      </EquipmentContext.Provider>
+    );
+
+    rtlFireEvent.click(getByRole('button', { name: 'Save Equipment' }));
+
+    await waitFor(() => {
+      expect(mockContext.updateEquipment).toHaveBeenCalledWith(
+        'eq-micron-1',
+        expect.objectContaining({
+          settingScaleType: 'microns',
+        })
+      );
+    });
+  });
 });
