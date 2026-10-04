@@ -336,22 +336,24 @@ Create `apps/mobile/app/reviews/[id].tsx` and register `<Stack.Screen name="revi
 
 - [ ] **Step 5: Wire Timer completion in `apps/mobile/app/(tabs)/index.tsx`**
 
-In `handleLogCupping` in `TimerScreen`:
-Navigate to `/reviews/modal` passing:
-- `fromTimer: 'true'`
-- `beanId: activeBrewBean?.id`
-- `recipeId: activeRecipe.id`
-- `brewMethod: activeRecipe.brewMethod`
-- `dose: String(activeTimerDose)`
-- `water: String(activeRecipe.waterAmountGrams)`
-- `actualTime: String(elapsedSeconds)`
-- `grind: activeRecipe.grindSize`
-- `temp: String(activeRecipe.waterTempCelsius)`
-- `grinderId: activeRecipe.recommendedGrinderId`
-- `brewerId: activeRecipe.recommendedBrewerId`
-- `notes: formattedSplitsNotes || undefined`
+In `apps/mobile/app/(tabs)/index.tsx`:
+- Rename `handleLogCupping` to `handleLogReview`.
+- Update button text to `LOG REVIEW` (accessibilityLabel="Log Review").
+- Navigate to `/reviews/modal` passing:
+  - `fromTimer: 'true'`
+  - `beanId: activeBrewBean?.id`
+  - `recipeId: activeRecipe.id`
+  - `brewMethod: activeRecipe.brewMethod`
+  - `dose: String(activeTimerDose)`
+  - `water: String(activeRecipe.waterAmountGrams)`
+  - `actualTime: String(elapsedSeconds)`
+  - `grind: activeRecipe.grindSize`
+  - `temp: String(activeRecipe.waterTempCelsius)`
+  - `grinderId: activeRecipe.recommendedGrinderId`
+  - `brewerId: activeRecipe.recommendedBrewerId`
+  - `notes: formattedSplitsNotes || undefined`
 
-Update `freeBrewIntegration.test.tsx` to expect `/reviews/modal` instead of `/cupping`.
+Update `freeBrewIntegration.test.tsx` to expect `LOG REVIEW` button and navigation to `/reviews/modal`.
 
 - [ ] **Step 6: Run tests to verify they pass**
 
@@ -367,15 +369,20 @@ git commit -m "feat(reviews): implement ReviewDetailScreen and wire timer comple
 
 ---
 
-### Task 6: Web Parity & Route Alignment (`ReviewsRoute` & `CuppingView`)
+### Task 6: Web Parity & Complete Reviews Renaming
 
 **Files:**
-- Create/Rename: `apps/web/src/routes/ReviewsRoute.tsx` (from `apps/web/src/routes/CuppingRoute.tsx`)
+- Rename/Move: `apps/web/src/features/cupping` to `apps/web/src/features/reviews`
+  - `CuppingView.tsx` -> `ReviewsView.tsx`
+  - `CuppingView.test.tsx` -> `ReviewsView.test.tsx`
+  - `useTastingLogs.ts` -> `useReviews.ts` (exporting both `useReviews` and `useTastingLogs` alias for backward-compatibility)
+- Rename: `apps/web/src/routes/CuppingRoute.tsx` -> `apps/web/src/routes/ReviewsRoute.tsx`
+- Modify: `apps/web/src/layouts/RootLayout.tsx`
 - Modify: `apps/web/src/App.tsx`
 - Modify: `apps/web/src/components/shared/Header.tsx`
 - Modify: `apps/web/src/routes/TimerRoute.tsx`
-- Modify: `apps/web/src/features/cupping/CuppingView.tsx`
-- Modify: `apps/web/src/features/cupping/CuppingView.test.tsx`
+- Modify: `apps/web/src/features/timer/TimerView.tsx`
+- Modify: `apps/web/src/features/timer/TimerView.test.tsx`
 - Modify: `apps/web/src/components/shared/Header.test.tsx`
 - Modify: `apps/web/src/App.test.tsx`
 
@@ -385,37 +392,42 @@ git commit -m "feat(reviews): implement ReviewDetailScreen and wire timer comple
   - `@brewlog/core`: `Equipment`
 - Produces:
   - Web route at `/reviews` with backward-compatible redirect from `/cupping`
+  - `ReviewsView` component replacing `CuppingView`
+  - `useReviews` hook replacing `useTastingLogs`
   - Web equipment selection (grinder dropdown + grind setting input, brewer dropdown)
   - Snapshots saved to `tasting_logs` (`grinderSnapshot`, `brewerSnapshot`, `grindSetting`)
   - Equipment snapshots displayed in past logs history on web
+  - Timer view finish button renamed from "RATE & LOG TO CUPPING SHEET" to "RATE & REVIEW CUP"
 
-- [ ] **Step 1: Write failing unit tests for web equipment tracking and review route in `CuppingView.test.tsx` and `Header.test.tsx`**
+- [ ] **Step 1: Write failing unit tests for web equipment tracking and review route in `ReviewsView.test.tsx`, `Header.test.tsx`, `TimerView.test.tsx`**
 
-Add tests to `apps/web/src/features/cupping/CuppingView.test.tsx` and `apps/web/src/components/shared/Header.test.tsx`:
+Update/add tests:
 - Tests that the Reviews tab link navigates to `/reviews`.
+- Tests that TimerView renders "RATE & REVIEW CUP" and navigates to `/reviews`.
 - Tests that grinder selection and grind setting input render when `equipment` is provided.
 - Tests that brewer selection renders when `equipment` is provided.
-- Tests that submitting the cupping log includes `grinderId`, `brewerId`, `grinderSnapshot`, `brewerSnapshot`, and `grindSetting`.
-- Tests that past tasting log history renders the grinder and brewer snapshots.
+- Tests that submitting the review includes `grinderId`, `brewerId`, `grinderSnapshot`, `brewerSnapshot`, and `grindSetting`.
+- Tests that past review history renders the grinder and brewer snapshots.
 - Tests that prefilling from `pendingBrewSession` pre-selects the recipe's recommended grinder and brewer.
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `npx vitest run apps/web/src/features/cupping/CuppingView.test.tsx apps/web/src/components/shared/Header.test.tsx`
+Run: `npx vitest run apps/web/src/features/reviews/ReviewsView.test.tsx apps/web/src/components/shared/Header.test.tsx apps/web/src/features/timer/TimerView.test.tsx`
 Expected: FAIL
 
-- [ ] **Step 3: Rename `CuppingRoute.tsx` to `ReviewsRoute.tsx` and update routes in `App.tsx`, `Header.tsx`, `TimerRoute.tsx`**
+- [ ] **Step 3: Move/Rename `apps/web/src/features/cupping` to `apps/web/src/features/reviews`**
 
-- Rename `apps/web/src/routes/CuppingRoute.tsx` to `apps/web/src/routes/ReviewsRoute.tsx`, exporting `ReviewsRoute`.
-- In `apps/web/src/routes/ReviewsRoute.tsx`: extract `equipment` from `useRootOutletContext()` and pass `equipment={equipment}` to `<CuppingView />`.
-- In `apps/web/src/App.tsx`: import `ReviewsRoute`, define `<Route path="reviews" element={<ReviewsRoute />} />` and `<Route path="cupping" element={<Navigate to="/reviews" replace />} />`.
-- In `apps/web/src/components/shared/Header.tsx`: update reviews tab path to `'/reviews'`.
-- In `apps/web/src/routes/TimerRoute.tsx`: update `handleLogCompletedBrew` to `navigate('/reviews')`.
+- Rename directory `apps/web/src/features/cupping` to `apps/web/src/features/reviews`.
+- Rename `CuppingView.tsx` to `ReviewsView.tsx` (exporting `ReviewsView`).
+- Rename `CuppingView.test.tsx` to `ReviewsView.test.tsx`.
+- Rename `useTastingLogs.ts` to `useReviews.ts` (exporting `useReviews` and `useTastingLogs`).
+- Rename `apps/web/src/routes/CuppingRoute.tsx` to `apps/web/src/routes/ReviewsRoute.tsx` (exporting `ReviewsRoute`).
+- In `apps/web/src/routes/ReviewsRoute.tsx`: pass `equipment` from `useRootOutletContext()` to `<ReviewsView />`.
 
-- [ ] **Step 4: Update `CuppingView.tsx` with equipment selection and snapshots**
+- [ ] **Step 4: Update `ReviewsView.tsx` with equipment tracking and snapshots**
 
-In `apps/web/src/features/cupping/CuppingView.tsx`:
-- Add `equipment?: Equipment[]` to `CuppingViewProps`.
+In `apps/web/src/features/reviews/ReviewsView.tsx`:
+- Add `equipment?: Equipment[]` to props.
 - In Coffee & Brew Parameters card:
   - Add Grinder dropdown (filtered `type === 'grinder'` + custom/none options).
   - Add Grind Setting text input.
@@ -423,19 +435,31 @@ In `apps/web/src/features/cupping/CuppingView.tsx`:
   - Pre-fill grinder, grind setting, and brewer from `pendingBrewSession?.recipe` when loaded.
 - In `handleSaveTastingLog`:
   - Calculate `grinderSnapshot` and `brewerSnapshot` and include `grinderId`, `brewerId`, and `grindSetting` in `newLogPayload`.
-- In Past Tasting Logs History:
+- In Past Reviews History:
   - Render equipment snapshots (`log.grinderSnapshot` @ `log.grindSetting` • `log.brewerSnapshot`) alongside brew parameters.
+  - Update card titles and labels from "Cupping" to "Review".
 
-- [ ] **Step 5: Run web tests to verify they pass**
+- [ ] **Step 5: Update web routes and timer completion**
 
-Run: `npx vitest run apps/web/src/features/cupping/CuppingView.test.tsx apps/web/src/components/shared/Header.test.tsx`
+- In `apps/web/src/App.tsx`: import `ReviewsRoute`, define `<Route path="reviews" element={<ReviewsRoute />} />` and `<Route path="cupping" element={<Navigate to="/reviews" replace />} />`.
+- In `apps/web/src/components/shared/Header.tsx`: update reviews tab path to `'/reviews'`.
+- In `apps/web/src/routes/TimerRoute.tsx`: update `handleLogCompletedBrew` to `navigate('/reviews')`.
+- In `apps/web/src/features/timer/TimerView.tsx`:
+  - Rename `handleLogFreeBrewCupping` to `handleLogFreeBrewReview`.
+  - Update banner text: "BREW COMPLETE! RATE & REVIEW CUP".
+  - Update button text: "RATE & REVIEW CUP" (aria-label="RATE & REVIEW CUP").
+- In `apps/web/src/layouts/RootLayout.tsx`: update imports from `features/reviews`.
+
+- [ ] **Step 6: Run web tests to verify they pass**
+
+Run: `npx vitest run apps/web/src/features/reviews/ReviewsView.test.tsx apps/web/src/components/shared/Header.test.tsx apps/web/src/features/timer/TimerView.test.tsx apps/web/src/App.test.tsx`
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add apps/web/src/routes/ReviewsRoute.tsx apps/web/src/routes/CuppingRoute.tsx apps/web/src/App.tsx apps/web/src/components/shared/Header.tsx apps/web/src/routes/TimerRoute.tsx apps/web/src/features/cupping/CuppingView.tsx apps/web/src/features/cupping/CuppingView.test.tsx apps/web/src/components/shared/Header.test.tsx
-git commit -m "feat(web): align ReviewsRoute /reviews path and add equipment tracking with snapshots"
+git add apps/web/src/features/reviews/ apps/web/src/features/cupping/ apps/web/src/routes/ReviewsRoute.tsx apps/web/src/routes/CuppingRoute.tsx apps/web/src/App.tsx apps/web/src/components/shared/Header.tsx apps/web/src/routes/TimerRoute.tsx apps/web/src/features/timer/TimerView.tsx apps/web/src/features/timer/TimerView.test.tsx apps/web/src/components/shared/Header.test.tsx apps/web/src/layouts/RootLayout.tsx apps/web/src/App.test.tsx
+git commit -m "feat(web): retire cupping naming across views and routes, add equipment tracking"
 ```
 
 ---
