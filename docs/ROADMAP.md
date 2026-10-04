@@ -160,6 +160,21 @@ This document tracks upcoming milestones, architectural refactors, and technical
 - **Quality Checks & Verification**:
   - 100% test pass rate across 144 unit tests monorepo-wide (20 test suites), zero TypeScript errors across all 5 workspaces, and verified via Chrome DevTools in live browser.
 
+### Phase 7D: Mobile Equipment Catalog & Web Parity (Complete ✅)
+- **Core Domain & Presets (`@brewlog/core`)**:
+  - Promoted `GrinderSettingScale` (`'stepped-numbers'`, `'clicks'`, `'stepless'`, `'microns'`) and `DEFAULT_INITIAL_EQUIPMENT` starter gear into `@brewlog/core`.
+  - Added unit test coverage for starter equipment presets and grinder setting scales.
+- **Mobile Equipment Subsystem (`apps/mobile`)**:
+  - **`EquipmentContext`**: Offline-first caching with immediate AsyncStorage hydration (`@brewlog/mobile:equipment_cache`), optimistic local mutations, pending update/delete tracking, and automated Supabase cloud sync.
+  - **Duplicate Insert Prevention**: Immediately swaps local offline IDs (`local-eq-*`) to server-assigned UUIDs upon successful remote insertion during Step 2 of `syncWithRemote`, preventing duplicate row creation on network drop retry.
+  - **`EquipmentCatalogScreen` (`app/(tabs)/equipment.tsx`)**: Category filter chips (`All`, `Grinders`, `Brewers`, `Scales`, `Kettles`, `Other`), real-time search filtering, favorite gear toggling, and direct routing to add/edit modals.
+  - **`EquipmentModalScreen` (`app/equipment/modal.tsx`)**: Full CRUD modal powered by `KeyboardAwareScrollView` with dirty-form discard alerts, confirmation deletion guard, category selector, dial setting format pills, and cold-start / deep-link hydration guard (`testID="equipment-modal-loading"`).
+- **Web Alignment & Sync Resilience (`apps/web`)**:
+  - **`useEquipment`**: Fixed empty cache bug where clearing equipment resurrected default starters; preserved unsynced offline records (`local-eq-*`) when Supabase inserts fail.
+  - **`EquipmentView`**: Added real-time search bar, category filter chips (including `Other`), edit modal flow with delete confirmation, star favorite toggles, and dedicated accessory placeholders.
+- **Comprehensive Quality Verification**:
+  - 100% test pass rate across 544 unit tests monorepo-wide (`@brewlog/core`: 67, `@brewlog/mobile`: 323, `@brewlog/web`: 154), zero TypeScript errors across all 5 workspaces, and verified bundling on iOS and Android.
+
 ---
 
 ## 📋 Technical Debt & Component Refactoring (TODO)
@@ -246,6 +261,10 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
   - Core domain promotion (`calculateBeanRestingInfo`, `offsetRoastDateForThaw`) into `@brewlog/core`.
   - Web Stash attribute parity, resting status badges, edit/delete with confirmation modal, and offline sync resilience.
   - Web Recipe Studio custom recipe editing flow, `useRecipes.updateRecipe`, atomic stage replacement with rollback, and double-invocation guards.
+- [x] **Phase 7D: Mobile Equipment Catalog & Web Parity (Complete ✅)** *(Issue: [#34](https://github.com/Chewieez/brewlog/issues/34), PR: [#36](https://github.com/Chewieez/brewlog/pull/36))*:
+  - **Mobile Equipment Flow**: `EquipmentContext` with AsyncStorage caching, offline queueing, and Supabase sync. `EquipmentCard` with mono accent brand eyebrow, spec badges, and favorite star toggle. `EquipmentCatalogScreen` with category chips (`All`, `Grinders`, `Brewers`, `Scales`, `Kettles`, `Other`) and search filtering. `EquipmentModalScreen` with add/edit/delete flows, dirty state prompts, and hydration guards.
+  - **Web Parity & Resilience**: Real-time search filtering and category filter chips in `EquipmentView.tsx`. Add/edit modal flow with confirmation modal for deletion. Star favorite toggling on web cards and in edit modal. Offline sync failure retention and empty cache preservation in `useEquipment.ts`.
+  - **Core Package**: Exported `DEFAULT_INITIAL_EQUIPMENT` presets and `GrinderSettingScale` (including `'microns'`) in `@brewlog/core`.
 - [ ] **Phase 8: User Preferences & Settings Subsystem (Cross-Platform) (Upcoming ⏳)**:
   - **Supabase Cloud Schema (`@brewlog/supabase`)**: `user_settings` table keyed to `user_id` with Row-Level Security (RLS) policies and offline-first local cache fallback. Initial schema stores `default_timer_mode` (`'recipe'` | `'manual'`), `date_format` (`'locale'` | `'MM/DD/YYYY'` | `'DD/MM/YYYY'` | `'YYYY-MM-DD'`), `weight_unit` (`'metric'` [grams/g] | `'imperial'` [ounces/oz, pounds/lb]), and `temperature_unit` (`'celsius'` | `'fahrenheit'`), architected to scale for future preferences (haptic/audio cues, default brew method).
   - **Settings UI & Navigation**:

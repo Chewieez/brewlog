@@ -29,7 +29,7 @@ brewlog/
 ## 🚀 Key Features
 
 * **🫘 Bean Stash & Cellar Inventory**: Track origins, processing methods (Washed, Natural, Anaerobic), roast dates, resting/freshness windows, and remaining weight. Includes a pure mathematical resting engine with adaptive roaster curves, freezer vault preservation pause math, offline-first local caching (`@brewlog/mobile:stash_cache`), shelf partitioning (Active Cellar, Deep Freeze, Archive), and a 1-tap post-brew dose deduction bridge directly from the live brew timer.
-* **⚙️ Equipment Tracking**: Log your grinders (burr type, dial settings), brewers (V60, AeroPress, Flair 58, Chemex), and gear settings.
+* **⚙️ Equipment Tracking**: Log grinders (burr type, dial setting format: stepped numbers, clicks, stepless, microns), brewers (V60, AeroPress, Kalita Wave, Flair 58), precision scales, kettles, and accessories/other gear. Includes category filtering, favorite gear pinning, full add/edit/delete CRUD modals, offline-first local caching (`@brewlog/mobile:equipment_cache` / `brewlog_equipment_cache`), and automated Supabase cloud sync.
 * **📖 Recipes & Interactive Scaling**: Build and scale multi-stage recipes (bloom, pours, agitation, drawdown target) with real-time auto-scaling.
 * **⏱️ Interactive Brew Timer & Ratio Translator**: Live visual stage timer with target weight indicators, synthesized bell chimes (Web Audio on web, `expo-audio` on mobile), tactile haptics (`expo-haptics`), dynamic method selector, inline dose scaling, dual-mode operation (Guided Recipe Mode + Free Brew manual stopwatch with milestone split tags), and a nested bidirectional proportional Ratio Translator.
 * **📝 Reviews & SCA Cupping Logbook**: Score fragrance/aroma, flavor, aftertaste, acidity, body, balance, uniformity, clean cup, sweetness, and overall impression with interactive flavor tags to calculate authentic 0–100 SCA scores.
@@ -46,6 +46,7 @@ brewlog/
   - **Phase 7A (Design System Primitives & Foundation)**: Complete ✅ (`@brewlog/ui` shared monorepo package with platform-split primitives [`.web` / `.native`], unified TypeScript contracts, Outfit tabular figure enforcement, and showcase fixture).
   - **Phase 7B (Design System App Migration & Integration)**: Active / Next 🚀 (Migrate existing UI surfaces in `apps/web` and `apps/mobile` to consume `@brewlog/ui` Button, Card, Badge, Input, and MetricTile primitives).
   - **Phase 7C (Web Stash Persistence & Recipe Flow Alignment)**: Complete ✅ (Supabase migrations 002/003, core resting engine promotion, Web Stash modal parity & offline sync resilience, Web Recipe Studio custom recipe editing flow).
+  - **Phase 7D (Mobile Equipment & Web Parity)**: Complete ✅ (Mobile `EquipmentContext` with offline resilience and optimistic updates, `EquipmentCatalogScreen` with category chips and search filtering, `EquipmentModalScreen` add/edit flows, microns scale type support across `@brewlog/core`, web parity with 'Other' equipment section, and offline sync resilience).
   - **Phase 8 (User Preferences & Settings Subsystem)**: Upcoming ⏳ (Cross-platform Supabase `user_settings`, default timer mode, unit conversions).
   - **Phase 9 (Native Cupping Session Logging)**: Upcoming ⏳ (SCA 10-attribute scoring protocol).
   - **Phase 10 (Platform-Adaptive Navigation)**: Upcoming ⏳ (iOS Liquid Glass & Android Material Design 3).
