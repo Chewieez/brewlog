@@ -121,6 +121,17 @@ export default function RootLayout() {
                     headerShown: false,
                   }}
                 />
+                <Stack.Screen
+                  name="reviews/[id]"
+                  options={{
+                    headerShown: true,
+                    title: 'Review Details',
+                    headerBackTitle: 'Back',
+                    headerStyle: { backgroundColor: colors.canvas },
+                    headerTintColor: colors.textPrimary,
+                    headerTitleStyle: { fontWeight: '700' },
+                  }}
+                />
                 </Stack>
                 </ReviewsProvider>
               </EquipmentProvider>
