@@ -62,6 +62,7 @@ const mockBeans: Bean[] = [
     originCountry: 'Ethiopia',
     bagWeightGrams: 250,
     remainingGrams: 200,
+    flavorNotes: ['Peach', 'Jasmine'],
     createdAt: '2026-08-01',
   },
 ];

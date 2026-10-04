@@ -35,7 +35,7 @@ const BREW_METHODS: { id: BrewMethodType; label: string }[] = [
   { id: 'aeropress', label: 'AeroPress' },
   { id: 'french-press', label: 'French Press' },
   { id: 'chemex', label: 'Chemex' },
-  { id: 'pour-over', label: 'Pour Over' },
+  { id: 'custom', label: 'Tasting Bowl / Other' },
   { id: 'cold-brew', label: 'Cold Brew' },
 ];
 
@@ -232,7 +232,7 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
         brewerId,
         grinderSnapshot,
         brewerSnapshot,
-        grindSetting: grindSetting.trim() || undefined,
+        grindSetting: grindSetting.trim() || '',
         coffeeDoseGrams: Number(dose) || 18,
         waterAmountGrams: Number(water) || 300,
         actualTimeSeconds: Number(actualTime) || 210,
@@ -620,8 +620,9 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
 };
 
 export const ReviewModalScreen: React.FC = () => {
-  const params = useLocalSearchParams<Record<string, string | undefined>>();
-  const id = params?.id;
+  const params = useLocalSearchParams();
+  const rawId = params?.id;
+  const id = typeof rawId === 'string' ? rawId : Array.isArray(rawId) ? rawId[0] : undefined;
   const { reviews, loading } = useReviews();
 
   if (Boolean(id) && loading) {
@@ -634,12 +635,22 @@ export const ReviewModalScreen: React.FC = () => {
 
   const sourceItem = id ? reviews.find((item) => item.id === id) : undefined;
 
+  const initialParams: Record<string, string | undefined> = {};
+  if (params) {
+    Object.keys(params).forEach((key) => {
+      const val = params[key];
+      if (typeof val === 'string') {
+        initialParams[key] = val;
+      }
+    });
+  }
+
   return (
     <ReviewModalForm
       key={sourceItem ? sourceItem.id : (id || 'new')}
       id={id}
       sourceItem={sourceItem}
-      initialParams={params}
+      initialParams={initialParams}
     />
   );
 };

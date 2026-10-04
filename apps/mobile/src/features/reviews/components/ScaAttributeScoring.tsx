@@ -64,7 +64,7 @@ export const CLEAR_SCORES: CuppingAttributes = {
 function getClassification(score: number): { label: string; color: string } {
   if (score >= 90) return { label: 'Outstanding (Specialty)', color: colors.accent };
   if (score >= 85) return { label: 'Excellent (Specialty)', color: colors.statusSuccess };
-  if (score >= 80) return { label: 'Very Good (Specialty)', color: colors.accentWarm };
+  if (score >= 80) return { label: 'Very Good (Specialty)', color: colors.accentHover };
   return { label: 'Below Specialty', color: colors.textMuted };
 }
 

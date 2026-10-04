@@ -385,6 +385,7 @@ describe('ReviewsContext', () => {
       recipe: {
         id: 'rec-1',
         name: 'V60 Pour',
+        description: 'V60 Pour test recipe',
         brewMethod: 'v60',
         coffeeDoseGrams: 18,
         waterAmountGrams: 300,
