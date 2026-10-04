@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- **Terminology:** User-facing labels use "Reviews" / "Tasting Journal" / "+ NEW REVIEW", domain types reuse `@brewlog/core`'s `TastingLog` and Supabase's `tasting_logs`.
+- **Terminology:** User-facing labels use "Reviews" / "Tasting Journal" / "ADD REVIEW" / "Add Review", domain types reuse `@brewlog/core`'s `TastingLog` and Supabase's `tasting_logs`.
 - **Postgres 22P02 Guard:** Only query Supabase `.eq('id', id)` for updates/deletes if `target.userId === user.id` and the ID is a valid synced server UUID.
 - **Cold-Start Hydration Guard:** `ReviewModalScreen` and `ReviewDetailScreen` must render `ActivityIndicator` (`testID="review-modal-loading"`) while `loading === true` if an `id` param is present.
 - **Empty Cache Retention:** `raw !== null` and `Array.isArray(parsed)` ensures empty arrays `[]` do not resurrect sample data.
@@ -180,7 +180,7 @@ Create `apps/mobile/src/features/reviews/screens/ReviewsCatalogScreen.test.tsx`:
 - Tests brew method filter chips (`All`, `V60`, `Espresso`, etc.).
 - Tests rating filter chips.
 - Tests empty state for 0 reviews and empty search results.
-- Tests tapping `+ NEW REVIEW` navigates to `/reviews/modal`.
+- Tests tapping `ADD REVIEW` navigates to `/reviews/modal`.
 - Tests tapping a card navigates to `/reviews/${id}`.
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -191,7 +191,7 @@ Expected: FAIL
 - [ ] **Step 3: Implement `ReviewsCatalogScreen.tsx`**
 
 Implement:
-- Header: Eyebrow `TASTING JOURNAL`, Title `Brew Reviews`, Subtitle, and `+ NEW REVIEW` button.
+- Header: Eyebrow `TASTING JOURNAL`, Title `Brew Reviews`, Subtitle, and `ADD REVIEW` button.
 - `ReviewsSummaryBar` at top.
 - Search input with custom `X` clear button (no redundant iOS clear button).
 - Method filter scrollable chips and rating filter chips.
@@ -259,7 +259,7 @@ Implement:
 - Outer wrapper checking `id && loading` to render `<ActivityIndicator testID="review-modal-loading" />`.
 - Inner `ReviewModalForm` keyed by `sourceItem?.id || id || 'new'`.
 - `KeyboardAwareScrollView` with `bottomOffset={32}`.
-- Top header with `X`, title ("New Review" / "Edit Review"), and `✓` / `SAVE` button.
+- Top header with `X`, title ("Add Review" / "Edit Review"), and `✓` / `SAVE` button.
 - Pending brew banner if coming from timer session with `CLEAR` action.
 - Coffee Section: Stash picker or custom Name + Roaster inputs.
 - Equipment Section: Grinder picker, Grind setting input, Brewer picker, Brew method, Dose, Water, Time, Temp.
@@ -338,7 +338,7 @@ Create `apps/mobile/app/reviews/[id].tsx` and register `<Stack.Screen name="revi
 
 In `apps/mobile/app/(tabs)/index.tsx`:
 - Rename `handleLogCupping` to `handleLogReview`.
-- Update button text to `LOG REVIEW` (accessibilityLabel="Log Review").
+- Update button text to `ADD REVIEW` (accessibilityLabel="Add Review").
 - Navigate to `/reviews/modal` passing:
   - `fromTimer: 'true'`
   - `beanId: activeBrewBean?.id`
@@ -353,7 +353,7 @@ In `apps/mobile/app/(tabs)/index.tsx`:
   - `brewerId: activeRecipe.recommendedBrewerId`
   - `notes: formattedSplitsNotes || undefined`
 
-Update `freeBrewIntegration.test.tsx` to expect `LOG REVIEW` button and navigation to `/reviews/modal`.
+Update `freeBrewIntegration.test.tsx` to expect `ADD REVIEW` button and navigation to `/reviews/modal`.
 
 - [ ] **Step 6: Run tests to verify they pass**
 
