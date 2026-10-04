@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Equipment, EquipmentType } from "@brewlog/core";
+import { Equipment, EquipmentType, GrinderSettingScale } from "@brewlog/core";
 import { Sliders, Plus, Coffee, Scale, Flame, Trash2, Search, X, Star } from "lucide-react";
 import { ConfirmationModal } from "../../components/shared/ConfirmationModal";
 
@@ -20,8 +20,8 @@ const CATEGORIES: CategoryOption[] = [
 
 interface EquipmentViewProps {
   equipment: Equipment[];
-  onAddEquipment: (item: Omit<Equipment, "id" | "createdAt">) => Promise<Equipment> | void;
-  onUpdateEquipment?: (id: string, updates: Partial<Equipment>) => Promise<Equipment> | void;
+  onAddEquipment: (item: Omit<Equipment, "id" | "createdAt">) => Promise<Equipment> | Promise<void> | void;
+  onUpdateEquipment?: (id: string, updates: Partial<Equipment>) => Promise<Equipment> | Promise<void> | void;
   onDeleteEquipment?: (id: string) => Promise<void> | void;
   onToggleFavorite?: (id: string) => Promise<void> | void;
 }
@@ -45,7 +45,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
   const [subType, setSubType] = useState("");
-  const [settingScaleType, setSettingScaleType] = useState<"clicks" | "stepped-numbers" | "stepless">("stepped-numbers");
+  const [settingScaleType, setSettingScaleType] = useState<GrinderSettingScale>("stepped-numbers");
   const [notes, setNotes] = useState("");
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -498,6 +498,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                     <option value="stepped-numbers" className="bg-panel-recessed text-zinc-100">Stepped Numbers (e.g. 4.1, 5.2)</option>
                     <option value="clicks" className="bg-panel-recessed text-zinc-100">Clicks from Zero (e.g. 24 clicks)</option>
                     <option value="stepless" className="bg-panel-recessed text-zinc-100">Stepless Dial</option>
+                    <option value="microns" className="bg-panel-recessed text-zinc-100">Microns (µm)</option>
                   </select>
                 </div>
               )}

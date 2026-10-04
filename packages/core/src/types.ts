@@ -32,6 +32,8 @@ export type BrewMethodType =
 
 export type EquipmentType = "grinder" | "brewer" | "scale" | "kettle" | "other";
 
+export type GrinderSettingScale = "clicks" | "stepped-numbers" | "stepless" | "microns";
+
 export interface Equipment {
   id: string;
   userId?: string;
@@ -39,7 +41,7 @@ export interface Equipment {
   brand: string;
   model: string;
   subType?: string; // e.g. "flat-burr", "conical-burr", "lever-espresso"
-  settingScaleType?: "clicks" | "stepped-numbers" | "stepless" | "microns";
+  settingScaleType?: GrinderSettingScale;
   isFavorite?: boolean;
   notes?: string;
   createdAt: string;
