@@ -93,7 +93,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="cupping"
+          name="reviews"
           options={{
             title: 'Reviews',
             tabBarIcon: ({ color, size }) => (
