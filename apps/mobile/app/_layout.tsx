@@ -105,6 +105,13 @@ export default function RootLayout() {
                     headerShown: false,
                   }}
                 />
+                <Stack.Screen
+                  name="equipment/modal"
+                  options={{
+                    presentation: 'modal',
+                    headerShown: false,
+                  }}
+                />
                 </Stack>
               </EquipmentProvider>
             </StashProvider>
