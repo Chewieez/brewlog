@@ -367,10 +367,74 @@ git commit -m "feat(reviews): implement ReviewDetailScreen and wire timer comple
 
 ---
 
-### Task 6: Final Verification & Milestone Quality Gate
+### Task 6: Web Parity Enhancements (`CuppingView` & `CuppingRoute`)
 
 **Files:**
-- All touched files across `apps/mobile`
+- Modify: `apps/web/src/routes/CuppingRoute.tsx`
+- Modify: `apps/web/src/features/cupping/CuppingView.tsx`
+- Modify: `apps/web/src/features/cupping/CuppingView.test.tsx`
+
+**Interfaces:**
+- Consumes:
+  - `RootOutletContext`: `equipment`, `useRootOutletContext`
+  - `@brewlog/core`: `Equipment`
+- Produces:
+  - Web equipment selection (grinder dropdown + grind setting input, brewer dropdown)
+  - Snapshots saved to `tasting_logs` (`grinderSnapshot`, `brewerSnapshot`, `grindSetting`)
+  - Equipment snapshots displayed in past logs history on web
+
+- [ ] **Step 1: Write failing unit tests for web equipment tracking in `CuppingView.test.tsx`**
+
+Add tests to `apps/web/src/features/cupping/CuppingView.test.tsx`:
+- Tests that grinder selection and grind setting input render when `equipment` is provided.
+- Tests that brewer selection renders when `equipment` is provided.
+- Tests that submitting the cupping log includes `grinderId`, `brewerId`, `grinderSnapshot`, `brewerSnapshot`, and `grindSetting`.
+- Tests that past tasting log history renders the grinder and brewer snapshots.
+- Tests that prefilling from `pendingBrewSession` pre-selects the recipe's recommended grinder and brewer.
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `npx vitest run apps/web/src/features/cupping/CuppingView.test.tsx`
+Expected: FAIL
+
+- [ ] **Step 3: Update `CuppingRoute.tsx`**
+
+In `apps/web/src/routes/CuppingRoute.tsx`:
+- Extract `equipment` from `useRootOutletContext()`.
+- Pass `equipment={equipment}` to `<CuppingView />`.
+
+- [ ] **Step 4: Update `CuppingView.tsx`**
+
+In `apps/web/src/features/cupping/CuppingView.tsx`:
+- Add `equipment?: Equipment[]` to `CuppingViewProps`.
+- In Coffee & Brew Parameters card:
+  - Add Grinder dropdown (filtered `type === 'grinder'` + custom/none options).
+  - Add Grind Setting text input.
+  - Add Brewer dropdown (filtered `type === 'brewer'` + custom/default options).
+  - Pre-fill grinder, grind setting, and brewer from `pendingBrewSession?.recipe` when loaded.
+- In `handleSaveTastingLog`:
+  - Calculate `grinderSnapshot` and `brewerSnapshot` and include `grinderId`, `brewerId`, and `grindSetting` in `newLogPayload`.
+- In Past Tasting Logs History:
+  - Render equipment snapshots (`log.grinderSnapshot` @ `log.grindSetting` • `log.brewerSnapshot`) alongside brew parameters.
+
+- [ ] **Step 5: Run web tests to verify they pass**
+
+Run: `npx vitest run apps/web/src/features/cupping/CuppingView.test.tsx`
+Expected: PASS
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add apps/web/src/routes/CuppingRoute.tsx apps/web/src/features/cupping/CuppingView.tsx apps/web/src/features/cupping/CuppingView.test.tsx
+git commit -m "feat(web): add equipment tracking, grind setting, and snapshots to CuppingView for cross-platform parity"
+```
+
+---
+
+### Task 7: Final Verification & Milestone Quality Gate
+
+**Files:**
+- All touched files across `apps/mobile` and `apps/web`
 
 - [ ] **Step 1: Run TypeScript typecheck across all workspaces**
 
@@ -392,3 +456,4 @@ Create `docs/devlogs/2026-10-04-mobile-reviews-and-cupping-parity.md` summarizin
 git add docs/devlogs/2026-10-04-mobile-reviews-and-cupping-parity.md
 git commit -m "docs: document mobile reviews subsystem and web cupping parity milestone"
 ```
+
