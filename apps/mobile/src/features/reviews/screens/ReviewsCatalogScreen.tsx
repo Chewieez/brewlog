@@ -79,11 +79,14 @@ export const ReviewsCatalogScreen: React.FC = () => {
       return { total: 0, avgScaScore: 0, topFlavor: '--' };
     }
 
-    const totalScore = reviews.reduce(
-      (sum, r) => sum + (Number(r.calculatedScaScore) || 0),
-      0
+    const scoredReviews = reviews.filter(
+      (r) => (Number(r.calculatedScaScore) || 0) > 0
     );
-    const avgScaScore = totalScore / total;
+    const avgScaScore =
+      scoredReviews.length > 0
+        ? scoredReviews.reduce((sum, r) => sum + Number(r.calculatedScaScore), 0) /
+          scoredReviews.length
+        : 0;
 
     // Count flavor tags
     const tagCounts = new Map<string, number>();
@@ -209,7 +212,7 @@ export const ReviewsCatalogScreen: React.FC = () => {
               onPress={() => setSelectedMethod(opt.id)}
               accessibilityRole="button"
               accessibilityLabel={`Filter by method ${opt.label}`}
-              hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+              hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
             >
               <Text
                 style={[
@@ -235,7 +238,7 @@ export const ReviewsCatalogScreen: React.FC = () => {
               onPress={() => setSelectedRating(opt.id)}
               accessibilityRole="button"
               accessibilityLabel={`Filter by rating ${opt.label}`}
-              hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+              hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
             >
               <Text
                 style={[

@@ -386,7 +386,7 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
                       onPress={() => handleSelectBean(b)}
                       accessibilityRole="button"
                       accessibilityLabel={`Select bean ${b.name}`}
-                      hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+                      hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
                     >
                       <Text style={[styles.beanChipText, isSelected && styles.beanChipTextSelected]}>
                         {b.name}
@@ -440,7 +440,7 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
                     onPress={() => setBrewMethod(m.id)}
                     accessibilityRole="button"
                     accessibilityLabel={`Select method ${m.label}`}
-                    hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+                    hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
                   >
                     <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
                       {m.label}
@@ -465,7 +465,7 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
                       onPress={() => setGrinderId(isActive ? undefined : g.id)}
                       accessibilityRole="button"
                       accessibilityLabel={`Select grinder ${g.brand} ${g.model}`}
-                      hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+                      hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
                     >
                       <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
                         {g.brand} {g.model}
@@ -504,7 +504,7 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
                       onPress={() => setBrewerId(isActive ? undefined : b.id)}
                       accessibilityRole="button"
                       accessibilityLabel={`Select brewer ${b.brand} ${b.model}`}
-                      hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+                      hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
                     >
                       <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
                         {b.brand} {b.model}

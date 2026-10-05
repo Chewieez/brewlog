@@ -192,6 +192,7 @@ vi.mock('react-native', () => {
     Alert: {
       alert: vi.fn(),
     },
+    useWindowDimensions: () => ({ width: 390, height: 844 }),
     StyleSheet: {
       create: (styles: any) => styles,
     },

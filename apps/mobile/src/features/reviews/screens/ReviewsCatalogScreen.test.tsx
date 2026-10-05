@@ -169,6 +169,7 @@ vi.mock('react-native', () => ({
     <div
       role={accessibilityRole || 'button'}
       aria-label={accessibilityLabel}
+      data-hitslop={JSON.stringify(hitSlop)}
       onClick={(e) => {
         onPress?.(e);
       }}
@@ -318,5 +319,57 @@ describe('ReviewsCatalogScreen', () => {
     fireEvent.click(addFirst);
 
     expect(mockPush).toHaveBeenCalledWith('/reviews/modal');
+  });
+
+  it('excludes unscored reviews (score 0.0) when calculating average SCA score', () => {
+    currentReviews = [
+      ...mockReviews,
+      {
+        id: 'rev-unscored',
+        beanNameSnapshot: 'Quick Brew Bean',
+        roasterSnapshot: 'Quick Roaster',
+        recipeNameSnapshot: 'Quick Brew',
+        brewMethod: 'aeropress',
+        brewDate: '2026-09-03T10:00:00.000Z',
+        coffeeDoseGrams: 15,
+        waterAmountGrams: 250,
+        actualTimeSeconds: 120,
+        grindSetting: '',
+        waterTempCelsius: 92,
+        scores: {
+          fragranceAroma: 0,
+          flavor: 0,
+          aftertaste: 0,
+          acidity: 0,
+          body: 0,
+          balance: 0,
+          uniformity: 0,
+          cleanCup: 0,
+          sweetness: 0,
+          overall: 0,
+        },
+        calculatedScaScore: 0.0,
+        rating: 3,
+        flavorTags: [],
+        notes: '',
+        wouldBrewAgain: false,
+        createdAt: '2026-09-03T10:05:00.000Z',
+      },
+    ];
+
+    const { getByText } = render(<ReviewsCatalogScreen />);
+
+    // rev-1 (90.0) and rev-2 (84.5) average to 87.3 (174.5 / 2 = 87.25 -> 87.3)
+    // If unscored (0.0) were included, average would be 174.5 / 3 = 58.2
+    expect(getByText('87.3')).toBeTruthy();
+  });
+
+  it('provides >= 44pt touch target with hitSlop vertical padding of 6 on filter chips', () => {
+    const { getByRole } = render(<ReviewsCatalogScreen />);
+
+    const espressoChip = getByRole('button', { name: 'Filter by method Espresso' });
+    const hitSlop = JSON.parse(espressoChip.getAttribute('data-hitslop') || '{}');
+    expect(hitSlop.top).toBe(6);
+    expect(hitSlop.bottom).toBe(6);
   });
 });

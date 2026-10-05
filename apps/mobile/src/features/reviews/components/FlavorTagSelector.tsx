@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView, useWindowDimensions } from 'react-native';
 import { X } from 'lucide-react-native';
 import { SCA_FLAVOR_WHEEL, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { FONTS } from '../../../theme/fonts';
@@ -16,7 +16,8 @@ export const FlavorTagSelector: React.FC<FlavorTagSelectorProps> = ({
   selectedTags,
   onToggleTag,
 }) => {
-  const [mode, setMode] = useState<'tags' | 'wheel'>('tags');
+  const { width } = useWindowDimensions();
+  const [mode, setMode] = useState<'tags' | 'wheel'>(() => (width >= 600 ? 'wheel' : 'tags'));
 
   return (
     <View style={styles.container}>
@@ -90,7 +91,7 @@ export const FlavorTagSelector: React.FC<FlavorTagSelectorProps> = ({
                         onPress={() => onToggleTag(desc)}
                         accessibilityRole="button"
                         accessibilityLabel={`Toggle flavor tag ${desc}`}
-                        hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+                        hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
                       >
                         <Text
                           style={[

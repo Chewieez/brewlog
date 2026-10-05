@@ -20,7 +20,7 @@ export const ReviewsSummaryBar: React.FC<ReviewsSummaryBarProps> = ({
     <View
       style={styles.chassis}
       accessibilityRole="summary"
-      accessibilityLabel={`Reviews summary: ${totalReviews} total reviews, ${averageScaScore.toFixed(1)} average SCA score, top flavor note is ${topFlavorNote}`}
+      accessibilityLabel={`Reviews summary: ${totalReviews} total reviews, ${averageScaScore > 0 ? averageScaScore.toFixed(1) : '--'} average SCA score, top flavor note is ${topFlavorNote}`}
     >
       <View style={styles.metricsGrid}>
         <View style={styles.metricItem}>
@@ -36,7 +36,7 @@ export const ReviewsSummaryBar: React.FC<ReviewsSummaryBarProps> = ({
               averageScaScore >= 85 && styles.metricValueHigh,
             ]}
           >
-            {totalReviews > 0 ? averageScaScore.toFixed(1) : '--'}
+            {totalReviews > 0 && averageScaScore > 0 ? averageScaScore.toFixed(1) : '--'}
           </Text>
         </View>
 

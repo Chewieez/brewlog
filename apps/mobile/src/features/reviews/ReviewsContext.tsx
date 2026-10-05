@@ -18,6 +18,7 @@ import {
   TastingLogRow,
   mapTastingLogRowToDomain,
   mapTastingLogDomainToInsert,
+  isValidUUID,
 } from '@brewlog/supabase';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/AuthContext';
@@ -25,12 +26,6 @@ import { useAuth } from '../auth/AuthContext';
 export const REVIEWS_STORAGE_KEY = '@brewlog/mobile:reviews_cache';
 export const REVIEWS_PENDING_UPDATES_KEY = '@brewlog/mobile:reviews_pending_updates';
 export const REVIEWS_PENDING_DELETES_KEY = '@brewlog/mobile:reviews_pending_deletes';
-
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-function isValidUUID(id: string): boolean {
-  return UUID_REGEX.test(id);
-}
 
 export interface PendingBrewSession {
   recipe: BrewRecipe;

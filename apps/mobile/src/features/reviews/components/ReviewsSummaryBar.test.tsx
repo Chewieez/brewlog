@@ -70,4 +70,17 @@ describe('ReviewsSummaryBar', () => {
     const dashes = getAllByText('--');
     expect(dashes).toHaveLength(2);
   });
+
+  it('renders placeholder -- when reviews exist but all are unscored (averageScaScore is 0)', () => {
+    const { getByText, getAllByText } = render(
+      <ReviewsSummaryBar
+        totalReviews={3}
+        averageScaScore={0}
+      />
+    );
+
+    expect(getByText('3')).toBeTruthy();
+    expect(getAllByText('--')).toHaveLength(2);
+  });
 });
+
