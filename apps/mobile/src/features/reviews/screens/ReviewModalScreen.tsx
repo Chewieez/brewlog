@@ -201,13 +201,19 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
       await updateReview(sourceItem.id, {
         beanNameSnapshot: trimmedCoffee,
         roasterSnapshot: trimmedRoaster,
-        beanId: selectedBeanId || sourceItem.beanId,
+        beanId:
+          selectedBeanId && selectedBeanId !== 'sample'
+            ? selectedBeanId
+            : sourceItem.beanId !== 'sample'
+            ? sourceItem.beanId
+            : undefined,
+        recipeId: sourceItem.recipeId !== 'sample' ? sourceItem.recipeId : undefined,
         brewMethod,
         grinderId,
         brewerId,
         grinderSnapshot: grinderSnapshot || sourceItem.grinderSnapshot,
         brewerSnapshot: brewerSnapshot || sourceItem.brewerSnapshot,
-        grindSetting: grindSetting.trim() || undefined,
+        grindSetting: grindSetting.trim() || sourceItem.grindSetting || '',
         coffeeDoseGrams: Number(dose) || sourceItem.coffeeDoseGrams,
         waterAmountGrams: Number(water) || sourceItem.waterAmountGrams,
         actualTimeSeconds: Number(actualTime) || sourceItem.actualTimeSeconds,
@@ -224,8 +230,11 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
         beanNameSnapshot: trimmedCoffee,
         roasterSnapshot: trimmedRoaster,
         recipeNameSnapshot: initialParams.recipeName || 'Free Brew',
-        beanId: selectedBeanId || 'sample',
-        recipeId: initialParams.recipeId || 'sample',
+        beanId: selectedBeanId && selectedBeanId !== 'sample' ? selectedBeanId : undefined,
+        recipeId:
+          initialParams.recipeId && initialParams.recipeId !== 'sample'
+            ? initialParams.recipeId
+            : undefined,
         brewMethod,
         brewDate: new Date().toISOString(),
         grinderId,

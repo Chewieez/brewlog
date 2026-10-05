@@ -29,7 +29,7 @@ export const FlavorTagSelector: React.FC<FlavorTagSelectorProps> = ({
           accessibilityLabel="Switch to tag list mode"
         >
           <Text style={[styles.modeTabText, mode === 'tags' && styles.modeTabTextActive]}>
-            TAGS LIST
+            TAG LIST
           </Text>
         </Pressable>
         <Pressable

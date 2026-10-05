@@ -223,7 +223,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
       calculatedScaScore: Number(scaScore.toFixed(1)),
       rating,
       flavorTags: selectedTags,
-      notes: notes.trim() || 'Evaluated on SCA scoring matrix.',
+      notes: notes.trim(),
       wouldBrewAgain,
     };
 

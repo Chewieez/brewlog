@@ -1,11 +1,16 @@
 import { TastingLog, BrewMethodType } from "@brewlog/core";
 import { TastingLogRow, TastingLogInsert } from "../database.types";
 
+export const isValidUUID = (id?: string | null): boolean => {
+  if (!id) return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+};
+
 export const mapTastingLogRowToDomain = (l: TastingLogRow): TastingLog => ({
   id: l.id,
   userId: l.user_id,
-  beanId: l.bean_id || "sample",
-  recipeId: l.recipe_id || "sample",
+  beanId: l.bean_id || undefined,
+  recipeId: l.recipe_id || undefined,
   grinderId: l.grinder_id || undefined,
   brewerId: l.brewer_id || undefined,
   grinderSnapshot: l.grinder_snapshot || undefined,
@@ -46,10 +51,10 @@ export const mapTastingLogDomainToInsert = (
   userId: string
 ): TastingLogInsert => ({
   user_id: userId,
-  bean_id: log.beanId || null,
-  recipe_id: log.recipeId || null,
-  grinder_id: log.grinderId || null,
-  brewer_id: log.brewerId || null,
+  bean_id: isValidUUID(log.beanId) ? log.beanId! : null,
+  recipe_id: isValidUUID(log.recipeId) ? log.recipeId! : null,
+  grinder_id: isValidUUID(log.grinderId) ? log.grinderId! : null,
+  brewer_id: isValidUUID(log.brewerId) ? log.brewerId! : null,
   grinder_snapshot: log.grinderSnapshot || null,
   brewer_snapshot: log.brewerSnapshot || null,
   bean_name_snapshot: log.beanNameSnapshot,
@@ -60,7 +65,7 @@ export const mapTastingLogDomainToInsert = (
   coffee_dose_grams: log.coffeeDoseGrams,
   water_amount_grams: log.waterAmountGrams,
   actual_time_seconds: log.actualTimeSeconds,
-  grind_setting: log.grindSetting,
+  grind_setting: log.grindSetting || '',
   water_temp_celsius: log.waterTempCelsius,
   fragrance_aroma: log.scores.fragranceAroma,
   flavor: log.scores.flavor,
@@ -76,7 +81,7 @@ export const mapTastingLogDomainToInsert = (
   calculated_sca_score: log.calculatedScaScore,
   rating: log.rating,
   flavor_tags: log.flavorTags,
-  notes: log.notes,
+  notes: log.notes ?? '',
   would_brew_again: log.wouldBrewAgain,
 });
 
