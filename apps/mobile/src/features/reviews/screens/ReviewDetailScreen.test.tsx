@@ -8,12 +8,16 @@ import { ReviewDetailScreen } from './ReviewDetailScreen';
 
 const mockBack = vi.fn();
 const mockPush = vi.fn();
+const mockReplace = vi.fn();
+const canGoBackMock = vi.fn(() => true);
 let mockParams: { id?: string } = { id: 'rev-1' };
 
 vi.mock('expo-router', () => ({
   useRouter: () => ({
     back: mockBack,
     push: mockPush,
+    replace: mockReplace,
+    canGoBack: canGoBackMock,
   }),
   useLocalSearchParams: () => mockParams,
 }));
@@ -121,6 +125,7 @@ vi.mock('lucide-react-native', () => ({
 describe('ReviewDetailScreen', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    canGoBackMock.mockReturnValue(true);
     mockParams = { id: 'rev-1' };
     mockLoading = false;
     mockReviews = [mockReview];
@@ -202,5 +207,17 @@ describe('ReviewDetailScreen', () => {
       expect(mockDeleteReview).toHaveBeenCalledWith('rev-1');
       expect(mockBack).toHaveBeenCalled();
     });
+  });
+
+  it('8. falls back to router.replace("/(tabs)/reviews") when router.canGoBack is false', () => {
+    canGoBackMock.mockReturnValue(false);
+    mockParams = { id: 'non-existent' };
+    const { getByRole } = render(<ReviewDetailScreen />);
+
+    const backBtn = getByRole('button', { name: 'Back to Reviews' });
+    fireEvent.click(backBtn);
+
+    expect(mockBack).not.toHaveBeenCalled();
+    expect(mockReplace).toHaveBeenCalledWith('/(tabs)/reviews');
   });
 });

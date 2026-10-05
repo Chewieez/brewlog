@@ -36,6 +36,14 @@ export const ReviewDetailScreen: React.FC = () => {
     );
   }
 
+  const handleBack = () => {
+    if (router.canGoBack?.()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/reviews');
+    }
+  };
+
   if (!review) {
     return (
       <View style={styles.notFoundContainer}>
@@ -45,7 +53,7 @@ export const ReviewDetailScreen: React.FC = () => {
         </Text>
         <Pressable
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={handleBack}
           accessibilityRole="button"
           accessibilityLabel="Back to Reviews"
         >
@@ -90,7 +98,7 @@ export const ReviewDetailScreen: React.FC = () => {
           style: 'destructive',
           onPress: async () => {
             await deleteReview(review.id);
-            router.back();
+            handleBack();
           },
         },
       ]
