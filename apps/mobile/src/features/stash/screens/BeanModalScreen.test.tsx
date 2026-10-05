@@ -247,7 +247,7 @@ describe('BeanModalScreen', () => {
       </StashContext.Provider>
     );
 
-    fireEvent.press(getByText('SAVE BEAN'));
+    fireEvent.press(getByText('SAVE'));
     expect(getByText('Roaster is required')).toBeTruthy();
     expect(mockContext.addBean).not.toHaveBeenCalled();
   });
@@ -260,7 +260,7 @@ describe('BeanModalScreen', () => {
     );
 
     fireEvent.changeText(getByPlaceholderText('e.g. Sey'), 'Sey');
-    fireEvent.press(getByText('SAVE BEAN'));
+    fireEvent.press(getByText('SAVE'));
     expect(getByText('Coffee name is required')).toBeTruthy();
     expect(mockContext.addBean).not.toHaveBeenCalled();
   });
@@ -283,7 +283,7 @@ describe('BeanModalScreen', () => {
     // Select 340g bag preset
     fireEvent.press(getByText('340g'));
 
-    fireEvent.press(getByText('SAVE BEAN'));
+    fireEvent.press(getByText('SAVE'));
 
     await waitFor(() => {
       expect(mockContext.addBean).toHaveBeenCalledWith(
@@ -313,7 +313,7 @@ describe('BeanModalScreen', () => {
     fireEvent.press(getByText('Natural'));
     fireEvent.press(getByText('Medium'));
 
-    fireEvent.press(getByText('SAVE BEAN'));
+    fireEvent.press(getByText('SAVE'));
 
     await waitFor(() => {
       expect(mockContext.addBean).toHaveBeenCalledWith(
@@ -338,7 +338,7 @@ describe('BeanModalScreen', () => {
     fireEvent.changeText(getByPlaceholderText('e.g. Worka Sakaro'), 'Southern Weather');
 
     fireEvent.press(getByTestId('freezer-vault-toggle'));
-    fireEvent.press(getByText('SAVE BEAN'));
+    fireEvent.press(getByText('SAVE'));
 
     await waitFor(() => {
       expect(mockContext.addBean).toHaveBeenCalledWith(
@@ -367,7 +367,7 @@ describe('BeanModalScreen', () => {
       getByDisplayValue('Exceptional clarity'),
       'Exceptional clarity with peach finish'
     );
-    fireEvent.press(getByText('SAVE BEAN'));
+    fireEvent.press(getByText('SAVE'));
 
     await waitFor(() => {
       expect(mockContext.updateBean).toHaveBeenCalledWith(
@@ -480,7 +480,7 @@ describe('BeanModalScreen', () => {
     fireEvent.changeText(getByPlaceholderText('e.g. Worka Sakaro'), 'Worka');
     fireEvent.changeText(getByPlaceholderText('MM-DD-YYYY'), '09/15/2026');
 
-    fireEvent.press(getByText('SAVE BEAN'));
+    fireEvent.press(getByText('SAVE'));
 
     await waitFor(() => {
       expect(mockContext.addBean).toHaveBeenCalledWith(
@@ -505,7 +505,7 @@ describe('BeanModalScreen', () => {
     const [bagWeightInput] = getAllByPlaceholderText('250');
     fireEvent.changeText(bagWeightInput, '-250');
 
-    fireEvent.press(getByText('SAVE BEAN'));
+    fireEvent.press(getByText('SAVE'));
 
     expect(getByText('Bag weight cannot be negative')).toBeTruthy();
     expect(mockContext.addBean).not.toHaveBeenCalled();
@@ -523,7 +523,7 @@ describe('BeanModalScreen', () => {
     const [, remainingWeightInput] = getAllByPlaceholderText('250');
     fireEvent.changeText(remainingWeightInput, '-15');
 
-    fireEvent.press(getByText('SAVE BEAN'));
+    fireEvent.press(getByText('SAVE'));
 
     expect(getByText('Remaining weight cannot be negative')).toBeTruthy();
     expect(mockContext.addBean).not.toHaveBeenCalled();
@@ -557,7 +557,7 @@ describe('BeanModalScreen', () => {
 
     fireEvent.changeText(getByPlaceholderText('e.g. Sey'), 'Sey');
     fireEvent.changeText(getByPlaceholderText('e.g. Worka Sakaro'), 'Worka');
-    fireEvent.press(getByText('SAVE BEAN'));
+    fireEvent.press(getByText('SAVE'));
 
     await waitFor(() => {
       expect(Alert.alert).toHaveBeenCalledWith('Save Failed', 'Failed to save bean.');

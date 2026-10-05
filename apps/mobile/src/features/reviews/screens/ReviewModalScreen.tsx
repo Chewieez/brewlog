@@ -280,12 +280,11 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <KeyboardAwareScrollView
-        style={styles.container}
-        contentContainerStyle={styles.content}
-        bottomOffset={32}
-      >
-        {/* Navigation Header */}
+      {/* Pinned Navigation Header */}
+      <View style={styles.headerContainer}>
+        <View style={styles.dragHandleContainer}>
+          <View style={styles.dragHandle} />
+        </View>
         <View style={styles.navHeader}>
           <Pressable
             style={styles.navButton}
@@ -294,7 +293,7 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
             accessibilityLabel="Close modal"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <X size={22} color={colors.textMuted} />
+            <X size={20} color={colors.textSecondary} />
           </Pressable>
 
           <Text style={styles.navTitle}>
@@ -308,11 +307,17 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
             accessibilityLabel="Save review"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Check size={18} color={colors.canvas} />
-            <Text style={styles.saveButtonText}>SAVE REVIEW</Text>
+            <Check size={16} color={colors.canvas} />
+            <Text style={styles.saveButtonText}>SAVE</Text>
           </Pressable>
         </View>
+      </View>
 
+      <KeyboardAwareScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        bottomOffset={32}
+      >
         {/* Timer Prefill Banner */}
         {showTimerBanner && (
           <View style={styles.timerBanner}>
@@ -678,43 +683,57 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingTop: 16,
     paddingBottom: 40,
     gap: 16,
+  },
+  headerContainer: {
+    backgroundColor: colors.canvas,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderSubtle,
+  },
+  dragHandleContainer: {
+    alignItems: 'center',
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  dragHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.borderSubtle,
   },
   navHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderSubtle,
-    marginBottom: 4,
+    paddingHorizontal: 16,
+    paddingBottom: 8,
   },
   navButton: {
-    minWidth: 44,
-    minHeight: 44,
+    minWidth: 40,
+    minHeight: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
   navTitle: {
     fontFamily: FONTS.displayMedium,
-    fontSize: 18,
+    fontSize: 17,
     color: colors.textPrimary,
   },
   saveButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
     backgroundColor: colors.accent,
     borderRadius: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    minHeight: 40,
+    paddingVertical: 7,
+    paddingHorizontal: 14,
+    minHeight: 36,
   },
   saveButtonText: {
     fontFamily: FONTS.monoBold,
-    fontSize: 11,
+    fontSize: 12,
     color: colors.canvas,
     letterSpacing: 1,
   },

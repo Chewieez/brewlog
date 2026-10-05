@@ -303,6 +303,37 @@ export const RecipeBuilderScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
+      {/* Pinned Navigation Header */}
+      <View style={styles.headerContainer}>
+        <View style={styles.dragHandleContainer}>
+          <View style={styles.dragHandle} />
+        </View>
+        <View style={styles.navHeader}>
+          <Pressable
+            onPress={handleCancel}
+            style={styles.navButton}
+            accessibilityRole="button"
+            accessibilityLabel="Cancel editing"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <X size={20} color={colors.textSecondary} />
+          </Pressable>
+          <Text style={styles.navTitle}>
+            {editId ? 'Edit Recipe' : duplicateId ? 'Duplicate Recipe' : 'New Recipe'}
+          </Text>
+          <Pressable
+            onPress={handleSave}
+            style={styles.saveButton}
+            accessibilityRole="button"
+            accessibilityLabel="Save Recipe"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Check size={16} color={colors.canvas} />
+            <Text style={styles.saveButtonText}>SAVE</Text>
+          </Pressable>
+        </View>
+      </View>
+
       <KeyboardAwareScrollView
         ref={scrollViewRef}
         style={styles.container}
@@ -310,28 +341,6 @@ export const RecipeBuilderScreen: React.FC = () => {
         bottomOffset={32}
         keyboardShouldPersistTaps="handled"
       >
-      <View style={styles.navHeader}>
-        <Pressable
-          onPress={handleCancel}
-          style={styles.navButton}
-          accessibilityRole="button"
-          accessibilityLabel="Cancel editing"
-        >
-          <X size={20} color={colors.textSecondary} />
-        </Pressable>
-        <Text style={styles.navTitle}>
-          {editId ? 'Edit Recipe' : duplicateId ? 'Duplicate Recipe' : 'New Recipe'}
-        </Text>
-        <Pressable
-          onPress={handleSave}
-          style={styles.saveButton}
-          accessibilityRole="button"
-          accessibilityLabel="Save Recipe"
-        >
-          <Check size={18} color={colors.canvas} />
-          <Text style={styles.saveButtonText}>SAVE RECIPE</Text>
-        </Pressable>
-      </View>
 
       {errorMessage ? (
         <View style={styles.errorBanner}>
@@ -632,21 +641,38 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingBottom: 48,
   },
+  headerContainer: {
+    backgroundColor: colors.canvas,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderSubtle,
+  },
+  dragHandleContainer: {
+    alignItems: 'center',
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  dragHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.borderSubtle,
+  },
   navHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingBottom: 8,
   },
   navButton: {
-    minHeight: 44,
-    minWidth: 44,
+    minHeight: 40,
+    minWidth: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
   navTitle: {
-    fontFamily: FONTS.sansBold,
-    fontSize: 18,
+    fontFamily: FONTS.displayMedium,
+    fontSize: 17,
     color: colors.textPrimary,
   },
   saveButton: {
@@ -654,8 +680,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     backgroundColor: colors.accent,
-    minHeight: 44,
-    minWidth: 44,
+    minHeight: 36,
     paddingHorizontal: 14,
     borderRadius: 6,
   },
@@ -663,7 +688,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 12,
     color: colors.canvas,
-    letterSpacing: 0.8,
+    letterSpacing: 1,
   },
   errorBanner: {
     backgroundColor: colors.panelRecessed,
