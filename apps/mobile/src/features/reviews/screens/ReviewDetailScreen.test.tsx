@@ -107,9 +107,6 @@ vi.mock('react-native', () => ({
   },
 }));
 
-vi.mock('react-native-safe-area-context', () => ({
-  SafeAreaView: ({ children, style, ...props }: any) => <div {...props}>{children}</div>,
-}));
 
 vi.mock('lucide-react-native', () => ({
   Star: () => <span data-testid="star-icon" />,

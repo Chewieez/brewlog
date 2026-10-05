@@ -9,7 +9,6 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Star, Edit3, Trash2, Check } from 'lucide-react-native';
 import { TastingLog, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { FONTS } from '../../../theme/fonts';
@@ -31,30 +30,28 @@ export const ReviewDetailScreen: React.FC = () => {
 
   if (Boolean(id) && loading) {
     return (
-      <SafeAreaView edges={['top']} style={[styles.safeArea, styles.loadingContainer]}>
+      <View style={[styles.container, styles.loadingContainer]}>
         <ActivityIndicator size="large" color={colors.accent} testID="review-detail-loading" />
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (!review) {
     return (
-      <SafeAreaView edges={['top']} style={styles.safeArea}>
-        <View style={styles.notFoundContainer}>
-          <Text style={styles.notFoundTitle}>Review not found</Text>
-          <Text style={styles.notFoundSubtitle}>
-            This review might have been removed or does not exist.
-          </Text>
-          <Pressable
-            style={styles.backButton}
-            onPress={() => router.back()}
-            accessibilityRole="button"
-            accessibilityLabel="Back to Reviews"
-          >
-            <Text style={styles.backButtonText}>BACK TO REVIEWS</Text>
-          </Pressable>
-        </View>
-      </SafeAreaView>
+      <View style={styles.notFoundContainer}>
+        <Text style={styles.notFoundTitle}>Review not found</Text>
+        <Text style={styles.notFoundSubtitle}>
+          This review might have been removed or does not exist.
+        </Text>
+        <Pressable
+          style={styles.backButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Back to Reviews"
+        >
+          <Text style={styles.backButtonText}>BACK TO REVIEWS</Text>
+        </Pressable>
+      </View>
     );
   }
 
@@ -101,12 +98,11 @@ export const ReviewDetailScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={styles.safeArea}>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+    >
         {/* Top Hero Card */}
         <View style={styles.heroCard}>
           <View style={styles.heroMetaRow}>
@@ -258,21 +254,17 @@ export const ReviewDetailScreen: React.FC = () => {
           </Pressable>
         </View>
       </ScrollView>
-    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.canvas,
-  },
   loadingContainer: {
     justifyContent: 'center',
     alignItems: 'center',
   },
   container: {
     flex: 1,
+    backgroundColor: colors.canvas,
   },
   content: {
     padding: 16,
