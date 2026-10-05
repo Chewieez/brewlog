@@ -118,24 +118,32 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
     () => ({
       coffeeName: sourceItem?.beanNameSnapshot || initialBean?.name || '',
       roaster: sourceItem?.roasterSnapshot || initialBean?.roaster || '',
+      selectedBeanId: initialBeanId && initialBeanId !== 'sample' ? initialBeanId : undefined,
       brewMethod: sourceItem?.brewMethod || (initialParams.brewMethod as BrewMethodType) || 'v60',
+      grinderId: sourceItem?.grinderId || initialParams.grinderId,
       grindSetting: sourceItem?.grindSetting || initialParams.grind || '',
+      brewerId: sourceItem?.brewerId || initialParams.brewerId,
       dose: sourceItem ? String(sourceItem.coffeeDoseGrams) : initialParams.dose || '18',
       water: sourceItem ? String(sourceItem.waterAmountGrams) : initialParams.water || '300',
       actualTime: sourceItem?.actualTimeSeconds ? String(sourceItem.actualTimeSeconds) : initialParams.actualTime || '210',
       waterTemp: sourceItem?.waterTempCelsius ? String(sourceItem.waterTempCelsius) : initialParams.temp || '94',
+      scores: sourceItem?.scores || BASELINE_SCORES,
+      flavorTags: sourceItem?.flavorTags || [],
       notes: sourceItem?.notes || initialParams.notes || '',
       rating: sourceItem?.rating ?? 5,
       wouldBrewAgain: sourceItem?.wouldBrewAgain ?? true,
     }),
-    [sourceItem, initialBean, initialParams]
+    [sourceItem, initialBean, initialBeanId, initialParams]
   );
 
   const isDirty =
     coffeeName !== initialValues.coffeeName ||
     roaster !== initialValues.roaster ||
+    selectedBeanId !== initialValues.selectedBeanId ||
     brewMethod !== initialValues.brewMethod ||
+    grinderId !== initialValues.grinderId ||
     grindSetting !== initialValues.grindSetting ||
+    brewerId !== initialValues.brewerId ||
     dose !== initialValues.dose ||
     water !== initialValues.water ||
     actualTime !== initialValues.actualTime ||
@@ -143,7 +151,11 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
     notes !== initialValues.notes ||
     rating !== initialValues.rating ||
     wouldBrewAgain !== initialValues.wouldBrewAgain ||
-    flavorTags.length !== (sourceItem?.flavorTags?.length ?? 0);
+    flavorTags.length !== initialValues.flavorTags.length ||
+    flavorTags.some((t) => !initialValues.flavorTags.includes(t)) ||
+    (Object.keys(scores) as (keyof CuppingAttributes)[]).some(
+      (k) => scores[k] !== initialValues.scores[k]
+    );
 
   const handleToggleTag = useCallback((tag: string) => {
     setFlavorTags((prev) =>
@@ -196,11 +208,19 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
     const grinderObj = grinders.find((g) => g.id === grinderId);
     const brewerObj = brewers.find((b) => b.id === brewerId);
 
-    const grinderSnapshot = grinderObj
-      ? `${grinderObj.brand} ${grinderObj.model}`
+    const grinderSnapshot = grinderId
+      ? grinderObj
+        ? `${grinderObj.brand} ${grinderObj.model}`
+        : sourceItem && grinderId === sourceItem.grinderId
+        ? sourceItem.grinderSnapshot
+        : undefined
       : undefined;
-    const brewerSnapshot = brewerObj
-      ? `${brewerObj.brand} ${brewerObj.model}`
+    const brewerSnapshot = brewerId
+      ? brewerObj
+        ? `${brewerObj.brand} ${brewerObj.model}`
+        : sourceItem && brewerId === sourceItem.brewerId
+        ? sourceItem.brewerSnapshot
+        : undefined
       : undefined;
 
     const calculatedSca = calculateScaScore(scores);
@@ -219,9 +239,9 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
         brewMethod,
         grinderId,
         brewerId,
-        grinderSnapshot: grinderSnapshot || sourceItem.grinderSnapshot,
-        brewerSnapshot: brewerSnapshot || sourceItem.brewerSnapshot,
-        grindSetting: grindSetting.trim() || sourceItem.grindSetting || '',
+        grinderSnapshot,
+        brewerSnapshot,
+        grindSetting: grindSetting.trim(),
         coffeeDoseGrams: Number(dose) || sourceItem.coffeeDoseGrams,
         waterAmountGrams: Number(water) || sourceItem.waterAmountGrams,
         actualTimeSeconds: Number(actualTime) || sourceItem.actualTimeSeconds,

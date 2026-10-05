@@ -370,4 +370,79 @@ describe('ReviewModalScreen', () => {
     expect(mockBack).not.toHaveBeenCalled();
     expect(mockReplace).toHaveBeenCalledWith('/(tabs)/reviews');
   });
+
+  it('10. prompts discard alert when SCA scores are modified', () => {
+    const { getByLabelText, getByText } = render(<ReviewModalScreen />);
+
+    // Click Clear (0) to change scores from baseline
+    fireEvent.click(getByText('Clear (0)'));
+
+    const closeBtn = getByLabelText('Close modal');
+    fireEvent.click(closeBtn);
+
+    expect(Alert.alert).toHaveBeenCalledWith(
+      'Discard Changes?',
+      'You have unsaved review changes that will be lost.',
+      expect.any(Array)
+    );
+  });
+
+  it('11. prompts discard alert when equipment is selected or changed', () => {
+    const { getByLabelText } = render(<ReviewModalScreen />);
+
+    // Select grinder
+    const grinderChip = getByLabelText('Select grinder Fellow Ode Gen 2');
+    fireEvent.click(grinderChip);
+
+    const closeBtn = getByLabelText('Close modal');
+    fireEvent.click(closeBtn);
+
+    expect(Alert.alert).toHaveBeenCalledWith(
+      'Discard Changes?',
+      'You have unsaved review changes that will be lost.',
+      expect.any(Array)
+    );
+  });
+
+  it('12. allows clearing grindSetting on edit mode', async () => {
+    mockParams = { id: 'rev-edit-1' };
+    const { getByLabelText } = render(<ReviewModalScreen />);
+
+    const grindInput = getByLabelText('Grind Setting');
+    fireEvent.change(grindInput, { target: { value: '' } });
+
+    const saveBtn = getByLabelText('Save review');
+    fireEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(mockUpdateReview).toHaveBeenCalledWith(
+        'rev-edit-1',
+        expect.objectContaining({
+          grindSetting: '',
+        })
+      );
+    });
+  });
+
+  it('13. allows deselecting equipment on edit and clears equipment snapshots', async () => {
+    mockParams = { id: 'rev-edit-1' };
+    const { getByLabelText } = render(<ReviewModalScreen />);
+
+    // Deselect grinder-1 (currently active)
+    const grinderChip = getByLabelText('Select grinder Fellow Ode Gen 2');
+    fireEvent.click(grinderChip);
+
+    const saveBtn = getByLabelText('Save review');
+    fireEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(mockUpdateReview).toHaveBeenCalledWith(
+        'rev-edit-1',
+        expect.objectContaining({
+          grinderId: undefined,
+          grinderSnapshot: undefined,
+        })
+      );
+    });
+  });
 });
