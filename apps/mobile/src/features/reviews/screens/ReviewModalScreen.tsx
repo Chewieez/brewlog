@@ -157,6 +157,14 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
     setRoaster(bean.roaster);
   };
 
+  const dismissModal = () => {
+    if (router.canGoBack?.()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/reviews');
+    }
+  };
+
   const handleClose = () => {
     if (isDirty) {
       Alert.alert(
@@ -164,11 +172,11 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
         'You have unsaved review changes that will be lost.',
         [
           { text: 'Keep Editing', style: 'cancel' },
-          { text: 'Discard', style: 'destructive', onPress: () => router.back() },
+          { text: 'Discard', style: 'destructive', onPress: dismissModal },
         ]
       );
     } else {
-      router.back();
+      dismissModal();
     }
   };
 
@@ -256,7 +264,7 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
       setPendingBrewSession(null);
     }
 
-    router.back();
+    dismissModal();
   };
 
   const handleDelete = () => {
@@ -271,7 +279,7 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
           style: 'destructive',
           onPress: async () => {
             await deleteReview(sourceItem.id);
-            router.back();
+            dismissModal();
           },
         },
       ]

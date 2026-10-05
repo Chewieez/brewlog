@@ -182,10 +182,12 @@ const fireEvent = {
 };
 
 const backMock = vi.fn();
+const replaceMock = vi.fn();
+let canGoBackMock = vi.fn(() => true);
 let mockSearchParams: { id?: string } = {};
 
 vi.mock('expo-router', () => ({
-  useRouter: () => ({ back: backMock, push: vi.fn() }),
+  useRouter: () => ({ back: backMock, push: vi.fn(), replace: replaceMock, canGoBack: canGoBackMock }),
   useLocalSearchParams: () => mockSearchParams,
 }));
 
@@ -215,6 +217,7 @@ describe('BeanModalScreen', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    canGoBackMock.mockReturnValue(true);
     mockSearchParams = {};
     mockContext = {
       beans: [existingBean],
@@ -563,5 +566,20 @@ describe('BeanModalScreen', () => {
       expect(Alert.alert).toHaveBeenCalledWith('Save Failed', 'Failed to save bean.');
       expect(getByText('Failed to save bean.')).toBeTruthy();
     });
+  });
+
+  it('falls back to router.replace("/(tabs)/stash") when router.canGoBack is false', () => {
+    canGoBackMock.mockReturnValue(false);
+    const { getByLabelText } = render(
+      <StashContext.Provider value={mockContext}>
+        <BeanModalScreen />
+      </StashContext.Provider>
+    );
+
+    const cancelBtn = getByLabelText('Cancel editing');
+    fireEvent.press(cancelBtn);
+
+    expect(backMock).not.toHaveBeenCalled();
+    expect(replaceMock).toHaveBeenCalledWith('/(tabs)/stash');
   });
 });

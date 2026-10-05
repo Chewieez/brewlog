@@ -97,6 +97,14 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
     isFavorite !== initialValues.isFavorite ||
     notes !== initialValues.notes;
 
+  const dismissModal = () => {
+    if (router.canGoBack?.()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/equipment');
+    }
+  };
+
   const handleCancel = () => {
     if (isDirty) {
       Alert.alert(
@@ -104,11 +112,11 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
         'Any unsaved equipment details will be lost.',
         [
           { text: 'Keep Editing', style: 'cancel' },
-          { text: 'Discard', style: 'destructive', onPress: () => router.back() },
+          { text: 'Discard', style: 'destructive', onPress: dismissModal },
         ]
       );
     } else {
-      router.back();
+      dismissModal();
     }
   };
 
@@ -143,7 +151,7 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
       } else {
         await addEquipment(payload);
       }
-      router.back();
+      dismissModal();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to save equipment.';
       setErrorMessage(msg);
@@ -165,7 +173,7 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
           onPress: async () => {
             try {
               await deleteEquipment(sourceItem.id);
-              router.back();
+              dismissModal();
             } catch (err: unknown) {
               const msg = err instanceof Error ? err.message : 'Failed to delete equipment.';
               Alert.alert('Delete Failed', msg);

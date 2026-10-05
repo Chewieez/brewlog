@@ -278,7 +278,7 @@ export const RecipeBuilderScreen: React.FC = () => {
     try {
       if (editId) {
         await updateRecipe(editId, payload);
-        router.back();
+        dismissModal();
       } else {
         const created = await addRecipe(payload);
         router.replace(`/recipe/${created.id}`);
@@ -290,13 +290,21 @@ export const RecipeBuilderScreen: React.FC = () => {
     }
   };
 
+  const dismissModal = () => {
+    if (router.canGoBack?.()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/recipes');
+    }
+  };
+
   const handleCancel = () => {
     Alert.alert(
       'Discard Changes?',
       'Any unsaved recipe customizations will be lost.',
       [
         { text: 'Keep Editing', style: 'cancel' },
-        { text: 'Discard', style: 'destructive', onPress: () => router.back() },
+        { text: 'Discard', style: 'destructive', onPress: dismissModal },
       ]
     );
   };

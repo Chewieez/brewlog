@@ -108,8 +108,10 @@ let mockParams: {
   initialMethod?: string;
 } = {};
 
+const canGoBackMock = vi.fn(() => true);
+
 vi.mock('expo-router', () => ({
-  useRouter: () => ({ back: mockBack, replace: mockReplace }),
+  useRouter: () => ({ back: mockBack, replace: mockReplace, canGoBack: canGoBackMock }),
   useLocalSearchParams: () => mockParams,
 }));
 
@@ -144,6 +146,7 @@ vi.mock('../RecipeContext', () => ({
 describe('RecipeBuilderScreen', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    canGoBackMock.mockReturnValue(true);
     mockParams = {};
     mockAddRecipe.mockResolvedValue({ id: 'new-rec-1' });
     mockUpdateRecipe.mockResolvedValue({ id: 'custom-1' });
@@ -436,5 +439,22 @@ describe('RecipeBuilderScreen', () => {
     // Custom stages should be rendered
     expect(getByDisplayValue('Bloom')).toBeDefined();
     expect(getByDisplayValue('Main Pour')).toBeDefined();
+  });
+
+  it('falls back to router.replace("/(tabs)/recipes") when router.canGoBack is false', () => {
+    canGoBackMock.mockReturnValue(false);
+    const alertSpy = vi.spyOn(Alert, 'alert');
+    const { getByLabelText } = render(<RecipeBuilderScreen />);
+
+    const cancelBtn = getByLabelText('Cancel editing');
+    fireEvent.click(cancelBtn);
+
+    const alertCalls = alertSpy.mock.calls;
+    const buttons = alertCalls[0][2];
+    const discardAction = buttons?.find((b: any) => b.text === 'Discard');
+    discardAction?.onPress?.();
+
+    expect(mockBack).not.toHaveBeenCalled();
+    expect(mockReplace).toHaveBeenCalledWith('/(tabs)/recipes');
   });
 });

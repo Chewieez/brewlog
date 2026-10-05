@@ -8,12 +8,16 @@ import { ReviewModalScreen } from './ReviewModalScreen';
 
 const mockBack = vi.fn();
 const mockPush = vi.fn();
+const mockReplace = vi.fn();
+let canGoBackMock = vi.fn(() => true);
 let mockParams: Record<string, string | undefined> = {};
 
 vi.mock('expo-router', () => ({
   useRouter: () => ({
     back: mockBack,
     push: mockPush,
+    replace: mockReplace,
+    canGoBack: canGoBackMock,
   }),
   useLocalSearchParams: () => mockParams,
 }));
@@ -214,6 +218,7 @@ vi.mock('lucide-react-native', () => ({
 describe('ReviewModalScreen', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    canGoBackMock.mockReturnValue(true);
     mockParams = {};
     mockLoading = false;
     mockReviews = [mockReview];
@@ -353,5 +358,16 @@ describe('ReviewModalScreen', () => {
       expect(mockDeleteReview).toHaveBeenCalledWith('rev-edit-1');
       expect(mockBack).toHaveBeenCalled();
     });
+  });
+
+  it('9. falls back to router.replace("/(tabs)/reviews") when router.canGoBack is false', () => {
+    canGoBackMock.mockReturnValue(false);
+    const { getByLabelText } = render(<ReviewModalScreen />);
+
+    const closeBtn = getByLabelText('Close modal');
+    fireEvent.click(closeBtn);
+
+    expect(mockBack).not.toHaveBeenCalled();
+    expect(mockReplace).toHaveBeenCalledWith('/(tabs)/reviews');
   });
 });

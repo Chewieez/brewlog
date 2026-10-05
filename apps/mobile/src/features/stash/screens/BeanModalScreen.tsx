@@ -188,6 +188,14 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
     notes !== initialValues.notes ||
     priceText !== initialValues.price;
 
+  const dismissModal = () => {
+    if (router.canGoBack?.()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/stash');
+    }
+  };
+
   const handleSave = async () => {
     const trimmedRoaster = roaster.trim();
     if (!trimmedRoaster) {
@@ -273,7 +281,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
       } else {
         await addBean(payload);
       }
-      router.back();
+      dismissModal();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to save bean.';
       setErrorMessage(msg);
@@ -288,11 +296,11 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
         'Any unsaved coffee details will be lost.',
         [
           { text: 'Keep Editing', style: 'cancel' },
-          { text: 'Discard', style: 'destructive', onPress: () => router.back() },
+          { text: 'Discard', style: 'destructive', onPress: dismissModal },
         ]
       );
     } else {
-      router.back();
+      dismissModal();
     }
   };
 
@@ -309,7 +317,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
         <View style={styles.notFoundContainer}>
           <Text style={styles.notFoundTitle}>Coffee Not Found</Text>
           <Pressable
-            onPress={() => router.back()}
+            onPress={dismissModal}
             style={styles.backButton}
             accessibilityRole="button"
             accessibilityLabel="Go Back"
