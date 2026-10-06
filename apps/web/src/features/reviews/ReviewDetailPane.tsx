@@ -153,7 +153,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           {onBrewAgain && (
             <button
               onClick={() => onBrewAgain(log)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-accent text-zinc-950 hover:bg-accent/90 transition-colors cursor-pointer shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-panel-recessed text-accent border border-accent/40 hover:border-accent hover:bg-accent/10 transition-colors cursor-pointer shadow-xs"
               title="Transfer coffee and specs to Brew Timer"
             >
               <Play className="w-3.5 h-3.5 fill-current" />

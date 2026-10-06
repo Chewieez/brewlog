@@ -143,7 +143,7 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     expect(within(detailPane).getByText('Bubblegum')).toBeDefined();
   });
 
-  it('toggles into create mode when clicking + LOG REVIEW and verifies typography and neutral brew time', () => {
+  it('toggles into create mode when clicking LOG REVIEW and verifies typography and neutral brew time', () => {
     render(
       <ReviewsView
         logs={[sampleLog1]}
@@ -153,7 +153,7 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
       />
     );
 
-    const logReviewBtn = screen.getByRole('button', { name: /\+ LOG REVIEW/i });
+    const logReviewBtn = screen.getByRole('button', { name: /LOG REVIEW/i });
     fireEvent.click(logReviewBtn);
 
     // Editor is visible

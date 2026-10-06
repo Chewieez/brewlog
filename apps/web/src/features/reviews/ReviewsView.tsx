@@ -446,7 +446,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
           className="self-start sm:self-auto inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-accent text-zinc-950 hover:bg-accent/90 font-medium text-xs font-sans uppercase tracking-wider shadow-sm cursor-pointer transition-colors"
         >
           <Plus className="w-4 h-4" />
-          <span>+ LOG REVIEW</span>
+          <span>LOG REVIEW</span>
         </button>
       </div>
 
@@ -511,7 +511,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 onClick={() => setSelectedMethodFilter(item.id)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-medium cursor-pointer transition-all whitespace-nowrap ${
                   selectedMethodFilter === item.id
-                    ? 'bg-accent text-zinc-950 font-semibold shadow-xs'
+                    ? 'bg-panel-recessed border border-accent text-accent font-semibold shadow-xs'
                     : 'bg-panel-recessed text-text-secondary hover:text-zinc-200 border border-border-subtle'
                 }`}
               >
@@ -697,7 +697,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     disabled={isSaving}
                     className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-accent hover:bg-accent/90 text-zinc-950 text-xs font-semibold uppercase tracking-wider shadow-xs cursor-pointer transition-all disabled:opacity-50"
                   >
-                    <Save className="w-3.5 h-3.5" />
+                    <Save className="w-4.5 h-4.5" />
                     <span>
                       {isSaving
                         ? 'Saving...'
@@ -1208,7 +1208,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                   disabled={isSaving}
                   className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-accent hover:bg-accent/90 text-zinc-950 text-xs font-semibold uppercase tracking-wider shadow-sm cursor-pointer transition-all disabled:opacity-50"
                 >
-                  <Save className="w-4 h-4" />
+                  <Save className="w-4.5 h-4.5" />
                   <span>
                     {isSaving
                       ? 'Saving...'
