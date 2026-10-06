@@ -120,9 +120,10 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
       : '—';
 
   return (
-    <div className="space-y-6 animate-fade-in text-zinc-100 font-sans">
+    <div className="space-y-6 animate-fade-in text-zinc-100 font-sans pb-8">
       {/* Header & Action Bar */}
-      <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="sticky top-0 z-20 bg-canvas py-1 -mt-1">
+        <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <span
@@ -176,6 +177,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           </button>
         </div>
       </div>
+    </div>
 
       {/* Hero Score Banner */}
       <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">

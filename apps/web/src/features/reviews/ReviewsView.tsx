@@ -625,7 +625,10 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
         </div>
 
         {/* RIGHT PANE: Detail / Editor Pane (62% width) */}
-        <div data-testid="detail-pane" className="w-full lg:w-[62%] min-w-0">
+        <div
+          data-testid="detail-pane"
+          className="w-full lg:w-[62%] min-w-0 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6.5rem)] lg:overflow-y-auto lg:pr-1"
+        >
           {mode === 'view' ? (
             activeSelectedLog ? (
               <ReviewDetailPane
@@ -655,43 +658,45 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
             )
           ) : (
             /* Review Editor (Create or Edit Mode) */
-            <form onSubmit={handleSaveTastingLog} className="space-y-6 animate-fade-in">
-              {/* In-Place Editor Header */}
-              <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-bold tracking-tight text-zinc-100">
-                    {mode === 'edit'
-                      ? `Edit Review: ${customBeanName || 'Specialty Coffee'}`
-                      : 'Log New Brew Review'}
-                  </h2>
-                  <p className="text-xs text-text-secondary mt-0.5">
-                    Official Specialty Coffee Association cupping protocol
-                  </p>
-                </div>
+            <form onSubmit={handleSaveTastingLog} className="space-y-6 animate-fade-in pb-8">
+              {/* Sticky In-Place Editor Header */}
+              <div className="sticky top-0 z-20 bg-canvas py-1 -mt-1">
+                <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold tracking-tight text-zinc-100">
+                      {mode === 'edit'
+                        ? `Edit Review: ${customBeanName || 'Specialty Coffee'}`
+                        : 'Log New Brew Review'}
+                    </h2>
+                    <p className="text-xs text-text-secondary mt-0.5">
+                      Official Specialty Coffee Association cupping protocol
+                    </p>
+                  </div>
 
-                <div className="flex items-center gap-2.5 shrink-0">
-                  <button
-                    type="button"
-                    onClick={handleCancelEditor}
-                    className="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-panel-recessed text-zinc-300 hover:text-zinc-100 border border-border-subtle transition-colors cursor-pointer whitespace-nowrap"
-                  >
-                    Cancel
-                  </button>
+                  <div className="flex items-center gap-2.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleCancelEditor}
+                      className="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-panel-recessed text-zinc-300 hover:text-zinc-100 border border-border-subtle transition-colors cursor-pointer whitespace-nowrap"
+                    >
+                      Cancel
+                    </button>
 
-                  <button
-                    type="submit"
-                    disabled={isSaving}
-                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-accent hover:bg-accent/90 text-zinc-950 text-xs font-semibold uppercase tracking-wider shadow-xs cursor-pointer transition-all disabled:opacity-50 whitespace-nowrap shrink-0"
-                  >
-                    <Save className="w-4.5 h-4.5 shrink-0" />
-                    <span>
-                      {isSaving
-                        ? 'Saving...'
-                        : mode === 'edit'
-                        ? 'Save Changes'
-                        : 'Save Review'}
-                    </span>
-                  </button>
+                    <button
+                      type="submit"
+                      disabled={isSaving}
+                      className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-accent hover:bg-accent/90 text-zinc-950 text-xs font-semibold uppercase tracking-wider shadow-xs cursor-pointer transition-all disabled:opacity-50 whitespace-nowrap shrink-0"
+                    >
+                      <Save className="w-4.5 h-4.5 shrink-0" />
+                      <span>
+                        {isSaving
+                          ? 'Saving...'
+                          : mode === 'edit'
+                          ? 'Save Changes'
+                          : 'Save Review'}
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
