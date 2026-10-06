@@ -72,10 +72,12 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, onPress }) => {
       {(review.grinderSnapshot || review.brewerSnapshot || review.grindSetting) && (
         <View style={styles.equipmentRow}>
           <Text style={styles.equipmentText} numberOfLines={1}>
-            {review.grinderSnapshot ? `${review.grinderSnapshot}` : ''}
-            {review.grindSetting ? ` @ ${review.grindSetting}` : ''}
-            {review.grinderSnapshot && review.brewerSnapshot ? ' • ' : ''}
-            {review.brewerSnapshot ? `${review.brewerSnapshot}` : ''}
+            {(() => {
+              const grinderPart = review.grinderSnapshot
+                ? `${review.grinderSnapshot}${review.grindSetting ? ` @ ${review.grindSetting}` : ''}`
+                : (review.grindSetting ? `Grind: ${review.grindSetting}` : '');
+              return [grinderPart, review.brewerSnapshot].filter(Boolean).join(' • ');
+            })()}
           </Text>
         </View>
       )}

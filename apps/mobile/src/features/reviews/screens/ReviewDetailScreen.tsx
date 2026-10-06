@@ -148,24 +148,28 @@ export const ReviewDetailScreen: React.FC = () => {
         <View style={styles.sectionChassis}>
           <Text style={styles.sectionEyebrow}>EQUIPMENT & BREW PARAMETERS</Text>
 
-          {(review.grinderSnapshot || review.brewerSnapshot) && (
+          {(review.grinderSnapshot || review.brewerSnapshot || review.grindSetting) && (
             <View style={styles.equipmentRow}>
-              {review.grinderSnapshot && (
+              {review.grinderSnapshot ? (
                 <View style={styles.equipmentCol}>
                   <Text style={styles.paramLabel}>GRINDER</Text>
-                  <Text style={styles.paramValue}>
-                    {review.grinderSnapshot}
-                    {review.grindSetting ? ` @ ${review.grindSetting}` : ''}
-                  </Text>
+                  <Text style={styles.paramValue}>{review.grinderSnapshot}</Text>
                 </View>
-              )}
+              ) : null}
 
-              {review.brewerSnapshot && (
+              {review.grindSetting ? (
+                <View style={styles.equipmentCol}>
+                  <Text style={styles.paramLabel}>GRIND SETTING</Text>
+                  <Text style={styles.paramValue}>{review.grindSetting}</Text>
+                </View>
+              ) : null}
+
+              {review.brewerSnapshot ? (
                 <View style={styles.equipmentCol}>
                   <Text style={styles.paramLabel}>BREWER</Text>
                   <Text style={styles.paramValue}>{review.brewerSnapshot}</Text>
                 </View>
-              )}
+              ) : null}
             </View>
           )}
 

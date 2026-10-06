@@ -844,14 +844,16 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                   </h4>
 
                   {(log.grinderSnapshot || log.brewerSnapshot || log.grindSetting) && (
-                    <div className="text-xs text-zinc-400 mt-1 flex flex-wrap items-center gap-1.5 font-mono">
-                      {log.grinderSnapshot && (
+                    <div className="text-xs text-zinc-400 mt-1 flex flex-wrap items-center gap-1.5">
+                      {log.grinderSnapshot ? (
                         <span>
                           {log.grinderSnapshot}
                           {log.grindSetting ? ` @ ${log.grindSetting}` : ''}
                         </span>
+                      ) : (
+                        log.grindSetting ? <span>Grind: {log.grindSetting}</span> : null
                       )}
-                      {log.grinderSnapshot && log.brewerSnapshot && <span>•</span>}
+                      {(log.grinderSnapshot || log.grindSetting) && log.brewerSnapshot && <span>•</span>}
                       {log.brewerSnapshot && <span>{log.brewerSnapshot}</span>}
                     </div>
                   )}
