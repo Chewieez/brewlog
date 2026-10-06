@@ -128,6 +128,7 @@ export interface Database {
           brew_method: string;
           recommended_brewer_id: string | null;
           recommended_grinder_id: string | null;
+          grinder_settings: Json;
           description: string;
           author: string | null;
           coffee_dose_grams: number;
@@ -149,6 +150,7 @@ export interface Database {
           brew_method: string;
           recommended_brewer_id?: string | null;
           recommended_grinder_id?: string | null;
+          grinder_settings?: Json;
           description?: string;
           author?: string | null;
           coffee_dose_grams: number;
