@@ -178,9 +178,16 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
             ? initialRecipe.stages
             : DEFAULT_STAGES
         );
-        if (initialRecipe.grinderSettings && initialRecipe.grinderSettings.length > 0) {
-          setGrinderSettings(initialRecipe.grinderSettings);
-        } else if (initialRecipe.recommendedGrinderId) {
+        // Filter against existing user grinders so erased grinders are excluded
+        const validSettings = (initialRecipe.grinderSettings || []).filter((gs) =>
+          availableGrinders.some((g) => g.id === gs.grinderId)
+        );
+        if (validSettings.length > 0) {
+          setGrinderSettings(validSettings);
+        } else if (
+          initialRecipe.recommendedGrinderId &&
+          availableGrinders.some((g) => g.id === initialRecipe.recommendedGrinderId)
+        ) {
           setGrinderSettings([
             {
               grinderId: initialRecipe.recommendedGrinderId,
@@ -215,7 +222,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
         }
       }
     }
-  }, [isOpen, initialRecipe, user, equipment]);
+  }, [isOpen, initialRecipe?.id]);
 
   // Handle Escape key
   useEffect(() => {
@@ -342,10 +349,10 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
     const unselected = userGrinders.find(
       (g) => !grinderSettings.some((gs) => gs.grinderId === g.id)
     );
-    const nextGrinderId = unselected ? unselected.id : userGrinders[0].id;
+    if (!unselected) return;
     setGrinderSettings((prev) => [
       ...prev,
-      { grinderId: nextGrinderId, setting: "" },
+      { grinderId: unselected.id, setting: "" },
     ]);
   };
 
@@ -409,9 +416,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
         notes: notes.trim() || undefined,
         stages,
         grinderSettings,
-        recommendedGrinderId:
-          grinderSettings[0]?.grinderId ||
-          (initialRecipe ? initialRecipe.recommendedGrinderId : undefined),
+        recommendedGrinderId: grinderSettings[0]?.grinderId || undefined,
         isPreset: initialRecipe ? initialRecipe.isPreset : false,
         isFavorite: initialRecipe ? initialRecipe.isFavorite : false,
       });
@@ -590,16 +595,18 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                     Configure dial settings for specific grinders in your setup.
                   </p>
                 </div>
-                {userGrinders.length > 0 && grinderSettings.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={handleAddGrinderSetting}
-                    className="flex items-center space-x-1 px-2.5 py-1 rounded bg-panel-recessed hover:bg-panel text-accent font-mono text-xs uppercase tracking-wider font-semibold border border-border-subtle transition-colors cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>+ Add Another Grinder</span>
-                  </button>
-                )}
+                {userGrinders.length > 0 &&
+                  grinderSettings.length > 0 &&
+                  grinderSettings.length < userGrinders.length && (
+                    <button
+                      type="button"
+                      onClick={handleAddGrinderSetting}
+                      className="flex items-center space-x-1 px-2.5 py-1 rounded bg-panel-recessed hover:bg-panel text-accent font-mono text-xs uppercase tracking-wider font-semibold border border-border-subtle transition-colors cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>+ Add Another Grinder</span>
+                    </button>
+                  )}
               </div>
 
               {/* Case A: userGrinders.length === 0 */}
@@ -760,11 +767,22 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                             }
                             className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-xs focus:outline-none focus:border-accent cursor-pointer"
                           >
-                            {userGrinders.map((g) => (
-                              <option key={g.id} value={g.id}>
-                                {g.brand} {g.model} {g.settingScaleType ? `(${g.settingScaleType})` : ""}
-                              </option>
-                            ))}
+                            {userGrinders.map((g) => {
+                              const isSelectedElsewhere = grinderSettings.some(
+                                (gs, i) => i !== index && gs.grinderId === g.id
+                              );
+                              return (
+                                <option
+                                  key={g.id}
+                                  value={g.id}
+                                  disabled={isSelectedElsewhere}
+                                >
+                                  {g.brand} {g.model}{" "}
+                                  {g.settingScaleType ? `(${g.settingScaleType})` : ""}
+                                  {isSelectedElsewhere ? " (Already added)" : ""}
+                                </option>
+                              );
+                            })}
                           </select>
                         </div>
 

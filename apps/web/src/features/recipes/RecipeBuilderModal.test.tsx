@@ -436,4 +436,169 @@ describe('RecipeBuilderModal', () => {
       );
     });
   });
+
+  it('preserves user input in recipe form when adding an inline grinder (no form reset on equipment update)', async () => {
+    const mockAddEquipment = vi.fn().mockResolvedValue({
+      id: 'grinder-created-99',
+      type: 'grinder',
+      brand: '1Zpresso',
+      model: 'K-Ultra',
+      settingScaleType: 'clicks',
+      createdAt: '2026-01-01',
+    });
+
+    vi.mocked(useEquipment).mockReturnValue({
+      equipment: [],
+      addEquipment: mockAddEquipment,
+      updateEquipment: vi.fn(),
+      deleteEquipment: vi.fn(),
+      toggleFavorite: vi.fn(),
+      loading: false,
+      refreshEquipment: vi.fn(),
+    });
+
+    render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSaveRecipe={vi.fn()}
+        initialRecipe={null}
+      />
+    );
+
+    // User types recipe name and modifies dose
+    fireEvent.change(screen.getByLabelText(/recipe name \*/i), {
+      target: { value: 'In-Progress Custom Profile' },
+    });
+    fireEvent.change(screen.getByLabelText(/coffee dose \(g\)/i), {
+      target: { value: '22' },
+    });
+
+    // Expand inline grinder creation
+    fireEvent.click(screen.getByRole('button', { name: /\+ add grinder/i }));
+    fireEvent.change(screen.getByLabelText(/grinder brand/i), { target: { value: '1Zpresso' } });
+    fireEvent.change(screen.getByLabelText(/grinder model/i), { target: { value: 'K-Ultra' } });
+    fireEvent.click(screen.getByRole('button', { name: /save grinder/i }));
+
+    await waitFor(() => {
+      expect(mockAddEquipment).toHaveBeenCalledTimes(1);
+      expect(screen.getByLabelText(/^grinder 1$/i)).toBeDefined();
+    });
+
+    // Verify form fields were not wiped back to empty/default
+    expect((screen.getByLabelText(/recipe name \*/i) as HTMLInputElement).value).toBe(
+      'In-Progress Custom Profile'
+    );
+    expect((screen.getByLabelText(/coffee dose \(g\)/i) as HTMLInputElement).value).toBe('22');
+  });
+
+  it('filters out erased/deleted grinders from grinderSettings on initial load', () => {
+    vi.mocked(useEquipment).mockReturnValue({
+      equipment: [sampleGrinder1], // Only sampleGrinder1 exists in equipment
+      addEquipment: vi.fn(),
+      updateEquipment: vi.fn(),
+      deleteEquipment: vi.fn(),
+      toggleFavorite: vi.fn(),
+      loading: false,
+      refreshEquipment: vi.fn(),
+    });
+
+    const recipeWithErasedGrinder: BrewRecipe = {
+      ...sampleRecipe,
+      grinderSettings: [
+        { grinderId: 'erased-grinder-id', setting: '10' },
+        { grinderId: 'grinder-1', setting: '24 clicks' },
+      ],
+    };
+
+    render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSaveRecipe={vi.fn()}
+        initialRecipe={recipeWithErasedGrinder}
+      />
+    );
+
+    // Only 1 row should be rendered (for grinder-1) because erased-grinder-id was filtered out
+    expect(screen.getByLabelText(/^grinder 1$/i)).toBeDefined();
+    expect((screen.getByLabelText(/^grinder 1$/i) as HTMLSelectElement).value).toBe('grinder-1');
+    expect((screen.getByLabelText(/setting for grinder 1/i) as HTMLInputElement).value).toBe(
+      '24 clicks'
+    );
+    expect(screen.queryByLabelText(/^grinder 2$/i)).toBeNull();
+  });
+
+  it('does not resurrect recommendedGrinderId when user deletes all grinder settings in edit mode', async () => {
+    const onSave = vi.fn();
+    vi.mocked(useEquipment).mockReturnValue({
+      equipment: [sampleGrinder1],
+      addEquipment: vi.fn(),
+      updateEquipment: vi.fn(),
+      deleteEquipment: vi.fn(),
+      toggleFavorite: vi.fn(),
+      loading: false,
+      refreshEquipment: vi.fn(),
+    });
+
+    const recipeWithGrinder: BrewRecipe = {
+      ...sampleRecipe,
+      recommendedGrinderId: 'grinder-1',
+      grinderSettings: [{ grinderId: 'grinder-1', setting: '20 clicks' }],
+    };
+
+    render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSaveRecipe={onSave}
+        initialRecipe={recipeWithGrinder}
+      />
+    );
+
+    // Remove the only grinder setting row
+    const removeBtn = screen.getByRole('button', { name: /remove grinder 1/i });
+    fireEvent.click(removeBtn);
+
+    // Save recipe
+    fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledTimes(1);
+      const savedPayload = onSave.mock.calls[0][0];
+      expect(savedPayload.grinderSettings).toEqual([]);
+      expect(savedPayload.recommendedGrinderId).toBeUndefined();
+    });
+  });
+
+  it('hides "+ Add Another Grinder" when all existing user grinders have been configured', () => {
+    vi.mocked(useEquipment).mockReturnValue({
+      equipment: [sampleGrinder1, sampleGrinder2], // 2 grinders available
+      addEquipment: vi.fn(),
+      updateEquipment: vi.fn(),
+      deleteEquipment: vi.fn(),
+      toggleFavorite: vi.fn(),
+      loading: false,
+      refreshEquipment: vi.fn(),
+    });
+
+    render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSaveRecipe={vi.fn()}
+        initialRecipe={null}
+      />
+    );
+
+    // Row 1 exists by default, "+ Add Another Grinder" is visible
+    const addAnotherBtn = screen.getByRole('button', { name: /\+ add another grinder/i });
+    expect(addAnotherBtn).toBeDefined();
+
+    // Click to add row 2 (which now uses all 2 available grinders)
+    fireEvent.click(addAnotherBtn);
+
+    // Now 2 rows exist, matching total available grinders (2). "+ Add Another Grinder" must be hidden.
+    expect(screen.queryByRole('button', { name: /\+ add another grinder/i })).toBeNull();
+  });
 });
