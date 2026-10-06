@@ -1,9 +1,16 @@
-import { BrewRecipe, BrewStage, BrewMethodType, StageType } from "@brewlog/core";
+import {
+  BrewRecipe,
+  BrewStage,
+  BrewMethodType,
+  StageType,
+  RecipeGrinderSetting,
+} from "@brewlog/core";
 import {
   RecipeRow,
   RecipeInsert,
   RecipeStageRow,
   RecipeStageInsert,
+  Json,
 } from "../database.types";
 
 export const mapRecipeStageRowToDomain = (row: RecipeStageRow): BrewStage => ({
@@ -21,13 +28,40 @@ export const mapRecipeRowToDomain = (
   stages: RecipeStageRow[] = []
 ): BrewRecipe => {
   const sortedStages = [...stages].sort((a, b) => a.step_order - b.step_order);
+
+  let grinderSettings: RecipeGrinderSetting[] | undefined;
+  if (Array.isArray(row.grinder_settings) && row.grinder_settings.length > 0) {
+    grinderSettings = row.grinder_settings as unknown as RecipeGrinderSetting[];
+  } else if (typeof row.grinder_settings === "string" && row.grinder_settings.trim() !== "") {
+    try {
+      const parsed = JSON.parse(row.grinder_settings);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        grinderSettings = parsed;
+      }
+    } catch {
+      // ignore parse error
+    }
+  }
+
+  if ((!grinderSettings || grinderSettings.length === 0) && row.recommended_grinder_id) {
+    grinderSettings = [
+      {
+        grinderId: row.recommended_grinder_id,
+        setting: row.grind_size || "",
+      },
+    ];
+  }
+
   return {
     id: row.id,
     userId: row.user_id || undefined,
     name: row.name,
     brewMethod: row.brew_method as BrewMethodType,
     recommendedBrewerId: row.recommended_brewer_id || undefined,
-    recommendedGrinderId: row.recommended_grinder_id || undefined,
+    recommendedGrinderId:
+      row.recommended_grinder_id || grinderSettings?.[0]?.grinderId || undefined,
+    grinderSettings:
+      grinderSettings && grinderSettings.length > 0 ? grinderSettings : undefined,
     description: row.description || "",
     author: row.author || undefined,
     coffeeDoseGrams: Number(row.coffee_dose_grams),
@@ -52,7 +86,9 @@ export const mapRecipeDomainToInsert = (
   name: recipe.name,
   brew_method: recipe.brewMethod,
   recommended_brewer_id: recipe.recommendedBrewerId || null,
-  recommended_grinder_id: recipe.recommendedGrinderId || null,
+  recommended_grinder_id:
+    recipe.grinderSettings?.[0]?.grinderId || recipe.recommendedGrinderId || null,
+  grinder_settings: (recipe.grinderSettings || []) as unknown as Json,
   description: recipe.description || "",
   author: recipe.author || null,
   coffee_dose_grams: recipe.coffeeDoseGrams,
