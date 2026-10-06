@@ -24,6 +24,7 @@ import { AuthProvider } from '../src/features/auth/AuthContext';
 import { RecipeProvider } from '../src/features/recipes/RecipeContext';
 import { StashProvider } from '../src/features/stash/StashContext';
 import { EquipmentProvider } from '../src/features/equipment/EquipmentContext';
+import { ReviewsProvider } from '../src/features/reviews/ReviewsContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -58,6 +59,7 @@ export default function RootLayout() {
           <RecipeProvider>
             <StashProvider>
               <EquipmentProvider>
+                <ReviewsProvider>
                 <StatusBar style="light" />
                 <NavigationBar style="light" />
                 <Stack
@@ -112,7 +114,26 @@ export default function RootLayout() {
                     headerShown: false,
                   }}
                 />
+                <Stack.Screen
+                  name="reviews/modal"
+                  options={{
+                    presentation: 'modal',
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="reviews/[id]"
+                  options={{
+                    headerShown: true,
+                    title: 'Review Details',
+                    headerBackTitle: 'Back',
+                    headerStyle: { backgroundColor: colors.canvas },
+                    headerTintColor: colors.textPrimary,
+                    headerTitleStyle: { fontWeight: '700' },
+                  }}
+                />
                 </Stack>
+                </ReviewsProvider>
               </EquipmentProvider>
             </StashProvider>
           </RecipeProvider>

@@ -19,7 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'stash', path: '/stash', label: 'Bean Stash', icon: Bean, badge: beanCount },
     { id: 'recipes', path: '/recipes', label: 'Recipes', icon: BookOpen },
     { id: 'equipment', path: '/equipment', label: 'Equipment', icon: Scale },
-    { id: 'cupping', path: '/cupping', label: 'Reviews', icon: Sparkles, badge: brewCount },
+    { id: 'reviews', path: '/reviews', label: 'Reviews', icon: Sparkles, badge: brewCount },
   ];
 
   return (

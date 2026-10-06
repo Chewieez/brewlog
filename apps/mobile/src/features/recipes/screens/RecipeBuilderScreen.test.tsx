@@ -108,8 +108,10 @@ let mockParams: {
   initialMethod?: string;
 } = {};
 
+const canGoBackMock = vi.fn(() => true);
+
 vi.mock('expo-router', () => ({
-  useRouter: () => ({ back: mockBack, replace: mockReplace }),
+  useRouter: () => ({ back: mockBack, replace: mockReplace, canGoBack: canGoBackMock }),
   useLocalSearchParams: () => mockParams,
 }));
 
@@ -144,6 +146,7 @@ vi.mock('../RecipeContext', () => ({
 describe('RecipeBuilderScreen', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    canGoBackMock.mockReturnValue(true);
     mockParams = {};
     mockAddRecipe.mockResolvedValue({ id: 'new-rec-1' });
     mockUpdateRecipe.mockResolvedValue({ id: 'custom-1' });
@@ -167,7 +170,7 @@ describe('RecipeBuilderScreen', () => {
 
   it('validates empty name and disables or warns on save', async () => {
     const { getByText } = render(<RecipeBuilderScreen />);
-    fireEvent.click(getByText('SAVE RECIPE'));
+    fireEvent.click(getByText('SAVE'));
 
     expect(mockAddRecipe).not.toHaveBeenCalled();
     expect(getByText('Recipe name is required.')).toBeDefined();
@@ -182,14 +185,14 @@ describe('RecipeBuilderScreen', () => {
     // Dose = 0
     const doseInput = document.querySelector('input[value="15"]') as HTMLInputElement;
     fireEvent.change(doseInput, { target: { value: '0' } });
-    fireEvent.click(getByText('SAVE RECIPE'));
+    fireEvent.click(getByText('SAVE'));
 
     expect(mockAddRecipe).not.toHaveBeenCalled();
     expect(getByText('Coffee dose must be between 1g and 100g.')).toBeDefined();
 
     // Dose = 105
     fireEvent.change(doseInput, { target: { value: '105' } });
-    fireEvent.click(getByText('SAVE RECIPE'));
+    fireEvent.click(getByText('SAVE'));
     expect(getByText('Coffee dose must be between 1g and 100g.')).toBeDefined();
   });
 
@@ -202,14 +205,14 @@ describe('RecipeBuilderScreen', () => {
     // Ratio = 0.5
     const ratioInput = document.querySelector('input[value="16.67"]') as HTMLInputElement;
     fireEvent.change(ratioInput, { target: { value: '0.5' } });
-    fireEvent.click(getByText('SAVE RECIPE'));
+    fireEvent.click(getByText('SAVE'));
 
     expect(mockAddRecipe).not.toHaveBeenCalled();
     expect(getByText('Brew ratio must be between 1:1 and 1:30.')).toBeDefined();
 
     // Ratio = 35
     fireEvent.change(ratioInput, { target: { value: '35' } });
-    fireEvent.click(getByText('SAVE RECIPE'));
+    fireEvent.click(getByText('SAVE'));
     expect(getByText('Brew ratio must be between 1:1 and 1:30.')).toBeDefined();
   });
 
@@ -224,7 +227,7 @@ describe('RecipeBuilderScreen', () => {
     fireEvent.click(getByLabelText('Remove stage 1'));
     fireEvent.click(getByLabelText('Remove stage 1'));
 
-    fireEvent.click(getByText('SAVE RECIPE'));
+    fireEvent.click(getByText('SAVE'));
 
     expect(mockAddRecipe).not.toHaveBeenCalled();
     expect(
@@ -268,7 +271,7 @@ describe('RecipeBuilderScreen', () => {
     fireEvent.change(notesInput, { target: { value: 'Ground with Comandante 24 clicks' } });
 
     fireEvent.click(getByText('ADD STAGE'));
-    fireEvent.click(getByText('SAVE RECIPE'));
+    fireEvent.click(getByText('SAVE'));
 
     await waitFor(() => {
       expect(mockAddRecipe).toHaveBeenCalledWith(
@@ -290,7 +293,7 @@ describe('RecipeBuilderScreen', () => {
     const nameInput = getByPlaceholderText('e.g. My Morning V60');
     fireEvent.change(nameInput, { target: { value: 'Valid Recipe' } });
 
-    fireEvent.click(getByText('SAVE RECIPE'));
+    fireEvent.click(getByText('SAVE'));
 
     await waitFor(() => {
       expect(alertSpy).toHaveBeenCalledWith('Save Failed', 'Network error writing to database');
@@ -319,7 +322,7 @@ describe('RecipeBuilderScreen', () => {
     expect(getByText('Edit Recipe')).toBeDefined();
     expect(getByDisplayValue('My Special V60')).toBeDefined();
 
-    fireEvent.click(getByText('SAVE RECIPE'));
+    fireEvent.click(getByText('SAVE'));
 
     await waitFor(() => {
       expect(mockUpdateRecipe).toHaveBeenCalledWith(
@@ -339,7 +342,7 @@ describe('RecipeBuilderScreen', () => {
     expect(getByText('Duplicate Recipe')).toBeDefined();
     expect(getByDisplayValue(`${DEFAULT_PRESET_RECIPES[0].name} (Copy)`)).toBeDefined();
 
-    fireEvent.click(getByText('SAVE RECIPE'));
+    fireEvent.click(getByText('SAVE'));
 
     await waitFor(() => {
       expect(mockAddRecipe).toHaveBeenCalledWith(
@@ -436,5 +439,22 @@ describe('RecipeBuilderScreen', () => {
     // Custom stages should be rendered
     expect(getByDisplayValue('Bloom')).toBeDefined();
     expect(getByDisplayValue('Main Pour')).toBeDefined();
+  });
+
+  it('falls back to router.replace("/(tabs)/recipes") when router.canGoBack is false', () => {
+    canGoBackMock.mockReturnValue(false);
+    const alertSpy = vi.spyOn(Alert, 'alert');
+    const { getByLabelText } = render(<RecipeBuilderScreen />);
+
+    const cancelBtn = getByLabelText('Cancel editing');
+    fireEvent.click(cancelBtn);
+
+    const alertCalls = alertSpy.mock.calls;
+    const buttons = alertCalls[0][2];
+    const discardAction = buttons?.find((b: any) => b.text === 'Discard');
+    discardAction?.onPress?.();
+
+    expect(mockBack).not.toHaveBeenCalled();
+    expect(mockReplace).toHaveBeenCalledWith('/(tabs)/recipes');
   });
 });

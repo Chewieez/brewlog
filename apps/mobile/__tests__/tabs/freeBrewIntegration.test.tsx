@@ -196,7 +196,7 @@ describe('TimerScreen Free Brew Integration', () => {
 
     expect(getByText('BREW COMPLETE')).toBeTruthy();
     expect(getByText('SAVE AS CUSTOM RECIPE')).toBeTruthy();
-    expect(getByText('LOG TO CUPPING JOURNAL')).toBeTruthy();
+    expect(getByText('ADD REVIEW')).toBeTruthy();
 
     // Click Save as Custom Recipe
     fireEvent.press(getByText('SAVE AS CUSTOM RECIPE'));
@@ -262,7 +262,7 @@ describe('TimerScreen Free Brew Integration', () => {
     expect(getByText('FREE BREW · MANUAL STOPWATCH')).toBeDefined();
   });
 
-  it('formats recorded splits into notes when logging to cupping journal', () => {
+  it('formats recorded splits into notes when adding a review from timer', () => {
     const { getByText, getByLabelText } = render(
       <RecipeProvider>
         <StashProvider>
@@ -280,11 +280,12 @@ describe('TimerScreen Free Brew Integration', () => {
 
     fireEvent.press(getByText('FINISH BREW'));
 
-    fireEvent.press(getByText('LOG TO CUPPING JOURNAL'));
+    fireEvent.press(getByText('ADD REVIEW'));
     expect(mockPush).toHaveBeenCalledWith(
       expect.objectContaining({
-        pathname: '/cupping',
+        pathname: '/reviews/modal',
         params: expect.objectContaining({
+          fromTimer: 'true',
           notes: expect.stringContaining('Free Brew Splits:'),
         }),
       })

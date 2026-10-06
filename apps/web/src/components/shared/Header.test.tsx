@@ -24,13 +24,13 @@ describe('Header', () => {
     const stashLink = screen.getAllByRole('link', { name: /Bean Stash/i })[0];
     const recipesLink = screen.getAllByRole('link', { name: /Recipes/i })[0];
     const equipmentLink = screen.getAllByRole('link', { name: /Equipment/i })[0];
-    const cuppingLink = screen.getAllByRole('link', { name: /Reviews/i })[0];
+    const reviewsLink = screen.getAllByRole('link', { name: /Reviews/i })[0];
 
     expect(timerLink.getAttribute('href')).toBe('/timer');
     expect(stashLink.getAttribute('href')).toBe('/stash');
     expect(recipesLink.getAttribute('href')).toBe('/recipes');
     expect(equipmentLink.getAttribute('href')).toBe('/equipment');
-    expect(cuppingLink.getAttribute('href')).toBe('/cupping');
+    expect(reviewsLink.getAttribute('href')).toBe('/reviews');
   });
 
   it('marks current route as active', () => {

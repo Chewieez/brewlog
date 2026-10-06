@@ -4,12 +4,12 @@ import { Header } from '../components/shared/Header';
 import { AuthModal } from '../features/auth/AuthModal';
 import { useAuth } from '../features/auth/AuthContext';
 import { useBeans } from '../features/stash/useBeans';
-import { useTastingLogs } from '../features/cupping/useTastingLogs';
+import { useReviews } from '../features/reviews/useReviews';
 import { useEquipment } from '../features/equipment/useEquipment';
 import { useRecipes } from '../features/recipes/useRecipes';
 import { Bean, Equipment, BrewRecipe, TastingLog, DEFAULT_PRESET_RECIPES, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { INITIAL_BEANS } from '../lib/sampleData';
-import { PendingBrewSession } from '../features/cupping/CuppingView';
+import { PendingBrewSession } from '../features/reviews/ReviewsView';
 
 export interface RootOutletContext {
   beans: Bean[];
@@ -73,7 +73,7 @@ const persistSavedActiveRecipeId = (recipeId: string): void => {
 
 export const RootLayout: React.FC = () => {
   const { beans, addBean, updateBean, deleteBean } = useBeans();
-  const { logs: tastingLogs, addTastingLog } = useTastingLogs();
+  const { logs: tastingLogs, addTastingLog } = useReviews();
   const {
     equipment,
     addEquipment,

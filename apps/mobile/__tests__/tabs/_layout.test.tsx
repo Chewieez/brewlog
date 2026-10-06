@@ -183,6 +183,11 @@ describe("TabLayout Integration", () => {
 
     expect(getByTestId("tabs-mock")).toBeDefined();
     expect(getByLabelText("Account profile")).toBeDefined();
+    expect(getByTestId("tab-screen-index")).toBeDefined();
+    expect(getByTestId("tab-screen-recipes")).toBeDefined();
+    expect(getByTestId("tab-screen-stash")).toBeDefined();
+    expect(getByTestId("tab-screen-equipment")).toBeDefined();
+    expect(getByTestId("tab-screen-reviews")).toBeDefined();
   });
 
   it("opens AuthSheet when ProfileHeaderButton is clicked", () => {

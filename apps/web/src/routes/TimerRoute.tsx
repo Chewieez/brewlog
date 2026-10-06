@@ -23,7 +23,7 @@ export const TimerRoute: React.FC = () => {
       recipe,
       actualTimeSeconds,
     });
-    navigate('/cupping');
+    navigate('/reviews');
   };
 
   const handleSelectOtherRecipe = () => {

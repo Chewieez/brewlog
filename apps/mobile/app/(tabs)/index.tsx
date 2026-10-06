@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, ScrollView, StyleSheet, Text, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Plus } from 'lucide-react-native';
 import {
   INDUSTRIAL_PRECISION_THEME,
   DEFAULT_PRESET_RECIPES,
@@ -199,8 +200,8 @@ export default function TimerScreen() {
     });
   };
 
-  const handleLogCupping = () => {
-    let notes: string | undefined;
+  const handleAddReview = () => {
+    let formattedSplitsNotes: string | undefined;
     if (splits.length > 0) {
       const formattedSplits = splits
         .map(
@@ -208,17 +209,44 @@ export default function TimerScreen() {
             `• ${s.label}: ${Math.floor(s.second / 60)}:${String(s.second % 60).padStart(2, '0')} (+${s.intervalSeconds}s)`
         )
         .join('\n');
-      notes = `Free Brew Splits:\n${formattedSplits}`;
+      formattedSplitsNotes = `Free Brew Splits:\n${formattedSplits}`;
     }
 
-    if (notes) {
-      router.push({
-        pathname: '/cupping',
-        params: { notes },
-      });
-    } else {
-      router.push('/cupping');
+    const reviewParams: Record<string, string> = {
+      fromTimer: 'true',
+      brewMethod: activeRecipe.brewMethod,
+      dose: String(activeTimerDose),
+      water: String(activeRecipe.waterAmountGrams),
+      actualTime: String(elapsedSeconds),
+    };
+
+    if (activeBrewBean?.id) {
+      reviewParams.beanId = activeBrewBean.id;
     }
+    if (activeRecipe.id) {
+      reviewParams.recipeId = activeRecipe.id;
+      reviewParams.recipeName = activeRecipe.name;
+    }
+    if (activeRecipe.grindSize) {
+      reviewParams.grind = activeRecipe.grindSize;
+    }
+    if (activeRecipe.waterTempCelsius) {
+      reviewParams.temp = String(activeRecipe.waterTempCelsius);
+    }
+    if (activeRecipe.recommendedGrinderId) {
+      reviewParams.grinderId = activeRecipe.recommendedGrinderId;
+    }
+    if (activeRecipe.recommendedBrewerId) {
+      reviewParams.brewerId = activeRecipe.recommendedBrewerId;
+    }
+    if (formattedSplitsNotes) {
+      reviewParams.notes = formattedSplitsNotes;
+    }
+
+    router.push({
+      pathname: '/reviews/modal',
+      params: reviewParams,
+    });
   };
 
   return (
@@ -345,12 +373,14 @@ export default function TimerScreen() {
           )}
 
           <Pressable
-            onPress={handleLogCupping}
+            onPress={handleAddReview}
             style={styles.logButton}
             accessibilityRole="button"
-            accessibilityLabel="Log to Cupping Journal"
+            accessibilityLabel="Add Review"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Text style={styles.logButtonText}>LOG TO CUPPING JOURNAL</Text>
+            <Plus size={16} color={colors.canvas} />
+            <Text style={styles.logButtonText}>ADD REVIEW</Text>
           </Pressable>
         </View>
 
@@ -473,8 +503,10 @@ const styles = StyleSheet.create({
     minHeight: 44,
     paddingHorizontal: 20,
     borderRadius: 6,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 6,
     width: '100%',
   },
   logButtonText: {

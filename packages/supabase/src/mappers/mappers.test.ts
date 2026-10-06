@@ -4,6 +4,7 @@ import {
   mapBeanDomainToInsert,
   mapTastingLogRowToDomain,
   mapTastingLogDomainToInsert,
+  isValidUUID,
   mapEquipmentRowToDomain,
   mapEquipmentDomainToInsert,
   mapRecipeRowToDomain,
@@ -195,6 +196,148 @@ describe("Shared Mappers (@brewlog/supabase)", () => {
       expect(payload.clean_cup).toBe(10.0);
       expect(payload.calculated_sca_score).toBe(92.5);
       expect(payload.flavor_tags).toEqual(["Jasmine", "Bergamot", "Peach"]);
+    });
+
+    it("maps null bean_id and recipe_id to undefined instead of 'sample'", () => {
+      const row: TastingLogRow = {
+        id: "log-1",
+        user_id: "user-456",
+        bean_id: null,
+        recipe_id: null,
+        grinder_id: null,
+        brewer_id: null,
+        grinder_snapshot: null,
+        brewer_snapshot: null,
+        bean_name_snapshot: "Southern Weather",
+        roaster_snapshot: "Onyx",
+        recipe_name_snapshot: "Hoffmann V60",
+        brew_method: "v60",
+        brew_date: "2026-09-02T10:00:00Z",
+        coffee_dose_grams: 20,
+        water_amount_grams: 300,
+        actual_time_seconds: 210,
+        grind_setting: "22 clicks",
+        water_temp_celsius: 94,
+        fragrance_aroma: 8.5,
+        flavor: 8.5,
+        aftertaste: 8.0,
+        acidity: 8.0,
+        body: 8.0,
+        balance: 8.5,
+        uniformity: 10.0,
+        clean_cup: 10.0,
+        sweetness: 8.5,
+        overall: 8.5,
+        clarity: 8.0,
+        calculated_sca_score: 87.5,
+        rating: 4.5,
+        flavor_tags: ["Chocolate"],
+        notes: "Very juicy",
+        would_brew_again: true,
+        created_at: "2026-09-02T10:05:00Z",
+      };
+
+      const domain = mapTastingLogRowToDomain(row);
+      expect(domain.beanId).toBeUndefined();
+      expect(domain.recipeId).toBeUndefined();
+      expect(domain.grinderId).toBeUndefined();
+      expect(domain.brewerId).toBeUndefined();
+    });
+
+    it("sanitizes non-UUID placeholder strings like 'sample' and 'eq-1' to null in insert payload", () => {
+      const log: Omit<TastingLog, "id" | "createdAt"> = {
+        beanId: "sample",
+        recipeId: "sample",
+        grinderId: "eq-1",
+        brewerId: "eq-3",
+        beanNameSnapshot: "Test Coffee",
+        roasterSnapshot: "Test Roaster",
+        recipeNameSnapshot: "V60",
+        brewMethod: "v60",
+        brewDate: "2026-09-05T08:00:00Z",
+        coffeeDoseGrams: 15,
+        waterAmountGrams: 225,
+        actualTimeSeconds: 195,
+        grindSetting: "Coarse",
+        waterTempCelsius: 91,
+        scores: {
+          fragranceAroma: 8.0,
+          flavor: 8.0,
+          aftertaste: 8.0,
+          acidity: 8.0,
+          body: 8.0,
+          balance: 8.0,
+          uniformity: 10.0,
+          cleanCup: 10.0,
+          sweetness: 10.0,
+          overall: 8.0,
+        },
+        calculatedScaScore: 86.0,
+        rating: 4,
+        flavorTags: [],
+        notes: "",
+        wouldBrewAgain: true,
+      };
+
+      const payload = mapTastingLogDomainToInsert(log, "user-456");
+      expect(payload.bean_id).toBeNull();
+      expect(payload.recipe_id).toBeNull();
+      expect(payload.grinder_id).toBeNull();
+      expect(payload.brewer_id).toBeNull();
+    });
+
+    it("preserves valid UUIDs in insert payload", () => {
+      const validUuid = "f81d4fae-7dec-11d0-a765-00a0c91e6bf6";
+      const log: Omit<TastingLog, "id" | "createdAt"> = {
+        beanId: validUuid,
+        recipeId: validUuid,
+        grinderId: validUuid,
+        brewerId: validUuid,
+        beanNameSnapshot: "Test Coffee",
+        roasterSnapshot: "Test Roaster",
+        recipeNameSnapshot: "V60",
+        brewMethod: "v60",
+        brewDate: "2026-09-05T08:00:00Z",
+        coffeeDoseGrams: 15,
+        waterAmountGrams: 225,
+        actualTimeSeconds: 195,
+        grindSetting: "Coarse",
+        waterTempCelsius: 91,
+        scores: {
+          fragranceAroma: 8.0,
+          flavor: 8.0,
+          aftertaste: 8.0,
+          acidity: 8.0,
+          body: 8.0,
+          balance: 8.0,
+          uniformity: 10.0,
+          cleanCup: 10.0,
+          sweetness: 10.0,
+          overall: 8.0,
+        },
+        calculatedScaScore: 86.0,
+        rating: 4,
+        flavorTags: [],
+        notes: "",
+        wouldBrewAgain: true,
+      };
+
+      const payload = mapTastingLogDomainToInsert(log, "user-456");
+      expect(payload.bean_id).toBe(validUuid);
+      expect(payload.recipe_id).toBe(validUuid);
+      expect(payload.grinder_id).toBe(validUuid);
+      expect(payload.brewer_id).toBe(validUuid);
+    });
+
+    it("isValidUUID validates UUID strings accurately", () => {
+      expect(isValidUUID("f81d4fae-7dec-11d0-a765-00a0c91e6bf6")).toBe(true);
+      expect(isValidUUID("61accdd3-fcbc-419b-85ac-e3e1b76b4a20")).toBe(true);
+      expect(isValidUUID("sample")).toBe(false);
+      expect(isValidUUID("eq-1")).toBe(false);
+      expect(isValidUUID("local-rev-123")).toBe(false);
+      expect(isValidUUID("")).toBe(false);
+      expect(isValidUUID(undefined)).toBe(false);
+      expect(isValidUUID(null)).toBe(false);
     });
   });
 

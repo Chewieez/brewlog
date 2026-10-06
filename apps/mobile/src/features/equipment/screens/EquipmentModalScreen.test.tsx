@@ -115,10 +115,12 @@ vi.mock('lucide-react-native', () => ({
 
 const mockPush = vi.fn();
 const mockBack = vi.fn();
+const mockReplace = vi.fn();
+const canGoBackMock = vi.fn(() => true);
 let mockParams: { id?: string } = {};
 
 vi.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush, back: mockBack }),
+  useRouter: () => ({ push: mockPush, back: mockBack, replace: mockReplace, canGoBack: canGoBackMock }),
   useLocalSearchParams: () => mockParams,
 }));
 
@@ -156,6 +158,7 @@ describe('EquipmentModalScreen', () => {
   beforeEach(() => {
     mockParams = {};
     vi.clearAllMocks();
+    canGoBackMock.mockReturnValue(true);
   });
 
   afterEach(() => {
@@ -390,6 +393,21 @@ describe('EquipmentModalScreen', () => {
         })
       );
     });
+  });
+
+  it('falls back to router.replace("/(tabs)/equipment") when router.canGoBack is false', () => {
+    canGoBackMock.mockReturnValue(false);
+    const mockContext = createMockContext();
+    const { getByRole } = render(
+      <EquipmentContext.Provider value={mockContext}>
+        <EquipmentModalScreen />
+      </EquipmentContext.Provider>
+    );
+
+    rtlFireEvent.click(getByRole('button', { name: 'Cancel editing' }));
+
+    expect(mockBack).not.toHaveBeenCalled();
+    expect(mockReplace).toHaveBeenCalledWith('/(tabs)/equipment');
   });
 });
 

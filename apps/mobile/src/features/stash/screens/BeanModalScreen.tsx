@@ -188,6 +188,14 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
     notes !== initialValues.notes ||
     priceText !== initialValues.price;
 
+  const dismissModal = () => {
+    if (router.canGoBack?.()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/stash');
+    }
+  };
+
   const handleSave = async () => {
     const trimmedRoaster = roaster.trim();
     if (!trimmedRoaster) {
@@ -273,7 +281,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
       } else {
         await addBean(payload);
       }
-      router.back();
+      dismissModal();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to save bean.';
       setErrorMessage(msg);
@@ -288,11 +296,11 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
         'Any unsaved coffee details will be lost.',
         [
           { text: 'Keep Editing', style: 'cancel' },
-          { text: 'Discard', style: 'destructive', onPress: () => router.back() },
+          { text: 'Discard', style: 'destructive', onPress: dismissModal },
         ]
       );
     } else {
-      router.back();
+      dismissModal();
     }
   };
 
@@ -309,7 +317,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
         <View style={styles.notFoundContainer}>
           <Text style={styles.notFoundTitle}>Coffee Not Found</Text>
           <Pressable
-            onPress={() => router.back()}
+            onPress={dismissModal}
             style={styles.backButton}
             accessibilityRole="button"
             accessibilityLabel="Go Back"
@@ -323,38 +331,45 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
+      {/* Pinned Navigation Header */}
+      <View style={styles.headerContainer}>
+        <View style={styles.dragHandleContainer}>
+          <View style={styles.dragHandle} />
+        </View>
+        <View style={styles.navHeader}>
+          <Pressable
+            onPress={handleCancel}
+            style={styles.navButton}
+            accessibilityRole="button"
+            accessibilityLabel="Cancel editing"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <X size={20} color={colors.textSecondary} />
+          </Pressable>
+
+          <Text style={styles.navTitle}>
+            {isEditMode ? 'EDIT BEAN' : 'NEW BEAN'}
+          </Text>
+
+          <Pressable
+            onPress={handleSave}
+            style={styles.saveButton}
+            accessibilityRole="button"
+            accessibilityLabel="Save Bean"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Check size={16} color={colors.canvas} />
+            <Text style={styles.saveButtonText}>SAVE</Text>
+          </Pressable>
+        </View>
+      </View>
+
       <KeyboardAwareScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
         bottomOffset={32}
         keyboardShouldPersistTaps="handled"
       >
-      {/* Header with Cancel / Save */}
-      <View style={styles.navHeader}>
-        <Pressable
-          onPress={handleCancel}
-          style={styles.navButton}
-          accessibilityRole="button"
-          accessibilityLabel="Cancel editing"
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <X size={20} color={colors.textSecondary} />
-        </Pressable>
-
-        <Text style={styles.navTitle}>
-          {isEditMode ? 'EDIT BEAN' : 'NEW BEAN'}
-        </Text>
-
-        <Pressable
-          onPress={handleSave}
-          style={styles.saveButton}
-          accessibilityRole="button"
-          accessibilityLabel="Save Bean"
-        >
-          <Check size={18} color={colors.canvas} />
-          <Text style={styles.saveButtonText}>SAVE BEAN</Text>
-        </Pressable>
-      </View>
 
       {/* Validation / Error Banner */}
       {errorMessage ? (
@@ -704,47 +719,58 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   content: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 16,
     paddingBottom: 48,
+  },
+  headerContainer: {
+    backgroundColor: colors.canvas,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderSubtle,
+  },
+  dragHandleContainer: {
+    alignItems: 'center',
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  dragHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.borderSubtle,
   },
   navHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderSubtle,
-    marginBottom: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 8,
   },
   navButton: {
-    width: 44,
-    height: 44,
+    minWidth: 40,
+    minHeight: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
-    backgroundColor: colors.panel,
   },
   navTitle: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 14,
+    fontFamily: FONTS.displayMedium,
+    fontSize: 17,
     color: colors.textPrimary,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
   },
   saveButton: {
-    minHeight: 44,
+    minHeight: 36,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
     backgroundColor: colors.accent,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    paddingHorizontal: 14,
+    borderRadius: 6,
   },
   saveButtonText: {
     fontFamily: FONTS.monoBold,
     fontSize: 12,
     color: colors.canvas,
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   errorBanner: {
     backgroundColor: 'rgba(239, 68, 68, 0.12)',

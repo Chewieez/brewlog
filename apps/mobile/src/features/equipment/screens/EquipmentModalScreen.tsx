@@ -97,6 +97,14 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
     isFavorite !== initialValues.isFavorite ||
     notes !== initialValues.notes;
 
+  const dismissModal = () => {
+    if (router.canGoBack?.()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/equipment');
+    }
+  };
+
   const handleCancel = () => {
     if (isDirty) {
       Alert.alert(
@@ -104,11 +112,11 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
         'Any unsaved equipment details will be lost.',
         [
           { text: 'Keep Editing', style: 'cancel' },
-          { text: 'Discard', style: 'destructive', onPress: () => router.back() },
+          { text: 'Discard', style: 'destructive', onPress: dismissModal },
         ]
       );
     } else {
-      router.back();
+      dismissModal();
     }
   };
 
@@ -143,7 +151,7 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
       } else {
         await addEquipment(payload);
       }
-      router.back();
+      dismissModal();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to save equipment.';
       setErrorMessage(msg);
@@ -165,7 +173,7 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
           onPress: async () => {
             try {
               await deleteEquipment(sourceItem.id);
-              router.back();
+              dismissModal();
             } catch (err: unknown) {
               const msg = err instanceof Error ? err.message : 'Failed to delete equipment.';
               Alert.alert('Delete Failed', msg);
@@ -246,13 +254,11 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <KeyboardAwareScrollView
-        style={styles.container}
-        contentContainerStyle={styles.content}
-        bottomOffset={32}
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* Nav Header */}
+      {/* Pinned Navigation Header */}
+      <View style={styles.headerContainer}>
+        <View style={styles.dragHandleContainer}>
+          <View style={styles.dragHandle} />
+        </View>
         <View style={styles.navHeader}>
           <Pressable
             onPress={handleCancel}
@@ -273,11 +279,20 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
             style={styles.saveButton}
             accessibilityRole="button"
             accessibilityLabel="Save Equipment"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Check size={18} color={colors.canvas} />
+            <Check size={16} color={colors.canvas} />
             <Text style={styles.saveButtonText}>SAVE</Text>
           </Pressable>
         </View>
+      </View>
+
+      <KeyboardAwareScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        bottomOffset={32}
+        keyboardShouldPersistTaps="handled"
+      >
 
         {/* Validation / Error Banner */}
         {errorMessage ? (
@@ -500,31 +515,43 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingTop: 16,
     paddingBottom: 40,
     gap: 16,
+  },
+  headerContainer: {
+    backgroundColor: colors.canvas,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderSubtle,
+  },
+  dragHandleContainer: {
+    alignItems: 'center',
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  dragHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.borderSubtle,
   },
   navHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderSubtle,
-    marginBottom: 4,
+    paddingHorizontal: 16,
+    paddingBottom: 8,
   },
   navButton: {
-    minWidth: 44,
-    minHeight: 44,
+    minWidth: 40,
+    minHeight: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
   navTitle: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 13,
+    fontFamily: FONTS.displayMedium,
+    fontSize: 17,
     color: colors.textPrimary,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
   },
   saveButton: {
     flexDirection: 'row',
@@ -538,9 +565,9 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     fontFamily: FONTS.monoBold,
-    fontSize: 11,
+    fontSize: 12,
     color: colors.canvas,
-    letterSpacing: 0.8,
+    letterSpacing: 1,
   },
   errorBanner: {
     backgroundColor: 'rgba(239, 68, 68, 0.1)',

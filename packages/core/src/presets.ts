@@ -1,4 +1,4 @@
-import { BrewRecipe, Equipment } from "./types";
+import { BrewRecipe, Equipment, TastingLog } from "./types";
 
 export const DEFAULT_PRESET_RECIPES: BrewRecipe[] = [
   {
@@ -301,3 +301,42 @@ export const DEFAULT_INITIAL_EQUIPMENT: Equipment[] = [
     createdAt: '2026-01-01T00:00:00.000Z',
   },
 ];
+
+export const DEFAULT_INITIAL_TASTING_LOGS: TastingLog[] = [
+  {
+    id: 'log-1',
+    beanNameSnapshot: 'Worka Sakaro Anaerobic',
+    roasterSnapshot: 'Sey Coffee',
+    recipeNameSnapshot: 'Ultimate V60 (James Hoffmann)',
+    brewMethod: 'v60',
+    brewDate: '2026-09-02T10:00:00.000Z',
+    coffeeDoseGrams: 30,
+    waterAmountGrams: 500,
+    actualTimeSeconds: 212,
+    grindSetting: 'Fellow Ode 4.1',
+    waterTempCelsius: 98,
+    grinderId: 'eq-1',
+    brewerId: 'eq-3',
+    grinderSnapshot: 'Fellow Ode Gen 2',
+    brewerSnapshot: 'Hario V60 02 (Clear Plastic)',
+    scores: {
+      fragranceAroma: 9.0,
+      flavor: 9.2,
+      aftertaste: 8.8,
+      acidity: 8.8,
+      body: 7.8,
+      balance: 9.0,
+      uniformity: 10.0,
+      cleanCup: 10.0,
+      sweetness: 9.2,
+      overall: 9.2,
+    },
+    calculatedScaScore: 91.0,
+    rating: 5,
+    flavorTags: ['Jasmine', 'Peach', 'Bergamot'],
+    notes: 'Vibrant acidity that cooled into intense peach nectar and jasmine tea.',
+    wouldBrewAgain: true,
+    createdAt: '2026-09-02T10:05:00.000Z',
+  },
+];
+
