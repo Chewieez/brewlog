@@ -51,6 +51,9 @@ export interface ReviewsViewProps {
   pendingBrewSession?: PendingBrewSession | null;
   onClearPendingSession?: () => void;
   onAddTastingLog: (log: Omit<TastingLog, 'id' | 'createdAt'>) => Promise<any> | void;
+  onUpdateTastingLog?: (id: string, updates: Partial<TastingLog>) => Promise<any> | void;
+  onDeleteTastingLog?: (id: string) => Promise<any> | void;
+  onBrewAgain?: (log: TastingLog) => void;
 }
 
 export type CuppingViewProps = ReviewsViewProps;
