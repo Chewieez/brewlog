@@ -147,7 +147,7 @@ describe('ReviewDetailPane component', () => {
       />
     );
 
-    const editBtn = screen.getByRole('button', { name: /Edit Review/i });
+    const editBtn = screen.getByRole('button', { name: /^Edit$/i });
     fireEvent.click(editBtn);
     expect(handleEdit).toHaveBeenCalledWith(mockLog);
 

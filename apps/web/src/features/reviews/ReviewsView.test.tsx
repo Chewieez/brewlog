@@ -233,7 +233,7 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
       />
     );
 
-    const editBtn = screen.getByRole('button', { name: /Edit Review/i });
+    const editBtn = screen.getByRole('button', { name: /^Edit$/i });
     fireEvent.click(editBtn);
 
     expect(screen.getByText(/Edit Review: Worka Sakaro/i)).toBeDefined();

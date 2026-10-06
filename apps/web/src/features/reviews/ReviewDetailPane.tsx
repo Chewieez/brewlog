@@ -166,7 +166,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-panel-recessed text-zinc-200 hover:text-zinc-100 border border-border-subtle hover:border-zinc-600 transition-colors cursor-pointer"
           >
             <Edit3 className="w-3.5 h-3.5" />
-            Edit Review
+            Edit
           </button>
           <button
             onClick={() => setShowDeleteModal(true)}
