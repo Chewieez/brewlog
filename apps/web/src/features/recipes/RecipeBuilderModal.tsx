@@ -6,8 +6,12 @@ import {
   StageType,
   calculateWaterAmount,
   calculateRatio,
+  RecipeGrinderSetting,
+  GrinderSettingScale,
+  Equipment,
 } from "@brewlog/core";
 import { useAuth } from "../auth/AuthContext";
+import { useEquipment } from "../equipment/useEquipment";
 import {
   X,
   Plus,
@@ -103,6 +107,25 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
   initialRecipe,
 }) => {
   const { user } = useAuth();
+  const { equipment, addEquipment } = useEquipment();
+  const [locallyAddedGrinders, setLocallyAddedGrinders] = useState<Equipment[]>([]);
+
+  // Filter grinders
+  const userGrinders = [
+    ...equipment.filter((e) => e.type === "grinder"),
+    ...locallyAddedGrinders.filter((lg) => !equipment.some((e) => e.id === lg.id)),
+  ];
+
+  // Grinder settings state
+  const [grinderSettings, setGrinderSettings] = useState<RecipeGrinderSetting[]>([]);
+
+  // Inline grinder creation state
+  const [isAddingInlineGrinder, setIsAddingInlineGrinder] = useState(false);
+  const [inlineBrand, setInlineBrand] = useState("");
+  const [inlineModel, setInlineModel] = useState("");
+  const [inlineScale, setInlineScale] = useState<GrinderSettingScale>("stepped-numbers");
+  const [inlineError, setInlineError] = useState<string | null>(null);
+  const [isCreatingGrinder, setIsCreatingGrinder] = useState(false);
 
   // Form State
   const [name, setName] = useState("");
@@ -128,6 +151,17 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setValidationError(null);
+      setIsAddingInlineGrinder(false);
+      setInlineBrand("");
+      setInlineModel("");
+      setInlineScale("stepped-numbers");
+      setInlineError(null);
+
+      const availableGrinders = [
+        ...equipment.filter((e) => e.type === "grinder"),
+        ...locallyAddedGrinders.filter((lg) => !equipment.some((e) => e.id === lg.id)),
+      ];
+
       if (initialRecipe) {
         setName(initialRecipe.name || "");
         setAuthor(initialRecipe.author || "");
@@ -144,6 +178,18 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
             ? initialRecipe.stages
             : DEFAULT_STAGES
         );
+        if (initialRecipe.grinderSettings && initialRecipe.grinderSettings.length > 0) {
+          setGrinderSettings(initialRecipe.grinderSettings);
+        } else if (initialRecipe.recommendedGrinderId) {
+          setGrinderSettings([
+            {
+              grinderId: initialRecipe.recommendedGrinderId,
+              setting: initialRecipe.grindSize || "",
+            },
+          ]);
+        } else {
+          setGrinderSettings([]);
+        }
       } else {
         setName("");
         const defaultAuthor =
@@ -161,9 +207,15 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
         setRatio(16.67);
         setWaterAmountGrams(250);
         setStages(DEFAULT_STAGES);
+
+        if (availableGrinders.length > 0) {
+          setGrinderSettings([{ grinderId: availableGrinders[0].id, setting: "" }]);
+        } else {
+          setGrinderSettings([]);
+        }
       }
     }
-  }, [isOpen, initialRecipe, user]);
+  }, [isOpen, initialRecipe, user, equipment]);
 
   // Handle Escape key
   useEffect(() => {
@@ -258,6 +310,64 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
     waterAmountGrams > 0 &&
     Number(lastStage.targetWaterWeightGrams) !== Number(waterAmountGrams);
 
+  const handleSaveInlineGrinder = async () => {
+    if (!inlineBrand.trim() || !inlineModel.trim()) {
+      setInlineError("Please enter both brand and model for the grinder.");
+      return;
+    }
+    setInlineError(null);
+    setIsCreatingGrinder(true);
+    try {
+      const created = await addEquipment({
+        type: "grinder",
+        brand: inlineBrand.trim(),
+        model: inlineModel.trim(),
+        settingScaleType: inlineScale,
+      });
+      setLocallyAddedGrinders((prev) => [...prev, created]);
+      setGrinderSettings([{ grinderId: created.id, setting: "" }]);
+      setIsAddingInlineGrinder(false);
+      setInlineBrand("");
+      setInlineModel("");
+      setInlineScale("stepped-numbers");
+    } catch (err: any) {
+      setInlineError(err?.message || "Failed to add grinder.");
+    } finally {
+      setIsCreatingGrinder(false);
+    }
+  };
+
+  const handleAddGrinderSetting = () => {
+    if (userGrinders.length === 0) return;
+    const unselected = userGrinders.find(
+      (g) => !grinderSettings.some((gs) => gs.grinderId === g.id)
+    );
+    const nextGrinderId = unselected ? unselected.id : userGrinders[0].id;
+    setGrinderSettings((prev) => [
+      ...prev,
+      { grinderId: nextGrinderId, setting: "" },
+    ]);
+  };
+
+  const handleUpdateGrinderSetting = (
+    index: number,
+    field: keyof RecipeGrinderSetting,
+    value: string
+  ) => {
+    setGrinderSettings((prev) => {
+      const updated = [...prev];
+      updated[index] = {
+        ...updated[index],
+        [field]: value,
+      };
+      return updated;
+    });
+  };
+
+  const handleRemoveGrinderSetting = (index: number) => {
+    setGrinderSettings((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSaving) return;
@@ -298,6 +408,10 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
         description: description.trim() || "",
         notes: notes.trim() || undefined,
         stages,
+        grinderSettings,
+        recommendedGrinderId:
+          grinderSettings[0]?.grinderId ||
+          (initialRecipe ? initialRecipe.recommendedGrinderId : undefined),
         isPreset: initialRecipe ? initialRecipe.isPreset : false,
         isFavorite: initialRecipe ? initialRecipe.isFavorite : false,
       });
@@ -463,6 +577,231 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                   <span className="text-xs text-text-muted">°C</span>
                 </div>
               </div>
+            </div>
+
+            {/* Grinder Settings Section */}
+            <div className="space-y-3 pt-2 border-t border-border-subtle">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-text-primary uppercase tracking-wider">
+                    Grinder Dial Settings
+                  </h4>
+                  <p className="text-[11px] text-text-secondary">
+                    Configure dial settings for specific grinders in your setup.
+                  </p>
+                </div>
+                {userGrinders.length > 0 && grinderSettings.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleAddGrinderSetting}
+                    className="flex items-center space-x-1 px-2.5 py-1 rounded bg-panel-recessed hover:bg-panel text-accent font-mono text-xs uppercase tracking-wider font-semibold border border-border-subtle transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>+ Add Another Grinder</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Case A: userGrinders.length === 0 */}
+              {userGrinders.length === 0 && (
+                <div className="p-4 rounded-lg bg-panel-recessed border border-border-subtle space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <p className="text-xs text-text-secondary">
+                        No grinders found in your equipment. Add your grinder to save specific dial settings.
+                      </p>
+                    </div>
+                    {!isAddingInlineGrinder && (
+                      <button
+                        type="button"
+                        onClick={() => setIsAddingInlineGrinder(true)}
+                        className="flex items-center space-x-1 px-3 py-1.5 rounded bg-panel hover:bg-panel-recessed text-accent font-mono text-xs uppercase tracking-wider font-semibold border border-border-subtle transition-colors cursor-pointer self-start sm:self-auto"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>+ Add Grinder</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {isAddingInlineGrinder && (
+                    <div className="pt-3 border-t border-border-subtle space-y-3">
+                      {inlineError && (
+                        <div className="p-2 rounded bg-red-500/10 border border-red-500/25 text-red-300 text-xs">
+                          {inlineError}
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                          <label
+                            htmlFor="inline-grinder-brand"
+                            className="block text-[11px] font-medium text-text-secondary mb-1"
+                          >
+                            Grinder Brand *
+                          </label>
+                          <input
+                            id="inline-grinder-brand"
+                            type="text"
+                            placeholder="e.g. Comandante, Fellow"
+                            value={inlineBrand}
+                            onChange={(e) => setInlineBrand(e.target.value)}
+                            className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-xs focus:outline-none focus:border-accent transition-colors"
+                          />
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="inline-grinder-model"
+                            className="block text-[11px] font-medium text-text-secondary mb-1"
+                          >
+                            Grinder Model *
+                          </label>
+                          <input
+                            id="inline-grinder-model"
+                            type="text"
+                            placeholder="e.g. C40 MK4, Ode Gen 2"
+                            value={inlineModel}
+                            onChange={(e) => setInlineModel(e.target.value)}
+                            className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-xs focus:outline-none focus:border-accent transition-colors"
+                          />
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="inline-grinder-scale"
+                            className="block text-[11px] font-medium text-text-secondary mb-1"
+                          >
+                            Dial Format / Setting Scale
+                          </label>
+                          <select
+                            id="inline-grinder-scale"
+                            value={inlineScale}
+                            onChange={(e) => setInlineScale(e.target.value as GrinderSettingScale)}
+                            className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-xs focus:outline-none focus:border-accent transition-colors cursor-pointer"
+                          >
+                            <option value="stepped-numbers">Stepped Numbers (e.g. 4.1, 5.2)</option>
+                            <option value="clicks">Clicks from Zero (e.g. 24 clicks)</option>
+                            <option value="stepless">Stepless Dial</option>
+                            <option value="microns">Microns (µm)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-end space-x-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsAddingInlineGrinder(false);
+                            setInlineError(null);
+                          }}
+                          className="px-3 py-1 rounded bg-panel text-text-secondary hover:text-text-primary text-xs font-mono uppercase transition-colors cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isCreatingGrinder}
+                          onClick={handleSaveInlineGrinder}
+                          className="px-3 py-1 rounded bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase font-bold transition-all cursor-pointer"
+                        >
+                          {isCreatingGrinder ? "Saving..." : "Save Grinder"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Case B: userGrinders.length > 0 */}
+              {userGrinders.length > 0 && (
+                <div className="space-y-2">
+                  {grinderSettings.length === 0 ? (
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-panel-recessed border border-border-subtle text-xs text-text-secondary">
+                      <span>No grinder settings configured for this recipe.</span>
+                      <button
+                        type="button"
+                        onClick={handleAddGrinderSetting}
+                        className="flex items-center space-x-1 px-2.5 py-1 rounded bg-panel text-accent border border-border-subtle hover:bg-panel-recessed transition-colors font-mono text-xs uppercase"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>+ Add Grinder Setting</span>
+                      </button>
+                    </div>
+                  ) : (
+                    grinderSettings.map((row, index) => (
+                      <div
+                        key={`grinder-row-${index}`}
+                        className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 rounded-lg bg-panel-recessed border border-border-subtle"
+                      >
+                        <div className="flex items-center space-x-2 min-w-[90px]">
+                          {index === 0 && (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-accent/20 text-accent border border-accent/30">
+                              Primary
+                            </span>
+                          )}
+                          <span className="text-xs text-text-muted font-mono">
+                            #{index + 1}
+                          </span>
+                        </div>
+
+                        <div className="flex-1">
+                          <label
+                            htmlFor={`grinder-select-${index}`}
+                            className="sr-only"
+                          >
+                            Grinder {index + 1}
+                          </label>
+                          <select
+                            id={`grinder-select-${index}`}
+                            aria-label={`Grinder ${index + 1}`}
+                            value={row.grinderId}
+                            onChange={(e) =>
+                              handleUpdateGrinderSetting(index, "grinderId", e.target.value)
+                            }
+                            className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-xs focus:outline-none focus:border-accent cursor-pointer"
+                          >
+                            {userGrinders.map((g) => (
+                              <option key={g.id} value={g.id}>
+                                {g.brand} {g.model} {g.settingScaleType ? `(${g.settingScaleType})` : ""}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="flex-1">
+                          <label
+                            htmlFor={`grinder-setting-${index}`}
+                            className="sr-only"
+                          >
+                            Setting for Grinder {index + 1}
+                          </label>
+                          <input
+                            id={`grinder-setting-${index}`}
+                            aria-label={`Setting for Grinder ${index + 1}`}
+                            type="text"
+                            placeholder="e.g. 15 clicks, 4.2..."
+                            value={row.setting}
+                            onChange={(e) =>
+                              handleUpdateGrinderSetting(index, "setting", e.target.value)
+                            }
+                            className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-xs focus:outline-none focus:border-accent"
+                          />
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveGrinderSetting(index)}
+                          className="p-1.5 rounded text-red-400 hover:text-red-300 hover:bg-panel transition-colors cursor-pointer self-end sm:self-auto"
+                          aria-label={`Remove grinder ${index + 1}`}
+                          title={`Remove grinder ${index + 1}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
 
             <div>

@@ -1,8 +1,9 @@
 /** @vitest-environment jsdom */
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { RecipeBuilderModal } from './RecipeBuilderModal';
-import { BrewRecipe } from '@brewlog/core';
+import { BrewRecipe, Equipment } from '@brewlog/core';
+import { useEquipment } from '../equipment/useEquipment';
 
 vi.mock('../auth/AuthContext', () => ({
   useAuth: vi.fn().mockReturnValue({
@@ -10,7 +11,22 @@ vi.mock('../auth/AuthContext', () => ({
   }),
 }));
 
+vi.mock('../equipment/useEquipment', () => ({
+  useEquipment: vi.fn(),
+}));
+
 describe('RecipeBuilderModal', () => {
+  beforeEach(() => {
+    vi.mocked(useEquipment).mockReturnValue({
+      equipment: [],
+      addEquipment: vi.fn(),
+      updateEquipment: vi.fn(),
+      deleteEquipment: vi.fn(),
+      toggleFavorite: vi.fn(),
+      loading: false,
+      refreshEquipment: vi.fn(),
+    });
+  });
   afterEach(() => {
     cleanup();
   });
@@ -162,6 +178,262 @@ describe('RecipeBuilderModal', () => {
     resolveSave();
     await waitFor(() => {
       expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  const sampleGrinder1: Equipment = {
+    id: 'grinder-1',
+    type: 'grinder',
+    brand: 'Comandante',
+    model: 'C40 MK4',
+    settingScaleType: 'clicks',
+    createdAt: '2026-01-01',
+  };
+
+  const sampleGrinder2: Equipment = {
+    id: 'grinder-2',
+    type: 'grinder',
+    brand: 'Fellow',
+    model: 'Ode Gen 2',
+    settingScaleType: 'stepped-numbers',
+    createdAt: '2026-01-01',
+  };
+
+  it('when user has 0 grinders in equipment, renders inline "+ Add Grinder" trigger and creation card', () => {
+    vi.mocked(useEquipment).mockReturnValue({
+      equipment: [],
+      addEquipment: vi.fn(),
+      updateEquipment: vi.fn(),
+      deleteEquipment: vi.fn(),
+      toggleFavorite: vi.fn(),
+      loading: false,
+      refreshEquipment: vi.fn(),
+    });
+
+    render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSaveRecipe={vi.fn()}
+        initialRecipe={null}
+      />
+    );
+
+    const triggerBtn = screen.getByRole('button', { name: /\+ add grinder/i });
+    expect(triggerBtn).toBeDefined();
+
+    // Expand creation form
+    fireEvent.click(triggerBtn);
+
+    expect(screen.getByLabelText(/grinder brand/i)).toBeDefined();
+    expect(screen.getByLabelText(/grinder model/i)).toBeDefined();
+    expect(screen.getByLabelText(/dial format|setting scale/i)).toBeDefined();
+    expect(screen.getByRole('button', { name: /save grinder/i })).toBeDefined();
+    expect(screen.queryByLabelText(/^grinder 1$/i)).toBeNull();
+  });
+
+  it('adding first grinder inline adds it to equipment and populates the first grinder setting row', async () => {
+    const mockAddEquipment = vi.fn().mockResolvedValue({
+      id: 'grinder-created-1',
+      type: 'grinder',
+      brand: 'Timemore',
+      model: 'Chestnut C2',
+      settingScaleType: 'clicks',
+      createdAt: '2026-01-01',
+    });
+
+    vi.mocked(useEquipment).mockReturnValue({
+      equipment: [],
+      addEquipment: mockAddEquipment,
+      updateEquipment: vi.fn(),
+      deleteEquipment: vi.fn(),
+      toggleFavorite: vi.fn(),
+      loading: false,
+      refreshEquipment: vi.fn(),
+    });
+
+    render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSaveRecipe={vi.fn()}
+        initialRecipe={null}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /\+ add grinder/i }));
+    fireEvent.change(screen.getByLabelText(/grinder brand/i), { target: { value: 'Timemore' } });
+    fireEvent.change(screen.getByLabelText(/grinder model/i), { target: { value: 'Chestnut C2' } });
+    fireEvent.change(screen.getByLabelText(/dial format|setting scale/i), { target: { value: 'clicks' } });
+    fireEvent.click(screen.getByRole('button', { name: /save grinder/i }));
+
+    await waitFor(() => {
+      expect(mockAddEquipment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'grinder',
+          brand: 'Timemore',
+          model: 'Chestnut C2',
+          settingScaleType: 'clicks',
+        })
+      );
+    });
+
+    await waitFor(() => {
+      const grinderSelect = screen.getByLabelText(/^grinder 1$/i) as HTMLSelectElement;
+      expect(grinderSelect).toBeDefined();
+      expect(grinderSelect.value).toBe('grinder-created-1');
+      expect(screen.getByLabelText(/setting for grinder 1/i)).toBeDefined();
+    });
+    expect(screen.queryByLabelText(/grinder brand/i)).toBeNull();
+  });
+
+  it('when user already has grinders, displays grinder selector and setting input, allowing adding another grinder setting', () => {
+    vi.mocked(useEquipment).mockReturnValue({
+      equipment: [sampleGrinder1, sampleGrinder2],
+      addEquipment: vi.fn(),
+      updateEquipment: vi.fn(),
+      deleteEquipment: vi.fn(),
+      toggleFavorite: vi.fn(),
+      loading: false,
+      refreshEquipment: vi.fn(),
+    });
+
+    render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSaveRecipe={vi.fn()}
+        initialRecipe={null}
+      />
+    );
+
+    // Should NOT offer inline creation trigger
+    expect(screen.queryByRole('button', { name: /^\+ add grinder$/i })).toBeNull();
+
+    // Renders first grinder row selector & setting input
+    const grinderSelect1 = screen.getByLabelText(/^grinder 1$/i) as HTMLSelectElement;
+    expect(grinderSelect1).toBeDefined();
+    expect(grinderSelect1.value).toBe('grinder-1');
+    expect(screen.getByLabelText(/setting for grinder 1/i)).toBeDefined();
+
+    // Add another grinder
+    const addAnotherBtn = screen.getByRole('button', { name: /\+ add another grinder/i });
+    fireEvent.click(addAnotherBtn);
+
+    expect(screen.getByLabelText(/^grinder 2$/i)).toBeDefined();
+    expect(screen.getByLabelText(/setting for grinder 2/i)).toBeDefined();
+  });
+
+  it('displays "Primary" badge on the first grinder row', () => {
+    vi.mocked(useEquipment).mockReturnValue({
+      equipment: [sampleGrinder1, sampleGrinder2],
+      addEquipment: vi.fn(),
+      updateEquipment: vi.fn(),
+      deleteEquipment: vi.fn(),
+      toggleFavorite: vi.fn(),
+      loading: false,
+      refreshEquipment: vi.fn(),
+    });
+
+    render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSaveRecipe={vi.fn()}
+        initialRecipe={null}
+      />
+    );
+
+    // Primary badge exists on first row
+    expect(screen.getByText(/primary/i)).toBeDefined();
+
+    // Add another row
+    fireEvent.click(screen.getByRole('button', { name: /\+ add another grinder/i }));
+
+    // Only one Primary badge
+    const primaryBadges = screen.getAllByText(/primary/i);
+    expect(primaryBadges).toHaveLength(1);
+  });
+
+  it('removes a grinder row on trash click', () => {
+    vi.mocked(useEquipment).mockReturnValue({
+      equipment: [sampleGrinder1, sampleGrinder2],
+      addEquipment: vi.fn(),
+      updateEquipment: vi.fn(),
+      deleteEquipment: vi.fn(),
+      toggleFavorite: vi.fn(),
+      loading: false,
+      refreshEquipment: vi.fn(),
+    });
+
+    render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSaveRecipe={vi.fn()}
+        initialRecipe={null}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /\+ add another grinder/i }));
+    expect(screen.getByLabelText(/^grinder 2$/i)).toBeDefined();
+
+    const removeBtn1 = screen.getByRole('button', { name: /remove grinder 1/i });
+    fireEvent.click(removeBtn1);
+
+    expect(screen.queryByLabelText(/^grinder 2$/i)).toBeNull();
+    expect(screen.getByLabelText(/^grinder 1$/i)).toBeDefined();
+  });
+
+  it('saves recipe with grinderSettings payload', async () => {
+    const onSave = vi.fn();
+    vi.mocked(useEquipment).mockReturnValue({
+      equipment: [sampleGrinder1, sampleGrinder2],
+      addEquipment: vi.fn(),
+      updateEquipment: vi.fn(),
+      deleteEquipment: vi.fn(),
+      toggleFavorite: vi.fn(),
+      loading: false,
+      refreshEquipment: vi.fn(),
+    });
+
+    render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSaveRecipe={onSave}
+        initialRecipe={null}
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText(/recipe name \*/i), {
+      target: { value: 'Comandante Daily Brew' },
+    });
+    fireEvent.change(screen.getByLabelText(/setting for grinder 1/i), {
+      target: { value: '24 clicks' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /\+ add another grinder/i }));
+    fireEvent.change(screen.getByLabelText(/^grinder 2$/i), {
+      target: { value: 'grinder-2' },
+    });
+    fireEvent.change(screen.getByLabelText(/setting for grinder 2/i), {
+      target: { value: '4.2' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /save recipe/i }));
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledTimes(1);
+      expect(onSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Comandante Daily Brew',
+          grinderSettings: [
+            { grinderId: 'grinder-1', setting: '24 clicks' },
+            { grinderId: 'grinder-2', setting: '4.2' },
+          ],
+        })
+      );
     });
   });
 });
