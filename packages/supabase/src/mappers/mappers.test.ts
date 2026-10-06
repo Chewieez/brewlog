@@ -19,7 +19,7 @@ import {
   RecipeRow,
   RecipeStageRow,
 } from "../database.types";
-import { Bean, TastingLog, Equipment, BrewRecipe, BrewStage, RecipeGrinderSetting } from "@brewlog/core";
+import { Bean, TastingLog, Equipment, BrewRecipe, BrewStage } from "@brewlog/core";
 
 describe("Shared Mappers (@brewlog/supabase)", () => {
   describe("Bean Mappers", () => {
@@ -395,6 +395,7 @@ describe("Shared Mappers (@brewlog/supabase)", () => {
         brew_method: "v60",
         recommended_brewer_id: "eq-v60",
         recommended_grinder_id: "eq-ode",
+        grinder_settings: [],
         description: "Classic single cup pour over technique",
         author: "James Hoffmann",
         coffee_dose_grams: 15,
