@@ -19,7 +19,7 @@ import { ReviewCard } from '../components/ReviewCard';
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export type MethodFilter = 'all' | 'v60' | 'espresso' | 'aeropress' | 'french-press' | 'chemex' | 'pour-over' | 'cold-brew';
-export type RatingFilter = 'all' | '5' | '4+' | 'sca80+';
+export type RatingFilter = 'all' | '5' | '4+';
 
 interface FilterOption<T> {
   id: T;
@@ -41,7 +41,6 @@ const RATING_OPTIONS: FilterOption<RatingFilter>[] = [
   { id: 'all', label: 'All Ratings' },
   { id: '5', label: '5 Stars' },
   { id: '4+', label: '4+ Stars' },
-  { id: 'sca80+', label: 'Specialty (80+)' },
 ];
 
 export const ReviewsCatalogScreen: React.FC = () => {
@@ -136,7 +135,6 @@ export const ReviewsCatalogScreen: React.FC = () => {
       // Rating match
       if (selectedRating === '5' && r.rating < 5) return false;
       if (selectedRating === '4+' && r.rating < 4) return false;
-      if (selectedRating === 'sca80+' && (Number(r.calculatedScaScore) || 0) < 80) return false;
 
       return true;
     });
@@ -421,6 +419,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoMedium,
     fontSize: 11,
     color: colors.textMuted,
+    textTransform: 'uppercase',
   },
   filterChipTextActive: {
     color: colors.accent,

@@ -12,12 +12,15 @@ export interface ReviewCardProps {
 }
 
 export const ReviewCard: React.FC<ReviewCardProps> = ({ review, onPress }) => {
-  const formattedDate = review.brewDate
-    ? new Date(review.brewDate).toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-      })
-    : '';
+  const formattedDate = (() => {
+    if (!review.brewDate) return '';
+    const date = new Date(review.brewDate);
+    if (isNaN(date.getTime())) return '';
+    const mm = (date.getMonth() + 1).toString().padStart(2, '0');
+    const dd = date.getDate().toString().padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${mm}/${dd}/${yyyy}`;
+  })();
 
   const scaScore = Number(review.calculatedScaScore ?? 0);
 
@@ -28,39 +31,41 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, onPress }) => {
       accessibilityRole="button"
       accessibilityLabel={`Review for ${review.beanNameSnapshot}`}
     >
-      {/* Top Meta Row: Method Badge, Date, and Star Rating */}
-      <View style={styles.topMetaRow}>
-        <View style={styles.badgeRow}>
-          <View style={styles.methodBadge}>
-            <Text style={styles.methodBadgeText}>
-              {review.brewMethod.toUpperCase()}
-            </Text>
+      {/* Header Row: Roaster Eyebrow, Coffee Name & Star Rating + Date */}
+      <View style={styles.headerRow}>
+        <View style={styles.titleSection}>
+          <Text style={styles.roasterEyebrow}>
+            {review.roasterSnapshot.toUpperCase()}
+          </Text>
+          <Text style={styles.coffeeName} numberOfLines={1}>
+            {review.beanNameSnapshot}
+          </Text>
+        </View>
+
+        <View style={styles.headerRightCol}>
+          <View style={styles.ratingRow}>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={`star-${star}`}
+                size={14}
+                color={star <= review.rating ? colors.accent : colors.textMuted}
+                fill={star <= review.rating ? colors.accent : 'none'}
+              />
+            ))}
           </View>
           {formattedDate ? (
             <Text style={styles.dateText}>{formattedDate}</Text>
           ) : null}
         </View>
-
-        <View style={styles.ratingRow}>
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Star
-              key={`star-${star}`}
-              size={14}
-              color={star <= review.rating ? colors.accent : colors.textMuted}
-              fill={star <= review.rating ? colors.accent : 'none'}
-            />
-          ))}
-        </View>
       </View>
 
-      {/* Coffee Name & Roaster */}
-      <View style={styles.titleSection}>
-        <Text style={styles.roasterEyebrow}>
-          {review.roasterSnapshot.toUpperCase()}
-        </Text>
-        <Text style={styles.coffeeName} numberOfLines={1}>
-          {review.beanNameSnapshot}
-        </Text>
+      {/* Badges / Meta Row: Method Badge */}
+      <View style={styles.badgeRow}>
+        <View style={styles.methodBadge}>
+          <Text style={styles.methodBadgeText}>
+            {review.brewMethod.toUpperCase()}
+          </Text>
+        </View>
       </View>
 
       {/* Equipment Snapshot Row */}
@@ -130,10 +135,11 @@ const styles = StyleSheet.create({
     opacity: 0.85,
     borderColor: colors.accent,
   },
-  topMetaRow: {
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    gap: 8,
   },
   badgeRow: {
     flexDirection: 'row',
@@ -154,17 +160,23 @@ const styles = StyleSheet.create({
     color: colors.accent,
     letterSpacing: 1,
   },
-  dateText: {
-    fontFamily: FONTS.monoRegular,
-    fontSize: 11,
-    color: colors.textMuted,
+  headerRightCol: {
+    alignItems: 'flex-end',
+    gap: 4,
+    marginTop: 2,
   },
   ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
   },
+  dateText: {
+    fontFamily: FONTS.sansRegular,
+    fontSize: 11,
+    color: colors.textMuted,
+  },
   titleSection: {
+    flex: 1,
     gap: 2,
   },
   roasterEyebrow: {
@@ -185,7 +197,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   equipmentText: {
-    fontFamily: FONTS.monoRegular,
+    fontFamily: FONTS.sansRegular,
     fontSize: 11,
     color: colors.textSecondary,
   },
@@ -195,7 +207,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   specsText: {
-    fontFamily: FONTS.monoMedium,
+    fontFamily: FONTS.sansMedium,
     fontSize: 12,
     color: colors.textMuted,
   },
@@ -217,9 +229,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   scaValue: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 12,
-    color: colors.accent,
+    color: colors.textPrimary,
     fontVariant: ['tabular-nums'],
   },
   tagsContainer: {
@@ -242,7 +254,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   extraTagsText: {
-    fontFamily: FONTS.monoRegular,
+    fontFamily: FONTS.sansRegular,
     fontSize: 11,
     color: colors.textMuted,
   },

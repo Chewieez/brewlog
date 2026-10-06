@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   dateText: {
-    fontFamily: FONTS.monoRegular,
+    fontFamily: FONTS.sansRegular,
     fontSize: 12,
     color: colors.textMuted,
   },
@@ -411,7 +411,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   specValue: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 14,
     color: colors.textPrimary,
   },

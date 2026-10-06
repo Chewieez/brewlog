@@ -873,7 +873,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 </div>
 
                 <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-3 sm:pt-0 border-zinc-800">
-                  <div className="text-xl font-light tabular-nums text-accent">
+                  <div className="text-xl font-light tabular-nums text-zinc-100">
                     {log.calculatedScaScore}{' '}
                     <span className="text-xs text-text-muted">SCA pts</span>
                   </div>
