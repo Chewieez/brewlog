@@ -656,7 +656,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
           ) : (
             /* Review Editor (Create or Edit Mode) */
             <form onSubmit={handleSaveTastingLog} className="space-y-6 animate-fade-in">
-              {/* Sticky / In-Place Editor Header */}
+              {/* In-Place Editor Header */}
               <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-xl font-bold tracking-tight text-zinc-100">
@@ -669,25 +669,11 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  {/* Live Calculated Score Pill */}
-                  <div className="whitespace-nowrap flex items-center gap-2 px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle shadow-xs">
-                    <Award className="w-4 h-4 text-accent shrink-0" />
-                    <span className="text-lg font-light text-zinc-100 tabular-nums">
-                      {scaScore.toFixed(1)}
-                    </span>
-                    <span className="text-xs text-text-secondary">/ 100</span>
-                    <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${getScaTier(scaScore).classes}`}
-                    >
-                      {getScaTier(scaScore).label}
-                    </span>
-                  </div>
-
+                <div className="flex items-center gap-2.5 shrink-0">
                   <button
                     type="button"
                     onClick={handleCancelEditor}
-                    className="px-3 py-1.5 text-xs font-medium rounded-lg bg-panel-recessed text-zinc-300 hover:text-zinc-100 border border-border-subtle transition-colors cursor-pointer"
+                    className="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-panel-recessed text-zinc-300 hover:text-zinc-100 border border-border-subtle transition-colors cursor-pointer whitespace-nowrap"
                   >
                     Cancel
                   </button>
@@ -695,9 +681,9 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-accent hover:bg-accent/90 text-zinc-950 text-xs font-semibold uppercase tracking-wider shadow-xs cursor-pointer transition-all disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-accent hover:bg-accent/90 text-zinc-950 text-xs font-semibold uppercase tracking-wider shadow-xs cursor-pointer transition-all disabled:opacity-50 whitespace-nowrap shrink-0"
                   >
-                    <Save className="w-4.5 h-4.5" />
+                    <Save className="w-4.5 h-4.5 shrink-0" />
                     <span>
                       {isSaving
                         ? 'Saving...'
@@ -706,6 +692,49 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                         : 'Save Review'}
                     </span>
                   </button>
+                </div>
+              </div>
+
+              {/* Dedicated Hero Live Score Banner */}
+              <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div
+                  data-testid="hero-score-badge"
+                  className="whitespace-nowrap flex items-center gap-3"
+                >
+                  <div className="text-4xl font-light text-zinc-100 tabular-nums">
+                    {scaScore.toFixed(1)}
+                  </div>
+                  <div className="text-sm text-text-secondary font-medium">/ 100</div>
+                  <div className="h-6 w-px bg-zinc-800" />
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold border ${getScaTier(scaScore).classes}`}
+                  >
+                    {getScaTier(scaScore).label} (SCA)
+                  </span>
+                </div>
+
+                {/* 5-Star Rating Preview / Interactive Quick-Rate */}
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setRating(s)}
+                      className="p-1 cursor-pointer transition-transform hover:scale-110"
+                      title={`Rate ${s} stars`}
+                    >
+                      <Star
+                        className={`w-4 h-4 ${
+                          s <= rating
+                            ? 'fill-amber-400 text-amber-400'
+                            : 'text-zinc-700'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                  <span className="text-xs text-text-secondary ml-1 tabular-nums font-medium">
+                    ({rating.toFixed(1)}/5)
+                  </span>
                 </div>
               </div>
 
@@ -1199,16 +1228,16 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 <button
                   type="button"
                   onClick={handleCancelEditor}
-                  className="px-4 py-2.5 text-xs font-medium rounded-xl bg-panel-recessed text-zinc-300 hover:text-zinc-100 border border-border-subtle transition-colors cursor-pointer"
+                  className="px-4 py-2.5 text-xs font-medium rounded-xl bg-panel-recessed text-zinc-300 hover:text-zinc-100 border border-border-subtle transition-colors cursor-pointer whitespace-nowrap"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-accent hover:bg-accent/90 text-zinc-950 text-xs font-semibold uppercase tracking-wider shadow-sm cursor-pointer transition-all disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-accent hover:bg-accent/90 text-zinc-950 text-xs font-semibold uppercase tracking-wider shadow-sm cursor-pointer transition-all disabled:opacity-50 whitespace-nowrap shrink-0"
                 >
-                  <Save className="w-4.5 h-4.5" />
+                  <Save className="w-4.5 h-4.5 shrink-0" />
                   <span>
                     {isSaving
                       ? 'Saving...'
