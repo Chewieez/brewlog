@@ -440,14 +440,16 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleStartCreate}
-          className="self-start sm:self-auto inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-accent text-zinc-950 hover:bg-accent/90 font-medium text-xs font-sans uppercase tracking-wider shadow-sm cursor-pointer transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          <span>LOG REVIEW</span>
-        </button>
+        {mode === 'view' && (
+          <button
+            type="button"
+            onClick={handleStartCreate}
+            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-accent text-zinc-950 hover:bg-accent/90 font-medium text-xs font-sans uppercase tracking-wider shadow-sm cursor-pointer transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            <span>LOG REVIEW</span>
+          </button>
+        )}
       </div>
 
       {/* Pending Session Alert Banner */}
