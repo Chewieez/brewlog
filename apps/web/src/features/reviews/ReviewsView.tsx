@@ -278,21 +278,24 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
     e.preventDefault();
     setIsSaving(true);
 
+    const originalLog = mode === 'edit' ? logs.find((l) => l.id === editingLogId) : undefined;
     const chosenBean = beans.find((b) => b.id === selectedBeanId);
     const selectedGrinder = (equipment || []).find((e) => e.id === grinderId);
     const selectedBrewer = (equipment || []).find((e) => e.id === brewerId);
 
     const grinderSnapshot = selectedGrinder
       ? `${selectedGrinder.brand} ${selectedGrinder.model}`
-      : undefined;
+      : originalLog?.grinderSnapshot;
     const brewerSnapshot = selectedBrewer
       ? `${selectedBrewer.brand} ${selectedBrewer.model}`
-      : undefined;
+      : originalLog?.brewerSnapshot;
 
-    const beanNameSnapshot = chosenBean?.name || customBeanName.trim() || 'Specialty Blend';
-    const roasterSnapshot = chosenBean?.roaster || customRoaster.trim() || 'Local Roaster';
+    const beanNameSnapshot = chosenBean?.name || customBeanName.trim() || originalLog?.beanNameSnapshot || 'Specialty Blend';
+    const roasterSnapshot = chosenBean?.roaster || customRoaster.trim() || originalLog?.roasterSnapshot || 'Local Roaster';
     const recipeNameSnapshot =
-      pendingBrewSession?.recipe.name || `${brewMethod.toUpperCase()} Brew`;
+      originalLog?.recipeNameSnapshot ||
+      pendingBrewSession?.recipe.name ||
+      `${brewMethod.toUpperCase()} Brew`;
 
     try {
       if (mode === 'edit' && editingLogId && onUpdateTastingLog) {

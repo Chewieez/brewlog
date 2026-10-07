@@ -250,6 +250,46 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
       'log-1',
       expect.objectContaining({
         notes: 'Refined tea-like body and jasmine finish.',
+        grinderSnapshot: 'Comandante C40 MK4',
+        brewerSnapshot: 'Hario V60 02 Ceramic',
+      })
+    );
+  });
+
+  it('preserves historical equipment snapshots when editing a review without matching stash equipment', async () => {
+    const handleUpdate = vi.fn();
+    const historicalLog: TastingLog = {
+      ...sampleLog1,
+      id: 'log-historical',
+      grinderId: 'deleted-grinder-id',
+      brewerId: 'deleted-brewer-id',
+      grinderSnapshot: 'Vintage Kinu M47',
+      brewerSnapshot: 'Kalita Wave 185 Glass',
+    };
+
+    render(
+      <ReviewsView
+        logs={[historicalLog]}
+        beans={INITIAL_BEANS}
+        equipment={[]}
+        onAddTastingLog={vi.fn()}
+        onUpdateTastingLog={handleUpdate}
+      />
+    );
+
+    const editBtn = screen.getByRole('button', { name: /^Edit$/i });
+    fireEvent.click(editBtn);
+
+    const saveChangesButtons = screen.getAllByRole('button', { name: /Save Changes/i });
+    await act(async () => {
+      fireEvent.click(saveChangesButtons[0]);
+    });
+
+    expect(handleUpdate).toHaveBeenCalledWith(
+      'log-historical',
+      expect.objectContaining({
+        grinderSnapshot: 'Vintage Kinu M47',
+        brewerSnapshot: 'Kalita Wave 185 Glass',
       })
     );
   });
