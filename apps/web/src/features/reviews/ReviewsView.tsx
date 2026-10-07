@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   TastingLog,
   CuppingAttributes,
@@ -53,9 +53,9 @@ export interface ReviewsViewProps {
   equipment?: Equipment[];
   pendingBrewSession?: PendingBrewSession | null;
   onClearPendingSession?: () => void;
-  onAddTastingLog: (log: Omit<TastingLog, 'id' | 'createdAt'>) => Promise<any> | void;
-  onUpdateTastingLog?: (id: string, updates: Partial<TastingLog>) => Promise<any> | void;
-  onDeleteTastingLog?: (id: string) => Promise<any> | void;
+  onAddTastingLog: (log: Omit<TastingLog, 'id' | 'createdAt'>) => Promise<TastingLog | void> | void;
+  onUpdateTastingLog?: (id: string, updates: Partial<TastingLog>) => Promise<TastingLog | void> | void;
+  onDeleteTastingLog?: (id: string) => Promise<void> | void;
   onBrewAgain?: (log: TastingLog) => void;
 }
 
@@ -166,13 +166,18 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
   const grinders = (equipment || []).filter((e) => e.type === 'grinder');
   const brewers = (equipment || []).filter((e) => e.type === 'brewer');
-
+  const prevLogsRef = useRef(logs);
   // Keep selectedLogId valid when logs change
   useEffect(() => {
-    if (selectedLogId && !logs.some((l) => l.id === selectedLogId)) {
-      setSelectedLogId(logs[0]?.id || null);
-    } else if (!selectedLogId && logs.length > 0) {
-      setSelectedLogId(logs[0].id);
+    const prevLogs = prevLogsRef.current;
+    prevLogsRef.current = logs;
+
+    if (logs !== prevLogs) {
+      if (!selectedLogId && logs.length > 0) {
+        setSelectedLogId(logs[0].id);
+      } else if (selectedLogId && !logs.some((l) => l.id === selectedLogId)) {
+        setSelectedLogId(logs[0]?.id || null);
+      }
     }
   }, [logs, selectedLogId]);
 

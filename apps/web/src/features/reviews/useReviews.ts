@@ -57,7 +57,7 @@ export const useReviews = (): UseReviewsReturn => {
         id: "local-log-" + Date.now(),
         createdAt: new Date().toISOString(),
       };
-      setLogs([localLog, ...logs]);
+      setLogs((prev) => [localLog, ...prev]);
       return localLog;
     }
 
@@ -71,29 +71,26 @@ export const useReviews = (): UseReviewsReturn => {
 
     if (!error && data) {
       const created: TastingLog = mapTastingLogRowToDomain(data);
-      setLogs([created, ...logs]);
+      setLogs((prev) => [created, ...prev]);
       return created;
     }
   };
 
   const updateTastingLog = async (id: string, updates: Partial<TastingLog>) => {
-    let updatedLog: TastingLog | undefined;
-    setLogs((prev) => {
-      const updated = prev.map((l) => {
-        if (l.id === id) {
-          updatedLog = {
-            ...l,
-            ...updates,
-            scores: updates.scores ? { ...l.scores, ...updates.scores } : l.scores,
-          };
-          return updatedLog;
-        }
-        return l;
-      });
-      return updated;
-    });
+    const existing = logs.find((l) => l.id === id);
+    if (!existing) {
+      return;
+    }
 
-    if (!supabase || !user || id.startsWith("local-log-") || !updatedLog) {
+    const updatedLog: TastingLog = {
+      ...existing,
+      ...updates,
+      scores: updates.scores ? { ...existing.scores, ...updates.scores } : existing.scores,
+    };
+
+    setLogs((prev) => prev.map((l) => (l.id === id ? updatedLog : l)));
+
+    if (!supabase || !user || id.startsWith("local-log-")) {
       return updatedLog;
     }
 
@@ -106,7 +103,9 @@ export const useReviews = (): UseReviewsReturn => {
         .select()
         .single();
 
-      if (!error && data) {
+      if (error) {
+        console.error("updateTastingLog error:", error);
+      } else if (data) {
         const saved: TastingLog = mapTastingLogRowToDomain(data);
         setLogs((prev) => prev.map((l) => (l.id === id ? saved : l)));
         return saved;

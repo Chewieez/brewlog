@@ -25,8 +25,9 @@ export const ReviewsRoute: React.FC = () => {
   };
 
   const handleSaveTastingLog = async (log: Omit<TastingLog, 'id' | 'createdAt'>) => {
-    await onAddTastingLog(log);
+    const created = await onAddTastingLog(log);
     setPendingBrewSession(null);
+    return created;
   };
 
   const handleBrewAgain = (log: TastingLog) => {

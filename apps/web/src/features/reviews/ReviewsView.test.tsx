@@ -221,6 +221,47 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     expect(saved.brewerSnapshot).toBe('Hario V60 02 Ceramic');
   });
 
+  it('selects newly created review in detail pane when onAddTastingLog returns the created log', async () => {
+    const createdLog: TastingLog = {
+      ...sampleLog1,
+      id: 'log-newly-created',
+      beanNameSnapshot: 'Freshly Added Gesha',
+      notes: 'Crisp bergamot and honey.',
+    };
+    const handleAdd = vi.fn().mockResolvedValue(createdLog);
+    const { rerender } = render(
+      <ReviewsView
+        logs={[sampleLog1]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={handleAdd}
+      />
+    );
+
+    const logReviewBtn = screen.getByRole('button', { name: /LOG REVIEW/i });
+    fireEvent.click(logReviewBtn);
+
+    const submitButtons = screen.getAllByRole('button', { name: /SAVE REVIEW/i });
+    await act(async () => {
+      fireEvent.click(submitButtons[0]);
+    });
+
+    expect(handleAdd).toHaveBeenCalledTimes(1);
+
+    // Parent re-renders with the newly created log prepended
+    rerender(
+      <ReviewsView
+        logs={[createdLog, sampleLog1]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={handleAdd}
+      />
+    );
+
+    expect(screen.getAllByText('Freshly Added Gesha').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/Crisp bergamot and honey/i)).toBeDefined();
+  });
+
   it('loads review into edit mode and calls onUpdateTastingLog on save', async () => {
     const handleUpdate = vi.fn();
     render(

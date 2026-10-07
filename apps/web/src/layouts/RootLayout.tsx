@@ -32,7 +32,7 @@ export interface RootOutletContext {
   onAddRecipe: (recipe: Omit<BrewRecipe, 'id' | 'createdAt'>) => Promise<BrewRecipe>;
   onUpdateRecipe: (id: string, updates: Partial<BrewRecipe>) => Promise<BrewRecipe>;
   onDeleteRecipe: (id: string) => Promise<void>;
-  onAddTastingLog: (log: Omit<TastingLog, 'id' | 'createdAt'>) => Promise<void>;
+  onAddTastingLog: (log: Omit<TastingLog, 'id' | 'createdAt'>) => Promise<TastingLog | void>;
   onUpdateTastingLog: (id: string, updates: Partial<TastingLog>) => Promise<TastingLog | void>;
   onDeleteTastingLog: (id: string) => Promise<void>;
 }
@@ -199,7 +199,7 @@ export const RootLayout: React.FC = () => {
 
   const onAddTastingLog = useCallback(
     async (log: Omit<TastingLog, 'id' | 'createdAt'>) => {
-      await addTastingLog(log);
+      return await addTastingLog(log);
     },
     [addTastingLog]
   );
