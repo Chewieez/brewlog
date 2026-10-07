@@ -445,4 +445,30 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     expect(screen.getByText('Log New Brew Review')).toBeDefined();
     expect(screen.getAllByRole('button', { name: /Save Review/i }).length).toBeGreaterThan(0);
   });
+
+  it('renders Descriptors tab and accessible 5-star rating controls in form', () => {
+    render(
+      <ReviewsView
+        logs={[]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    // Open create form
+    const logReviewBtn = screen.getByRole('button', { name: /LOG FIRST REVIEW/i });
+    fireEvent.click(logReviewBtn);
+
+    // Check Descriptors tab exists and no Tag List button exists
+    expect(screen.getByRole('button', { name: /Descriptors/i })).toBeDefined();
+    expect(screen.queryByRole('button', { name: /Tag List/i })).toBeNull();
+
+    // Check accessible star rating groups and buttons
+    const starRatingGroups = screen.getAllByRole('group', { name: /Star rating/i });
+    expect(starRatingGroups.length).toBeGreaterThanOrEqual(1);
+
+    expect(screen.getAllByRole('button', { name: /Rate 5 stars/i }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByRole('button', { name: /Rate 1 star$/i }).length).toBeGreaterThanOrEqual(1);
+  });
 });

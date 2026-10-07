@@ -72,8 +72,8 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
 
   // Bean resolution
   const matchedBean = log.beanId ? beans.find((b) => b.id === log.beanId) : undefined;
-  const beanName = matchedBean?.name || log.beanNameSnapshot || 'Specialty Coffee';
-  const roaster = matchedBean?.roaster || log.roasterSnapshot || 'Artisan Roaster';
+  const beanName = log.beanNameSnapshot || matchedBean?.name || 'Specialty Coffee';
+  const roaster = log.roasterSnapshot || matchedBean?.roaster || 'Artisan Roaster';
 
   // Equipment resolution
   const matchedGrinder = log.grinderId
@@ -408,10 +408,15 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fade-in">
-          <div className="bg-panel border border-border-subtle rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-dialog-title"
+            className="bg-panel border border-border-subtle rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl"
+          >
             <div className="flex items-center gap-3 text-rose-400">
               <AlertTriangle className="w-6 h-6 shrink-0" />
-              <h2 className="text-lg font-bold text-zinc-100">
+              <h2 id="delete-dialog-title" className="text-lg font-bold text-zinc-100">
                 Delete Tasting Log
               </h2>
             </div>

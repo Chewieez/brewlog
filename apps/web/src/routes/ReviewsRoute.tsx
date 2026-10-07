@@ -49,7 +49,7 @@ export const ReviewsRoute: React.FC = () => {
       if (matchedRecipe) setSelectedRecipe(matchedRecipe);
     }
 
-    navigate('/');
+    navigate('/timer');
   };
 
   return (

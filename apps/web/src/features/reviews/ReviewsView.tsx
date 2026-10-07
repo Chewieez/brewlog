@@ -22,7 +22,7 @@ import {
   Sun,
   Wine,
   PieChart,
-  ListFilter,
+  Tag,
   CheckCircle2,
   Save,
   X,
@@ -735,13 +735,14 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 </div>
 
                 {/* 5-Star Rating Preview / Interactive Quick-Rate */}
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1" role="group" aria-label="Star rating">
                   {[1, 2, 3, 4, 5].map((s) => (
                     <button
                       key={s}
                       type="button"
                       onClick={() => setRating(s)}
                       className="p-1 cursor-pointer transition-transform hover:scale-110"
+                      aria-label={`Rate ${s} star${s > 1 ? 's' : ''}`}
                       title={`Rate ${s} stars`}
                     >
                       <Star
@@ -984,8 +985,8 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                           : 'text-text-secondary hover:text-zinc-100'
                       }`}
                     >
-                      <ListFilter className="w-3.5 h-3.5" />
-                      <span>Tag List</span>
+                      <Tag className="w-3.5 h-3.5" />
+                      <span>Descriptors</span>
                     </button>
 
                     <button
@@ -1208,13 +1209,14 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
                 <div className="flex items-center justify-between flex-wrap gap-4 pt-1">
                   {/* Star Rating */}
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center space-x-1" role="group" aria-label="Star rating">
                     <span className="text-xs text-text-secondary mr-1.5 font-medium">Rating:</span>
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         type="button"
                         onClick={() => setRating(star)}
+                        aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
                         className="p-1 cursor-pointer transition-transform hover:scale-110"
                       >
                         <Star

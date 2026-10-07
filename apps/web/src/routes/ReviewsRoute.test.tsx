@@ -4,7 +4,8 @@ import { render, screen, cleanup, fireEvent, act } from '@testing-library/react'
 import { MemoryRouter, Routes, Route, Outlet } from 'react-router';
 import { ReviewsRoute } from './ReviewsRoute';
 import { RootOutletContext } from '../layouts/RootLayout';
-import { TastingLog, INITIAL_BEANS, DEFAULT_PRESET_RECIPES } from '@brewlog/core';
+import { TastingLog, DEFAULT_PRESET_RECIPES } from '@brewlog/core';
+import { INITIAL_BEANS } from '../lib/sampleData';
 
 let mockOutletContext: Partial<RootOutletContext>;
 
@@ -14,7 +15,7 @@ const renderReviewsRoute = () => {
       <Routes>
         <Route element={<Outlet context={mockOutletContext} />}>
           <Route path="reviews" element={<ReviewsRoute />} />
-          <Route path="/" element={<div>Timer Home</div>} />
+          <Route path="timer" element={<div>Timer Page</div>} />
         </Route>
       </Routes>
     </MemoryRouter>
@@ -96,5 +97,52 @@ describe('ReviewsRoute', () => {
 
     expect(mockOutletContext.onAddTastingLog).toHaveBeenCalledTimes(1);
     expect(mockOutletContext.setPendingBrewSession).toHaveBeenCalledWith(null);
+  });
+
+  it('navigates directly to /timer and preselects bean and recipe on onBrewAgain', () => {
+    const existingLog: TastingLog = {
+      id: 'log-existing',
+      brewMethod: 'v60',
+      beanId: INITIAL_BEANS[0].id,
+      recipeId: DEFAULT_PRESET_RECIPES[0].id,
+      brewDate: '2026-10-06T12:00:00Z',
+      beanNameSnapshot: INITIAL_BEANS[0].name,
+      roasterSnapshot: INITIAL_BEANS[0].roaster,
+      recipeNameSnapshot: DEFAULT_PRESET_RECIPES[0].name,
+      coffeeDoseGrams: 15,
+      waterAmountGrams: 250,
+      actualTimeSeconds: 180,
+      grindSetting: '14 clicks',
+      waterTempCelsius: 93,
+      calculatedScaScore: 88,
+      rating: 5,
+      flavorTags: ['Floral'],
+      notes: 'Crisp floral notes.',
+      wouldBrewAgain: true,
+      scores: {
+        fragranceAroma: 8.5,
+        flavor: 8.5,
+        aftertaste: 8,
+        acidity: 8.5,
+        body: 8,
+        balance: 8,
+        cleanCup: 10,
+        sweetness: 10,
+        uniformity: 10,
+        overall: 8.5,
+      },
+      createdAt: '2026-10-06T12:00:00Z',
+    };
+
+    mockOutletContext.tastingLogs = [existingLog];
+
+    renderReviewsRoute();
+
+    const brewAgainBtn = screen.getByRole('button', { name: /Brew Again/i });
+    fireEvent.click(brewAgainBtn);
+
+    expect(mockOutletContext.setSelectedBean).toHaveBeenCalledWith(INITIAL_BEANS[0]);
+    expect(mockOutletContext.setSelectedRecipe).toHaveBeenCalledWith(DEFAULT_PRESET_RECIPES[0]);
+    expect(screen.getByText('Timer Page')).toBeDefined();
   });
 });

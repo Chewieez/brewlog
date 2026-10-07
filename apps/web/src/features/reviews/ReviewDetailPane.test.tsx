@@ -178,4 +178,61 @@ describe('ReviewDetailPane component', () => {
     fireEvent.click(confirmBtn);
     expect(handleDelete).toHaveBeenCalledWith(mockLog);
   });
+
+  it('prioritizes bean and roaster snapshots over stash beans', () => {
+    const stashBeans = [
+      {
+        id: 'bean-stash-1',
+        name: 'Stash Bean Name',
+        roaster: 'Stash Roaster',
+        origin: 'Colombia',
+        process: 'Washed' as const,
+        variety: 'Caturra',
+        elevationMeters: 1800,
+        roastLevel: 'light' as const,
+        flavorNotes: ['Caramel'],
+        inStash: true,
+        createdAt: '2026-01-01T00:00:00Z',
+      },
+    ];
+
+    const logWithSnapshots: TastingLog = {
+      ...mockLog,
+      beanId: 'bean-stash-1',
+      beanNameSnapshot: 'Historical Snapshot Bean',
+      roasterSnapshot: 'Historical Roaster',
+    };
+
+    render(
+      <ReviewDetailPane
+        log={logWithSnapshots}
+        beans={stashBeans}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('Historical Snapshot Bean')).toBeDefined();
+    expect(screen.getByText(/Historical Roaster/i)).toBeDefined();
+    expect(screen.queryByText('Stash Bean Name')).toBeNull();
+  });
+
+  it('renders delete confirmation modal with accessible dialog role and label', () => {
+    render(
+      <ReviewDetailPane
+        log={mockLog}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+      />
+    );
+
+    const deleteBtn = screen.getByRole('button', { name: /^Delete$/i });
+    fireEvent.click(deleteBtn);
+
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toBeDefined();
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(dialog.getAttribute('aria-labelledby')).toBe('delete-dialog-title');
+    expect(screen.getByRole('heading', { level: 2, name: /Delete Tasting Log/i })).toBeDefined();
+  });
 });
