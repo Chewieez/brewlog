@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -29,12 +29,23 @@ import {
   BrewStage,
   calculateWaterAmount,
   calculateRatio,
+  Equipment,
+  RecipeGrinderSetting,
+  GrinderSettingScale,
 } from '@brewlog/core';
 import { useRecipes } from '../RecipeContext';
+import { EquipmentContext, useOptionalEquipment } from '../../equipment/EquipmentContext';
 import { recalculateTiming, calculateTotalBrewTime } from '../utils/timingUtils';
 import { FONTS } from '../../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
+
+const SCALE_TYPE_OPTIONS: { label: string; value: GrinderSettingScale }[] = [
+  { label: 'Stepped Numbers', value: 'stepped-numbers' },
+  { label: 'Clicks', value: 'clicks' },
+  { label: 'Stepless', value: 'stepless' },
+  { label: 'Microns', value: 'microns' },
+];
 
 const METHODS: { label: string; value: BrewMethodType }[] = [
   { label: 'V60', value: 'v60' },
@@ -105,6 +116,18 @@ export const RecipeBuilderScreen: React.FC = () => {
     initialMethod?: string;
   }>();
   const { recipes, addRecipe, updateRecipe } = useRecipes();
+  const equipmentContext = useOptionalEquipment?.() ?? useContext(EquipmentContext);
+  const contextGrinders = equipmentContext?.grinders || [];
+  const addEquipment = equipmentContext?.addEquipment;
+
+  const [locallyAddedGrinders, setLocallyAddedGrinders] = useState<Equipment[]>([]);
+
+  const availableGrinders = React.useMemo(() => {
+    return [
+      ...contextGrinders,
+      ...locallyAddedGrinders.filter((lg) => !contextGrinders.some((cg) => cg.id === lg.id)),
+    ];
+  }, [contextGrinders, locallyAddedGrinders]);
 
   const sourceRecipe = editId
     ? recipes.find((r) => r.id === editId)
@@ -180,6 +203,34 @@ export const RecipeBuilderScreen: React.FC = () => {
       : parsedParamStages || DEFAULT_STAGES
   );
 
+  const [grinderSettings, setGrinderSettings] = useState<RecipeGrinderSetting[]>(() => {
+    if (sourceRecipe?.grinderSettings && sourceRecipe.grinderSettings.length > 0) {
+      return sourceRecipe.grinderSettings.filter((gs) =>
+        contextGrinders.some((g) => g.id === gs.grinderId)
+      );
+    }
+    if (
+      sourceRecipe?.recommendedGrinderId &&
+      contextGrinders.some((g) => g.id === sourceRecipe.recommendedGrinderId)
+    ) {
+      return [
+        {
+          grinderId: sourceRecipe.recommendedGrinderId,
+          setting: sourceRecipe.grindSize || '',
+        },
+      ];
+    }
+    return [];
+  });
+
+  const [isAddingInlineGrinder, setIsAddingInlineGrinder] = useState<boolean>(false);
+  const [inlineBrand, setInlineBrand] = useState<string>('');
+  const [inlineModel, setInlineModel] = useState<string>('');
+  const [inlineScale, setInlineScale] = useState<GrinderSettingScale>('stepped-numbers');
+  const [inlineError, setInlineError] = useState<string | null>(null);
+  const [isCreatingGrinder, setIsCreatingGrinder] = useState<boolean>(false);
+  const [activePickerRowIndex, setActivePickerRowIndex] = useState<number | null>(null);
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const coffeeDoseGrams = parseFloat(doseText) || 0;
@@ -239,6 +290,77 @@ export const RecipeBuilderScreen: React.FC = () => {
     setStages(patch.durationSeconds !== undefined ? recalculateTiming(updated) : updated);
   };
 
+  const handleSaveInlineGrinder = async () => {
+    const trimmedBrand = inlineBrand.trim();
+    const trimmedModel = inlineModel.trim();
+    if (!trimmedBrand || !trimmedModel) {
+      setInlineError('Please enter both brand and model for the grinder.');
+      return;
+    }
+    setInlineError(null);
+    setIsCreatingGrinder(true);
+    try {
+      let created: Equipment | undefined;
+      if (addEquipment) {
+        created = await addEquipment({
+          type: 'grinder',
+          brand: trimmedBrand,
+          model: trimmedModel,
+          settingScaleType: inlineScale,
+        });
+      }
+      const newGrinder: Equipment = created || {
+        id: `grinder-${Date.now()}`,
+        type: 'grinder',
+        brand: trimmedBrand,
+        model: trimmedModel,
+        settingScaleType: inlineScale,
+        createdAt: new Date().toISOString(),
+      };
+      setLocallyAddedGrinders((prev) => [...prev, newGrinder]);
+      setGrinderSettings([{ grinderId: newGrinder.id, setting: '' }]);
+      setIsAddingInlineGrinder(false);
+      setInlineBrand('');
+      setInlineModel('');
+      setInlineScale('stepped-numbers');
+    } catch (err: any) {
+      setInlineError(err?.message || 'Failed to add grinder.');
+    } finally {
+      setIsCreatingGrinder(false);
+    }
+  };
+
+  const handleAddGrinderSetting = () => {
+    if (availableGrinders.length === 0) return;
+    const unselected = availableGrinders.find(
+      (g) => !grinderSettings.some((gs) => gs.grinderId === g.id)
+    );
+    if (!unselected) return;
+    setGrinderSettings((prev) => [
+      ...prev,
+      { grinderId: unselected.id, setting: '' },
+    ]);
+  };
+
+  const handleUpdateGrinderSetting = (
+    index: number,
+    field: keyof RecipeGrinderSetting,
+    value: string
+  ) => {
+    setGrinderSettings((prev) => {
+      const updated = [...prev];
+      updated[index] = {
+        ...updated[index],
+        [field]: value,
+      };
+      return updated;
+    });
+  };
+
+  const handleRemoveGrinderSetting = (index: number) => {
+    setGrinderSettings((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSave = async () => {
     const trimmedName = name.trim();
     if (trimmedName.length === 0) {
@@ -273,6 +395,8 @@ export const RecipeBuilderScreen: React.FC = () => {
       description: description.trim(),
       notes: notes.trim() || undefined,
       stages,
+      grinderSettings,
+      recommendedGrinderId: grinderSettings[0]?.grinderId || undefined,
     };
 
     try {
@@ -502,6 +626,211 @@ export const RecipeBuilderScreen: React.FC = () => {
         </View>
       </View>
 
+      {/* Section 4: Grinder Settings */}
+      <View style={styles.sectionCard}>
+        <View style={styles.grinderHeaderRow}>
+          <View style={styles.grinderHeaderTitleContainer}>
+            <Text style={styles.sectionHeader}>GRINDER SETTINGS</Text>
+            <Text style={styles.sectionSubtitle}>
+              Configure dial settings for specific grinders in your setup.
+            </Text>
+          </View>
+          {availableGrinders.length > 0 &&
+            grinderSettings.length < availableGrinders.length && (
+              <Pressable
+                onPress={handleAddGrinderSetting}
+                style={styles.addGrinderSettingButton}
+                accessibilityRole="button"
+                accessibilityLabel="Add Grinder Setting"
+              >
+                <Plus size={14} color={colors.accent} />
+                <Text style={styles.addGrinderSettingButtonText}>+ Add Grinder Setting</Text>
+              </Pressable>
+            )}
+        </View>
+
+        {/* Case A: availableGrinders.length === 0 */}
+        {availableGrinders.length === 0 && (
+          <View style={styles.emptyGrindersCard}>
+            <Text style={styles.emptyGrindersText}>
+              No grinders added to equipment yet.
+            </Text>
+            {!isAddingInlineGrinder ? (
+              <Pressable
+                onPress={() => setIsAddingInlineGrinder(true)}
+                style={styles.inlineAddTriggerButton}
+                accessibilityRole="button"
+                accessibilityLabel="Add Grinder"
+              >
+                <Plus size={14} color={colors.accent} />
+                <Text style={styles.inlineAddTriggerButtonText}>+ Add Grinder</Text>
+              </Pressable>
+            ) : (
+              <View style={styles.inlineGrinderForm}>
+                {inlineError ? (
+                  <View style={styles.inlineErrorBanner}>
+                    <Text style={styles.inlineErrorText}>{inlineError}</Text>
+                  </View>
+                ) : null}
+
+                <Text style={styles.fieldLabel}>GRINDER BRAND *</Text>
+                <TextInput
+                  value={inlineBrand}
+                  onChangeText={setInlineBrand}
+                  placeholder="e.g. Fellow, Comandante"
+                  placeholderTextColor={colors.textMuted}
+                  accessibilityLabel="Grinder Brand"
+                  style={styles.textInput}
+                />
+
+                <Text style={styles.fieldLabel}>GRINDER MODEL *</Text>
+                <TextInput
+                  value={inlineModel}
+                  onChangeText={setInlineModel}
+                  placeholder="e.g. Ode Gen 2, C40 MK4"
+                  placeholderTextColor={colors.textMuted}
+                  accessibilityLabel="Grinder Model"
+                  style={styles.textInput}
+                />
+
+                <Text style={styles.fieldLabel}>DIAL SETTING FORMAT</Text>
+                <View style={styles.scaleTypeRow}>
+                  {SCALE_TYPE_OPTIONS.map((opt) => {
+                    const isSelected = inlineScale === opt.value;
+                    return (
+                      <Pressable
+                        key={opt.value}
+                        onPress={() => setInlineScale(opt.value)}
+                        style={[
+                          styles.scaleTypePill,
+                          isSelected
+                            ? styles.scaleTypePillActive
+                            : styles.scaleTypePillInactive,
+                        ]}
+                        accessibilityRole="button"
+                        accessibilityState={{ selected: isSelected }}
+                        accessibilityLabel={`Format ${opt.label}`}
+                      >
+                        <Text
+                          style={[
+                            styles.scaleTypePillText,
+                            isSelected
+                              ? styles.scaleTypePillTextActive
+                              : styles.scaleTypePillTextInactive,
+                          ]}
+                        >
+                          {opt.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+
+                <View style={styles.inlineFormButtonsRow}>
+                  <Pressable
+                    onPress={() => {
+                      setIsAddingInlineGrinder(false);
+                      setInlineError(null);
+                    }}
+                    style={styles.inlineCancelButton}
+                    accessibilityRole="button"
+                    accessibilityLabel="Cancel adding grinder"
+                  >
+                    <Text style={styles.inlineCancelButtonText}>Cancel</Text>
+                  </Pressable>
+
+                  <Pressable
+                    onPress={handleSaveInlineGrinder}
+                    disabled={isCreatingGrinder}
+                    style={styles.inlineSaveButton}
+                    accessibilityRole="button"
+                    accessibilityLabel="Save Grinder"
+                  >
+                    <Text style={styles.inlineSaveButtonText}>
+                      {isCreatingGrinder ? 'Saving...' : 'Save Grinder'}
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* Case B: availableGrinders.length > 0 */}
+        {availableGrinders.length > 0 && (
+          <View style={styles.grinderSettingsList}>
+            {grinderSettings.length === 0 ? (
+              <View style={styles.emptyGrinderSettingsRow}>
+                <Text style={styles.emptyGrinderSettingsText}>
+                  No grinder settings configured for this recipe.
+                </Text>
+              </View>
+            ) : (
+              grinderSettings.map((row, idx) => {
+                const currentGrinder = availableGrinders.find((g) => g.id === row.grinderId);
+                const grinderName = currentGrinder
+                  ? `${currentGrinder.brand} ${currentGrinder.model}`
+                  : 'Select Grinder';
+
+                return (
+                  <View key={`grinder-setting-${idx}`} style={styles.grinderSettingCard}>
+                    <View style={styles.grinderSettingTopRow}>
+                      <View style={styles.grinderBadgeContainer}>
+                        {idx === 0 && (
+                          <View style={styles.primaryBadge}>
+                            <Text style={styles.primaryBadgeText}>PRIMARY</Text>
+                          </View>
+                        )}
+                        <Text style={styles.grinderIndexText}>#{idx + 1}</Text>
+                      </View>
+
+                      <Pressable
+                        onPress={() => handleRemoveGrinderSetting(idx)}
+                        style={styles.removeGrinderButton}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Remove grinder ${idx + 1}`}
+                      >
+                        <Trash2 size={16} color={colors.statusError} />
+                      </Pressable>
+                    </View>
+
+                    {/* Grinder Picker Trigger */}
+                    <View style={styles.grinderPickerTriggerContainer}>
+                      <Text style={styles.fieldLabel}>GRINDER</Text>
+                      <Pressable
+                        onPress={() => setActivePickerRowIndex(idx)}
+                        style={styles.grinderPickerTrigger}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Grinder ${idx + 1}`}
+                      >
+                        <Text style={styles.grinderPickerTriggerText}>{grinderName}</Text>
+                        <ChevronDown size={14} color={colors.textSecondary} />
+                      </Pressable>
+                    </View>
+
+                    {/* Setting Input */}
+                    <View style={styles.grinderSettingInputContainer}>
+                      <Text style={styles.fieldLabel}>DIAL SETTING</Text>
+                      <TextInput
+                        value={row.setting}
+                        onChangeText={(val) =>
+                          handleUpdateGrinderSetting(idx, 'setting', val)
+                        }
+                        placeholder="e.g. 5.1, 24 clicks..."
+                        placeholderTextColor={colors.textMuted}
+                        accessibilityLabel={`Setting for Grinder ${idx + 1}`}
+                        numberOfLines={1}
+                        style={styles.textInput}
+                      />
+                    </View>
+                  </View>
+                );
+              })
+            )}
+          </View>
+        )}
+      </View>
+
       {/* Section 4: Stages */}
       <View style={styles.sectionCard}>
         <View style={styles.stagesHeaderRow}>
@@ -631,6 +960,60 @@ export const RecipeBuilderScreen: React.FC = () => {
         </Pressable>
       </View>
     </KeyboardAwareScrollView>
+
+    {/* Picker Modal Overlay */}
+    {activePickerRowIndex !== null && (
+      <View style={styles.pickerOverlay}>
+        <View style={styles.pickerCard}>
+          <Text style={styles.pickerTitle}>SELECT GRINDER</Text>
+          {availableGrinders.map((g) => {
+            const isSelectedInOtherRow = grinderSettings.some(
+              (gs, i) => i !== activePickerRowIndex && gs.grinderId === g.id
+            );
+            const isCurrent =
+              grinderSettings[activePickerRowIndex]?.grinderId === g.id;
+
+            return (
+              <Pressable
+                key={g.id}
+                disabled={isSelectedInOtherRow}
+                onPress={() => {
+                  handleUpdateGrinderSetting(activePickerRowIndex, 'grinderId', g.id);
+                  setActivePickerRowIndex(null);
+                }}
+                style={[
+                  styles.pickerOption,
+                  isCurrent && styles.pickerOptionCurrent,
+                  isSelectedInOtherRow && styles.pickerOptionDisabled,
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel={`Select ${g.brand} ${g.model}`}
+              >
+                <Text
+                  style={[
+                    styles.pickerOptionText,
+                    isCurrent && styles.pickerOptionTextCurrent,
+                    isSelectedInOtherRow && styles.pickerOptionTextDisabled,
+                  ]}
+                >
+                  {g.brand} {g.model}
+                  {g.settingScaleType ? ` (${g.settingScaleType})` : ''}
+                  {isSelectedInOtherRow ? ' (Already added)' : ''}
+                </Text>
+              </Pressable>
+            );
+          })}
+          <Pressable
+            onPress={() => setActivePickerRowIndex(null)}
+            style={styles.pickerCancelButton}
+            accessibilityRole="button"
+            accessibilityLabel="Cancel grinder selection"
+          >
+            <Text style={styles.pickerCancelText}>CANCEL</Text>
+          </Pressable>
+        </View>
+      </View>
+    )}
     </SafeAreaView>
   );
 };
@@ -932,5 +1315,302 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 12,
     color: colors.accent,
+  },
+  grinderHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+  grinderHeaderTitleContainer: {
+    flex: 1,
+  },
+  sectionSubtitle: {
+    fontFamily: FONTS.sansRegular,
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: -2,
+    marginBottom: 4,
+  },
+  addGrinderSettingButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.panelRecessed,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    minHeight: 36,
+  },
+  addGrinderSettingButtonText: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 11,
+    color: colors.accent,
+  },
+  emptyGrindersCard: {
+    backgroundColor: colors.panelRecessed,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    borderRadius: 8,
+    padding: 14,
+    gap: 12,
+  },
+  emptyGrindersText: {
+    fontFamily: FONTS.sansRegular,
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+  inlineAddTriggerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 6,
+    backgroundColor: colors.panel,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    minHeight: 36,
+  },
+  inlineAddTriggerButtonText: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 11,
+    color: colors.accent,
+  },
+  inlineGrinderForm: {
+    gap: 10,
+    paddingTop: 4,
+  },
+  inlineErrorBanner: {
+    backgroundColor: colors.panel,
+    borderWidth: 1,
+    borderColor: colors.statusError,
+    borderRadius: 6,
+    padding: 8,
+  },
+  inlineErrorText: {
+    fontFamily: FONTS.sansRegular,
+    fontSize: 12,
+    color: colors.statusError,
+  },
+  scaleTypeRow: {
+    flexDirection: 'row',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
+  scaleTypePill: {
+    minHeight: 36,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scaleTypePillActive: {
+    backgroundColor: colors.panelRecessed,
+    borderColor: colors.accent,
+  },
+  scaleTypePillInactive: {
+    backgroundColor: colors.panel,
+    borderColor: colors.borderSubtle,
+  },
+  scaleTypePillText: {
+    fontFamily: FONTS.monoRegular,
+    fontSize: 11,
+    color: colors.textSecondary,
+  },
+  scaleTypePillTextActive: {
+    fontFamily: FONTS.monoBold,
+    color: colors.accent,
+  },
+  scaleTypePillTextInactive: {
+    color: colors.textSecondary,
+  },
+  inlineFormButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 6,
+  },
+  inlineCancelButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    backgroundColor: colors.panel,
+    minHeight: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inlineCancelButtonText: {
+    fontFamily: FONTS.monoRegular,
+    fontSize: 11,
+    color: colors.textSecondary,
+  },
+  inlineSaveButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 6,
+    backgroundColor: colors.accent,
+    minHeight: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inlineSaveButtonText: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 11,
+    color: colors.canvas,
+  },
+  grinderSettingsList: {
+    gap: 12,
+  },
+  emptyGrinderSettingsRow: {
+    padding: 12,
+    backgroundColor: colors.panelRecessed,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    borderRadius: 6,
+  },
+  emptyGrinderSettingsText: {
+    fontFamily: FONTS.sansRegular,
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+  grinderSettingCard: {
+    backgroundColor: colors.panelRecessed,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    borderRadius: 8,
+    padding: 12,
+    gap: 10,
+  },
+  grinderSettingTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  grinderBadgeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  primaryBadge: {
+    backgroundColor: 'rgba(212, 163, 89, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 163, 89, 0.4)',
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  primaryBadgeText: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 10,
+    color: colors.accent,
+    letterSpacing: 0.8,
+  },
+  grinderIndexText: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 11,
+    color: colors.textMuted,
+  },
+  removeGrinderButton: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  grinderPickerTriggerContainer: {
+    gap: 4,
+  },
+  grinderPickerTrigger: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: colors.panel,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    borderRadius: 6,
+    minHeight: 44,
+    paddingHorizontal: 12,
+  },
+  grinderPickerTriggerText: {
+    fontFamily: FONTS.sansMedium,
+    fontSize: 13,
+    color: colors.textPrimary,
+  },
+  grinderSettingInputContainer: {
+    gap: 4,
+  },
+  pickerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    zIndex: 1000,
+  },
+  pickerCard: {
+    width: '100%',
+    maxWidth: 400,
+    backgroundColor: colors.panel,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    borderRadius: 12,
+    padding: 16,
+    gap: 10,
+  },
+  pickerTitle: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 12,
+    color: colors.accent,
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  pickerOption: {
+    minHeight: 44,
+    paddingHorizontal: 12,
+    justifyContent: 'center',
+    borderRadius: 6,
+    backgroundColor: colors.panelRecessed,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
+  pickerOptionCurrent: {
+    borderColor: colors.accent,
+  },
+  pickerOptionDisabled: {
+    opacity: 0.4,
+  },
+  pickerOptionText: {
+    fontFamily: FONTS.sansRegular,
+    fontSize: 13,
+    color: colors.textPrimary,
+  },
+  pickerOptionTextCurrent: {
+    fontFamily: FONTS.sansBold,
+    color: colors.accent,
+  },
+  pickerOptionTextDisabled: {
+    color: colors.textMuted,
+  },
+  pickerCancelButton: {
+    minHeight: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 6,
+    backgroundColor: colors.panelRecessed,
+    marginTop: 6,
+  },
+  pickerCancelText: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 11,
+    color: colors.textSecondary,
   },
 });

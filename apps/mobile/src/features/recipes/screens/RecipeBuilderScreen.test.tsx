@@ -3,8 +3,47 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { Alert } from 'react-native';
-import { DEFAULT_PRESET_RECIPES } from '@brewlog/core';
+import { DEFAULT_PRESET_RECIPES, Equipment } from '@brewlog/core';
 import { RecipeBuilderScreen } from './RecipeBuilderScreen';
+
+const sampleGrinder1: Equipment = {
+  id: 'grinder-1',
+  type: 'grinder',
+  brand: 'Fellow',
+  model: 'Ode Gen 2',
+  settingScaleType: 'stepped-numbers',
+  createdAt: '2026-01-01',
+};
+
+const sampleGrinder2: Equipment = {
+  id: 'grinder-2',
+  type: 'grinder',
+  brand: 'Comandante',
+  model: 'C40 MK4',
+  settingScaleType: 'clicks',
+  createdAt: '2026-01-01',
+};
+
+let activeEquipmentContext = {
+  equipment: [] as Equipment[],
+  grinders: [] as Equipment[],
+  brewers: [] as Equipment[],
+  scales: [] as Equipment[],
+  kettles: [] as Equipment[],
+  other: [] as Equipment[],
+  loading: false,
+  addEquipment: vi.fn(),
+  updateEquipment: vi.fn(),
+  deleteEquipment: vi.fn(),
+  toggleFavorite: vi.fn(),
+  refreshEquipment: vi.fn(),
+};
+
+vi.mock('../../equipment/EquipmentContext', () => ({
+  useEquipment: () => activeEquipmentContext,
+  useOptionalEquipment: () => activeEquipmentContext,
+  EquipmentContext: React.createContext(null),
+}));
 
 vi.mock('react-native-safe-area-context', () => ({
   SafeAreaView: ({ children, ...props }: any) => <div {...props}>{children}</div>,
@@ -150,6 +189,27 @@ describe('RecipeBuilderScreen', () => {
     mockParams = {};
     mockAddRecipe.mockResolvedValue({ id: 'new-rec-1' });
     mockUpdateRecipe.mockResolvedValue({ id: 'custom-1' });
+    mockContext.recipes = [mockCustomRecipe, ...DEFAULT_PRESET_RECIPES];
+    activeEquipmentContext = {
+      equipment: [],
+      grinders: [],
+      brewers: [],
+      scales: [],
+      kettles: [],
+      other: [],
+      loading: false,
+      addEquipment: vi.fn().mockImplementation((item) =>
+        Promise.resolve({
+          id: 'grinder-created-1',
+          createdAt: '2026-01-01',
+          ...item,
+        })
+      ),
+      updateEquipment: vi.fn(),
+      deleteEquipment: vi.fn(),
+      toggleFavorite: vi.fn(),
+      refreshEquipment: vi.fn(),
+    };
   });
 
   afterEach(() => {
@@ -456,5 +516,231 @@ describe('RecipeBuilderScreen', () => {
 
     expect(mockBack).not.toHaveBeenCalled();
     expect(mockReplace).toHaveBeenCalledWith('/(tabs)/recipes');
+  });
+
+  it('renders inline "+ Add Grinder" prompt when user has 0 grinders in equipment', () => {
+    activeEquipmentContext.grinders = [];
+    const { getByText, queryByText } = render(<RecipeBuilderScreen />);
+
+    expect(getByText(/no grinders added to equipment yet/i)).toBeDefined();
+    expect(getByText('+ Add Grinder')).toBeDefined();
+    expect(queryByText(/\+ add grinder setting/i)).toBeNull();
+  });
+
+  it('adds first grinder inline, updates equipment, and creates first grinder setting row', async () => {
+    activeEquipmentContext.grinders = [];
+    const { getByText, getByPlaceholderText, queryByPlaceholderText } = render(<RecipeBuilderScreen />);
+
+    // Click "+ Add Grinder" to expand form
+    fireEvent.click(getByText('+ Add Grinder'));
+
+    const brandInput = getByPlaceholderText('e.g. Fellow, Comandante');
+    const modelInput = getByPlaceholderText('e.g. Ode Gen 2, C40 MK4');
+    expect(brandInput).toBeDefined();
+    expect(modelInput).toBeDefined();
+
+    fireEvent.change(brandInput, { target: { value: 'Timemore' } });
+    fireEvent.change(modelInput, { target: { value: 'Chestnut C2' } });
+
+    // Select scale format 'Clicks'
+    fireEvent.click(getByText('Clicks'));
+
+    // Save inline grinder
+    fireEvent.click(getByText('Save Grinder'));
+
+    await waitFor(() => {
+      expect(activeEquipmentContext.addEquipment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'grinder',
+          brand: 'Timemore',
+          model: 'Chestnut C2',
+          settingScaleType: 'clicks',
+        })
+      );
+    });
+
+    // Form collapsed
+    expect(queryByPlaceholderText('e.g. Fellow, Comandante')).toBeNull();
+
+    // Grinder setting row 1 created with Primary badge
+    expect(getByText('Timemore Chestnut C2')).toBeDefined();
+    expect(getByText(/primary/i)).toBeDefined();
+    expect(document.querySelector('input[aria-label="Setting for Grinder 1"]')).toBeDefined();
+  });
+
+  it('preserves user input in recipe form when adding an inline grinder (no form reset on equipment update)', async () => {
+    activeEquipmentContext.grinders = [];
+    const { getByText, getByPlaceholderText } = render(<RecipeBuilderScreen />);
+
+    const nameInput = getByPlaceholderText('e.g. My Morning V60') as HTMLInputElement;
+    fireEvent.change(nameInput, { target: { value: 'My Ethiopian Pour Over' } });
+
+    const doseInput = document.querySelector('input[value="15"]') as HTMLInputElement;
+    fireEvent.change(doseInput, { target: { value: '18' } });
+
+    fireEvent.click(getByText('+ Add Grinder'));
+    fireEvent.change(getByPlaceholderText('e.g. Fellow, Comandante'), { target: { value: 'Comandante' } });
+    fireEvent.change(getByPlaceholderText('e.g. Ode Gen 2, C40 MK4'), { target: { value: 'C40 MK4' } });
+    fireEvent.click(getByText('Save Grinder'));
+
+    await waitFor(() => {
+      expect(getByText('Comandante C40 MK4')).toBeDefined();
+    });
+
+    expect(nameInput.value).toBe('My Ethiopian Pour Over');
+    expect(doseInput.value).toBe('18');
+  });
+
+  it('displays grinder selector, setting input, and allows adding another grinder setting when grinders exist', () => {
+    activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
+    const { getByText, queryByText } = render(<RecipeBuilderScreen />);
+
+    // Inline "+ Add Grinder" button should NOT be rendered when user already has grinders
+    expect(queryByText('+ Add Grinder')).toBeNull();
+
+    // "+ Add Grinder Setting" button should be available
+    const addSettingBtn = getByText('+ Add Grinder Setting');
+    fireEvent.click(addSettingBtn);
+
+    // Row 1 created with first available grinder
+    expect(getByText('Fellow Ode Gen 2')).toBeDefined();
+    const settingInput1 = document.querySelector('input[aria-label="Setting for Grinder 1"]') as HTMLInputElement;
+    expect(settingInput1).toBeDefined();
+
+    // Add another row
+    fireEvent.click(getByText('+ Add Grinder Setting'));
+
+    // Row 2 created with second grinder
+    expect(getByText('Comandante C40 MK4')).toBeDefined();
+    const settingInput2 = document.querySelector('input[aria-label="Setting for Grinder 2"]') as HTMLInputElement;
+    expect(settingInput2).toBeDefined();
+
+    // All available grinders are now configured, so "+ Add Grinder Setting" is hidden
+    expect(queryByText('+ Add Grinder Setting')).toBeNull();
+  });
+
+  it('displays "Primary" badge on the first grinder row only', () => {
+    activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
+    const { getByText, getAllByText } = render(<RecipeBuilderScreen />);
+
+    fireEvent.click(getByText('+ Add Grinder Setting'));
+    fireEvent.click(getByText('+ Add Grinder Setting'));
+
+    const primaryBadges = getAllByText(/primary/i);
+    expect(primaryBadges).toHaveLength(1);
+  });
+
+  it('removes a grinder row on delete button click', () => {
+    activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
+    const { getByText, getByLabelText, queryByText } = render(<RecipeBuilderScreen />);
+
+    fireEvent.click(getByText('+ Add Grinder Setting'));
+    fireEvent.click(getByText('+ Add Grinder Setting'));
+
+    expect(getByText('Fellow Ode Gen 2')).toBeDefined();
+    expect(getByText('Comandante C40 MK4')).toBeDefined();
+
+    // Remove row 1 (Fellow)
+    fireEvent.click(getByLabelText('Remove grinder 1'));
+
+    // Row 1 is removed; Comandante becomes the first row and is badged Primary
+    expect(queryByText('Fellow Ode Gen 2')).toBeNull();
+    expect(getByText('Comandante C40 MK4')).toBeDefined();
+    expect(getByText(/primary/i)).toBeDefined();
+
+    // Since only 1 of 2 is configured now, "+ Add Grinder Setting" reappears
+    expect(getByText('+ Add Grinder Setting')).toBeDefined();
+  });
+
+  it('saves recipe with grinderSettings array and syncs recommendedGrinderId to primary grinder', async () => {
+    activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
+    const { getByText, getByPlaceholderText } = render(<RecipeBuilderScreen />);
+
+    const nameInput = getByPlaceholderText('e.g. My Morning V60');
+    fireEvent.change(nameInput, { target: { value: 'Dual Grinder Profile' } });
+
+    fireEvent.click(getByText('+ Add Grinder Setting'));
+    const settingInput1 = document.querySelector('input[aria-label="Setting for Grinder 1"]') as HTMLInputElement;
+    fireEvent.change(settingInput1, { target: { value: '5.1' } });
+
+    fireEvent.click(getByText('+ Add Grinder Setting'));
+    const settingInput2 = document.querySelector('input[aria-label="Setting for Grinder 2"]') as HTMLInputElement;
+    fireEvent.change(settingInput2, { target: { value: '22 clicks' } });
+
+    fireEvent.click(getByText('SAVE'));
+
+    await waitFor(() => {
+      expect(mockAddRecipe).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Dual Grinder Profile',
+          grinderSettings: [
+            { grinderId: 'grinder-1', setting: '5.1' },
+            { grinderId: 'grinder-2', setting: '22 clicks' },
+          ],
+          recommendedGrinderId: 'grinder-1',
+        })
+      );
+    });
+  });
+
+  it('filters erased grinders from sourceRecipe.grinderSettings on initialization', () => {
+    const recipeWithErasedGrinder = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      id: 'erased-test-recipe',
+      name: 'Recipe with Erased Grinder',
+      grinderSettings: [
+        { grinderId: 'grinder-1', setting: '5.1' },
+        { grinderId: 'deleted-grinder-id', setting: '10' },
+      ],
+    };
+    mockContext.recipes = [recipeWithErasedGrinder, ...DEFAULT_PRESET_RECIPES];
+    mockParams = { editId: 'erased-test-recipe' };
+    activeEquipmentContext.grinders = [sampleGrinder1]; // deleted-grinder-id is not in active equipment
+
+    const { getByText, queryByText } = render(<RecipeBuilderScreen />);
+
+    expect(getByText('Fellow Ode Gen 2')).toBeDefined();
+    expect(queryByText('deleted-grinder-id')).toBeNull();
+    // Only 1 row is present
+    expect(document.querySelector('input[aria-label="Setting for Grinder 2"]')).toBeNull();
+  });
+
+  it('falls back to recommendedGrinderId if sourceRecipe has no grinderSettings', () => {
+    const legacyRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      id: 'legacy-recipe',
+      name: 'Legacy Recipe',
+      recommendedGrinderId: 'grinder-1',
+      grindSize: 'Medium-Fine',
+      grinderSettings: undefined,
+    };
+    mockContext.recipes = [legacyRecipe, ...DEFAULT_PRESET_RECIPES];
+    mockParams = { editId: 'legacy-recipe' };
+    activeEquipmentContext.grinders = [sampleGrinder1];
+
+    const { getByText } = render(<RecipeBuilderScreen />);
+
+    expect(getByText('Fellow Ode Gen 2')).toBeDefined();
+    const settingInput = document.querySelector('input[aria-label="Setting for Grinder 1"]') as HTMLInputElement;
+    expect(settingInput.value).toBe('Medium-Fine');
+  });
+
+  it('allows changing grinder via picker overlay', () => {
+    activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
+    const { getByText, getByLabelText, queryByText } = render(<RecipeBuilderScreen />);
+
+    fireEvent.click(getByText('+ Add Grinder Setting'));
+    expect(getByText('Fellow Ode Gen 2')).toBeDefined();
+
+    // Click grinder trigger to open picker overlay
+    fireEvent.click(getByLabelText('Grinder 1'));
+    expect(getByText('SELECT GRINDER')).toBeDefined();
+
+    // Select second grinder from overlay
+    fireEvent.click(getByLabelText('Select Comandante C40 MK4'));
+
+    // Overlay closes and row displays new grinder
+    expect(queryByText('SELECT GRINDER')).toBeNull();
+    expect(getByText('Comandante C40 MK4')).toBeDefined();
   });
 });
