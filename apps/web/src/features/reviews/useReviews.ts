@@ -105,18 +105,24 @@ export const useReviews = (): UseReviewsReturn => {
 
       if (error) {
         console.error("updateTastingLog error:", error);
-      } else if (data) {
+        throw error;
+      }
+
+      if (data) {
         const saved: TastingLog = mapTastingLogRowToDomain(data);
         setLogs((prev) => prev.map((l) => (l.id === id ? saved : l)));
         return saved;
       }
     } catch (err) {
       console.error("updateTastingLog exception:", err);
+      setLogs((prev) => prev.map((l) => (l.id === id ? existing : l)));
+      throw err;
     }
     return updatedLog;
   };
 
   const deleteTastingLog = async (id: string) => {
+    const existing = logs.find((l) => l.id === id);
     setLogs((prev) => prev.filter((l) => l.id !== id));
 
     if (!supabase || !user || id.startsWith("local-log-")) {
@@ -127,9 +133,14 @@ export const useReviews = (): UseReviewsReturn => {
       const { error } = await supabase.from("tasting_logs").delete().eq("id", id);
       if (error) {
         console.error("deleteTastingLog error:", error);
+        throw error;
       }
     } catch (err) {
       console.error("deleteTastingLog exception:", err);
+      if (existing) {
+        setLogs((prev) => (prev.some((l) => l.id === id) ? prev : [existing, ...prev]));
+      }
+      throw err;
     }
   };
 

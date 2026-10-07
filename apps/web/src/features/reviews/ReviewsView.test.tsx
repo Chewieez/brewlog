@@ -297,6 +297,35 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     );
   });
 
+  it('falls back to custom coffee when editing a review whose bean was removed from stash', async () => {
+    const orphanedBeanLog: TastingLog = {
+      ...sampleLog1,
+      id: 'log-orphaned-bean',
+      beanId: 'deleted-stash-bean-id',
+      beanNameSnapshot: 'Special Reserve Geisha',
+      roasterSnapshot: 'Tim Wendelboe',
+    };
+
+    render(
+      <ReviewsView
+        logs={[orphanedBeanLog]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const editBtn = screen.getByRole('button', { name: /^Edit$/i });
+    fireEvent.click(editBtn);
+
+    // Custom inputs should be rendered and populated with snapshots
+    const beanNameInput = screen.getByDisplayValue('Special Reserve Geisha');
+    const roasterInput = screen.getByDisplayValue('Tim Wendelboe');
+
+    expect(beanNameInput).toBeDefined();
+    expect(roasterInput).toBeDefined();
+  });
+
   it('preserves historical equipment snapshots when editing a review without matching stash equipment', async () => {
     const handleUpdate = vi.fn();
     const historicalLog: TastingLog = {

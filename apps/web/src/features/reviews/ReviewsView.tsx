@@ -241,7 +241,8 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
   const handleStartEdit = (log: TastingLog) => {
     setEditingLogId(log.id);
-    setSelectedBeanId(log.beanId || 'custom');
+    const hasBeanInStash = Boolean(log.beanId && (beans || []).some((b) => b.id === log.beanId));
+    setSelectedBeanId(hasBeanInStash ? (log.beanId as string) : 'custom');
     setCustomBeanName(log.beanNameSnapshot || '');
     setCustomRoaster(log.roasterSnapshot || '');
     setGrinderId(log.grinderId || '');
@@ -374,9 +375,13 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
   const handleDeleteLog = async (log: TastingLog) => {
     if (onDeleteTastingLog) {
-      await onDeleteTastingLog(log.id);
-      const remaining = logs.filter((l) => l.id !== log.id);
-      setSelectedLogId(remaining[0]?.id || null);
+      try {
+        await onDeleteTastingLog(log.id);
+        const remaining = logs.filter((l) => l.id !== log.id);
+        setSelectedLogId(remaining[0]?.id || null);
+      } catch (err) {
+        console.error('Failed to delete tasting log:', err);
+      }
     }
   };
 
