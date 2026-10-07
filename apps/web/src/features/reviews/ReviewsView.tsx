@@ -961,11 +961,11 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                   </div>
 
                   {/* Segmented Toggle: Descriptors first, Wheel second */}
-                  <div className="flex items-center space-x-1 p-1 rounded-lg bg-panel-recessed border border-border-subtle">
+                  <div className="flex items-center space-x-1 p-1 rounded bg-panel-recessed border border-border-subtle">
                     <button
                       type="button"
                       onClick={() => setFlavorViewMode('tags')}
-                      className={`flex items-center space-x-1.5 px-3 py-1 rounded-md text-xs font-medium cursor-pointer transition-all ${
+                      className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs font-medium cursor-pointer transition-all ${
                         flavorViewMode === 'tags'
                           ? 'bg-accent text-zinc-950 font-semibold shadow-xs'
                           : 'text-text-secondary hover:text-zinc-100'
@@ -978,7 +978,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setFlavorViewMode('wheel')}
-                      className={`flex items-center space-x-1.5 px-3 py-1 rounded-md text-xs font-medium cursor-pointer transition-all ${
+                      className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs font-medium cursor-pointer transition-all ${
                         flavorViewMode === 'wheel'
                           ? 'bg-accent text-zinc-950 font-semibold shadow-xs'
                           : 'text-text-secondary hover:text-zinc-100'

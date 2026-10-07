@@ -222,10 +222,10 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           <div className="text-sm font-semibold uppercase tracking-wider text-text-secondary">
             Sensory Profile
           </div>
-          <div className="flex items-center p-0.5 rounded-lg bg-panel-recessed border border-border-subtle">
+          <div className="flex items-center space-x-1 p-1 rounded bg-panel-recessed border border-border-subtle">
             <button
               onClick={() => setSensoryTab('descriptors')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-all cursor-pointer ${
                 sensoryTab === 'descriptors'
                   ? 'bg-accent text-zinc-950 font-semibold shadow-xs'
                   : 'text-text-secondary hover:text-zinc-100'
@@ -236,7 +236,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             </button>
             <button
               onClick={() => setSensoryTab('wheel')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-all cursor-pointer ${
                 sensoryTab === 'wheel'
                   ? 'bg-accent text-zinc-950 font-semibold shadow-xs'
                   : 'text-text-secondary hover:text-zinc-100'
