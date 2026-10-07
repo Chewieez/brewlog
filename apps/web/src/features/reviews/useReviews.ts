@@ -69,7 +69,12 @@ export const useReviews = (): UseReviewsReturn => {
       .select()
       .single();
 
-    if (!error && data) {
+    if (error) {
+      console.error("addTastingLog error:", error);
+      throw error;
+    }
+
+    if (data) {
       const created: TastingLog = mapTastingLogRowToDomain(data);
       setLogs((prev) => [created, ...prev]);
       return created;
