@@ -3,7 +3,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
 import { ReviewsView } from './ReviewsView';
 import { INITIAL_BEANS } from '../../lib/sampleData';
-import { DEFAULT_PRESET_RECIPES, Equipment, TastingLog } from '@brewlog/core';
+import { DEFAULT_PRESET_RECIPES, Equipment, TastingLog, BrewRecipe } from '@brewlog/core';
 
 const mockEquipment: Equipment[] = [
   {
@@ -184,5 +184,66 @@ describe('ReviewsView', () => {
 
     expect(screen.getByText(/Comandante C40 MK4 @ 18 clicks/)).toBeDefined();
     expect(screen.getByText('Hario V60 02 Ceramic')).toBeDefined();
+  });
+
+  it('pre-fills grinderId and grindSetting from primary grinder in pendingBrewSession', () => {
+    const recipeWithGrinders: BrewRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      grindSize: 'Medium',
+      grinderSettings: [
+        { grinderId: 'grinder-1', setting: '16 clicks' },
+        { grinderId: 'grinder-2', setting: '5.0' },
+      ],
+    };
+
+    render(
+      <ReviewsView
+        logs={[]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        pendingBrewSession={{
+          recipe: recipeWithGrinders,
+          actualTimeSeconds: 210,
+          bean: INITIAL_BEANS[0],
+        }}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const grinderSelect = screen.getByLabelText(/Grinder/i) as HTMLSelectElement;
+    const grindInput = screen.getByLabelText(/Grind Setting/i) as HTMLInputElement;
+
+    expect(grinderSelect.value).toBe('grinder-1');
+    expect(grindInput.value).toBe('16 clicks');
+  });
+
+  it('falls back to recipe grindSize when primary grinder in pendingBrewSession is not in equipment', () => {
+    const recipeWithUnknownGrinder: BrewRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      grindSize: 'Medium-Coarse',
+      grinderSettings: [
+        { grinderId: 'non-existent-grinder', setting: '10 clicks' },
+      ],
+    };
+
+    render(
+      <ReviewsView
+        logs={[]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        pendingBrewSession={{
+          recipe: recipeWithUnknownGrinder,
+          actualTimeSeconds: 210,
+          bean: INITIAL_BEANS[0],
+        }}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const grinderSelect = screen.getByLabelText(/Grinder/i) as HTMLSelectElement;
+    const grindInput = screen.getByLabelText(/Grind Setting/i) as HTMLInputElement;
+
+    expect(grinderSelect.value).toBe('');
+    expect(grindInput.value).toBe('Medium-Coarse');
   });
 });

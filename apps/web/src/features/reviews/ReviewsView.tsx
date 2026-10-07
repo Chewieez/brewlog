@@ -122,9 +122,20 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
   );
   const [customBeanName, setCustomBeanName] = useState<string>('');
   const [customRoaster, setCustomRoaster] = useState<string>('');
-  const [grinderId, setGrinderId] = useState<string>(
-    pendingBrewSession?.recipe.recommendedGrinderId || ''
+  const primaryGrinder = pendingBrewSession?.recipe.grinderSettings?.[0];
+  const isPrimaryInEquipment = Boolean(
+    primaryGrinder && (equipment || []).some((e) => e.id === primaryGrinder.grinderId)
   );
+
+  const initialGrinderId = isPrimaryInEquipment && primaryGrinder
+    ? primaryGrinder.grinderId
+    : (pendingBrewSession?.recipe.recommendedGrinderId || '');
+
+  const initialGrindSetting = isPrimaryInEquipment && primaryGrinder
+    ? (primaryGrinder.setting || pendingBrewSession?.recipe.grindSize || 'Medium-Fine')
+    : (pendingBrewSession?.recipe.grindSize || 'Medium-Fine');
+
+  const [grinderId, setGrinderId] = useState<string>(initialGrinderId);
   const [brewerId, setBrewerId] = useState<string>(
     pendingBrewSession?.recipe.recommendedBrewerId || ''
   );
@@ -132,7 +143,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
   const [coffeeDoseGrams, setCoffeeDoseGrams] = useState<number>(20);
   const [waterAmountGrams, setWaterAmountGrams] = useState<number>(300);
   const [actualTimeSeconds, setActualTimeSeconds] = useState<number>(210);
-  const [grindSetting, setGrindSetting] = useState<string>('Medium-Fine');
+  const [grindSetting, setGrindSetting] = useState<string>(initialGrindSetting);
   const [waterTempCelsius, setWaterTempCelsius] = useState<number>(93);
   const [notes, setNotes] = useState<string>('');
   const [rating, setRating] = useState<number>(0);
@@ -152,9 +163,24 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
         setCustomBeanName('Specialty Coffee');
         setCustomRoaster('Local Roaster');
       }
-      if (pendingBrewSession.recipe.recommendedGrinderId) {
-        setGrinderId(pendingBrewSession.recipe.recommendedGrinderId);
+
+      const primary = pendingBrewSession.recipe.grinderSettings?.[0];
+      const hasPrimaryInEquipment = Boolean(
+        primary && (equipment || []).some((e) => e.id === primary.grinderId)
+      );
+
+      if (hasPrimaryInEquipment && primary) {
+        setGrinderId(primary.grinderId);
+        setGrindSetting(primary.setting || pendingBrewSession.recipe.grindSize || 'Medium-Fine');
+      } else {
+        if (pendingBrewSession.recipe.recommendedGrinderId) {
+          setGrinderId(pendingBrewSession.recipe.recommendedGrinderId);
+        } else {
+          setGrinderId('');
+        }
+        setGrindSetting(pendingBrewSession.recipe.grindSize || 'Medium-Fine');
       }
+
       if (pendingBrewSession.recipe.recommendedBrewerId) {
         setBrewerId(pendingBrewSession.recipe.recommendedBrewerId);
       }
@@ -162,11 +188,10 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
       setCoffeeDoseGrams(pendingBrewSession.recipe.coffeeDoseGrams);
       setWaterAmountGrams(pendingBrewSession.recipe.waterAmountGrams);
       setActualTimeSeconds(pendingBrewSession.actualTimeSeconds);
-      setGrindSetting(pendingBrewSession.recipe.grindSize);
       setWaterTempCelsius(pendingBrewSession.recipe.waterTempCelsius);
       setNotes(`Brewed with ${pendingBrewSession.recipe.name}.`);
     }
-  }, [pendingBrewSession]);
+  }, [pendingBrewSession, equipment]);
 
   const scaScore = calculateScaScore(scores);
 
