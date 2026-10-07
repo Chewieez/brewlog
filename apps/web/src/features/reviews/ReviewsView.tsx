@@ -662,7 +662,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
             /* Review Editor (Create or Edit Mode) */
             <form onSubmit={handleSaveTastingLog} className="space-y-6 animate-fade-in pb-8">
               {/* Sticky In-Place Editor Header */}
-              <div className="sticky top-0 z-20 bg-canvas py-1 -mt-1">
+              <div className="sticky top-0 z-20 bg-canvas pt-1 pb-4 -mt-1 -mb-4">
                 <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <h2 className="text-xl font-bold tracking-tight text-zinc-100">
