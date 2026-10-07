@@ -44,7 +44,7 @@ export const ReviewsRoute: React.FC = () => {
       const matchedRecipe = recipes.find((r) => r.id === log.recipeId);
       if (matchedRecipe) setSelectedRecipe(matchedRecipe);
     } else if (log.brewMethod && recipes) {
-      const matchedRecipe = recipes.find((r) => r.method === log.brewMethod);
+      const matchedRecipe = recipes.find((r) => r.brewMethod === log.brewMethod);
       if (matchedRecipe) setSelectedRecipe(matchedRecipe);
     }
 

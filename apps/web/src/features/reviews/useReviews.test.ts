@@ -66,11 +66,14 @@ describe("useReviews hook", () => {
       newLog = await result.current.addReview({
         beanNameSnapshot: "Ethiopia Yirgacheffe",
         roasterSnapshot: "Subtext",
-        brewMethod: "V60",
+        recipeNameSnapshot: "V60 Standard",
+        brewMethod: "v60",
         brewDate: "2026-10-04",
         coffeeDoseGrams: 15,
         waterAmountGrams: 250,
         actualTimeSeconds: 180,
+        grindSetting: "Medium-Fine",
+        waterTempCelsius: 93,
         scores: {
           fragranceAroma: 8.5,
           flavor: 8.5,

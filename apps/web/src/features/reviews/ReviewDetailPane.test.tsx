@@ -9,6 +9,7 @@ const mockLog: TastingLog = {
   userId: 'user-1',
   beanNameSnapshot: 'Worka Sakaro',
   roasterSnapshot: 'Sey Coffee',
+  recipeNameSnapshot: 'V60 Standard',
   brewMethod: 'v60',
   brewDate: '2026-10-04T12:00:00Z',
   coffeeDoseGrams: 20,
