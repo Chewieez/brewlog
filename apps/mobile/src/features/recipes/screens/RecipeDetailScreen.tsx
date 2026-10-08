@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, ScrollView, Pressable, Alert, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Play, Copy, Edit2, Trash2 } from 'lucide-react-native';
 import {
   INDUSTRIAL_PRECISION_THEME,
   rescaleRecipeDose,
+  Equipment,
 } from '@brewlog/core';
 import { useRecipes } from '../RecipeContext';
+import { EquipmentContext, useOptionalEquipment } from '../../equipment/EquipmentContext';
 import { SpecsGrid } from '../components/SpecsGrid';
 import { DoseRescaler } from '../components/DoseRescaler';
 import { StagesTimeline } from '../components/StagesTimeline';
@@ -16,16 +18,31 @@ const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface RecipeDetailScreenProps {
   recipeId: string;
+  equipment?: Equipment[];
 }
 
-export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ recipeId }) => {
+export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
+  recipeId,
+  equipment: propEquipment,
+}) => {
   const router = useRouter();
   const { recipes, deleteRecipe, setActiveTimerRecipe } = useRecipes();
+  const equipmentContext = useOptionalEquipment?.() ?? useContext(EquipmentContext);
 
   const recipe = recipes.find((r) => r.id === recipeId);
   const [customDose, setCustomDose] = useState<number>(
     recipe ? Math.round(recipe.coffeeDoseGrams) : 15
   );
+
+  const userGrinders = propEquipment
+    ? propEquipment.filter((e) => !e.type || e.type === 'grinder')
+    : (equipmentContext?.grinders ?? equipmentContext?.equipment?.filter((e) => e.type === 'grinder') ?? []);
+
+  const activeGrinderSettings = (recipe?.grinderSettings || []).flatMap((setting) => {
+    const grinder = userGrinders.find((g) => g.id === setting.grinderId);
+    if (!grinder) return [];
+    return [{ setting, grinder }];
+  });
 
   if (!recipe) {
     return (
@@ -129,6 +146,36 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ recipeId
         baseDose={Math.round(recipe.coffeeDoseGrams)}
         onDoseChange={setCustomDose}
       />
+
+      <View style={styles.grinderCard}>
+        <View style={styles.grinderCardHeader}>
+          <Text style={styles.grinderCardTitle}>GRINDER SETTINGS</Text>
+        </View>
+
+        {activeGrinderSettings.length > 0 ? (
+          <View style={styles.grinderList}>
+            {activeGrinderSettings.map(({ setting, grinder }, index) => (
+              <View key={setting.grinderId} style={styles.grinderRow}>
+                <View style={styles.grinderInfo}>
+                  <Text style={styles.grinderText}>
+                    {grinder.brand} {grinder.model}: {setting.setting || recipe.grindSize}
+                  </Text>
+                  {index === 0 && (
+                    <View style={styles.primaryBadge}>
+                      <Text style={styles.primaryBadgeText}>PRIMARY</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <View style={styles.fallbackGrindRow}>
+            <Text style={styles.fallbackGrindLabel}>Grind Size: </Text>
+            <Text style={styles.fallbackGrindValue}>{recipe.grindSize}</Text>
+          </View>
+        )}
+      </View>
 
       <StagesTimeline stages={scaledRecipe.stages} />
 
@@ -323,5 +370,75 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.statusError,
     letterSpacing: 1,
+  },
+  grinderCard: {
+    backgroundColor: colors.panelRecessed,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    borderRadius: 8,
+    padding: 14,
+    gap: 10,
+  },
+  grinderCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  grinderCardTitle: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 11,
+    color: colors.textMuted,
+    letterSpacing: 1,
+  },
+  grinderList: {
+    gap: 8,
+  },
+  grinderRow: {
+    backgroundColor: colors.panel,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  grinderInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  grinderText: {
+    flex: 1,
+    fontFamily: FONTS.sansMedium,
+    fontSize: 13,
+    color: colors.textPrimary,
+  },
+  primaryBadge: {
+    backgroundColor: 'rgba(212, 163, 89, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 163, 89, 0.3)',
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  primaryBadgeText: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 10,
+    color: colors.accent,
+    letterSpacing: 0.8,
+  },
+  fallbackGrindRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  fallbackGrindLabel: {
+    fontFamily: FONTS.sansRegular,
+    fontSize: 13,
+    color: colors.textMuted,
+  },
+  fallbackGrindValue: {
+    fontFamily: FONTS.sansMedium,
+    fontSize: 13,
+    color: colors.textPrimary,
   },
 });

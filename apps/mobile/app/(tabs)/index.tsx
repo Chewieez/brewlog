@@ -9,6 +9,7 @@ import {
   TimerMode,
   SplitTag,
   splitsToRecipeStages,
+  BrewRecipe,
 } from '@brewlog/core';
 import { useRecipes } from '../../src/features/recipes/RecipeContext';
 import { useOptionalStash } from '../../src/features/stash/StashContext';
@@ -25,6 +26,77 @@ import { AVAILABLE_METHODS } from '../../src/utils/recipeUtils';
 import { mobileFeedback } from '../../src/lib/mobileFeedback';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
+
+export interface TimerReviewParamsInput {
+  activeRecipe: BrewRecipe;
+  activeTimerDose: number;
+  elapsedSeconds: number;
+  activeBrewBean?: { id: string } | null;
+  splits?: Array<{ label: string; second: number; intervalSeconds: number }>;
+}
+
+export function buildTimerReviewParams({
+  activeRecipe,
+  activeTimerDose,
+  elapsedSeconds,
+  activeBrewBean,
+  splits = [],
+}: TimerReviewParamsInput): Record<string, string> {
+  let formattedSplitsNotes: string | undefined;
+  if (splits.length > 0) {
+    const formattedSplits = splits
+      .map(
+        (s) =>
+          `• ${s.label}: ${Math.floor(s.second / 60)}:${String(s.second % 60).padStart(2, '0')} (+${s.intervalSeconds}s)`
+      )
+      .join('\n');
+    formattedSplitsNotes = `Free Brew Splits:\n${formattedSplits}`;
+  }
+
+  const reviewParams: Record<string, string> = {
+    fromTimer: 'true',
+    brewMethod: activeRecipe.brewMethod,
+    dose: String(activeTimerDose),
+    water: String(activeRecipe.waterAmountGrams),
+    actualTime: String(elapsedSeconds),
+  };
+
+  if (activeBrewBean?.id) {
+    reviewParams.beanId = activeBrewBean.id;
+  }
+  if (activeRecipe.id) {
+    reviewParams.recipeId = activeRecipe.id;
+    reviewParams.recipeName = activeRecipe.name;
+  }
+
+  const primaryGrinder = activeRecipe.grinderSettings?.[0];
+  if (primaryGrinder?.grinderId) {
+    reviewParams.grinderId = primaryGrinder.grinderId;
+    const grindVal = primaryGrinder.setting || activeRecipe.grindSize;
+    if (grindVal) {
+      reviewParams.grind = grindVal;
+    }
+  } else {
+    if (activeRecipe.recommendedGrinderId) {
+      reviewParams.grinderId = activeRecipe.recommendedGrinderId;
+    }
+    if (activeRecipe.grindSize) {
+      reviewParams.grind = activeRecipe.grindSize;
+    }
+  }
+
+  if (activeRecipe.waterTempCelsius) {
+    reviewParams.temp = String(activeRecipe.waterTempCelsius);
+  }
+  if (activeRecipe.recommendedBrewerId) {
+    reviewParams.brewerId = activeRecipe.recommendedBrewerId;
+  }
+  if (formattedSplitsNotes) {
+    reviewParams.notes = formattedSplitsNotes;
+  }
+
+  return reviewParams;
+}
 
 export default function TimerScreen() {
   const router = useRouter();
@@ -201,47 +273,13 @@ export default function TimerScreen() {
   };
 
   const handleAddReview = () => {
-    let formattedSplitsNotes: string | undefined;
-    if (splits.length > 0) {
-      const formattedSplits = splits
-        .map(
-          (s) =>
-            `• ${s.label}: ${Math.floor(s.second / 60)}:${String(s.second % 60).padStart(2, '0')} (+${s.intervalSeconds}s)`
-        )
-        .join('\n');
-      formattedSplitsNotes = `Free Brew Splits:\n${formattedSplits}`;
-    }
-
-    const reviewParams: Record<string, string> = {
-      fromTimer: 'true',
-      brewMethod: activeRecipe.brewMethod,
-      dose: String(activeTimerDose),
-      water: String(activeRecipe.waterAmountGrams),
-      actualTime: String(elapsedSeconds),
-    };
-
-    if (activeBrewBean?.id) {
-      reviewParams.beanId = activeBrewBean.id;
-    }
-    if (activeRecipe.id) {
-      reviewParams.recipeId = activeRecipe.id;
-      reviewParams.recipeName = activeRecipe.name;
-    }
-    if (activeRecipe.grindSize) {
-      reviewParams.grind = activeRecipe.grindSize;
-    }
-    if (activeRecipe.waterTempCelsius) {
-      reviewParams.temp = String(activeRecipe.waterTempCelsius);
-    }
-    if (activeRecipe.recommendedGrinderId) {
-      reviewParams.grinderId = activeRecipe.recommendedGrinderId;
-    }
-    if (activeRecipe.recommendedBrewerId) {
-      reviewParams.brewerId = activeRecipe.recommendedBrewerId;
-    }
-    if (formattedSplitsNotes) {
-      reviewParams.notes = formattedSplitsNotes;
-    }
+    const reviewParams = buildTimerReviewParams({
+      activeRecipe,
+      activeTimerDose,
+      elapsedSeconds,
+      activeBrewBean,
+      splits,
+    });
 
     router.push({
       pathname: '/reviews/modal',
