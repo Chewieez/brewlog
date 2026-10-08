@@ -1,13 +1,17 @@
 import { describe, it, expect } from 'vitest';
+// @ts-expect-error node:fs has no types in client tsconfig
 import * as fs from 'node:fs';
+// @ts-expect-error node:path has no types in client tsconfig
 import * as path from 'node:path';
+
+const proc = (globalThis as unknown as { process: { cwd: () => string } }).process;
 
 describe('Mobile Button Icon and Text Formatting', () => {
   function getComponentFiles(dir: string): string[] {
     let results: string[] = [];
     if (!fs.existsSync(dir)) return results;
     const list = fs.readdirSync(dir);
-    list.forEach((file) => {
+    list.forEach((file: any) => {
       const full = path.join(dir, file);
       const stat = fs.statSync(full);
       if (stat && stat.isDirectory()) {
@@ -22,15 +26,19 @@ describe('Mobile Button Icon and Text Formatting', () => {
   }
 
   it('ensures no button or Pressable in mobile components has both a Plus icon and a literal "+" text character', () => {
-    const mobileSrcDir = path.resolve(__dirname, './');
-    const mobileAppDir = path.resolve(__dirname, '../app');
+    const mobileSrcDir = fs.existsSync(path.resolve(proc.cwd(), 'src'))
+      ? path.resolve(proc.cwd(), 'src')
+      : path.resolve(proc.cwd(), 'apps/mobile/src');
+    const mobileAppDir = fs.existsSync(path.resolve(proc.cwd(), 'app'))
+      ? path.resolve(proc.cwd(), 'app')
+      : path.resolve(proc.cwd(), 'apps/mobile/app');
     const files = [...getComponentFiles(mobileSrcDir), ...getComponentFiles(mobileAppDir)];
     expect(files.length).toBeGreaterThan(0);
 
     const buttonRegex = /<(button|Pressable|TouchableOpacity)[\s\S]*?<\/\1>/g;
     const violations: { file: string; line: number; snippet: string }[] = [];
 
-    files.forEach((file) => {
+    files.forEach((file: string) => {
       const content = fs.readFileSync(file, 'utf-8');
 
       let match: RegExpExecArray | null;
@@ -43,7 +51,7 @@ describe('Mobile Button Icon and Text Formatting', () => {
           const offset = match.index;
           const lineNumber = content.substring(0, offset).split('\n').length;
           violations.push({
-            file: path.relative(process.cwd(), file),
+            file: path.relative(proc.cwd(), file),
             line: lineNumber,
             snippet: block.replace(/\s+/g, ' ').substring(0, 120),
           });
