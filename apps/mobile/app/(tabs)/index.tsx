@@ -10,9 +10,11 @@ import {
   SplitTag,
   splitsToRecipeStages,
   BrewRecipe,
+  Equipment,
 } from '@brewlog/core';
 import { useRecipes } from '../../src/features/recipes/RecipeContext';
 import { useOptionalStash } from '../../src/features/stash/StashContext';
+import { useOptionalEquipment } from '../../src/features/equipment/EquipmentContext';
 import { ActiveBeanPill } from '../../src/features/stash/components/ActiveBeanPill';
 import { useMobileBrewTimer } from '../../src/hooks/useMobileBrewTimer';
 import { MethodPills } from '../../src/components/timer/MethodPills';
@@ -33,6 +35,7 @@ export interface TimerReviewParamsInput {
   elapsedSeconds: number;
   activeBrewBean?: { id: string } | null;
   splits?: Array<{ label: string; second: number; intervalSeconds: number }>;
+  equipment?: Equipment[];
 }
 
 export function buildTimerReviewParams({
@@ -41,6 +44,7 @@ export function buildTimerReviewParams({
   elapsedSeconds,
   activeBrewBean,
   splits = [],
+  equipment,
 }: TimerReviewParamsInput): Record<string, string> {
   let formattedSplitsNotes: string | undefined;
   if (splits.length > 0) {
@@ -70,14 +74,23 @@ export function buildTimerReviewParams({
   }
 
   const primaryGrinder = activeRecipe.grinderSettings?.[0];
-  if (primaryGrinder?.grinderId) {
+  const isPrimaryInEquipment = Boolean(
+    primaryGrinder?.grinderId &&
+    (!equipment || equipment.some((e) => e.id === primaryGrinder.grinderId))
+  );
+
+  if (isPrimaryInEquipment && primaryGrinder) {
     reviewParams.grinderId = primaryGrinder.grinderId;
     const grindVal = primaryGrinder.setting || activeRecipe.grindSize;
     if (grindVal) {
       reviewParams.grind = grindVal;
     }
   } else {
-    if (activeRecipe.recommendedGrinderId) {
+    const isRecommendedInEquipment = Boolean(
+      activeRecipe.recommendedGrinderId &&
+      (!equipment || equipment.some((e) => e.id === activeRecipe.recommendedGrinderId))
+    );
+    if (isRecommendedInEquipment && activeRecipe.recommendedGrinderId) {
       reviewParams.grinderId = activeRecipe.recommendedGrinderId;
     }
     if (activeRecipe.grindSize) {
@@ -106,6 +119,9 @@ export default function TimerScreen() {
   const activeBrewBean = stash?.activeBrewBean ?? null;
   const setActiveBrewBean = stash?.setActiveBrewBean ?? (() => {});
   const deductBeanDose = stash?.deductBeanDose ?? (async () => {});
+
+  const equipmentContext = useOptionalEquipment();
+  const equipment = equipmentContext?.equipment;
 
   const [timerMode, setTimerMode] = useState<TimerMode>('recipe');
   const [isFreeBrewFinished, setIsFreeBrewFinished] = useState<boolean>(false);
@@ -279,6 +295,7 @@ export default function TimerScreen() {
       elapsedSeconds,
       activeBrewBean,
       splits,
+      equipment,
     });
 
     router.push({

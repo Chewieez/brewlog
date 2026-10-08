@@ -426,5 +426,57 @@ describe('buildTimerReviewParams', () => {
     expect(params.grinderId).toBe('rec-grinder-42');
     expect(params.grind).toBe('Medium-Coarse');
   });
+
+  it('falls back to activeRecipe.grindSize and does not prefill erased primary grinder when absent from equipment', () => {
+    const activeRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      grindSize: 'Medium-Fine',
+      recommendedGrinderId: 'fallback-valid-grinder',
+      grinderSettings: [
+        { grinderId: 'erased-grinder-999', setting: '2.5' },
+      ],
+    };
+
+    const mockEquipment: Equipment[] = [
+      {
+        id: 'fallback-valid-grinder',
+        type: 'grinder',
+        brand: 'Timemore',
+        model: 'C2',
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    ];
+
+    const params = buildTimerReviewParams({
+      activeRecipe,
+      activeTimerDose: 15,
+      elapsedSeconds: 150,
+      equipment: mockEquipment,
+    });
+
+    expect(params.grinderId).toBe('fallback-valid-grinder');
+    expect(params.grind).toBe('Medium-Fine');
+  });
+
+  it('omits grinderId entirely when both primary and recommended grinders are absent from equipment', () => {
+    const activeRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      grindSize: 'Medium',
+      recommendedGrinderId: 'also-erased-grinder',
+      grinderSettings: [
+        { grinderId: 'erased-grinder-999', setting: '2.5' },
+      ],
+    };
+
+    const params = buildTimerReviewParams({
+      activeRecipe,
+      activeTimerDose: 15,
+      elapsedSeconds: 150,
+      equipment: [],
+    });
+
+    expect(params.grinderId).toBeUndefined();
+    expect(params.grind).toBe('Medium');
+  });
 });
 
