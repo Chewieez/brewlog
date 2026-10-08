@@ -73,13 +73,11 @@ export function buildTimerReviewParams({
     reviewParams.recipeName = activeRecipe.name;
   }
 
-  const primaryGrinder = activeRecipe.grinderSettings?.[0];
-  const isPrimaryInEquipment = Boolean(
-    primaryGrinder?.grinderId &&
-    (!equipment || equipment.some((e) => e.id === primaryGrinder.grinderId))
+  const primaryGrinder = activeRecipe.grinderSettings?.find(
+    (gs) => gs.grinderId && (!equipment || equipment.some((e) => e.id === gs.grinderId))
   );
 
-  if (isPrimaryInEquipment && primaryGrinder) {
+  if (primaryGrinder) {
     reviewParams.grinderId = primaryGrinder.grinderId;
     const grindVal = primaryGrinder.setting || activeRecipe.grindSize;
     if (grindVal) {

@@ -122,16 +122,21 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
   );
   const [customBeanName, setCustomBeanName] = useState<string>('');
   const [customRoaster, setCustomRoaster] = useState<string>('');
-  const primaryGrinder = pendingBrewSession?.recipe.grinderSettings?.[0];
-  const isPrimaryInEquipment = Boolean(
-    primaryGrinder && (equipment || []).some((e) => e.id === primaryGrinder.grinderId)
+  const primaryGrinder = pendingBrewSession?.recipe.grinderSettings?.find((gs) =>
+    (equipment || []).some((e) => e.id === gs.grinderId)
+  );
+  const isRecommendedInEquipment = Boolean(
+    pendingBrewSession?.recipe.recommendedGrinderId &&
+    (equipment || []).some((e) => e.id === pendingBrewSession.recipe.recommendedGrinderId)
   );
 
-  const initialGrinderId = isPrimaryInEquipment && primaryGrinder
+  const initialGrinderId = primaryGrinder
     ? primaryGrinder.grinderId
-    : (pendingBrewSession?.recipe.recommendedGrinderId || '');
+    : isRecommendedInEquipment && pendingBrewSession?.recipe.recommendedGrinderId
+    ? pendingBrewSession.recipe.recommendedGrinderId
+    : '';
 
-  const initialGrindSetting = isPrimaryInEquipment && primaryGrinder
+  const initialGrindSetting = primaryGrinder
     ? (primaryGrinder.setting || pendingBrewSession?.recipe.grindSize || 'Medium-Fine')
     : (pendingBrewSession?.recipe.grindSize || 'Medium-Fine');
 
@@ -164,16 +169,19 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
         setCustomRoaster('Local Roaster');
       }
 
-      const primary = pendingBrewSession.recipe.grinderSettings?.[0];
-      const hasPrimaryInEquipment = Boolean(
-        primary && (equipment || []).some((e) => e.id === primary.grinderId)
+      const primary = pendingBrewSession.recipe.grinderSettings?.find((gs) =>
+        (equipment || []).some((e) => e.id === gs.grinderId)
+      );
+      const isRecInEquipment = Boolean(
+        pendingBrewSession.recipe.recommendedGrinderId &&
+        (equipment || []).some((e) => e.id === pendingBrewSession.recipe.recommendedGrinderId)
       );
 
-      if (hasPrimaryInEquipment && primary) {
+      if (primary) {
         setGrinderId(primary.grinderId);
         setGrindSetting(primary.setting || pendingBrewSession.recipe.grindSize || 'Medium-Fine');
       } else {
-        if (pendingBrewSession.recipe.recommendedGrinderId) {
+        if (isRecInEquipment && pendingBrewSession.recipe.recommendedGrinderId) {
           setGrinderId(pendingBrewSession.recipe.recommendedGrinderId);
         } else {
           setGrinderId('');

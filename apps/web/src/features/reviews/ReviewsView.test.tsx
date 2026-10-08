@@ -246,4 +246,35 @@ describe('ReviewsView', () => {
     expect(grinderSelect.value).toBe('');
     expect(grindInput.value).toBe('Medium-Coarse');
   });
+
+  it('pre-fills remaining active grinder when the first grinder in grinderSettings was deleted from equipment', () => {
+    const recipeWithDeletedAndActiveGrinder: BrewRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      grindSize: 'Medium',
+      grinderSettings: [
+        { grinderId: 'deleted-grinder-999', setting: '3.0' },
+        { grinderId: 'grinder-1', setting: '18 clicks' },
+      ],
+    };
+
+    render(
+      <ReviewsView
+        logs={[]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        pendingBrewSession={{
+          recipe: recipeWithDeletedAndActiveGrinder,
+          actualTimeSeconds: 210,
+          bean: INITIAL_BEANS[0],
+        }}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const grinderSelect = screen.getByLabelText(/Grinder/i) as HTMLSelectElement;
+    const grindInput = screen.getByLabelText(/Grind Setting/i) as HTMLInputElement;
+
+    expect(grinderSelect.value).toBe('grinder-1');
+    expect(grindInput.value).toBe('18 clicks');
+  });
 });

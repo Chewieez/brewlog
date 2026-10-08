@@ -478,5 +478,37 @@ describe('buildTimerReviewParams', () => {
     expect(params.grinderId).toBeUndefined();
     expect(params.grind).toBe('Medium');
   });
+
+  it('prefills remaining active grinder when first grinder in grinderSettings is erased but subsequent grinder is in equipment', () => {
+    const activeRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      grindSize: 'Medium',
+      recommendedGrinderId: 'fallback-grinder',
+      grinderSettings: [
+        { grinderId: 'erased-grinder-1', setting: '2.5' },
+        { grinderId: 'active-grinder-2', setting: '18 clicks' },
+      ],
+    };
+
+    const mockEquipment: Equipment[] = [
+      {
+        id: 'active-grinder-2',
+        type: 'grinder',
+        brand: 'Comandante',
+        model: 'C40 MK4',
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    ];
+
+    const params = buildTimerReviewParams({
+      activeRecipe,
+      activeTimerDose: 15,
+      elapsedSeconds: 150,
+      equipment: mockEquipment,
+    });
+
+    expect(params.grinderId).toBe('active-grinder-2');
+    expect(params.grind).toBe('18 clicks');
+  });
 });
 

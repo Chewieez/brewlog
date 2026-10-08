@@ -68,9 +68,11 @@ vi.mock('react-native', () => ({
     children,
     style,
     horizontal,
-    showsHorizontalScrollIndicator,
+    showsHorizontalScrollIndicator: _showsHorizontalScrollIndicator,
+    showsVerticalScrollIndicator: _showsVerticalScrollIndicator,
     contentContainerStyle,
     keyboardShouldPersistTaps: _keyboardShouldPersistTaps,
+    nestedScrollEnabled: _nestedScrollEnabled,
     ...props
   }: any) => <div {...props}>{children}</div>,
   Pressable: ({
@@ -742,5 +744,17 @@ describe('RecipeBuilderScreen', () => {
     // Overlay closes and row displays new grinder
     expect(queryByText('SELECT GRINDER')).toBeNull();
     expect(getByText('Comandante C40 MK4')).toBeDefined();
+  });
+
+  it('renders grinder options inside scrollable picker overlay', () => {
+    activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
+    const { getByText, getByLabelText } = render(<RecipeBuilderScreen />);
+
+    fireEvent.click(getByText('+ Add Grinder Setting'));
+    fireEvent.click(getByLabelText('Grinder 1'));
+
+    expect(getByText('SELECT GRINDER')).toBeDefined();
+    expect(getByLabelText('Select Fellow Ode Gen 2')).toBeDefined();
+    expect(getByLabelText('Select Comandante C40 MK4')).toBeDefined();
   });
 });

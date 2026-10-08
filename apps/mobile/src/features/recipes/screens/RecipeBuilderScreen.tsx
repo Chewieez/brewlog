@@ -966,43 +966,50 @@ export const RecipeBuilderScreen: React.FC = () => {
       <View style={styles.pickerOverlay}>
         <View style={styles.pickerCard}>
           <Text style={styles.pickerTitle}>SELECT GRINDER</Text>
-          {availableGrinders.map((g) => {
-            const isSelectedInOtherRow = grinderSettings.some(
-              (gs, i) => i !== activePickerRowIndex && gs.grinderId === g.id
-            );
-            const isCurrent =
-              grinderSettings[activePickerRowIndex]?.grinderId === g.id;
+          <ScrollView
+            style={styles.pickerScrollView}
+            contentContainerStyle={styles.pickerScrollViewContent}
+            nestedScrollEnabled
+            showsVerticalScrollIndicator
+          >
+            {availableGrinders.map((g) => {
+              const isSelectedInOtherRow = grinderSettings.some(
+                (gs, i) => i !== activePickerRowIndex && gs.grinderId === g.id
+              );
+              const isCurrent =
+                grinderSettings[activePickerRowIndex]?.grinderId === g.id;
 
-            return (
-              <Pressable
-                key={g.id}
-                disabled={isSelectedInOtherRow}
-                onPress={() => {
-                  handleUpdateGrinderSetting(activePickerRowIndex, 'grinderId', g.id);
-                  setActivePickerRowIndex(null);
-                }}
-                style={[
-                  styles.pickerOption,
-                  isCurrent && styles.pickerOptionCurrent,
-                  isSelectedInOtherRow && styles.pickerOptionDisabled,
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel={`Select ${g.brand} ${g.model}`}
-              >
-                <Text
+              return (
+                <Pressable
+                  key={g.id}
+                  disabled={isSelectedInOtherRow}
+                  onPress={() => {
+                    handleUpdateGrinderSetting(activePickerRowIndex, 'grinderId', g.id);
+                    setActivePickerRowIndex(null);
+                  }}
                   style={[
-                    styles.pickerOptionText,
-                    isCurrent && styles.pickerOptionTextCurrent,
-                    isSelectedInOtherRow && styles.pickerOptionTextDisabled,
+                    styles.pickerOption,
+                    isCurrent && styles.pickerOptionCurrent,
+                    isSelectedInOtherRow && styles.pickerOptionDisabled,
                   ]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Select ${g.brand} ${g.model}`}
                 >
-                  {g.brand} {g.model}
-                  {g.settingScaleType ? ` (${g.settingScaleType})` : ''}
-                  {isSelectedInOtherRow ? ' (Already added)' : ''}
-                </Text>
-              </Pressable>
-            );
-          })}
+                  <Text
+                    style={[
+                      styles.pickerOptionText,
+                      isCurrent && styles.pickerOptionTextCurrent,
+                      isSelectedInOtherRow && styles.pickerOptionTextDisabled,
+                    ]}
+                  >
+                    {g.brand} {g.model}
+                    {g.settingScaleType ? ` (${g.settingScaleType})` : ''}
+                    {isSelectedInOtherRow ? ' (Already added)' : ''}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
           <Pressable
             onPress={() => setActivePickerRowIndex(null)}
             style={styles.pickerCancelButton}
@@ -1572,6 +1579,12 @@ const styles = StyleSheet.create({
     color: colors.accent,
     letterSpacing: 1,
     marginBottom: 4,
+  },
+  pickerScrollView: {
+    maxHeight: 300,
+  },
+  pickerScrollViewContent: {
+    gap: 10,
   },
   pickerOption: {
     minHeight: 44,
