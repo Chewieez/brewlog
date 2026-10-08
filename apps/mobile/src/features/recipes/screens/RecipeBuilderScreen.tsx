@@ -629,12 +629,7 @@ export const RecipeBuilderScreen: React.FC = () => {
       {/* Section 4: Grinder Settings */}
       <View style={styles.sectionCard}>
         <View style={styles.grinderHeaderRow}>
-          <View style={styles.grinderHeaderTitleContainer}>
-            <Text style={styles.sectionHeader}>GRINDER SETTINGS</Text>
-            <Text style={styles.sectionSubtitle}>
-              Configure dial settings for specific grinders in your setup.
-            </Text>
-          </View>
+          <Text style={styles.sectionHeader}>GRINDER SETTINGS</Text>
           {availableGrinders.length > 0 &&
             grinderSettings.length < availableGrinders.length && (
               <Pressable
@@ -1326,7 +1321,7 @@ const styles = StyleSheet.create({
   grinderHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: 8,
   },
   grinderHeaderTitleContainer: {

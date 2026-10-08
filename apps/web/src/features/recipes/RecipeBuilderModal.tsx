@@ -591,9 +591,6 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                   <h4 className="text-xs font-bold text-text-primary uppercase tracking-wider">
                     Grinder Dial Settings
                   </h4>
-                  <p className="text-[11px] text-text-secondary">
-                    Configure dial settings for specific grinders in your setup.
-                  </p>
                 </div>
                 {userGrinders.length > 0 &&
                   grinderSettings.length > 0 &&
