@@ -5,7 +5,7 @@ import {
   mapEquipmentDomainToInsert,
 } from "@brewlog/supabase";
 import { supabase } from "../../lib/supabase";
-import { useOptionalAuth } from "../auth/AuthContext";
+import { useAuth } from "../auth/AuthContext";
 
 const STORAGE_KEY = "brewlog_equipment_cache";
 
@@ -33,8 +33,7 @@ const saveLocalEquipment = (items: Equipment[]) => {
 };
 
 export const useEquipment = () => {
-  const auth = useOptionalAuth();
-  const user = auth?.user ?? null;
+  const { user } = useAuth();
   const [equipment, setEquipment] = useState<Equipment[]>(loadLocalEquipment);
   const [loading, setLoading] = useState(false);
 
