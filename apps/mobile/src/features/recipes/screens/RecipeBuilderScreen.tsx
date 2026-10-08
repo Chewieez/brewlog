@@ -644,7 +644,7 @@ export const RecipeBuilderScreen: React.FC = () => {
                 accessibilityLabel="Add Grinder Setting"
               >
                 <Plus size={14} color={colors.accent} />
-                <Text style={styles.addGrinderSettingButtonText}>+ Add Grinder Setting</Text>
+                <Text style={styles.addGrinderSettingButtonText}>ADD GRINDER SETTING</Text>
               </Pressable>
             )}
         </View>
@@ -663,7 +663,7 @@ export const RecipeBuilderScreen: React.FC = () => {
                 accessibilityLabel="Add Grinder"
               >
                 <Plus size={14} color={colors.accent} />
-                <Text style={styles.inlineAddTriggerButtonText}>+ Add Grinder</Text>
+                <Text style={styles.inlineAddTriggerButtonText}>ADD GRINDER</Text>
               </Pressable>
             ) : (
               <View style={styles.inlineGrinderForm}>

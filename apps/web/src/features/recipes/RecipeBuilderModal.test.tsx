@@ -219,7 +219,7 @@ describe('RecipeBuilderModal', () => {
       />
     );
 
-    const triggerBtn = screen.getByRole('button', { name: /\+ add grinder/i });
+    const triggerBtn = screen.getByRole('button', { name: /add grinder/i });
     expect(triggerBtn).toBeDefined();
 
     // Expand creation form
@@ -261,7 +261,7 @@ describe('RecipeBuilderModal', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /\+ add grinder/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add grinder/i }));
     fireEvent.change(screen.getByLabelText(/grinder brand/i), { target: { value: 'Timemore' } });
     fireEvent.change(screen.getByLabelText(/grinder model/i), { target: { value: 'Chestnut C2' } });
     fireEvent.change(screen.getByLabelText(/dial format|setting scale/i), { target: { value: 'clicks' } });
@@ -308,7 +308,7 @@ describe('RecipeBuilderModal', () => {
     );
 
     // Should NOT offer inline creation trigger
-    expect(screen.queryByRole('button', { name: /^\+ add grinder$/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^add grinder$/i })).toBeNull();
 
     // Renders first grinder row selector & setting input
     const grinderSelect1 = screen.getByLabelText(/^grinder 1$/i) as HTMLSelectElement;
@@ -317,7 +317,7 @@ describe('RecipeBuilderModal', () => {
     expect(screen.getByLabelText(/setting for grinder 1/i)).toBeDefined();
 
     // Add another grinder
-    const addAnotherBtn = screen.getByRole('button', { name: /\+ add another grinder/i });
+    const addAnotherBtn = screen.getByRole('button', { name: /add another grinder/i });
     fireEvent.click(addAnotherBtn);
 
     expect(screen.getByLabelText(/^grinder 2$/i)).toBeDefined();
@@ -348,7 +348,7 @@ describe('RecipeBuilderModal', () => {
     expect(screen.getByText(/primary/i)).toBeDefined();
 
     // Add another row
-    fireEvent.click(screen.getByRole('button', { name: /\+ add another grinder/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add another grinder/i }));
 
     // Only one Primary badge
     const primaryBadges = screen.getAllByText(/primary/i);
@@ -375,7 +375,7 @@ describe('RecipeBuilderModal', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /\+ add another grinder/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add another grinder/i }));
     expect(screen.getByLabelText(/^grinder 2$/i)).toBeDefined();
 
     const removeBtn1 = screen.getByRole('button', { name: /remove grinder 1/i });
@@ -413,7 +413,7 @@ describe('RecipeBuilderModal', () => {
       target: { value: '24 clicks' },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: /\+ add another grinder/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add another grinder/i }));
     fireEvent.change(screen.getByLabelText(/^grinder 2$/i), {
       target: { value: 'grinder-2' },
     });
@@ -475,7 +475,7 @@ describe('RecipeBuilderModal', () => {
     });
 
     // Expand inline grinder creation
-    fireEvent.click(screen.getByRole('button', { name: /\+ add grinder/i }));
+    fireEvent.click(screen.getByRole('button', { name: /add grinder/i }));
     fireEvent.change(screen.getByLabelText(/grinder brand/i), { target: { value: '1Zpresso' } });
     fireEvent.change(screen.getByLabelText(/grinder model/i), { target: { value: 'K-Ultra' } });
     fireEvent.click(screen.getByRole('button', { name: /save grinder/i }));
@@ -571,7 +571,7 @@ describe('RecipeBuilderModal', () => {
     });
   });
 
-  it('hides "+ Add Another Grinder" when all existing user grinders have been configured', () => {
+  it('hides "ADD ANOTHER GRINDER" when all existing user grinders have been configured', () => {
     vi.mocked(useEquipment).mockReturnValue({
       equipment: [sampleGrinder1, sampleGrinder2], // 2 grinders available
       addEquipment: vi.fn(),
@@ -591,14 +591,14 @@ describe('RecipeBuilderModal', () => {
       />
     );
 
-    // Row 1 exists by default, "+ Add Another Grinder" is visible
-    const addAnotherBtn = screen.getByRole('button', { name: /\+ add another grinder/i });
+    // Row 1 exists by default, "ADD ANOTHER GRINDER" is visible
+    const addAnotherBtn = screen.getByRole('button', { name: /add another grinder/i });
     expect(addAnotherBtn).toBeDefined();
 
     // Click to add row 2 (which now uses all 2 available grinders)
     fireEvent.click(addAnotherBtn);
 
-    // Now 2 rows exist, matching total available grinders (2). "+ Add Another Grinder" must be hidden.
-    expect(screen.queryByRole('button', { name: /\+ add another grinder/i })).toBeNull();
+    // Now 2 rows exist, matching total available grinders (2). "ADD ANOTHER GRINDER" must be hidden.
+    expect(screen.queryByRole('button', { name: /add another grinder/i })).toBeNull();
   });
 });

@@ -604,7 +604,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                       className="flex items-center space-x-1 px-2.5 py-1 rounded bg-panel-recessed hover:bg-panel text-accent font-mono text-xs uppercase tracking-wider font-semibold border border-border-subtle transition-colors cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
-                      <span>+ Add Another Grinder</span>
+                      <span>ADD ANOTHER GRINDER</span>
                     </button>
                   )}
               </div>
@@ -625,7 +625,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                         className="flex items-center space-x-1 px-3 py-1.5 rounded bg-panel hover:bg-panel-recessed text-accent font-mono text-xs uppercase tracking-wider font-semibold border border-border-subtle transition-colors cursor-pointer self-start sm:self-auto"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>+ Add Grinder</span>
+                        <span>ADD GRINDER</span>
                       </button>
                     )}
                   </div>
@@ -731,7 +731,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                         className="flex items-center space-x-1 px-2.5 py-1 rounded bg-panel text-accent border border-border-subtle hover:bg-panel-recessed transition-colors font-mono text-xs uppercase"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>+ Add Grinder Setting</span>
+                        <span>ADD GRINDER SETTING</span>
                       </button>
                     </div>
                   ) : (

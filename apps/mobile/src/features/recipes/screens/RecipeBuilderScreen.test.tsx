@@ -520,21 +520,21 @@ describe('RecipeBuilderScreen', () => {
     expect(mockReplace).toHaveBeenCalledWith('/(tabs)/recipes');
   });
 
-  it('renders inline "+ Add Grinder" prompt when user has 0 grinders in equipment', () => {
+  it('renders inline "ADD GRINDER" prompt when user has 0 grinders in equipment', () => {
     activeEquipmentContext.grinders = [];
     const { getByText, queryByText } = render(<RecipeBuilderScreen />);
 
     expect(getByText(/no grinders added to equipment yet/i)).toBeDefined();
-    expect(getByText('+ Add Grinder')).toBeDefined();
-    expect(queryByText(/\+ add grinder setting/i)).toBeNull();
+    expect(getByText('ADD GRINDER')).toBeDefined();
+    expect(queryByText(/add grinder setting/i)).toBeNull();
   });
 
   it('adds first grinder inline, updates equipment, and creates first grinder setting row', async () => {
     activeEquipmentContext.grinders = [];
     const { getByText, getByPlaceholderText, queryByPlaceholderText } = render(<RecipeBuilderScreen />);
 
-    // Click "+ Add Grinder" to expand form
-    fireEvent.click(getByText('+ Add Grinder'));
+    // Click "ADD GRINDER" to expand form
+    fireEvent.click(getByText('ADD GRINDER'));
 
     const brandInput = getByPlaceholderText('e.g. Fellow, Comandante');
     const modelInput = getByPlaceholderText('e.g. Ode Gen 2, C40 MK4');
@@ -580,7 +580,7 @@ describe('RecipeBuilderScreen', () => {
     const doseInput = document.querySelector('input[value="15"]') as HTMLInputElement;
     fireEvent.change(doseInput, { target: { value: '18' } });
 
-    fireEvent.click(getByText('+ Add Grinder'));
+    fireEvent.click(getByText('ADD GRINDER'));
     fireEvent.change(getByPlaceholderText('e.g. Fellow, Comandante'), { target: { value: 'Comandante' } });
     fireEvent.change(getByPlaceholderText('e.g. Ode Gen 2, C40 MK4'), { target: { value: 'C40 MK4' } });
     fireEvent.click(getByText('Save Grinder'));
@@ -597,11 +597,11 @@ describe('RecipeBuilderScreen', () => {
     activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
     const { getByText, queryByText } = render(<RecipeBuilderScreen />);
 
-    // Inline "+ Add Grinder" button should NOT be rendered when user already has grinders
-    expect(queryByText('+ Add Grinder')).toBeNull();
+    // Inline "ADD GRINDER" button should NOT be rendered when user already has grinders
+    expect(queryByText('ADD GRINDER')).toBeNull();
 
-    // "+ Add Grinder Setting" button should be available
-    const addSettingBtn = getByText('+ Add Grinder Setting');
+    // "ADD GRINDER SETTING" button should be available
+    const addSettingBtn = getByText('ADD GRINDER SETTING');
     fireEvent.click(addSettingBtn);
 
     // Row 1 created with first available grinder
@@ -610,23 +610,23 @@ describe('RecipeBuilderScreen', () => {
     expect(settingInput1).toBeDefined();
 
     // Add another row
-    fireEvent.click(getByText('+ Add Grinder Setting'));
+    fireEvent.click(getByText('ADD GRINDER SETTING'));
 
     // Row 2 created with second grinder
     expect(getByText('Comandante C40 MK4')).toBeDefined();
     const settingInput2 = document.querySelector('input[aria-label="Setting for Grinder 2"]') as HTMLInputElement;
     expect(settingInput2).toBeDefined();
 
-    // All available grinders are now configured, so "+ Add Grinder Setting" is hidden
-    expect(queryByText('+ Add Grinder Setting')).toBeNull();
+    // All available grinders are now configured, so "ADD GRINDER SETTING" is hidden
+    expect(queryByText('ADD GRINDER SETTING')).toBeNull();
   });
 
   it('displays "Primary" badge on the first grinder row only', () => {
     activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
     const { getByText, getAllByText } = render(<RecipeBuilderScreen />);
 
-    fireEvent.click(getByText('+ Add Grinder Setting'));
-    fireEvent.click(getByText('+ Add Grinder Setting'));
+    fireEvent.click(getByText('ADD GRINDER SETTING'));
+    fireEvent.click(getByText('ADD GRINDER SETTING'));
 
     const primaryBadges = getAllByText(/primary/i);
     expect(primaryBadges).toHaveLength(1);
@@ -636,8 +636,8 @@ describe('RecipeBuilderScreen', () => {
     activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
     const { getByText, getByLabelText, queryByText } = render(<RecipeBuilderScreen />);
 
-    fireEvent.click(getByText('+ Add Grinder Setting'));
-    fireEvent.click(getByText('+ Add Grinder Setting'));
+    fireEvent.click(getByText('ADD GRINDER SETTING'));
+    fireEvent.click(getByText('ADD GRINDER SETTING'));
 
     expect(getByText('Fellow Ode Gen 2')).toBeDefined();
     expect(getByText('Comandante C40 MK4')).toBeDefined();
@@ -650,8 +650,8 @@ describe('RecipeBuilderScreen', () => {
     expect(getByText('Comandante C40 MK4')).toBeDefined();
     expect(getByText(/primary/i)).toBeDefined();
 
-    // Since only 1 of 2 is configured now, "+ Add Grinder Setting" reappears
-    expect(getByText('+ Add Grinder Setting')).toBeDefined();
+    // Since only 1 of 2 is configured now, "ADD GRINDER SETTING" reappears
+    expect(getByText('ADD GRINDER SETTING')).toBeDefined();
   });
 
   it('saves recipe with grinderSettings array and syncs recommendedGrinderId to primary grinder', async () => {
@@ -661,11 +661,11 @@ describe('RecipeBuilderScreen', () => {
     const nameInput = getByPlaceholderText('e.g. My Morning V60');
     fireEvent.change(nameInput, { target: { value: 'Dual Grinder Profile' } });
 
-    fireEvent.click(getByText('+ Add Grinder Setting'));
+    fireEvent.click(getByText('ADD GRINDER SETTING'));
     const settingInput1 = document.querySelector('input[aria-label="Setting for Grinder 1"]') as HTMLInputElement;
     fireEvent.change(settingInput1, { target: { value: '5.1' } });
 
-    fireEvent.click(getByText('+ Add Grinder Setting'));
+    fireEvent.click(getByText('ADD GRINDER SETTING'));
     const settingInput2 = document.querySelector('input[aria-label="Setting for Grinder 2"]') as HTMLInputElement;
     fireEvent.change(settingInput2, { target: { value: '22 clicks' } });
 
@@ -731,7 +731,7 @@ describe('RecipeBuilderScreen', () => {
     activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
     const { getByText, getByLabelText, queryByText } = render(<RecipeBuilderScreen />);
 
-    fireEvent.click(getByText('+ Add Grinder Setting'));
+    fireEvent.click(getByText('ADD GRINDER SETTING'));
     expect(getByText('Fellow Ode Gen 2')).toBeDefined();
 
     // Click grinder trigger to open picker overlay
@@ -750,7 +750,7 @@ describe('RecipeBuilderScreen', () => {
     activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
     const { getByText, getByLabelText } = render(<RecipeBuilderScreen />);
 
-    fireEvent.click(getByText('+ Add Grinder Setting'));
+    fireEvent.click(getByText('ADD GRINDER SETTING'));
     fireEvent.click(getByLabelText('Grinder 1'));
 
     expect(getByText('SELECT GRINDER')).toBeDefined();
