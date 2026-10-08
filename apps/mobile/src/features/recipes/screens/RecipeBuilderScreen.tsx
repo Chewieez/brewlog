@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
+import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
 import {
   View,
   Text,
@@ -233,6 +233,76 @@ export const RecipeBuilderScreen: React.FC = () => {
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const initialValues = useMemo(
+    () => ({
+      name: sourceRecipe
+        ? duplicateId
+          ? `${sourceRecipe.name} (Copy)`
+          : sourceRecipe.name
+        : '',
+      author: sourceRecipe?.author || '',
+      brewMethod: sourceRecipe?.brewMethod || matchedMethod || 'v60',
+      doseText: sourceRecipe
+        ? String(sourceRecipe.coffeeDoseGrams)
+        : initialDose
+        ? String(initialDose)
+        : '15',
+      ratioText: sourceRecipe
+        ? String(sourceRecipe.ratio)
+        : computedRatio
+        ? String(computedRatio)
+        : '16.67',
+      grindSize: sourceRecipe?.grindSize || 'Medium-Fine',
+      waterTempText: sourceRecipe ? String(sourceRecipe.waterTempCelsius) : '93',
+      description: sourceRecipe?.description || '',
+      notes: sourceRecipe?.notes || '',
+      stagesJson: JSON.stringify(
+        sourceRecipe
+          ? recalculateTiming(sourceRecipe.stages)
+          : parsedParamStages || DEFAULT_STAGES
+      ),
+      grinderSettingsJson: JSON.stringify(
+        (() => {
+          if (sourceRecipe?.grinderSettings && sourceRecipe.grinderSettings.length > 0) {
+            return sourceRecipe.grinderSettings.filter((gs) =>
+              contextGrinders.some((g) => g.id === gs.grinderId)
+            );
+          }
+          if (
+            sourceRecipe?.recommendedGrinderId &&
+            contextGrinders.some((g) => g.id === sourceRecipe.recommendedGrinderId)
+          ) {
+            return [
+              {
+                grinderId: sourceRecipe.recommendedGrinderId,
+                setting: sourceRecipe.grindSize || '',
+              },
+            ];
+          }
+          return [];
+        })()
+      ),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sourceRecipe?.id, duplicateId]
+  );
+
+  const isDirty =
+    name !== initialValues.name ||
+    author !== initialValues.author ||
+    brewMethod !== initialValues.brewMethod ||
+    doseText !== initialValues.doseText ||
+    ratioText !== initialValues.ratioText ||
+    grindSize !== initialValues.grindSize ||
+    waterTempText !== initialValues.waterTempText ||
+    description !== initialValues.description ||
+    notes !== initialValues.notes ||
+    JSON.stringify(stages) !== initialValues.stagesJson ||
+    JSON.stringify(grinderSettings) !== initialValues.grinderSettingsJson ||
+    isAddingInlineGrinder ||
+    inlineBrand.trim() !== '' ||
+    inlineModel.trim() !== '';
+
   const coffeeDoseGrams = parseFloat(doseText) || 0;
   const ratio = parseFloat(ratioText) || 0;
   const waterTempCelsius = parseInt(waterTempText, 10) || 0;
@@ -423,14 +493,18 @@ export const RecipeBuilderScreen: React.FC = () => {
   };
 
   const handleCancel = () => {
-    Alert.alert(
-      'Discard Changes?',
-      'Any unsaved recipe customizations will be lost.',
-      [
-        { text: 'Keep Editing', style: 'cancel' },
-        { text: 'Discard', style: 'destructive', onPress: dismissModal },
-      ]
-    );
+    if (isDirty) {
+      Alert.alert(
+        'Discard Changes?',
+        'Any unsaved recipe customizations will be lost.',
+        [
+          { text: 'Keep Editing', style: 'cancel' },
+          { text: 'Discard', style: 'destructive', onPress: dismissModal },
+        ]
+      );
+    } else {
+      dismissModal();
+    }
   };
 
   return (

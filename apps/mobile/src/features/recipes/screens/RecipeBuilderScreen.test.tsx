@@ -416,9 +416,14 @@ describe('RecipeBuilderScreen', () => {
     expect(mockReplace).toHaveBeenCalledWith('/recipe/new-rec-1');
   });
 
-  it('prompts confirmation alert on cancel and navigates back on discard', () => {
+  it('prompts confirmation alert on cancel when dirty and navigates back on discard', () => {
     const alertSpy = vi.spyOn(Alert, 'alert');
-    const { getByLabelText } = render(<RecipeBuilderScreen />);
+    const { getByLabelText, getByPlaceholderText } = render(<RecipeBuilderScreen />);
+
+    // Make form dirty
+    fireEvent.change(getByPlaceholderText('e.g. My Morning V60'), {
+      target: { value: 'Modified Recipe Name' },
+    });
 
     fireEvent.click(getByLabelText('Cancel editing'));
 
@@ -431,6 +436,16 @@ describe('RecipeBuilderScreen', () => {
     const buttons = alertSpy.mock.calls[0][2] as any[];
     const discardBtn = buttons.find((b) => b.text === 'Discard');
     discardBtn.onPress();
+    expect(mockBack).toHaveBeenCalled();
+  });
+
+  it('dismisses immediately on cancel when form is clean without confirmation alert', () => {
+    const alertSpy = vi.spyOn(Alert, 'alert');
+    const { getByLabelText } = render(<RecipeBuilderScreen />);
+
+    fireEvent.click(getByLabelText('Cancel editing'));
+
+    expect(alertSpy).not.toHaveBeenCalled();
     expect(mockBack).toHaveBeenCalled();
   });
 
@@ -503,10 +518,14 @@ describe('RecipeBuilderScreen', () => {
     expect(getByDisplayValue('Main Pour')).toBeDefined();
   });
 
-  it('falls back to router.replace("/(tabs)/recipes") when router.canGoBack is false', () => {
+  it('falls back to router.replace("/(tabs)/recipes") when router.canGoBack is false on discard', () => {
     canGoBackMock.mockReturnValue(false);
     const alertSpy = vi.spyOn(Alert, 'alert');
-    const { getByLabelText } = render(<RecipeBuilderScreen />);
+    const { getByLabelText, getByPlaceholderText } = render(<RecipeBuilderScreen />);
+
+    fireEvent.change(getByPlaceholderText('e.g. My Morning V60'), {
+      target: { value: 'Dirty Recipe' },
+    });
 
     const cancelBtn = getByLabelText('Cancel editing');
     fireEvent.click(cancelBtn);
