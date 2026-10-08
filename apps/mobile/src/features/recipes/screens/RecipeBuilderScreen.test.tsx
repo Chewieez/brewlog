@@ -600,8 +600,8 @@ describe('RecipeBuilderScreen', () => {
     // Inline "ADD GRINDER" button should NOT be rendered when user already has grinders
     expect(queryByText('ADD GRINDER')).toBeNull();
 
-    // "ADD GRINDER SETTING" button should be available
-    const addSettingBtn = getByText('ADD GRINDER SETTING');
+    // "ADD" button should be available
+    const addSettingBtn = getByText('ADD');
     fireEvent.click(addSettingBtn);
 
     // Row 1 created with first available grinder
@@ -610,23 +610,23 @@ describe('RecipeBuilderScreen', () => {
     expect(settingInput1).toBeDefined();
 
     // Add another row
-    fireEvent.click(getByText('ADD GRINDER SETTING'));
+    fireEvent.click(getByText('ADD'));
 
     // Row 2 created with second grinder
     expect(getByText('Comandante C40 MK4')).toBeDefined();
     const settingInput2 = document.querySelector('input[aria-label="Setting for Grinder 2"]') as HTMLInputElement;
     expect(settingInput2).toBeDefined();
 
-    // All available grinders are now configured, so "ADD GRINDER SETTING" is hidden
-    expect(queryByText('ADD GRINDER SETTING')).toBeNull();
+    // All available grinders are now configured, so "ADD" is hidden
+    expect(queryByText('ADD')).toBeNull();
   });
 
   it('displays "Primary" badge on the first grinder row only', () => {
     activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
     const { getByText, getAllByText } = render(<RecipeBuilderScreen />);
 
-    fireEvent.click(getByText('ADD GRINDER SETTING'));
-    fireEvent.click(getByText('ADD GRINDER SETTING'));
+    fireEvent.click(getByText('ADD'));
+    fireEvent.click(getByText('ADD'));
 
     const primaryBadges = getAllByText(/primary/i);
     expect(primaryBadges).toHaveLength(1);
@@ -636,8 +636,8 @@ describe('RecipeBuilderScreen', () => {
     activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
     const { getByText, getByLabelText, queryByText } = render(<RecipeBuilderScreen />);
 
-    fireEvent.click(getByText('ADD GRINDER SETTING'));
-    fireEvent.click(getByText('ADD GRINDER SETTING'));
+    fireEvent.click(getByText('ADD'));
+    fireEvent.click(getByText('ADD'));
 
     expect(getByText('Fellow Ode Gen 2')).toBeDefined();
     expect(getByText('Comandante C40 MK4')).toBeDefined();
@@ -650,8 +650,8 @@ describe('RecipeBuilderScreen', () => {
     expect(getByText('Comandante C40 MK4')).toBeDefined();
     expect(getByText(/primary/i)).toBeDefined();
 
-    // Since only 1 of 2 is configured now, "ADD GRINDER SETTING" reappears
-    expect(getByText('ADD GRINDER SETTING')).toBeDefined();
+    // Since only 1 of 2 is configured now, "ADD" reappears
+    expect(getByText('ADD')).toBeDefined();
   });
 
   it('saves recipe with grinderSettings array and syncs recommendedGrinderId to primary grinder', async () => {
@@ -661,11 +661,11 @@ describe('RecipeBuilderScreen', () => {
     const nameInput = getByPlaceholderText('e.g. My Morning V60');
     fireEvent.change(nameInput, { target: { value: 'Dual Grinder Profile' } });
 
-    fireEvent.click(getByText('ADD GRINDER SETTING'));
+    fireEvent.click(getByText('ADD'));
     const settingInput1 = document.querySelector('input[aria-label="Setting for Grinder 1"]') as HTMLInputElement;
     fireEvent.change(settingInput1, { target: { value: '5.1' } });
 
-    fireEvent.click(getByText('ADD GRINDER SETTING'));
+    fireEvent.click(getByText('ADD'));
     const settingInput2 = document.querySelector('input[aria-label="Setting for Grinder 2"]') as HTMLInputElement;
     fireEvent.change(settingInput2, { target: { value: '22 clicks' } });
 
@@ -731,7 +731,7 @@ describe('RecipeBuilderScreen', () => {
     activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
     const { getByText, getByLabelText, queryByText } = render(<RecipeBuilderScreen />);
 
-    fireEvent.click(getByText('ADD GRINDER SETTING'));
+    fireEvent.click(getByText('ADD'));
     expect(getByText('Fellow Ode Gen 2')).toBeDefined();
 
     // Click grinder trigger to open picker overlay
@@ -750,7 +750,7 @@ describe('RecipeBuilderScreen', () => {
     activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
     const { getByText, getByLabelText } = render(<RecipeBuilderScreen />);
 
-    fireEvent.click(getByText('ADD GRINDER SETTING'));
+    fireEvent.click(getByText('ADD'));
     fireEvent.click(getByLabelText('Grinder 1'));
 
     expect(getByText('SELECT GRINDER')).toBeDefined();

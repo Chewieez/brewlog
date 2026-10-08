@@ -598,10 +598,11 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                     <button
                       type="button"
                       onClick={handleAddGrinderSetting}
+                      aria-label="Add another grinder"
                       className="flex items-center space-x-1 px-2.5 py-1 rounded bg-panel-recessed hover:bg-panel text-accent font-mono text-xs uppercase tracking-wider font-semibold border border-border-subtle transition-colors cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
-                      <span>ADD ANOTHER GRINDER</span>
+                      <span>ADD</span>
                     </button>
                   )}
               </div>
@@ -725,10 +726,11 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                       <button
                         type="button"
                         onClick={handleAddGrinderSetting}
+                        aria-label="Add grinder setting"
                         className="flex items-center space-x-1 px-2.5 py-1 rounded bg-panel text-accent border border-border-subtle hover:bg-panel-recessed transition-colors font-mono text-xs uppercase"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>ADD GRINDER SETTING</span>
+                        <span>ADD</span>
                       </button>
                     </div>
                   ) : (

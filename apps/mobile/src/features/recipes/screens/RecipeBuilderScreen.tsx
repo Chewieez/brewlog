@@ -639,7 +639,7 @@ export const RecipeBuilderScreen: React.FC = () => {
                 accessibilityLabel="Add Grinder Setting"
               >
                 <Plus size={14} color={colors.accent} />
-                <Text style={styles.addGrinderSettingButtonText}>ADD GRINDER SETTING</Text>
+                <Text style={styles.addGrinderSettingButtonText}>ADD</Text>
               </Pressable>
             )}
         </View>
