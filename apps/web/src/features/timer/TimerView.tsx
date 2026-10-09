@@ -206,7 +206,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
     : 0;
 
   return (
-    <div className="max-w-6xl mx-auto pb-12">
+    <div className="max-w-7xl mx-auto pb-12">
       {/* Top Segmented Mode Switcher */}
       <div className="flex items-center justify-between gap-4 pb-4 mb-6 border-b border-border-subtle">
         <div className="inline-flex p-1 bg-panel border border-border-subtle rounded space-x-1">

@@ -3,8 +3,8 @@ import { SCA_FLAVOR_WHEEL } from '@brewlog/core';
 import { Check, Plus, Tag } from 'lucide-react';
 
 interface ScaFlavorWheelSvgProps {
-  selectedTags: string[];
-  onToggleTag: (tag: string) => void;
+  selectedTags?: string[];
+  onToggleTag?: (tag: string) => void;
   className?: string;
 }
 
@@ -64,8 +64,8 @@ function describeArc(x: number, y: number, innerRadius: number, outerRadius: num
 }
 
 export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
-  selectedTags,
-  onToggleTag,
+  selectedTags = [],
+  onToggleTag = () => {},
   className = '',
 }) => {
   const titleId = useId();
@@ -366,7 +366,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
             inspectedItem.type === 'descriptor' ? (
               <div className="flex flex-col items-center justify-center max-w-[130px]">
                 <span
-                  className="text-[9px] uppercase font-mono font-bold tracking-wider px-1.5 py-0.2 rounded border"
+                  className="text-[9px] uppercase font-sans font-bold tracking-wider px-1.5 py-0.2 rounded border"
                   style={{
                     color: inspectedItem.color,
                     borderColor: `${inspectedItem.color}40`,
@@ -390,7 +390,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                     setAnnouncement(`${inspectedItem.name}, ${willBe ? 'selected' : 'removed'}`);
                   }}
                   aria-label={`${inspectedItem.isSelected ? 'Remove' : 'Add'} ${inspectedItem.name}`}
-                  className={`pointer-events-auto mt-1 px-2.5 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider font-bold flex items-center space-x-1 transition-all shadow-sm active:scale-95 cursor-pointer ${
+                  className={`pointer-events-auto mt-1 px-2.5 py-0.5 rounded text-[10px] font-sans uppercase tracking-wider font-bold flex items-center space-x-1 transition-all shadow-sm active:scale-95 cursor-pointer ${
                     inspectedItem.isSelected
                       ? 'bg-accent text-zinc-950'
                       : 'bg-panel-recessed text-text-secondary border border-border-subtle hover:bg-zinc-800 hover:text-text-primary'
@@ -411,7 +411,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center max-w-[130px]">
-                <span className="text-[9px] uppercase font-mono tracking-widest text-text-muted">
+                <span className="text-[9px] uppercase font-sans tracking-widest text-text-muted">
                   Category
                 </span>
                 <span
@@ -420,7 +420,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                 >
                   {inspectedItem.name}
                 </span>
-                <span className="text-[10px] text-text-secondary tabular-nums mt-1">
+                <span className="text-[10px] text-text-secondary font-sans tabular-nums mt-1">
                   {inspectedItem.selectedCount}/{inspectedItem.totalCount} selected
                 </span>
                 <span className="text-[8px] text-text-muted mt-0.5">
@@ -430,23 +430,23 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
             )
           ) : (
             <div className="flex flex-col items-center justify-center max-w-[120px]">
-              <span className="text-[9px] uppercase font-mono tracking-widest text-text-muted">
+              <span className="text-[9px] uppercase font-sans tracking-widest text-text-muted">
                 SCA
               </span>
-              <span className="text-xs font-bold font-mono text-accent mt-0.5">
+              <span className="text-xs font-bold font-sans text-accent mt-0.5">
                 Sensory Wheel
               </span>
               <div className="flex items-center space-x-1 mt-1 text-[10px] text-text-secondary">
                 <Tag className="w-2.5 h-2.5 text-accent" />
-                <span className="font-semibold tabular-nums">{selectedTags.length} active</span>
+                <span className="font-sans tabular-nums font-semibold">{selectedTags.length} active</span>
               </div>
             </div>
           )}
         </div>
       </div>
 
-      <p className="text-[11px] text-text-muted mt-2 text-center max-w-sm font-mono">
-        Use <kbd className="px-1 py-0.5 bg-panel-recessed rounded text-[10px] font-mono text-accent border border-border-subtle">←</kbd> <kbd className="px-1 py-0.5 bg-panel-recessed rounded text-[10px] font-mono text-accent border border-border-subtle">→</kbd> to rotate, <kbd className="px-1.5 py-0.5 bg-panel-recessed rounded text-[10px] font-mono text-accent border border-border-subtle">Space</kbd> to toggle, or tap any sensory note.
+      <p className="text-[11px] text-text-muted mt-2 text-center max-w-sm font-sans">
+        Use <kbd className="px-1 py-0.5 bg-panel-recessed rounded text-[10px] font-sans text-accent border border-border-subtle">←</kbd> <kbd className="px-1 py-0.5 bg-panel-recessed rounded text-[10px] font-sans text-accent border border-border-subtle">→</kbd> to rotate, <kbd className="px-1.5 py-0.5 bg-panel-recessed rounded text-[10px] font-sans text-accent border border-border-subtle">Space</kbd> to toggle, or tap any sensory note.
       </p>
     </div>
   );

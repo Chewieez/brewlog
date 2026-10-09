@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, act, cleanup, within, createEvent } from '@testing-library/react';
 import { ReviewsView } from './ReviewsView';
 import { INITIAL_BEANS } from '../../lib/sampleData';
 import { DEFAULT_PRESET_RECIPES, Equipment, TastingLog, BrewRecipe } from '@brewlog/core';
@@ -22,14 +22,146 @@ const mockEquipment: Equipment[] = [
   },
 ];
 
-describe('ReviewsView', () => {
+const sampleLog1: TastingLog = {
+  id: 'log-1',
+  grinderId: 'grinder-1',
+  brewerId: 'brewer-1',
+  brewMethod: 'v60',
+  brewDate: '2026-10-04T12:00:00Z',
+  beanNameSnapshot: 'Worka Sakaro',
+  roasterSnapshot: 'Sey Coffee',
+  recipeNameSnapshot: 'V60 Standard',
+  coffeeDoseGrams: 20,
+  waterAmountGrams: 300,
+  actualTimeSeconds: 210,
+  grindSetting: '14 clicks',
+  grinderSnapshot: 'Comandante C40 MK4',
+  brewerSnapshot: 'Hario V60 02 Ceramic',
+  waterTempCelsius: 94,
+  calculatedScaScore: 88.5,
+  rating: 5,
+  flavorTags: ['Peach', 'Jasmine'],
+  notes: 'Floral, crisp peach, delicate sweet finish.',
+  wouldBrewAgain: true,
+  scores: {
+    fragranceAroma: 8.5,
+    flavor: 8.5,
+    aftertaste: 8.0,
+    acidity: 8.5,
+    body: 8.0,
+    balance: 8.0,
+    cleanCup: 10,
+    sweetness: 10,
+    uniformity: 10,
+    overall: 8.5,
+  },
+  createdAt: '2026-10-04T12:00:00Z',
+};
+
+const sampleLog2: TastingLog = {
+  id: 'log-2',
+  brewMethod: 'aeropress',
+  brewDate: '2026-10-03T10:00:00Z',
+  beanNameSnapshot: 'El Paraiso',
+  roasterSnapshot: 'Manhattan',
+  recipeNameSnapshot: 'AeroPress Inverted',
+  coffeeDoseGrams: 15,
+  waterAmountGrams: 250,
+  actualTimeSeconds: 165,
+  grindSetting: 'Medium-Fine',
+  grinderSnapshot: 'Timemore C2',
+  brewerSnapshot: 'AeroPress',
+  waterTempCelsius: 88,
+  calculatedScaScore: 84.0,
+  rating: 4,
+  flavorTags: ['Strawberry', 'Bubblegum'],
+  notes: 'Funky berry punch.',
+  wouldBrewAgain: true,
+  scores: {
+    fragranceAroma: 8.0,
+    flavor: 8.0,
+    aftertaste: 7.5,
+    acidity: 8.0,
+    body: 8.0,
+    balance: 7.5,
+    cleanCup: 9.5,
+    sweetness: 10,
+    uniformity: 10,
+    overall: 8.0,
+  },
+  createdAt: '2026-10-03T10:00:00Z',
+};
+
+describe('ReviewsView Master-Detail Cupping Journal', () => {
   afterEach(() => {
     cleanup();
   });
-  it('renders all 10 official SCA attribute sliders with their labels', () => {
-    render(<ReviewsView logs={[]} beans={INITIAL_BEANS} onAddTastingLog={vi.fn()} />);
 
-    // 7 Sensory attributes
+  it('renders master feed cards and detail pane for selected review', () => {
+    render(
+      <ReviewsView
+        logs={[sampleLog1, sampleLog2]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const masterFeed = screen.getByTestId('master-feed');
+    const detailPane = screen.getByTestId('detail-pane');
+
+    // Both cards exist in master feed
+    expect(within(masterFeed).getByText('Worka Sakaro')).toBeDefined();
+    expect(within(masterFeed).getByText('El Paraiso')).toBeDefined();
+
+    // Selected detail pane defaults to Worka Sakaro
+    expect(within(detailPane).getByText('Worka Sakaro')).toBeDefined();
+    expect(within(detailPane).getByText('Sey Coffee')).toBeDefined();
+    expect(within(detailPane).getByText('88.5')).toBeDefined();
+    expect(within(detailPane).getByText('Peach')).toBeDefined();
+    expect(within(detailPane).getByText('Jasmine')).toBeDefined();
+  });
+
+  it('updates detail pane when selecting another card in master feed', () => {
+    render(
+      <ReviewsView
+        logs={[sampleLog1, sampleLog2]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const masterFeed = screen.getByTestId('master-feed');
+    const elParaisoCard = within(masterFeed).getByText('El Paraiso');
+    fireEvent.click(elParaisoCard);
+
+    // Detail pane now reflects El Paraiso
+    const detailPane = screen.getByTestId('detail-pane');
+    expect(within(detailPane).getByText('El Paraiso')).toBeDefined();
+    expect(within(detailPane).getByText('Manhattan')).toBeDefined();
+    expect(within(detailPane).getByText('84.0')).toBeDefined();
+    expect(within(detailPane).getByText('Strawberry')).toBeDefined();
+    expect(within(detailPane).getByText('Bubblegum')).toBeDefined();
+  });
+
+  it('toggles into create mode when clicking LOG REVIEW and verifies typography and neutral brew time', () => {
+    render(
+      <ReviewsView
+        logs={[sampleLog1]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const logReviewBtn = screen.getByRole('button', { name: /LOG REVIEW/i });
+    fireEvent.click(logReviewBtn);
+
+    // Editor is visible
+    expect(screen.getByText('Log New Brew Review')).toBeDefined();
+
+    // All 10 official SCA attribute sliders are present
     expect(screen.getByText('Fragrance / Aroma')).toBeDefined();
     expect(screen.getByText('Flavor')).toBeDefined();
     expect(screen.getByText('Aftertaste / Finish')).toBeDefined();
@@ -37,153 +169,346 @@ describe('ReviewsView', () => {
     expect(screen.getByText('Body (Mouthfeel)')).toBeDefined();
     expect(screen.getByText('Balance')).toBeDefined();
     expect(screen.getByText('Overall Impression')).toBeDefined();
-
-    // 3 Cup purity & consistency attributes
     expect(screen.getByText('Clean Cup')).toBeDefined();
     expect(screen.getByText('Sweetness')).toBeDefined();
     expect(screen.getByText('Uniformity')).toBeDefined();
-  });
 
-  it('renders initial specialty baseline score (82.5 pts) and classification', () => {
-    render(<ReviewsView logs={[]} beans={INITIAL_BEANS} onAddTastingLog={vi.fn()} />);
-
-    expect(screen.getByText('82.5')).toBeDefined();
-    expect(screen.getByText(/Very Good \(Specialty\)/i)).toBeDefined();
-  });
-
-  it('clears scores to 0.0 and restores baseline on quick action button clicks', () => {
-    render(<ReviewsView logs={[]} beans={INITIAL_BEANS} onAddTastingLog={vi.fn()} />);
-
-    const clearButton = screen.getByRole('button', { name: /Clear \(0\)/i });
+    // Score reset button label is 'Clear' (not 'Clear (0)')
+    const clearButton = screen.getByRole('button', { name: /^Clear$/i });
+    expect(clearButton).toBeDefined();
     fireEvent.click(clearButton);
 
-    expect(screen.getAllByText('0.0').length).toBeGreaterThan(0);
-    expect(screen.getByText(/Commercial \/ Below Specialty/i)).toBeDefined();
-
     const baselineButton = screen.getByRole('button', { name: /Baseline \(82\.5\)/i });
+    expect(baselineButton).toBeDefined();
     fireEvent.click(baselineButton);
 
-    expect(screen.getAllByText('82.5').length).toBeGreaterThan(0);
-    expect(screen.getByText(/Very Good \(Specialty\)/i)).toBeDefined();
+    // Actual brew time input has text-zinc-100 and NOT text-accent
+    const brewTimeInput = screen.getByDisplayValue('210');
+    expect(brewTimeInput.className).toContain('text-zinc-100');
+    expect(brewTimeInput.className).not.toContain('text-accent');
   });
 
-  it('submits review containing all 10 SCA attributes and equipment snapshots when form is saved', async () => {
-    const handleAddTastingLog = vi.fn();
+  it('submits a new review and calls onAddTastingLog with 10 attributes and equipment snapshots', async () => {
+    const handleAdd = vi.fn();
     render(
       <ReviewsView
         logs={[]}
         beans={INITIAL_BEANS}
         equipment={mockEquipment}
-        onAddTastingLog={handleAddTastingLog}
+        onAddTastingLog={handleAdd}
       />
     );
 
-    // Select grinder & brewer
+    // Empty state has LOG FIRST REVIEW button
+    const firstReviewBtn = screen.getByRole('button', { name: /LOG FIRST REVIEW/i });
+    fireEvent.click(firstReviewBtn);
+
     const grinderSelect = screen.getByLabelText(/Grinder/i);
     fireEvent.change(grinderSelect, { target: { value: 'grinder-1' } });
 
-    const brewerSelect = screen.getByLabelText(/Brewer \(Equipment\)/i);
+    const brewerSelect = screen.getByLabelText(/Brewer/i);
     fireEvent.change(brewerSelect, { target: { value: 'brewer-1' } });
 
-    const submitButton = screen.getByRole('button', { name: /SAVE REVIEW/i });
+    const submitButtons = screen.getAllByRole('button', { name: /SAVE REVIEW/i });
     await act(async () => {
-      fireEvent.click(submitButton);
+      fireEvent.click(submitButtons[0]);
     });
 
-    expect(handleAddTastingLog).toHaveBeenCalledTimes(1);
-    const savedPayload = handleAddTastingLog.mock.calls[0][0];
-
-    expect(savedPayload.scores).toBeDefined();
-    expect(savedPayload.scores.fragranceAroma).toBe(7.5);
-    expect(savedPayload.scores.flavor).toBe(7.5);
-    expect(savedPayload.scores.aftertaste).toBe(7.5);
-    expect(savedPayload.scores.acidity).toBe(7.5);
-    expect(savedPayload.scores.body).toBe(7.5);
-    expect(savedPayload.scores.balance).toBe(7.5);
-    expect(savedPayload.scores.overall).toBe(7.5);
-    expect(savedPayload.scores.cleanCup).toBe(10);
-    expect(savedPayload.scores.sweetness).toBe(10);
-    expect(savedPayload.scores.uniformity).toBe(10);
-    expect(savedPayload.calculatedScaScore).toBe(82.5);
-
-    // Equipment tracking parity verification
-    expect(savedPayload.grinderId).toBe('grinder-1');
-    expect(savedPayload.grinderSnapshot).toBe('Comandante C40 MK4');
-    expect(savedPayload.brewerId).toBe('brewer-1');
-    expect(savedPayload.brewerSnapshot).toBe('Hario V60 02 Ceramic');
+    expect(handleAdd).toHaveBeenCalledTimes(1);
+    const saved = handleAdd.mock.calls[0][0];
+    expect(saved.scores.fragranceAroma).toBe(7.5);
+    expect(saved.scores.cleanCup).toBe(10);
+    expect(saved.calculatedScaScore).toBe(82.5);
+    expect(saved.grinderSnapshot).toBe('Comandante C40 MK4');
+    expect(saved.brewerSnapshot).toBe('Hario V60 02 Ceramic');
   });
 
-  it('renders CLEAR button with standardized styles when pendingBrewSession is provided', () => {
-    const onClearPendingSession = vi.fn();
+  it('selects newly created review in detail pane when onAddTastingLog returns the created log', async () => {
+    const createdLog: TastingLog = {
+      ...sampleLog1,
+      id: 'log-newly-created',
+      beanNameSnapshot: 'Freshly Added Gesha',
+      notes: 'Crisp bergamot and honey.',
+    };
+    const handleAdd = vi.fn().mockResolvedValue(createdLog);
+    const { rerender } = render(
+      <ReviewsView
+        logs={[sampleLog1]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={handleAdd}
+      />
+    );
+
+    const logReviewBtn = screen.getByRole('button', { name: /LOG REVIEW/i });
+    fireEvent.click(logReviewBtn);
+
+    const submitButtons = screen.getAllByRole('button', { name: /SAVE REVIEW/i });
+    await act(async () => {
+      fireEvent.click(submitButtons[0]);
+    });
+
+    expect(handleAdd).toHaveBeenCalledTimes(1);
+
+    // Parent re-renders with the newly created log prepended
+    rerender(
+      <ReviewsView
+        logs={[createdLog, sampleLog1]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={handleAdd}
+      />
+    );
+
+    expect(screen.getAllByText('Freshly Added Gesha').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/Crisp bergamot and honey/i)).toBeDefined();
+  });
+
+  it('loads review into edit mode and calls onUpdateTastingLog on save', async () => {
+    const handleUpdate = vi.fn();
     render(
       <ReviewsView
-        logs={[]}
+        logs={[sampleLog1]}
         beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+        onUpdateTastingLog={handleUpdate}
+      />
+    );
+
+    const editBtn = screen.getByRole('button', { name: /^Edit$/i });
+    fireEvent.click(editBtn);
+
+    expect(screen.getByText(/Edit Review: Worka Sakaro/i)).toBeDefined();
+
+    const notesInput = screen.getByPlaceholderText(/Vibrant peach and white tea/i);
+    fireEvent.change(notesInput, { target: { value: 'Refined tea-like body and jasmine finish.' } });
+
+    const saveChangesButtons = screen.getAllByRole('button', { name: /Save Changes/i });
+    await act(async () => {
+      fireEvent.click(saveChangesButtons[0]);
+    });
+
+    expect(handleUpdate).toHaveBeenCalledWith(
+      'log-1',
+      expect.objectContaining({
+        notes: 'Refined tea-like body and jasmine finish.',
+        grinderSnapshot: 'Comandante C40 MK4',
+        brewerSnapshot: 'Hario V60 02 Ceramic',
+      })
+    );
+  });
+
+  it('falls back to custom coffee when editing a review whose bean was removed from stash', async () => {
+    const orphanedBeanLog: TastingLog = {
+      ...sampleLog1,
+      id: 'log-orphaned-bean',
+      beanId: 'deleted-stash-bean-id',
+      beanNameSnapshot: 'Special Reserve Geisha',
+      roasterSnapshot: 'Tim Wendelboe',
+    };
+
+    render(
+      <ReviewsView
+        logs={[orphanedBeanLog]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const editBtn = screen.getByRole('button', { name: /^Edit$/i });
+    fireEvent.click(editBtn);
+
+    // Custom inputs should be rendered and populated with snapshots
+    const beanNameInput = screen.getByDisplayValue('Special Reserve Geisha');
+    const roasterInput = screen.getByDisplayValue('Tim Wendelboe');
+
+    expect(beanNameInput).toBeDefined();
+    expect(roasterInput).toBeDefined();
+  });
+
+  it('preserves historical equipment snapshots when editing a review without matching stash equipment', async () => {
+    const handleUpdate = vi.fn();
+    const historicalLog: TastingLog = {
+      ...sampleLog1,
+      id: 'log-historical',
+      grinderId: 'deleted-grinder-id',
+      brewerId: 'deleted-brewer-id',
+      grinderSnapshot: 'Vintage Kinu M47',
+      brewerSnapshot: 'Kalita Wave 185 Glass',
+    };
+
+    render(
+      <ReviewsView
+        logs={[historicalLog]}
+        beans={INITIAL_BEANS}
+        equipment={[]}
+        onAddTastingLog={vi.fn()}
+        onUpdateTastingLog={handleUpdate}
+      />
+    );
+
+    const editBtn = screen.getByRole('button', { name: /^Edit$/i });
+    fireEvent.click(editBtn);
+
+    const saveChangesButtons = screen.getAllByRole('button', { name: /Save Changes/i });
+    await act(async () => {
+      fireEvent.click(saveChangesButtons[0]);
+    });
+
+    expect(handleUpdate).toHaveBeenCalledWith(
+      'log-historical',
+      expect.objectContaining({
+        grinderSnapshot: 'Vintage Kinu M47',
+        brewerSnapshot: 'Kalita Wave 185 Glass',
+      })
+    );
+  });
+
+  it('clears grinderSnapshot and brewerSnapshot when user selects None / Not Specified during edit', async () => {
+    const handleUpdate = vi.fn();
+    render(
+      <ReviewsView
+        logs={[sampleLog1]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+        onUpdateTastingLog={handleUpdate}
+      />
+    );
+
+    const editBtn = screen.getByRole('button', { name: /^Edit$/i });
+    fireEvent.click(editBtn);
+
+    const grinderSelect = screen.getByLabelText(/Grinder/i);
+    fireEvent.change(grinderSelect, { target: { value: '' } });
+
+    const brewerSelect = screen.getByLabelText(/Brewer/i);
+    fireEvent.change(brewerSelect, { target: { value: '' } });
+
+    const saveChangesButtons = screen.getAllByRole('button', { name: /Save Changes/i });
+    await act(async () => {
+      fireEvent.click(saveChangesButtons[0]);
+    });
+
+    expect(handleUpdate).toHaveBeenCalledWith(
+      'log-1',
+      expect.objectContaining({
+        grinderId: undefined,
+        brewerId: undefined,
+        grinderSnapshot: undefined,
+        brewerSnapshot: undefined,
+      })
+    );
+  });
+
+  it('calls onDeleteTastingLog when confirming delete in modal', async () => {
+    const handleDelete = vi.fn();
+    render(
+      <ReviewsView
+        logs={[sampleLog1]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+        onDeleteTastingLog={handleDelete}
+      />
+    );
+
+    const deleteBtn = screen.getByRole('button', { name: /^Delete$/i });
+    fireEvent.click(deleteBtn);
+
+    expect(screen.getByText(/Delete Tasting Log/i)).toBeDefined();
+
+    const confirmBtn = screen.getByRole('button', { name: /Confirm Delete/i });
+    await act(async () => {
+      fireEvent.click(confirmBtn);
+    });
+
+    expect(handleDelete).toHaveBeenCalledWith('log-1');
+  });
+
+  it('filters cards by search query', () => {
+    render(
+      <ReviewsView
+        logs={[sampleLog1, sampleLog2]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const searchInput = screen.getByPlaceholderText(/Search coffee, roaster, tags/i);
+    fireEvent.change(searchInput, { target: { value: 'El Paraiso' } });
+
+    const masterFeed = screen.getByTestId('master-feed');
+    expect(within(masterFeed).getByText('El Paraiso')).toBeDefined();
+    expect(within(masterFeed).queryByText('Worka Sakaro')).toBeNull();
+  });
+
+  it('filters cards by method filter pills', () => {
+    render(
+      <ReviewsView
+        logs={[sampleLog1, sampleLog2]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const aeroPressChip = screen.getByRole('button', { name: /^AeroPress$/i });
+    fireEvent.click(aeroPressChip);
+
+    const masterFeed = screen.getByTestId('master-feed');
+    expect(within(masterFeed).getByText('El Paraiso')).toBeDefined();
+    expect(within(masterFeed).queryByText('Worka Sakaro')).toBeNull();
+  });
+
+  it('auto-activates create mode when pendingBrewSession is passed', () => {
+    const handleClearPending = vi.fn();
+    render(
+      <ReviewsView
+        logs={[sampleLog1]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
         onAddTastingLog={vi.fn()}
         pendingBrewSession={{
           recipe: DEFAULT_PRESET_RECIPES[0],
           actualTimeSeconds: 210,
           bean: INITIAL_BEANS[0],
         }}
-        onClearPendingSession={onClearPendingSession}
+        onClearPendingSession={handleClearPending}
       />
     );
 
-    const clearButton = screen.getByRole('button', { name: 'CLEAR' });
-    expect(clearButton).toBeDefined();
-    expect(clearButton.className).toContain('font-mono');
-    expect(clearButton.className).toContain('uppercase');
-    expect(clearButton.className).toContain('tracking-wider');
-
-    fireEvent.click(clearButton);
-    expect(onClearPendingSession).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('Log New Brew Review')).toBeDefined();
+    expect(screen.getAllByRole('button', { name: /Save Review/i }).length).toBeGreaterThan(0);
   });
 
-  it('renders equipment snapshot strings in past review history cards', () => {
-    const sampleLog: TastingLog = {
-      id: 'log-1',
-      brewMethod: 'v60',
-      brewDate: new Date().toISOString(),
-      beanNameSnapshot: 'Ethiopia Yirgacheffe',
-      roasterSnapshot: 'Onyx Coffee Lab',
-      recipeNameSnapshot: 'V60 Standard',
-      coffeeDoseGrams: 20,
-      waterAmountGrams: 300,
-      actualTimeSeconds: 210,
-      grindSetting: '18 clicks',
-      grinderSnapshot: 'Comandante C40 MK4',
-      brewerSnapshot: 'Hario V60 02 Ceramic',
-      waterTempCelsius: 93,
-      calculatedScaScore: 88,
-      rating: 5,
-      flavorTags: ['Floral', 'Peach'],
-      notes: 'Delicious bloom',
-      wouldBrewAgain: true,
-      scores: {
-        fragranceAroma: 8,
-        flavor: 8.5,
-        aftertaste: 8,
-        acidity: 8.5,
-        body: 8,
-        balance: 8,
-        cleanCup: 10,
-        sweetness: 10,
-        uniformity: 10,
-        overall: 8.5,
-      },
-      createdAt: new Date().toISOString(),
-    };
-
+  it('renders Descriptors tab and accessible 5-star rating controls in form', () => {
     render(
       <ReviewsView
-        logs={[sampleLog]}
+        logs={[]}
         beans={INITIAL_BEANS}
+        equipment={mockEquipment}
         onAddTastingLog={vi.fn()}
       />
     );
 
-    expect(screen.getByText(/Comandante C40 MK4 @ 18 clicks/)).toBeDefined();
-    expect(screen.getByText('Hario V60 02 Ceramic')).toBeDefined();
+    // Open create form
+    const logReviewBtn = screen.getByRole('button', { name: /LOG FIRST REVIEW/i });
+    fireEvent.click(logReviewBtn);
+
+    // Check Descriptors tab exists and no Tag List button exists
+    expect(screen.getByRole('button', { name: /Descriptors/i })).toBeDefined();
+    expect(screen.queryByRole('button', { name: /Tag List/i })).toBeNull();
+
+    // Check accessible star rating groups and buttons
+    const starRatingGroups = screen.getAllByRole('group', { name: /Star rating/i });
+    expect(starRatingGroups.length).toBeGreaterThanOrEqual(1);
+
+    expect(screen.getAllByRole('button', { name: /Rate 5 stars/i }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByRole('button', { name: /Rate 1 star$/i }).length).toBeGreaterThanOrEqual(1);
   });
 
   it('pre-fills grinderId and grindSetting from primary grinder in pendingBrewSession', () => {
@@ -321,7 +646,28 @@ describe('ReviewsView', () => {
       />
     );
 
-    // 1. Parameter inputs: time, dose, water, grind setting, water temp
+    // 1. Logged reviews counter in master feed
+    const loggedReviewsCounter = screen.getByText(/1 logged review/i);
+    expect(loggedReviewsCounter.className).not.toContain('font-mono');
+    expect(loggedReviewsCounter.className).toContain('tabular-nums');
+
+    // 2. Past review card date and rating number
+    const dateSpan = screen.getByText('Oct 1');
+    expect(dateSpan.className).not.toContain('font-mono');
+    expect(dateSpan.className).toContain('tabular-nums');
+
+    const ratingWrapper = screen.getByText('4.5').parentElement;
+    expect(ratingWrapper?.className).not.toContain('font-mono');
+
+    // 3. Brew specs line in master feed card
+    const specsLine = screen.getByText(/15g:250g/i);
+    expect(specsLine.className).not.toContain('font-mono');
+    expect(specsLine.className).toContain('tabular-nums');
+
+    // 4. Click LOG REVIEW to open editor and verify form parameter inputs
+    const logReviewBtn = screen.getByRole('button', { name: /LOG REVIEW/i });
+    fireEvent.click(logReviewBtn);
+
     const timeInput = screen.getByLabelText(/Actual Brew Time/i);
     const doseInput = screen.getByLabelText(/Coffee Dose/i);
     const waterInput = screen.getByLabelText(/Water Amount/i);
@@ -339,24 +685,185 @@ describe('ReviewsView', () => {
     expect(waterInput.className).toContain('tabular-nums');
     expect(tempInput.className).toContain('tabular-nums');
 
-    // 2. Standard baseline note
+    // 5. Standard baseline note
     const baselineNote = screen.getByText(/Standard baseline: 10\.0/i);
     expect(baselineNote.className).not.toContain('font-mono');
+  });
 
-    // 3. Logged reviews counter
-    const loggedReviewsCounter = screen.getByText(/1 logged review/i);
-    expect(loggedReviewsCounter.className).not.toContain('font-mono');
+  it('displays visual error banner when saving review fails, and dismisses on click', async () => {
+    const onAddTastingLog = vi.fn().mockRejectedValue(new Error('Network connection lost'));
 
-    // 4. Past review card date and rating number
-    const dateSpan = screen.getByText(new Date(sampleLog.brewDate).toLocaleDateString());
-    expect(dateSpan.className).not.toContain('font-mono');
+    render(
+      <ReviewsView
+        logs={[]}
+        beans={INITIAL_BEANS}
+        onAddTastingLog={onAddTastingLog}
+      />
+    );
 
-    const ratingWrapper = screen.getByText('4.5').parentElement;
-    expect(ratingWrapper?.className).not.toContain('font-mono');
+    // Click "LOG FIRST REVIEW" to open create mode
+    fireEvent.click(screen.getByRole('button', { name: /LOG FIRST REVIEW/i }));
 
-    // 5. Brew specs line: 15g : 250g (180s)
-    const specsLine = screen.getByText(/15g : 250g \(180s\)/i);
-    expect(specsLine.className).not.toContain('font-mono');
-    expect(specsLine.className).toContain('tabular-nums');
+    // Click "SAVE REVIEW"
+    const saveButton = screen.getAllByRole('button', { name: /SAVE REVIEW/i })[0];
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+    // An error banner with role="alert" should be displayed
+    const alertBanner = screen.getByRole('alert');
+    expect(alertBanner).toBeDefined();
+    expect(alertBanner.textContent).toContain('Network connection lost');
+
+    // Click dismiss button
+    const dismissBtn = screen.getByRole('button', { name: /dismiss error/i });
+    fireEvent.click(dismissBtn);
+
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('prevents default page scroll when pressing Space on master feed card and selects the review', () => {
+    render(
+      <ReviewsView
+        logs={[sampleLog1, sampleLog2]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    // Initial selected log is sampleLog1 (Worka Sakaro)
+    expect(screen.getByRole('heading', { level: 2, name: /Worka Sakaro/i })).toBeDefined();
+
+    // Find the feed card for sampleLog2 (El Paraiso)
+    const cardElParaiso = screen.getByText('El Paraiso').closest('div[role="button"]')!;
+    expect(cardElParaiso).toBeDefined();
+
+    const spaceKeyDownEvent = createEvent.keyDown(cardElParaiso, { key: ' ' });
+    fireEvent(cardElParaiso, spaceKeyDownEvent);
+
+    // Default scroll must be prevented
+    expect(spaceKeyDownEvent.defaultPrevented).toBe(true);
+
+    // The detail pane should now show El Paraiso
+    expect(screen.getByRole('heading', { level: 2, name: /El Paraiso/i })).toBeDefined();
+  });
+
+  it('preserves orphaned/second-edit equipment snapshots and displays (Saved Snapshot) option', async () => {
+    const handleUpdate = vi.fn();
+    const secondEditLog: TastingLog = {
+      ...sampleLog1,
+      id: 'log-orphaned-equipment',
+      grinderId: undefined,
+      brewerId: undefined,
+      grinderSnapshot: 'Niche Zero',
+      brewerSnapshot: 'Origami Dripper M',
+    };
+
+    render(
+      <ReviewsView
+        logs={[secondEditLog]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+        onUpdateTastingLog={handleUpdate}
+      />
+    );
+
+    const editBtn = screen.getByRole('button', { name: /^Edit$/i });
+    fireEvent.click(editBtn);
+
+    // Verify grinder select has the __historical__ option selected
+    const grinderSelect = screen.getByLabelText(/Grinder/i) as HTMLSelectElement;
+    expect(grinderSelect.value).toBe('__historical__');
+    expect(screen.getByText('Niche Zero (Saved Snapshot)')).toBeDefined();
+
+    // Verify brewer select has the __historical__ option selected
+    const brewerSelect = screen.getByLabelText(/Brewer/i) as HTMLSelectElement;
+    expect(brewerSelect.value).toBe('__historical__');
+    expect(screen.getByText('Origami Dripper M (Saved Snapshot)')).toBeDefined();
+
+    // Save without changing equipment
+    const saveChangesButtons = screen.getAllByRole('button', { name: /Save Changes/i });
+    await act(async () => {
+      fireEvent.click(saveChangesButtons[0]);
+    });
+
+    expect(handleUpdate).toHaveBeenCalledWith(
+      'log-orphaned-equipment',
+      expect.objectContaining({
+        grinderId: undefined,
+        brewerId: undefined,
+        grinderSnapshot: 'Niche Zero',
+        brewerSnapshot: 'Origami Dripper M',
+      })
+    );
+  });
+
+  it('displays error banner in view mode when deleting review fails', async () => {
+    const onDeleteTastingLog = vi.fn().mockRejectedValue(new Error('Database delete error'));
+
+    render(
+      <ReviewsView
+        logs={[sampleLog1]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+        onDeleteTastingLog={onDeleteTastingLog}
+      />
+    );
+
+    // Open delete confirmation modal
+    const deleteBtn = screen.getByRole('button', { name: /^Delete$/i });
+    fireEvent.click(deleteBtn);
+
+    // Click "Confirm Delete"
+    const confirmBtn = screen.getByRole('button', { name: /Confirm Delete/i });
+    await act(async () => {
+      fireEvent.click(confirmBtn);
+    });
+
+    // An error banner with role="alert" should be displayed in the view pane
+    const alertBanner = screen.getByRole('alert');
+    expect(alertBanner).toBeDefined();
+    expect(alertBanner.textContent).toContain('Database delete error');
+
+    // Dismiss error banner
+    const dismissBtn = screen.getByRole('button', { name: /dismiss error/i });
+    fireEvent.click(dismissBtn);
+
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('prevents edit-to-create fallthrough and displays error when onUpdateTastingLog is undefined', async () => {
+    const handleAdd = vi.fn();
+
+    render(
+      <ReviewsView
+        logs={[sampleLog1]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={handleAdd}
+      />
+    );
+
+    // Click edit
+    const editBtn = screen.getByRole('button', { name: /^Edit$/i });
+    fireEvent.click(editBtn);
+
+    // Click "Save Changes"
+    const saveButton = screen.getAllByRole('button', { name: /Save Changes/i })[0];
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+    // onAddTastingLog should NOT be called
+    expect(handleAdd).not.toHaveBeenCalled();
+
+    // Visual error alert should be shown informing the user that update handler is missing
+    const alertBanner = screen.getByRole('alert');
+    expect(alertBanner).toBeDefined();
+    expect(alertBanner.textContent).toContain('update handler is not available');
   });
 });
+

@@ -198,7 +198,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
                 onClick={() => setCustomDose(dose)}
                 className={`px-2 py-0.5 rounded text-[11px] tabular-nums transition-colors cursor-pointer border ${
                   isActive
-                    ? 'bg-accent/15 border-accent text-accent font-medium'
+                    ? 'bg-panel-recessed border-accent text-accent font-medium shadow-xs'
                     : 'bg-panel border-border-subtle hover:border-border-active text-zinc-400 hover:text-zinc-200'
                 }`}
               >
@@ -211,51 +211,59 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
 
       {/* Specifications Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3.5 rounded-xl bg-panel border border-border-subtle flex items-center space-x-3">
-          <div className="p-2 rounded-lg bg-panel-recessed text-accent border border-border-subtle">
-            <Droplets className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider font-medium">Total Water</div>
-            <div className="text-base font-light text-zinc-100 tabular-nums">
-              {scaledRecipe.waterAmountGrams}g
+        <div className="p-3 rounded-xl bg-panel border border-border-subtle flex flex-col justify-between min-w-0">
+          <div className="flex items-center justify-between gap-1.5 mb-1.5">
+            <span className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider font-medium truncate">
+              Total Water
+            </span>
+            <div className="p-1 rounded bg-panel-recessed text-accent border border-border-subtle shrink-0">
+              <Droplets className="w-3.5 h-3.5" />
             </div>
+          </div>
+          <div className="text-base sm:text-lg font-light text-zinc-100 tabular-nums">
+            {scaledRecipe.waterAmountGrams}g
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-panel border border-border-subtle flex items-center space-x-3">
-          <div className="p-2 rounded-lg bg-panel-recessed text-accent border border-border-subtle">
-            <BookOpen className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider font-medium">Brew Ratio</div>
-            <div className="text-base font-light text-zinc-100 tabular-nums">
-              1:{recipe.ratio}
+        <div className="p-3 rounded-xl bg-panel border border-border-subtle flex flex-col justify-between min-w-0">
+          <div className="flex items-center justify-between gap-1.5 mb-1.5">
+            <span className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider font-medium truncate">
+              Brew Ratio
+            </span>
+            <div className="p-1 rounded bg-panel-recessed text-accent border border-border-subtle shrink-0">
+              <BookOpen className="w-3.5 h-3.5" />
             </div>
+          </div>
+          <div className="text-base sm:text-lg font-light text-zinc-100 tabular-nums">
+            1:{recipe.ratio}
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-panel border border-border-subtle flex items-center space-x-3">
-          <div className="p-2 rounded-lg bg-panel-recessed text-accent border border-border-subtle">
-            <Clock className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider font-medium">Target Time</div>
-            <div className="text-base font-light text-zinc-100 tabular-nums">
-              {`${Math.floor(recipe.totalTimeSeconds / 60)}m ${(recipe.totalTimeSeconds % 60).toString().padStart(2, '0')}s`}
+        <div className="p-3 rounded-xl bg-panel border border-border-subtle flex flex-col justify-between min-w-0">
+          <div className="flex items-center justify-between gap-1.5 mb-1.5">
+            <span className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider font-medium truncate">
+              Target Time
+            </span>
+            <div className="p-1 rounded bg-panel-recessed text-accent border border-border-subtle shrink-0">
+              <Clock className="w-3.5 h-3.5" />
             </div>
+          </div>
+          <div className="text-base sm:text-lg font-light text-zinc-100 tabular-nums">
+            {`${Math.floor(recipe.totalTimeSeconds / 60)}m ${(recipe.totalTimeSeconds % 60).toString().padStart(2, '0')}s`}
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-panel border border-border-subtle flex items-center space-x-3">
-          <div className="p-2 rounded-lg bg-panel-recessed text-accent border border-border-subtle">
-            <Thermometer className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider font-medium">Water Temp</div>
-            <div className="text-base font-light text-zinc-100 tabular-nums">
-              {recipe.waterTempCelsius ? `${recipe.waterTempCelsius}°C` : '93-96°C'}
+        <div className="p-3 rounded-xl bg-panel border border-border-subtle flex flex-col justify-between min-w-0">
+          <div className="flex items-center justify-between gap-1.5 mb-1.5">
+            <span className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider font-medium truncate">
+              Water Temp
+            </span>
+            <div className="p-1 rounded bg-panel-recessed text-accent border border-border-subtle shrink-0">
+              <Thermometer className="w-3.5 h-3.5" />
             </div>
+          </div>
+          <div className="text-base sm:text-lg font-light text-zinc-100 tabular-nums">
+            {recipe.waterTempCelsius ? `${recipe.waterTempCelsius}°C` : '93-96°C'}
           </div>
         </div>
       </div>

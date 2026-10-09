@@ -339,4 +339,37 @@ describe('RecipeDetailPane', () => {
     expect(screen.getByText('Medium-Coarse')).toBeDefined();
     expect(screen.queryByText(/2\.5/)).toBeNull();
   });
+
+  it('applies neutral outline styling to active dose presets without orange background fill', () => {
+    render(
+      <MemoryRouter>
+        <RecipeDetailPane
+          recipe={{ ...recipe, coffeeDoseGrams: 18 }}
+          onSelectRecipeForTimer={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+
+    // Initial recipe dose is 18g, matching "Standard (18g)" preset
+    const standardPresetBtn = screen.getByRole('button', { name: 'Standard (18g)' });
+    const singlePresetBtn = screen.getByRole('button', { name: 'Single (15g)' });
+
+    // Active preset should have accent border and text, but not orange background fill
+    expect(standardPresetBtn.className).toContain('border-accent');
+    expect(standardPresetBtn.className).toContain('text-accent');
+    expect(standardPresetBtn.className).not.toContain('bg-accent');
+
+    // Inactive preset has neutral border and secondary text
+    expect(singlePresetBtn.className).toContain('border-border-subtle');
+    expect(singlePresetBtn.className).not.toContain('border-accent');
+    expect(singlePresetBtn.className).not.toContain('bg-accent');
+
+    // Clicking Single (15g) activates it and deactivates Standard (18g)
+    fireEvent.click(singlePresetBtn);
+    expect(singlePresetBtn.className).toContain('border-accent');
+    expect(singlePresetBtn.className).toContain('text-accent');
+    expect(singlePresetBtn.className).not.toContain('bg-accent');
+
+    expect(standardPresetBtn.className).not.toContain('border-accent');
+  });
 });
