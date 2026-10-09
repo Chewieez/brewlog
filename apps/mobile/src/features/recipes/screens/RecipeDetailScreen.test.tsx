@@ -5,7 +5,7 @@ import { render, fireEvent, cleanup } from '@testing-library/react';
 import { Alert } from 'react-native';
 import { DEFAULT_PRESET_RECIPES, Equipment } from '@brewlog/core';
 import { RecipeDetailScreen } from './RecipeDetailScreen';
-import { buildTimerReviewParams } from '../../../../app/(tabs)/index';
+import { buildTimerReviewParams } from '../../timer/buildTimerReviewParams';
 
 vi.mock('react-native', () => ({
   View: ({ children, style, ...props }: any) => <div {...props}>{children}</div>,
@@ -269,8 +269,8 @@ describe('RecipeDetailScreen', () => {
     );
 
     expect(getByText('GRINDER SETTINGS')).toBeDefined();
-    expect(getByText(/Fellow Ode Gen 2: 5\.1/)).toBeDefined();
-    expect(getByText(/Comandante C40 MK4: 18 clicks/)).toBeDefined();
+    expect(getByText(/Fellow Ode Gen 2 — 5\.1/)).toBeDefined();
+    expect(getByText(/Comandante C40 MK4 — 18 clicks/)).toBeDefined();
     expect(getByText('PRIMARY')).toBeDefined();
   });
 
@@ -304,7 +304,7 @@ describe('RecipeDetailScreen', () => {
       />
     );
 
-    expect(getByText(/Fellow Ode Gen 2: 5\.1/)).toBeDefined();
+    expect(getByText(/Fellow Ode Gen 2 — 5\.1/)).toBeDefined();
     expect(queryByText(/2\.5/)).toBeNull();
     expect(queryByText(/erased-grinder-999/)).toBeNull();
   });

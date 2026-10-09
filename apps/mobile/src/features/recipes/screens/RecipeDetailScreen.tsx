@@ -158,7 +158,7 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
               <View key={setting.grinderId} style={styles.grinderRow}>
                 <View style={styles.grinderInfo}>
                   <Text style={styles.grinderText}>
-                    {grinder.brand} {grinder.model}: {setting.setting || recipe.grindSize}
+                    {grinder.brand} {grinder.model} — {setting.setting || recipe.grindSize}
                   </Text>
                   {index === 0 && (
                     <View style={styles.primaryBadge}>
