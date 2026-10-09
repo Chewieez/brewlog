@@ -13,10 +13,10 @@ export interface DoseRescalerProps {
 }
 
 const PRESETS = [
-  { label: 'Single (15g)', dose: 15 },
-  { label: 'Standard (18g)', dose: 18 },
-  { label: 'Server (30g)', dose: 30 },
-  { label: 'Batch (45g)', dose: 45 },
+  { name: 'Single', dose: 15 },
+  { name: 'Standard', dose: 18 },
+  { name: 'Server', dose: 30 },
+  { name: 'Batch', dose: 45 },
 ];
 
 export const DoseRescaler: React.FC<DoseRescalerProps> = ({
@@ -95,14 +95,24 @@ export const DoseRescaler: React.FC<DoseRescalerProps> = ({
                 isActive ? styles.presetPillActive : styles.presetPillInactive,
               ]}
               accessibilityRole="button"
+              accessibilityLabel={`${p.name} (${p.dose}g)`}
             >
               <Text
                 style={[
-                  styles.presetText,
+                  styles.presetName,
                   isActive ? styles.presetTextActive : styles.presetTextInactive,
                 ]}
+                numberOfLines={1}
               >
-                {p.label}
+                {p.name}
+              </Text>
+              <Text
+                style={[
+                  styles.presetDose,
+                  isActive ? styles.presetDoseActive : styles.presetDoseInactive,
+                ]}
+              >
+                {p.dose}g
               </Text>
             </Pressable>
           );
@@ -186,17 +196,18 @@ const styles = StyleSheet.create({
   },
   presetsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: 8,
-    justifyContent: 'center',
   },
   presetPill: {
-    paddingHorizontal: 10,
-    minHeight: 44,
-    borderRadius: 6,
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    minHeight: 48,
+    borderRadius: 8,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 2,
   },
   presetPillActive: {
     backgroundColor: colors.panelRecessed,
@@ -206,8 +217,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.panelRecessed,
     borderColor: colors.borderSubtle,
   },
-  presetText: {
+  presetName: {
     fontFamily: FONTS.sansMedium,
+    fontSize: 11,
+    letterSpacing: 0.2,
+  },
+  presetDose: {
+    fontFamily: FONTS.monoBold,
     fontSize: 12,
     fontVariant: ['tabular-nums'],
   },
@@ -217,5 +233,11 @@ const styles = StyleSheet.create({
   },
   presetTextInactive: {
     color: colors.textSecondary,
+  },
+  presetDoseActive: {
+    color: colors.accent,
+  },
+  presetDoseInactive: {
+    color: colors.textMuted,
   },
 });
