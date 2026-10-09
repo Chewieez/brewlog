@@ -424,7 +424,10 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
         description: description.trim() || "",
         notes: notes.trim() || undefined,
         stages,
-        grinderSettings,
+        grinderSettings: grinderSettings.map((s) => ({
+          grinderId: s.grinderId,
+          setting: s.setting.trim(),
+        })),
         recommendedGrinderId: grinderSettings[0]?.grinderId || undefined,
         isPreset: initialRecipe ? initialRecipe.isPreset : false,
         isFavorite: initialRecipe ? initialRecipe.isFavorite : false,

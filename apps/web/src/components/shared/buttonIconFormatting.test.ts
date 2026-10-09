@@ -1,7 +1,6 @@
+/// <reference types="node" />
 import { describe, it, expect } from 'vitest';
-// @ts-expect-error node:fs has no types in client tsconfig
 import * as fs from 'node:fs';
-// @ts-expect-error node:path has no types in client tsconfig
 import * as path from 'node:path';
 
 const proc = (globalThis as unknown as { process: { cwd: () => string } }).process;

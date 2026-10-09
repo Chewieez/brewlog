@@ -35,7 +35,7 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
   );
 
   const userGrinders = propEquipment
-    ? propEquipment.filter((e) => !e.type || e.type === 'grinder')
+    ? propEquipment.filter((e) => e.type === 'grinder')
     : (equipmentContext?.grinders ?? equipmentContext?.equipment?.filter((e) => e.type === 'grinder') ?? []);
 
   const activeGrinderSettings = (recipe?.grinderSettings || []).flatMap((setting) => {
