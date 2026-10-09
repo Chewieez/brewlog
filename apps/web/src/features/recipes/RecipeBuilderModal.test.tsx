@@ -640,5 +640,77 @@ describe('RecipeBuilderModal', () => {
     expect((screen.getByRole('combobox', { name: /grinder 1/i }) as HTMLSelectElement).value).toBe(sampleGrinder2.id);
     expect((screen.getByRole('combobox', { name: /grinder 2/i }) as HTMLSelectElement).value).toBe(sampleGrinder1.id);
   });
+
+  it('uses equipment passed via props directly', () => {
+    const propGrinder: Equipment = {
+      id: 'prop-k6',
+      brand: 'Kingrinder',
+      model: 'K6',
+      type: 'grinder',
+      settingScaleType: 'clicks',
+      createdAt: '2026-01-01',
+    };
+
+    render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSaveRecipe={vi.fn()}
+        initialRecipe={null}
+        equipment={[propGrinder]}
+      />
+    );
+
+    expect(screen.getByRole('combobox', { name: /grinder 1/i })).toBeDefined();
+    expect((screen.getByRole('combobox', { name: /grinder 1/i }) as HTMLSelectElement).value).toBe('prop-k6');
+    expect(screen.getByText(/Kingrinder K6/)).toBeDefined();
+  });
+
+  it('calls onAddEquipment prop when creating inline grinder', async () => {
+    const mockOnAddEquipment = vi.fn().mockResolvedValue({
+      id: 'new-k6',
+      brand: 'Kingrinder',
+      model: 'K6',
+      type: 'grinder',
+      settingScaleType: 'clicks',
+      createdAt: '2026-01-01',
+    });
+
+    render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSaveRecipe={vi.fn()}
+        initialRecipe={null}
+        equipment={[]}
+        onAddEquipment={mockOnAddEquipment}
+      />
+    );
+
+    // Prompt to add grinder should be visible
+    expect(screen.getByText(/no grinders found in your equipment/i)).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: /add grinder/i }));
+
+    // Fill inline form
+    fireEvent.change(screen.getByLabelText(/brand/i), { target: { value: 'Kingrinder' } });
+    fireEvent.change(screen.getByLabelText(/model/i), { target: { value: 'K6' } });
+    fireEvent.click(screen.getByRole('button', { name: /save grinder/i }));
+
+    await waitFor(() => {
+      expect(mockOnAddEquipment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'grinder',
+          brand: 'Kingrinder',
+          model: 'K6',
+        })
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('combobox', { name: /grinder 1/i })).toBeDefined();
+      expect((screen.getByRole('combobox', { name: /grinder 1/i }) as HTMLSelectElement).value).toBe('new-k6');
+    });
+  });
 });
+
 

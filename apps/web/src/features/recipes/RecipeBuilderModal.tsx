@@ -30,6 +30,8 @@ interface RecipeBuilderModalProps {
   onClose: () => void;
   onSaveRecipe: (recipe: Omit<BrewRecipe, "id" | "createdAt">) => Promise<void> | void;
   initialRecipe?: BrewRecipe | null;
+  equipment?: Equipment[];
+  onAddEquipment?: (item: Omit<Equipment, "id" | "createdAt">) => Promise<Equipment> | Promise<void>;
 }
 
 const BREW_METHODS: { value: BrewMethodType; label: string }[] = [
@@ -105,9 +107,13 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
   onClose,
   onSaveRecipe,
   initialRecipe,
+  equipment: propEquipment,
+  onAddEquipment: propAddEquipment,
 }) => {
   const { user } = useAuth();
-  const { equipment, addEquipment } = useEquipment();
+  const hookEquipment = useEquipment();
+  const equipment = propEquipment ?? hookEquipment.equipment;
+  const addEquipment = propAddEquipment ?? hookEquipment.addEquipment;
   const [locallyAddedGrinders, setLocallyAddedGrinders] = useState<Equipment[]>([]);
 
   // Filter grinders
@@ -331,8 +337,10 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
         model: inlineModel.trim(),
         settingScaleType: inlineScale,
       });
-      setLocallyAddedGrinders((prev) => [...prev, created]);
-      setGrinderSettings([{ grinderId: created.id, setting: "" }]);
+      if (created && typeof created === "object" && "id" in created) {
+        setLocallyAddedGrinders((prev) => [...prev, created as Equipment]);
+        setGrinderSettings([{ grinderId: created.id, setting: "" }]);
+      }
       setIsAddingInlineGrinder(false);
       setInlineBrand("");
       setInlineModel("");

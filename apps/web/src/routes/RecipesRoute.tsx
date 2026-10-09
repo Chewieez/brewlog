@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Outlet, useOutletContext, useParams, useNavigate } from 'react-router';
-import { BrewRecipe } from '@brewlog/core';
+import { BrewRecipe, Equipment } from '@brewlog/core';
 import { Plus } from 'lucide-react';
 import { useRootOutletContext } from '../layouts/RootLayout';
 import { RecipeCatalogList } from '../features/recipes/RecipeCatalogList';
@@ -8,6 +8,7 @@ import { RecipeBuilderModal } from '../features/recipes/RecipeBuilderModal';
 
 export interface RecipeOutletContext {
   recipes: BrewRecipe[];
+  equipment?: Equipment[];
   onSelectRecipeForTimer: (recipe: BrewRecipe) => void;
   onEditRecipe?: (recipe: BrewRecipe) => void;
   onDeleteRecipe?: (id: string) => Promise<void> | void;
@@ -16,7 +17,15 @@ export interface RecipeOutletContext {
 export const useRecipeOutletContext = () => useOutletContext<RecipeOutletContext>();
 
 export const RecipesRoute: React.FC = () => {
-  const { recipes, onAddRecipe, onUpdateRecipe, onDeleteRecipe, setSelectedRecipe } = useRootOutletContext();
+  const {
+    recipes,
+    equipment,
+    onAddEquipment,
+    onAddRecipe,
+    onUpdateRecipe,
+    onDeleteRecipe,
+    setSelectedRecipe,
+  } = useRootOutletContext();
   const { recipeId } = useParams<{ recipeId?: string }>();
   const navigate = useNavigate();
 
@@ -66,11 +75,12 @@ export const RecipesRoute: React.FC = () => {
   const recipeOutletContextValue = useMemo<RecipeOutletContext>(
     () => ({
       recipes,
+      equipment,
       onSelectRecipeForTimer: handleSelectRecipeForTimer,
       onEditRecipe: handleEditRecipe,
       onDeleteRecipe,
     }),
-    [recipes, handleSelectRecipeForTimer, handleEditRecipe, onDeleteRecipe]
+    [recipes, equipment, handleSelectRecipeForTimer, handleEditRecipe, onDeleteRecipe]
   );
 
   return (
@@ -132,6 +142,8 @@ export const RecipesRoute: React.FC = () => {
       <RecipeBuilderModal
         isOpen={isBuilderModalOpen}
         initialRecipe={editingRecipe}
+        equipment={equipment}
+        onAddEquipment={onAddEquipment}
         onClose={() => {
           setIsBuilderModalOpen(false);
           setEditingRecipe(null);
