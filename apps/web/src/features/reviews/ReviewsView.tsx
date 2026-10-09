@@ -13,7 +13,6 @@ import {
   Plus,
   Search,
   Star,
-  Award,
   Cherry,
   Flower2,
   Flame,
@@ -26,7 +25,7 @@ import {
   CheckCircle2,
   Save,
   X,
-  RotateCcw,
+  AlertCircle,
 } from 'lucide-react';
 import { ScaFlavorWheelSvg } from './ScaFlavorWheelSvg';
 import { ReviewDetailPane, getScaTier } from './ReviewDetailPane';
@@ -179,6 +178,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
   const [wouldBrewAgain, setWouldBrewAgain] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const grinders = (equipment || []).filter((e) => e.type === 'grinder');
   const brewers = (equipment || []).filter((e) => e.type === 'brewer');
@@ -263,6 +263,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
     setCustomBeanName('');
     setCustomRoaster('');
     setFlavorViewMode('tags');
+    setErrorMessage(null);
     if (onClearPendingSession) onClearPendingSession();
   };
 
@@ -274,12 +275,32 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
   const handleStartEdit = (log: TastingLog) => {
     setEditingLogId(log.id);
+    setErrorMessage(null);
     const hasBeanInStash = Boolean(log.beanId && (beans || []).some((b) => b.id === log.beanId));
     setSelectedBeanId(hasBeanInStash ? (log.beanId as string) : 'custom');
     setCustomBeanName(log.beanNameSnapshot || '');
     setCustomRoaster(log.roasterSnapshot || '');
-    setGrinderId(log.grinderId || '');
-    setBrewerId(log.brewerId || '');
+    const hasGrinderInStash = Boolean(
+      log.grinderId && (equipment || []).some((e) => e.id === log.grinderId)
+    );
+    setGrinderId(
+      hasGrinderInStash
+        ? (log.grinderId as string)
+        : log.grinderSnapshot?.trim()
+        ? '__historical__'
+        : ''
+    );
+
+    const hasBrewerInStash = Boolean(
+      log.brewerId && (equipment || []).some((e) => e.id === log.brewerId)
+    );
+    setBrewerId(
+      hasBrewerInStash
+        ? (log.brewerId as string)
+        : log.brewerSnapshot?.trim()
+        ? '__historical__'
+        : ''
+    );
     setBrewMethod(log.brewMethod || 'v60');
     setCoffeeDoseGrams(log.coffeeDoseGrams || 20);
     setWaterAmountGrams(log.waterAmountGrams || 300);
@@ -316,18 +337,27 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
   const handleSaveTastingLog = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
+    setErrorMessage(null);
 
     const originalLog = mode === 'edit' ? logs.find((l) => l.id === editingLogId) : undefined;
     const chosenBean = beans.find((b) => b.id === selectedBeanId);
     const selectedGrinder = (equipment || []).find((e) => e.id === grinderId);
     const selectedBrewer = (equipment || []).find((e) => e.id === brewerId);
 
-    const grinderSnapshot = selectedGrinder
-      ? `${selectedGrinder.brand} ${selectedGrinder.model}`
-      : originalLog?.grinderSnapshot;
-    const brewerSnapshot = selectedBrewer
-      ? `${selectedBrewer.brand} ${selectedBrewer.model}`
-      : originalLog?.brewerSnapshot;
+    const grinderSnapshot = grinderId
+      ? selectedGrinder
+        ? `${selectedGrinder.brand} ${selectedGrinder.model}`
+        : grinderId === '__historical__' || (originalLog && grinderId === originalLog.grinderId)
+        ? originalLog?.grinderSnapshot
+        : undefined
+      : undefined;
+    const brewerSnapshot = brewerId
+      ? selectedBrewer
+        ? `${selectedBrewer.brand} ${selectedBrewer.model}`
+        : brewerId === '__historical__' || (originalLog && brewerId === originalLog.brewerId)
+        ? originalLog?.brewerSnapshot
+        : undefined
+      : undefined;
 
     const beanNameSnapshot = chosenBean?.name || customBeanName.trim() || originalLog?.beanNameSnapshot || 'Specialty Blend';
     const roasterSnapshot = chosenBean?.roaster || customRoaster.trim() || originalLog?.roasterSnapshot || 'Local Roaster';
@@ -337,7 +367,13 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
       `${brewMethod.toUpperCase()} Brew`;
 
     try {
-      if (mode === 'edit' && editingLogId && onUpdateTastingLog) {
+      if (mode === 'edit') {
+        if (!editingLogId || !onUpdateTastingLog) {
+          console.warn('Cannot update tasting log: onUpdateTastingLog is undefined or editingLogId is missing.');
+          setErrorMessage('Unable to update review: update handler is not available.');
+          return;
+        }
+
         await onUpdateTastingLog(editingLogId, {
           beanId: chosenBean?.id,
           grinderId: selectedGrinder?.id,
@@ -401,6 +437,9 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
       setMode('view');
     } catch (err) {
       console.error('Failed to save tasting log:', err);
+      setErrorMessage(
+        err instanceof Error ? err.message : 'Failed to save tasting log. Please try again.'
+      );
     } finally {
       setIsSaving(false);
     }
@@ -408,12 +447,16 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
   const handleDeleteLog = async (log: TastingLog) => {
     if (onDeleteTastingLog) {
+      setErrorMessage(null);
       try {
         await onDeleteTastingLog(log.id);
         const remaining = logs.filter((l) => l.id !== log.id);
         setSelectedLogId(remaining[0]?.id || null);
       } catch (err) {
         console.error('Failed to delete tasting log:', err);
+        setErrorMessage(
+          err instanceof Error ? err.message : 'Failed to delete tasting log. Please try again.'
+        );
       }
     }
   };
@@ -452,6 +495,10 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
     return logs.find((l) => l.id === selectedLogId) || logs[0] || null;
   }, [logs, selectedLogId]);
 
+  const editingLog = useMemo(() => {
+    return mode === 'edit' && editingLogId ? logs.find((l) => l.id === editingLogId) : undefined;
+  }, [logs, mode, editingLogId]);
+
   const formatBrewTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -464,6 +511,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
   const formatDate = (dateStr: string) => {
     try {
       const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
       return d.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -596,6 +644,9 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
+                        if (e.key === ' ') {
+                          e.preventDefault();
+                        }
                         setSelectedLogId(log.id);
                         setMode('view');
                       }
@@ -683,6 +734,26 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
           data-testid="detail-pane"
           className="w-full lg:w-[62%] min-w-0 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6.5rem)] lg:overflow-y-auto lg:pr-1"
         >
+          {errorMessage && mode === 'view' && (
+            <div
+              role="alert"
+              className="p-3.5 mb-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs flex items-center justify-between gap-3 animate-fade-in"
+            >
+              <div className="flex items-center gap-2.5">
+                <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                <span>{errorMessage}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setErrorMessage(null)}
+                aria-label="Dismiss error"
+                className="p-1 rounded text-red-400 hover:text-red-200 hover:bg-red-500/20 transition-colors cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
           {mode === 'view' ? (
             activeSelectedLog ? (
               <ReviewDetailPane
@@ -944,6 +1015,12 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                         className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-zinc-100 font-sans font-medium focus:outline-none focus:border-accent cursor-pointer"
                       >
                         <option value="">None / Not Specified</option>
+                        {editingLog?.grinderSnapshot?.trim() &&
+                          !grinders.some((g) => g.id === editingLog.grinderId) && (
+                            <option value="__historical__">
+                              {editingLog.grinderSnapshot} (Saved Snapshot)
+                            </option>
+                          )}
                         {grinders.map((g) => (
                           <option key={g.id} value={g.id}>
                             {g.brand} {g.model}
@@ -979,6 +1056,12 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                         className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-zinc-100 font-sans font-medium focus:outline-none focus:border-accent cursor-pointer"
                       >
                         <option value="">None / Not Specified</option>
+                        {editingLog?.brewerSnapshot?.trim() &&
+                          !brewers.some((b) => b.id === editingLog.brewerId) && (
+                            <option value="__historical__">
+                              {editingLog.brewerSnapshot} (Saved Snapshot)
+                            </option>
+                          )}
                         {brewers.map((b) => (
                           <option key={b.id} value={b.id}>
                             {b.brand} {b.model}
@@ -1287,6 +1370,27 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                   </label>
                 </div>
               </div>
+
+              {/* Error Alert Banner */}
+              {errorMessage && (
+                <div
+                  role="alert"
+                  className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs flex items-center justify-between gap-3 animate-fade-in"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                    <span>{errorMessage}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setErrorMessage(null)}
+                    aria-label="Dismiss error"
+                    className="p-1 rounded text-red-400 hover:text-red-200 hover:bg-red-500/20 transition-colors cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
 
               {/* Bottom Action Controls */}
               <div className="flex items-center justify-end gap-3 pt-2">

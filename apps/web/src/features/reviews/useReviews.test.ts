@@ -515,6 +515,79 @@ describe("useReviews hook", () => {
     expect(result.current.logs.some((l) => l.id === "log-1")).toBe(true);
   });
 
+  it("reverts local state and maintains chronological order if deleteTastingLog fails in Supabase", async () => {
+    const mockDeleteEq = vi.fn().mockResolvedValue({
+      error: new Error("Network timeout during delete"),
+    });
+
+    const mockDelete = vi.fn().mockReturnValue({
+      eq: mockDeleteEq,
+    });
+
+    const mockSelect = vi.fn().mockReturnValue({
+      order: vi.fn().mockResolvedValue({
+        data: [
+          {
+            ...mockRow1,
+            id: "log-newer",
+            brew_date: "2026-10-06T12:00:00Z",
+          },
+          {
+            ...mockRow1,
+            id: "log-middle",
+            brew_date: "2026-10-04T12:00:00Z",
+          },
+          {
+            ...mockRow1,
+            id: "log-older",
+            brew_date: "2026-10-02T12:00:00Z",
+          },
+        ],
+        error: null,
+      }),
+    });
+
+    vi.mocked(supabase!.from).mockImplementation((table: string) => {
+      if (table === "tasting_logs") {
+        return {
+          select: mockSelect,
+          delete: mockDelete,
+        } as any;
+      }
+      return {} as any;
+    });
+
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: "user-123", email: "test@example.com" } as any,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useReviews());
+    await waitFor(() => {
+      expect(result.current.logs).toHaveLength(3);
+    });
+    expect(result.current.logs.map((l) => l.id)).toEqual(["log-newer", "log-middle", "log-older"]);
+
+    await expect(
+      act(async () => {
+        await result.current.deleteTastingLog("log-middle");
+      })
+    ).rejects.toThrow("Network timeout during delete");
+
+    expect(result.current.logs.map((l) => l.id)).toEqual(["log-newer", "log-middle", "log-older"]);
+  });
+
   it("fetches and sets logs from Supabase when authenticated", async () => {
     const mockOrder = vi.fn().mockResolvedValue({
       data: [mockRow1],

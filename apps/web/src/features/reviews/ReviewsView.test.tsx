@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, fireEvent, act, cleanup, within } from '@testing-library/react';
+import { render, screen, fireEvent, act, cleanup, within, createEvent } from '@testing-library/react';
 import { ReviewsView } from './ReviewsView';
 import { INITIAL_BEANS } from '../../lib/sampleData';
 import { DEFAULT_PRESET_RECIPES, Equipment, TastingLog, BrewRecipe } from '@brewlog/core';
@@ -24,6 +24,8 @@ const mockEquipment: Equipment[] = [
 
 const sampleLog1: TastingLog = {
   id: 'log-1',
+  grinderId: 'grinder-1',
+  brewerId: 'brewer-1',
   brewMethod: 'v60',
   brewDate: '2026-10-04T12:00:00Z',
   beanNameSnapshot: 'Worka Sakaro',
@@ -364,6 +366,43 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     );
   });
 
+  it('clears grinderSnapshot and brewerSnapshot when user selects None / Not Specified during edit', async () => {
+    const handleUpdate = vi.fn();
+    render(
+      <ReviewsView
+        logs={[sampleLog1]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+        onUpdateTastingLog={handleUpdate}
+      />
+    );
+
+    const editBtn = screen.getByRole('button', { name: /^Edit$/i });
+    fireEvent.click(editBtn);
+
+    const grinderSelect = screen.getByLabelText(/Grinder/i);
+    fireEvent.change(grinderSelect, { target: { value: '' } });
+
+    const brewerSelect = screen.getByLabelText(/Brewer/i);
+    fireEvent.change(brewerSelect, { target: { value: '' } });
+
+    const saveChangesButtons = screen.getAllByRole('button', { name: /Save Changes/i });
+    await act(async () => {
+      fireEvent.click(saveChangesButtons[0]);
+    });
+
+    expect(handleUpdate).toHaveBeenCalledWith(
+      'log-1',
+      expect.objectContaining({
+        grinderId: undefined,
+        brewerId: undefined,
+        grinderSnapshot: undefined,
+        brewerSnapshot: undefined,
+      })
+    );
+  });
+
   it('calls onDeleteTastingLog when confirming delete in modal', async () => {
     const handleDelete = vi.fn();
     render(
@@ -650,4 +689,181 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     const baselineNote = screen.getByText(/Standard baseline: 10\.0/i);
     expect(baselineNote.className).not.toContain('font-mono');
   });
+
+  it('displays visual error banner when saving review fails, and dismisses on click', async () => {
+    const onAddTastingLog = vi.fn().mockRejectedValue(new Error('Network connection lost'));
+
+    render(
+      <ReviewsView
+        logs={[]}
+        beans={INITIAL_BEANS}
+        onAddTastingLog={onAddTastingLog}
+      />
+    );
+
+    // Click "LOG FIRST REVIEW" to open create mode
+    fireEvent.click(screen.getByRole('button', { name: /LOG FIRST REVIEW/i }));
+
+    // Click "SAVE REVIEW"
+    const saveButton = screen.getAllByRole('button', { name: /SAVE REVIEW/i })[0];
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+    // An error banner with role="alert" should be displayed
+    const alertBanner = screen.getByRole('alert');
+    expect(alertBanner).toBeDefined();
+    expect(alertBanner.textContent).toContain('Network connection lost');
+
+    // Click dismiss button
+    const dismissBtn = screen.getByRole('button', { name: /dismiss error/i });
+    fireEvent.click(dismissBtn);
+
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('prevents default page scroll when pressing Space on master feed card and selects the review', () => {
+    render(
+      <ReviewsView
+        logs={[sampleLog1, sampleLog2]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    // Initial selected log is sampleLog1 (Worka Sakaro)
+    expect(screen.getByRole('heading', { level: 2, name: /Worka Sakaro/i })).toBeDefined();
+
+    // Find the feed card for sampleLog2 (El Paraiso)
+    const cardElParaiso = screen.getByText('El Paraiso').closest('div[role="button"]')!;
+    expect(cardElParaiso).toBeDefined();
+
+    const spaceKeyDownEvent = createEvent.keyDown(cardElParaiso, { key: ' ' });
+    fireEvent(cardElParaiso, spaceKeyDownEvent);
+
+    // Default scroll must be prevented
+    expect(spaceKeyDownEvent.defaultPrevented).toBe(true);
+
+    // The detail pane should now show El Paraiso
+    expect(screen.getByRole('heading', { level: 2, name: /El Paraiso/i })).toBeDefined();
+  });
+
+  it('preserves orphaned/second-edit equipment snapshots and displays (Saved Snapshot) option', async () => {
+    const handleUpdate = vi.fn();
+    const secondEditLog: TastingLog = {
+      ...sampleLog1,
+      id: 'log-orphaned-equipment',
+      grinderId: undefined,
+      brewerId: undefined,
+      grinderSnapshot: 'Niche Zero',
+      brewerSnapshot: 'Origami Dripper M',
+    };
+
+    render(
+      <ReviewsView
+        logs={[secondEditLog]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+        onUpdateTastingLog={handleUpdate}
+      />
+    );
+
+    const editBtn = screen.getByRole('button', { name: /^Edit$/i });
+    fireEvent.click(editBtn);
+
+    // Verify grinder select has the __historical__ option selected
+    const grinderSelect = screen.getByLabelText(/Grinder/i) as HTMLSelectElement;
+    expect(grinderSelect.value).toBe('__historical__');
+    expect(screen.getByText('Niche Zero (Saved Snapshot)')).toBeDefined();
+
+    // Verify brewer select has the __historical__ option selected
+    const brewerSelect = screen.getByLabelText(/Brewer/i) as HTMLSelectElement;
+    expect(brewerSelect.value).toBe('__historical__');
+    expect(screen.getByText('Origami Dripper M (Saved Snapshot)')).toBeDefined();
+
+    // Save without changing equipment
+    const saveChangesButtons = screen.getAllByRole('button', { name: /Save Changes/i });
+    await act(async () => {
+      fireEvent.click(saveChangesButtons[0]);
+    });
+
+    expect(handleUpdate).toHaveBeenCalledWith(
+      'log-orphaned-equipment',
+      expect.objectContaining({
+        grinderId: undefined,
+        brewerId: undefined,
+        grinderSnapshot: 'Niche Zero',
+        brewerSnapshot: 'Origami Dripper M',
+      })
+    );
+  });
+
+  it('displays error banner in view mode when deleting review fails', async () => {
+    const onDeleteTastingLog = vi.fn().mockRejectedValue(new Error('Database delete error'));
+
+    render(
+      <ReviewsView
+        logs={[sampleLog1]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+        onDeleteTastingLog={onDeleteTastingLog}
+      />
+    );
+
+    // Open delete confirmation modal
+    const deleteBtn = screen.getByRole('button', { name: /^Delete$/i });
+    fireEvent.click(deleteBtn);
+
+    // Click "Confirm Delete"
+    const confirmBtn = screen.getByRole('button', { name: /Confirm Delete/i });
+    await act(async () => {
+      fireEvent.click(confirmBtn);
+    });
+
+    // An error banner with role="alert" should be displayed in the view pane
+    const alertBanner = screen.getByRole('alert');
+    expect(alertBanner).toBeDefined();
+    expect(alertBanner.textContent).toContain('Database delete error');
+
+    // Dismiss error banner
+    const dismissBtn = screen.getByRole('button', { name: /dismiss error/i });
+    fireEvent.click(dismissBtn);
+
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('prevents edit-to-create fallthrough and displays error when onUpdateTastingLog is undefined', async () => {
+    const handleAdd = vi.fn();
+
+    render(
+      <ReviewsView
+        logs={[sampleLog1]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={handleAdd}
+      />
+    );
+
+    // Click edit
+    const editBtn = screen.getByRole('button', { name: /^Edit$/i });
+    fireEvent.click(editBtn);
+
+    // Click "Save Changes"
+    const saveButton = screen.getAllByRole('button', { name: /Save Changes/i })[0];
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+    // onAddTastingLog should NOT be called
+    expect(handleAdd).not.toHaveBeenCalled();
+
+    // Visual error alert should be shown informing the user that update handler is missing
+    const alertBanner = screen.getByRole('alert');
+    expect(alertBanner).toBeDefined();
+    expect(alertBanner.textContent).toContain('update handler is not available');
+  });
 });
+

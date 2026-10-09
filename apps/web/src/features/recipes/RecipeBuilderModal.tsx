@@ -894,7 +894,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                   step="1"
                   value={coffeeDoseGrams}
                   onChange={(e) => handleDoseChange(Math.round(Number(e.target.value)))}
-                  className="w-full px-3 py-2 rounded bg-panel border border-border-subtle text-accent text-base font-light tabular-nums focus:outline-none focus:border-accent"
+                  className="w-full px-3 py-2 rounded bg-panel border border-border-subtle text-text-primary text-base font-light tabular-nums focus:outline-none focus:border-accent"
                 />
               </div>
 
@@ -935,7 +935,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                   step="1"
                   value={waterAmountGrams}
                   onChange={(e) => handleWaterChange(Number(e.target.value))}
-                  className="w-full px-3 py-2 rounded bg-panel border border-border-subtle text-accent text-base font-light tabular-nums focus:outline-none focus:border-accent"
+                  className="w-full px-3 py-2 rounded bg-panel border border-border-subtle text-text-primary text-base font-light tabular-nums focus:outline-none focus:border-accent"
                 />
               </div>
             </div>
@@ -990,7 +990,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center space-x-2">
-                      <span className="w-6 h-6 rounded bg-panel text-accent text-xs font-bold flex items-center justify-center border border-border-subtle">
+                      <span className="w-6 h-6 rounded bg-panel text-text-primary text-xs font-bold flex items-center justify-center border border-border-subtle">
                         {index + 1}
                       </span>
                       <input
@@ -1108,7 +1108,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                             Number(e.target.value)
                           )
                         }
-                        className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-accent text-sm font-light tabular-nums font-bold focus:outline-none focus:border-accent"
+                        className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-sm font-light tabular-nums focus:outline-none focus:border-accent"
                       />
                     </div>
                   </div>

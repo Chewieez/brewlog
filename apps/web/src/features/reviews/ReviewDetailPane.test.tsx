@@ -234,4 +234,41 @@ describe('ReviewDetailPane component', () => {
     expect(dialog.getAttribute('aria-labelledby')).toBe('delete-dialog-title');
     expect(screen.getByRole('heading', { level: 2, name: /Delete Tasting Log/i })).toBeDefined();
   });
+
+  it('closes delete confirmation modal when Escape key is pressed', () => {
+    render(
+      <ReviewDetailPane
+        log={mockLog}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+      />
+    );
+
+    const deleteBtn = screen.getByRole('button', { name: /^Delete$/i });
+    fireEvent.click(deleteBtn);
+
+    expect(screen.getByRole('dialog')).toBeDefined();
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('falls back cleanly to raw date string when brewDate is invalid', () => {
+    const logWithInvalidDate: TastingLog = {
+      ...mockLog,
+      brewDate: 'not-a-valid-date',
+    };
+
+    render(
+      <ReviewDetailPane
+        log={logWithInvalidDate}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('not-a-valid-date')).toBeDefined();
+    expect(screen.queryByText('Invalid Date')).toBeNull();
+  });
 });

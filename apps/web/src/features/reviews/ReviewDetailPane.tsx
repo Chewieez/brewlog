@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TastingLog, Bean, Equipment } from '@brewlog/core';
 import {
   Star,
@@ -70,6 +70,17 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
   const [sensoryTab, setSensoryTab] = useState<'descriptors' | 'wheel'>('descriptors');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  useEffect(() => {
+    if (!showDeleteModal) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowDeleteModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showDeleteModal]);
+
   // Bean resolution
   const matchedBean = log.beanId ? beans.find((b) => b.id === log.beanId) : undefined;
   const beanName = log.beanNameSnapshot || matchedBean?.name || 'Specialty Coffee';
@@ -104,6 +115,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
   const formatDate = (dateStr: string) => {
     try {
       const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
       return d.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',

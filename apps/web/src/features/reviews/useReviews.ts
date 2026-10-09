@@ -127,7 +127,8 @@ export const useReviews = (): UseReviewsReturn => {
   };
 
   const deleteTastingLog = async (id: string) => {
-    const existing = logs.find((l) => l.id === id);
+    const existingIndex = logs.findIndex((l) => l.id === id);
+    const existing = logs[existingIndex];
     setLogs((prev) => prev.filter((l) => l.id !== id));
 
     if (!supabase || !user || id.startsWith("local-log-")) {
@@ -143,7 +144,21 @@ export const useReviews = (): UseReviewsReturn => {
     } catch (err) {
       console.error("deleteTastingLog exception:", err);
       if (existing) {
-        setLogs((prev) => (prev.some((l) => l.id === id) ? prev : [existing, ...prev]));
+        setLogs((prev) => {
+          if (prev.some((l) => l.id === id)) return prev;
+          const existingTime = new Date(existing.brewDate).getTime();
+          const insertIndex = !isNaN(existingTime)
+            ? prev.findIndex((l) => new Date(l.brewDate).getTime() < existingTime)
+            : existingIndex;
+
+          const next = [...prev];
+          if (insertIndex === -1) {
+            next.push(existing);
+          } else {
+            next.splice(insertIndex, 0, existing);
+          }
+          return next;
+        });
       }
       throw err;
     }
