@@ -647,7 +647,7 @@ describe('RecipeBuilderScreen', () => {
     fireEvent.click(getByText('ADD'));
     fireEvent.click(getByText('ADD'));
 
-    const primaryBadges = getAllByText(/primary/i);
+    const primaryBadges = getAllByText(/^primary$/i);
     expect(primaryBadges).toHaveLength(1);
   });
 
@@ -667,10 +667,32 @@ describe('RecipeBuilderScreen', () => {
     // Row 1 is removed; Comandante becomes the first row and is badged Primary
     expect(queryByText('Fellow Ode Gen 2')).toBeNull();
     expect(getByText('Comandante C40 MK4')).toBeDefined();
-    expect(getByText(/primary/i)).toBeDefined();
+    expect(getByText(/^primary$/i)).toBeDefined();
 
     // Since only 1 of 2 is configured now, "ADD" reappears
     expect(getByText('ADD')).toBeDefined();
+  });
+
+  it('allows promoting a non-primary grinder to primary with SET PRIMARY button', () => {
+    activeEquipmentContext.grinders = [sampleGrinder1, sampleGrinder2];
+    const { getByText, getByLabelText } = render(<RecipeBuilderScreen />);
+
+    fireEvent.click(getByText('ADD'));
+    fireEvent.click(getByText('ADD'));
+
+    expect(getByLabelText('Grinder 1').textContent).toContain('Fellow Ode Gen 2');
+    expect(getByLabelText('Grinder 2').textContent).toContain('Comandante C40 MK4');
+
+    // Row 2 has "SET PRIMARY" button
+    const setPrimaryBtn = getByLabelText('Set grinder 2 as primary');
+    expect(setPrimaryBtn).toBeDefined();
+
+    // Click "SET PRIMARY" on Row 2
+    fireEvent.click(setPrimaryBtn);
+
+    // Row 1 is now Comandante, Row 2 is Fellow
+    expect(getByLabelText('Grinder 1').textContent).toContain('Comandante C40 MK4');
+    expect(getByLabelText('Grinder 2').textContent).toContain('Fellow Ode Gen 2');
   });
 
   it('saves recipe with grinderSettings array and syncs recommendedGrinderId to primary grinder', async () => {

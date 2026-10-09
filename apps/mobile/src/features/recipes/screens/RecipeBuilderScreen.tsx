@@ -431,6 +431,15 @@ export const RecipeBuilderScreen: React.FC = () => {
     setGrinderSettings((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleSetPrimaryGrinder = (index: number) => {
+    if (index <= 0 || index >= grinderSettings.length) return;
+    setGrinderSettings((prev) => {
+      const selected = prev[index];
+      const rest = prev.filter((_, i) => i !== index);
+      return [selected, ...rest];
+    });
+  };
+
   const handleSave = async () => {
     const trimmedName = name.trim();
     if (trimmedName.length === 0) {
@@ -842,13 +851,22 @@ export const RecipeBuilderScreen: React.FC = () => {
                   : 'Select Grinder';
 
                 return (
-                  <View key={`grinder-setting-${idx}`} style={styles.grinderSettingCard}>
+                  <View key={row.grinderId || `grinder-setting-${idx}`} style={styles.grinderSettingCard}>
                     <View style={styles.grinderSettingTopRow}>
                       <View style={styles.grinderBadgeContainer}>
-                        {idx === 0 && (
+                        {idx === 0 ? (
                           <View style={styles.primaryBadge}>
                             <Text style={styles.primaryBadgeText}>PRIMARY</Text>
                           </View>
+                        ) : (
+                          <Pressable
+                            onPress={() => handleSetPrimaryGrinder(idx)}
+                            style={styles.setPrimaryButton}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Set grinder ${idx + 1} as primary`}
+                          >
+                            <Text style={styles.setPrimaryButtonText}>SET PRIMARY</Text>
+                          </Pressable>
                         )}
                         <Text style={styles.grinderIndexText}>#{idx + 1}</Text>
                       </View>
@@ -1586,6 +1604,20 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: colors.accent,
     letterSpacing: 0.8,
+  },
+  setPrimaryButton: {
+    backgroundColor: colors.panel,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  setPrimaryButtonText: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 10,
+    color: colors.textSecondary,
+    letterSpacing: 0.5,
   },
   grinderIndexText: {
     fontFamily: FONTS.monoBold,

@@ -375,6 +375,15 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
     setGrinderSettings((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleSetPrimaryGrinder = (index: number) => {
+    if (index <= 0 || index >= grinderSettings.length) return;
+    setGrinderSettings((prev) => {
+      const selected = prev[index];
+      const rest = prev.filter((_, i) => i !== index);
+      return [selected, ...rest];
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSaving) return;
@@ -736,14 +745,24 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                   ) : (
                     grinderSettings.map((row, index) => (
                       <div
-                        key={`grinder-row-${index}`}
+                        key={row.grinderId || `grinder-row-${index}`}
                         className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 rounded-lg bg-panel-recessed border border-border-subtle"
                       >
-                        <div className="flex items-center space-x-2 min-w-[90px]">
-                          {index === 0 && (
+                        <div className="flex items-center space-x-2 min-w-[110px]">
+                          {index === 0 ? (
                             <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-accent/20 text-accent border border-accent/30">
                               Primary
                             </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleSetPrimaryGrinder(index)}
+                              className="px-1.5 py-0.5 rounded text-[10px] font-mono uppercase text-text-muted hover:text-accent hover:border-accent/40 border border-border-subtle transition-colors cursor-pointer"
+                              title="Set as primary grinder"
+                              aria-label={`Set grinder ${index + 1} as primary`}
+                            >
+                              Set Primary
+                            </button>
                           )}
                           <span className="text-xs text-text-muted font-mono">
                             #{index + 1}

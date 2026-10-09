@@ -345,13 +345,13 @@ describe('RecipeBuilderModal', () => {
     );
 
     // Primary badge exists on first row
-    expect(screen.getByText(/primary/i)).toBeDefined();
+    expect(screen.getByText(/^primary$/i)).toBeDefined();
 
     // Add another row
     fireEvent.click(screen.getByRole('button', { name: /add another grinder/i }));
 
     // Only one Primary badge
-    const primaryBadges = screen.getAllByText(/primary/i);
+    const primaryBadges = screen.getAllByText(/^primary$/i);
     expect(primaryBadges).toHaveLength(1);
   });
 
@@ -601,4 +601,44 @@ describe('RecipeBuilderModal', () => {
     // Now 2 rows exist, matching total available grinders (2). "ADD ANOTHER GRINDER" must be hidden.
     expect(screen.queryByRole('button', { name: /add another grinder/i })).toBeNull();
   });
+
+  it('allows promoting a non-primary grinder to primary with Set Primary button', () => {
+    vi.mocked(useEquipment).mockReturnValue({
+      equipment: [sampleGrinder1, sampleGrinder2],
+      addEquipment: vi.fn(),
+      updateEquipment: vi.fn(),
+      deleteEquipment: vi.fn(),
+      toggleFavorite: vi.fn(),
+      loading: false,
+      refreshEquipment: vi.fn(),
+    });
+
+    render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSaveRecipe={vi.fn()}
+        initialRecipe={null}
+      />
+    );
+
+    // Row 1 starts with sampleGrinder1
+    expect((screen.getByRole('combobox', { name: /grinder 1/i }) as HTMLSelectElement).value).toBe(sampleGrinder1.id);
+
+    // Add another grinder (Row 2 gets sampleGrinder2)
+    fireEvent.click(screen.getByRole('button', { name: /add another grinder/i }));
+    expect((screen.getByRole('combobox', { name: /grinder 2/i }) as HTMLSelectElement).value).toBe(sampleGrinder2.id);
+
+    // Row 2 has a "Set Primary" button
+    const setPrimaryBtn = screen.getByRole('button', { name: /set grinder 2 as primary/i });
+    expect(setPrimaryBtn).toBeDefined();
+
+    // Click "Set Primary" on Row 2
+    fireEvent.click(setPrimaryBtn);
+
+    // Now Row 1 is sampleGrinder2, and Row 2 is sampleGrinder1
+    expect((screen.getByRole('combobox', { name: /grinder 1/i }) as HTMLSelectElement).value).toBe(sampleGrinder2.id);
+    expect((screen.getByRole('combobox', { name: /grinder 2/i }) as HTMLSelectElement).value).toBe(sampleGrinder1.id);
+  });
 });
+
