@@ -66,20 +66,20 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="recipes"
-          options={{
-            title: 'Recipes',
-            tabBarIcon: ({ color, size }) => (
-              <BookOpen size={size} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
           name="stash"
           options={{
             title: 'Stash',
             tabBarIcon: ({ color, size }) => (
               <Bean size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="recipes"
+          options={{
+            title: 'Recipes',
+            tabBarIcon: ({ color, size }) => (
+              <BookOpen size={size} color={color} />
             ),
           }}
         />

@@ -1,12 +1,48 @@
 /** @vitest-environment jsdom */
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { DEFAULT_PRESET_RECIPES, BrewRecipe } from '@brewlog/core';
+import { DEFAULT_PRESET_RECIPES, BrewRecipe, Equipment } from '@brewlog/core';
 import { RecipeDetailPane } from './RecipeDetailPane';
+import { useEquipment } from '../equipment/useEquipment';
+
+vi.mock('../equipment/useEquipment', () => ({
+  useEquipment: vi.fn(),
+}));
+
+const mockGrinders: Equipment[] = [
+  {
+    id: 'grinder-ode',
+    type: 'grinder',
+    brand: 'Fellow',
+    model: 'Ode Gen 2',
+    settingScaleType: 'stepped-numbers',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'grinder-c40',
+    type: 'grinder',
+    brand: 'Comandante',
+    model: 'C40 MK4',
+    settingScaleType: 'clicks',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+];
 
 describe('RecipeDetailPane', () => {
   const recipe = DEFAULT_PRESET_RECIPES[0];
+
+  beforeEach(() => {
+    vi.mocked(useEquipment).mockReturnValue({
+      equipment: mockGrinders,
+      addEquipment: vi.fn(),
+      updateEquipment: vi.fn(),
+      deleteEquipment: vi.fn(),
+      toggleFavorite: vi.fn(),
+      loading: false,
+      refreshEquipment: vi.fn(),
+    });
+  });
 
   afterEach(() => {
     cleanup();
@@ -221,5 +257,86 @@ describe('RecipeDetailPane', () => {
         name: `Edit custom recipe ${recipe.name}`,
       })
     ).toBeNull();
+  });
+
+  it('renders grinder brand, model, and dial setting for recipe with grinderSettings and marks primary', () => {
+    const recipeWithGrinders: BrewRecipe = {
+      ...recipe,
+      grinderSettings: [
+        { grinderId: 'grinder-ode', setting: '5.1' },
+        { grinderId: 'grinder-c40', setting: '18 clicks' },
+      ],
+    };
+
+    render(
+      <MemoryRouter>
+        <RecipeDetailPane
+          recipe={recipeWithGrinders}
+          onSelectRecipeForTimer={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('Grinder Settings')).toBeDefined();
+    expect(screen.getByText(/Fellow Ode Gen 2 — 5\.1/)).toBeDefined();
+    expect(screen.getByText(/Comandante C40 MK4 — 18 clicks/)).toBeDefined();
+    expect(screen.getByText('Primary')).toBeDefined();
+  });
+
+  it('filters out and hides erased grinders not present in equipment', () => {
+    const recipeWithErasedGrinder: BrewRecipe = {
+      ...recipe,
+      grinderSettings: [
+        { grinderId: 'erased-grinder-999', setting: '2.5' },
+        { grinderId: 'grinder-ode', setting: '5.1' },
+      ],
+    };
+
+    render(
+      <MemoryRouter>
+        <RecipeDetailPane
+          recipe={recipeWithErasedGrinder}
+          onSelectRecipeForTimer={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText(/Fellow Ode Gen 2 — 5\.1/)).toBeDefined();
+    expect(screen.queryByText(/2\.5/)).toBeNull();
+    expect(screen.queryByText(/erased-grinder-999/)).toBeNull();
+  });
+
+  it('falls back to general grindSize when no valid grinder settings exist', () => {
+    // Case 1: Recipe has no grinderSettings
+    render(
+      <MemoryRouter>
+        <RecipeDetailPane
+          recipe={{ ...recipe, grindSize: 'Medium-Fine', grinderSettings: [] }}
+          onSelectRecipeForTimer={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('Medium-Fine')).toBeDefined();
+    expect(screen.queryByText('Primary')).toBeNull();
+
+    cleanup();
+
+    // Case 2: Recipe has only erased grinders
+    render(
+      <MemoryRouter>
+        <RecipeDetailPane
+          recipe={{
+            ...recipe,
+            grindSize: 'Medium-Coarse',
+            grinderSettings: [{ grinderId: 'erased-grinder-999', setting: '2.5' }],
+          }}
+          onSelectRecipeForTimer={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('Medium-Coarse')).toBeDefined();
+    expect(screen.queryByText(/2\.5/)).toBeNull();
   });
 });

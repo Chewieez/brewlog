@@ -30,34 +30,42 @@ export const SpecsGrid: React.FC<SpecsGridProps> = ({
         <View style={styles.iconWrapper}>
           <Droplets size={16} color={colors.accent} />
         </View>
-        <Text style={styles.label}>TOTAL WATER</Text>
-        <Text style={styles.value}>{totalWater}g</Text>
+        <View style={styles.info}>
+          <Text style={styles.label}>TOTAL WATER</Text>
+          <Text style={styles.value}>{totalWater}g</Text>
+        </View>
       </View>
 
       <View style={styles.card}>
         <View style={styles.iconWrapper}>
           <BookOpen size={16} color={colors.accent} />
         </View>
-        <Text style={styles.label}>BREW RATIO</Text>
-        <Text style={styles.value}>{ratioFormatted}</Text>
+        <View style={styles.info}>
+          <Text style={styles.label}>BREW RATIO</Text>
+          <Text style={styles.value}>{ratioFormatted}</Text>
+        </View>
       </View>
 
       <View style={styles.card}>
         <View style={styles.iconWrapper}>
           <Clock size={16} color={colors.accent} />
         </View>
-        <Text style={styles.label}>TARGET TIME</Text>
-        <Text style={styles.value}>{timeFormatted}</Text>
+        <View style={styles.info}>
+          <Text style={styles.label}>TARGET TIME</Text>
+          <Text style={styles.value}>{timeFormatted}</Text>
+        </View>
       </View>
 
       <View style={styles.card}>
         <View style={styles.iconWrapper}>
           <Thermometer size={16} color={colors.accent} />
         </View>
-        <Text style={styles.label}>WATER TEMP</Text>
-        <Text style={styles.value}>
-          {waterTempCelsius ? `${waterTempCelsius}°C` : '93-96°C'}
-        </Text>
+        <View style={styles.info}>
+          <Text style={styles.label}>WATER TEMP</Text>
+          <Text style={styles.value}>
+            {waterTempCelsius ? `${waterTempCelsius}°C` : '93-96°C'}
+          </Text>
+        </View>
       </View>
     </View>
   );
@@ -72,24 +80,32 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     minWidth: '47%',
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.panel,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
     borderRadius: 8,
-    padding: 12,
-    gap: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    gap: 12,
   },
   iconWrapper: {
-    width: 28,
-    height: 28,
-    borderRadius: 4,
+    width: 34,
+    height: 34,
+    borderRadius: 6,
     backgroundColor: colors.panelRecessed,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 4,
+  },
+  info: {
+    flex: 1,
+    gap: 2,
   },
   label: {
-    fontFamily: FONTS.monoRegular,
+    fontFamily: FONTS.monoBold,
     fontSize: 9,
     color: colors.textMuted,
     letterSpacing: 0.8,

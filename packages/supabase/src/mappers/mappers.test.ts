@@ -395,6 +395,7 @@ describe("Shared Mappers (@brewlog/supabase)", () => {
         brew_method: "v60",
         recommended_brewer_id: "eq-v60",
         recommended_grinder_id: "eq-ode",
+        grinder_settings: [],
         description: "Classic single cup pour over technique",
         author: "James Hoffmann",
         coffee_dose_grams: 15,
@@ -517,6 +518,100 @@ describe("Shared Mappers (@brewlog/supabase)", () => {
       expect(payload.is_preset).toBe(false);
       expect(payload.is_favorite).toBe(true);
       expect(payload.notes).toBe("Inverted method with 1 min steep");
+    });
+
+    it("maps raw PostgreSQL RecipeRow with grinder_settings to domain grinderSettings", () => {
+      const row: RecipeRow = {
+        id: "recipe-456",
+        user_id: "user-123",
+        name: "Hoffmann V60 1-Cup",
+        brew_method: "v60",
+        recommended_brewer_id: "eq-v60",
+        recommended_grinder_id: "eq-grinder-1",
+        grinder_settings: [{ grinderId: "eq-grinder-1", setting: "5.1" }],
+        description: "Classic single cup pour over technique",
+        author: "James Hoffmann",
+        coffee_dose_grams: 15,
+        water_amount_grams: 250,
+        ratio: 16.67,
+        grind_size: "Medium-Fine",
+        water_temp_celsius: 99,
+        total_time_seconds: 210,
+        is_preset: false,
+        is_favorite: true,
+        notes: "Great clarity and sweetness",
+        created_at: "2026-09-01T12:00:00Z",
+        updated_at: "2026-09-01T12:00:00Z",
+      };
+
+      const domain = mapRecipeRowToDomain(row);
+
+      expect(domain.grinderSettings).toEqual([
+        { grinderId: "eq-grinder-1", setting: "5.1" },
+      ]);
+      expect(domain.recommendedGrinderId).toBe("eq-grinder-1");
+    });
+
+    it("maps legacy RecipeRow without grinder_settings but with recommended_grinder_id to domain grinderSettings fallback", () => {
+      const row = {
+        id: "recipe-legacy",
+        user_id: "user-123",
+        name: "Legacy Hoffmann V60",
+        brew_method: "v60",
+        recommended_brewer_id: "eq-v60",
+        recommended_grinder_id: "eq-ode",
+        description: "Classic technique",
+        author: "James Hoffmann",
+        coffee_dose_grams: 15,
+        water_amount_grams: 250,
+        ratio: 16.67,
+        grind_size: "Medium-Fine",
+        water_temp_celsius: 99,
+        total_time_seconds: 210,
+        is_preset: false,
+        is_favorite: true,
+        notes: null,
+        created_at: "2026-09-01T12:00:00Z",
+        updated_at: "2026-09-01T12:00:00Z",
+      } as RecipeRow;
+
+      const domain = mapRecipeRowToDomain(row);
+
+      expect(domain.grinderSettings).toEqual([
+        { grinderId: "eq-ode", setting: "Medium-Fine" },
+      ]);
+      expect(domain.recommendedGrinderId).toBe("eq-ode");
+    });
+
+    it("maps domain BrewRecipe with grinderSettings to RecipeInsert and syncs recommended_grinder_id", () => {
+      const recipe: Omit<BrewRecipe, "id" | "createdAt"> = {
+        name: "Aeropress Multi-Grinder",
+        brewMethod: "aeropress",
+        description: "Rich immersion brew profile",
+        author: "Tim Wendelboe",
+        coffeeDoseGrams: 14,
+        waterAmountGrams: 200,
+        ratio: 14.3,
+        grindSize: "Medium",
+        waterTempCelsius: 85,
+        totalTimeSeconds: 120,
+        stages: [],
+        grinderSettings: [
+          { grinderId: "eq-grinder-1", setting: "5.1" },
+          { grinderId: "eq-grinder-2", setting: "24 clicks" },
+        ],
+        isPreset: false,
+        isFavorite: true,
+        notes: "Inverted method",
+      };
+
+      const payload = mapRecipeDomainToInsert(recipe, "user-789");
+
+      expect(payload.grinder_settings).toEqual([
+        { grinderId: "eq-grinder-1", setting: "5.1" },
+        { grinderId: "eq-grinder-2", setting: "24 clicks" },
+      ]);
+      expect(payload.recommended_grinder_id).toBe("eq-grinder-1");
     });
 
     it("maps RecipeStageRow to domain BrewStage", () => {

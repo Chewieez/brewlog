@@ -3,7 +3,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
 import { ReviewsView } from './ReviewsView';
 import { INITIAL_BEANS } from '../../lib/sampleData';
-import { DEFAULT_PRESET_RECIPES, Equipment, TastingLog } from '@brewlog/core';
+import { DEFAULT_PRESET_RECIPES, Equipment, TastingLog, BrewRecipe } from '@brewlog/core';
 
 const mockEquipment: Equipment[] = [
   {
@@ -184,5 +184,179 @@ describe('ReviewsView', () => {
 
     expect(screen.getByText(/Comandante C40 MK4 @ 18 clicks/)).toBeDefined();
     expect(screen.getByText('Hario V60 02 Ceramic')).toBeDefined();
+  });
+
+  it('pre-fills grinderId and grindSetting from primary grinder in pendingBrewSession', () => {
+    const recipeWithGrinders: BrewRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      grindSize: 'Medium',
+      grinderSettings: [
+        { grinderId: 'grinder-1', setting: '16 clicks' },
+        { grinderId: 'grinder-2', setting: '5.0' },
+      ],
+    };
+
+    render(
+      <ReviewsView
+        logs={[]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        pendingBrewSession={{
+          recipe: recipeWithGrinders,
+          actualTimeSeconds: 210,
+          bean: INITIAL_BEANS[0],
+        }}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const grinderSelect = screen.getByLabelText(/Grinder/i) as HTMLSelectElement;
+    const grindInput = screen.getByLabelText(/Grind Setting/i) as HTMLInputElement;
+
+    expect(grinderSelect.value).toBe('grinder-1');
+    expect(grindInput.value).toBe('16 clicks');
+  });
+
+  it('falls back to recipe grindSize when primary grinder in pendingBrewSession is not in equipment', () => {
+    const recipeWithUnknownGrinder: BrewRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      grindSize: 'Medium-Coarse',
+      grinderSettings: [
+        { grinderId: 'non-existent-grinder', setting: '10 clicks' },
+      ],
+    };
+
+    render(
+      <ReviewsView
+        logs={[]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        pendingBrewSession={{
+          recipe: recipeWithUnknownGrinder,
+          actualTimeSeconds: 210,
+          bean: INITIAL_BEANS[0],
+        }}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const grinderSelect = screen.getByLabelText(/Grinder/i) as HTMLSelectElement;
+    const grindInput = screen.getByLabelText(/Grind Setting/i) as HTMLInputElement;
+
+    expect(grinderSelect.value).toBe('');
+    expect(grindInput.value).toBe('Medium-Coarse');
+  });
+
+  it('pre-fills remaining active grinder when the first grinder in grinderSettings was deleted from equipment', () => {
+    const recipeWithDeletedAndActiveGrinder: BrewRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      grindSize: 'Medium',
+      grinderSettings: [
+        { grinderId: 'deleted-grinder-999', setting: '3.0' },
+        { grinderId: 'grinder-1', setting: '18 clicks' },
+      ],
+    };
+
+    render(
+      <ReviewsView
+        logs={[]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        pendingBrewSession={{
+          recipe: recipeWithDeletedAndActiveGrinder,
+          actualTimeSeconds: 210,
+          bean: INITIAL_BEANS[0],
+        }}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const grinderSelect = screen.getByLabelText(/Grinder/i) as HTMLSelectElement;
+    const grindInput = screen.getByLabelText(/Grind Setting/i) as HTMLInputElement;
+
+    expect(grinderSelect.value).toBe('grinder-1');
+    expect(grindInput.value).toBe('18 clicks');
+  });
+
+  it('ensures numeric parameter inputs, review counts, dates, and brew specs do not use font-mono', () => {
+    const sampleLog: TastingLog = {
+      id: 'log-typography-test',
+      brewMethod: 'v60',
+      brewDate: new Date('2026-10-01T12:00:00Z').toISOString(),
+      beanNameSnapshot: 'Typography Test Bean',
+      roasterSnapshot: 'Test Roaster',
+      recipeNameSnapshot: 'Test Recipe',
+      coffeeDoseGrams: 15,
+      waterAmountGrams: 250,
+      actualTimeSeconds: 180,
+      grindSetting: '14 clicks',
+      grinderSnapshot: 'Ode Gen 2',
+      brewerSnapshot: 'V60',
+      waterTempCelsius: 94,
+      calculatedScaScore: 86.5,
+      rating: 4.5,
+      flavorTags: ['Citrus'],
+      notes: 'Crisp finish',
+      wouldBrewAgain: true,
+      scores: {
+        fragranceAroma: 8,
+        flavor: 8,
+        aftertaste: 8,
+        acidity: 8.5,
+        body: 8,
+        balance: 8,
+        cleanCup: 10,
+        sweetness: 10,
+        uniformity: 10,
+        overall: 8.5,
+      },
+      createdAt: new Date().toISOString(),
+    };
+
+    const { container } = render(
+      <ReviewsView
+        logs={[sampleLog]}
+        beans={INITIAL_BEANS}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    // 1. Parameter inputs: time, dose, water, grind setting, water temp
+    const timeInput = screen.getByLabelText(/Actual Brew Time/i);
+    const doseInput = screen.getByLabelText(/Coffee Dose/i);
+    const waterInput = screen.getByLabelText(/Water Amount/i);
+    const grindInput = screen.getByLabelText(/Grind Setting/i);
+    const tempInput = screen.getByLabelText(/Water Temp/i);
+
+    expect(timeInput.className).not.toContain('font-mono');
+    expect(doseInput.className).not.toContain('font-mono');
+    expect(waterInput.className).not.toContain('font-mono');
+    expect(grindInput.className).not.toContain('font-mono');
+    expect(tempInput.className).not.toContain('font-mono');
+
+    expect(timeInput.className).toContain('tabular-nums');
+    expect(doseInput.className).toContain('tabular-nums');
+    expect(waterInput.className).toContain('tabular-nums');
+    expect(tempInput.className).toContain('tabular-nums');
+
+    // 2. Standard baseline note
+    const baselineNote = screen.getByText(/Standard baseline: 10\.0/i);
+    expect(baselineNote.className).not.toContain('font-mono');
+
+    // 3. Logged reviews counter
+    const loggedReviewsCounter = screen.getByText(/1 logged review/i);
+    expect(loggedReviewsCounter.className).not.toContain('font-mono');
+
+    // 4. Past review card date and rating number
+    const dateSpan = screen.getByText(new Date(sampleLog.brewDate).toLocaleDateString());
+    expect(dateSpan.className).not.toContain('font-mono');
+
+    const ratingWrapper = screen.getByText('4.5').parentElement;
+    expect(ratingWrapper?.className).not.toContain('font-mono');
+
+    // 5. Brew specs line: 15g : 250g (180s)
+    const specsLine = screen.getByText(/15g : 250g \(180s\)/i);
+    expect(specsLine.className).not.toContain('font-mono');
+    expect(specsLine.className).toContain('tabular-nums');
   });
 });

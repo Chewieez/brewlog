@@ -420,7 +420,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                 >
                   {inspectedItem.name}
                 </span>
-                <span className="text-[10px] text-text-secondary font-mono mt-1">
+                <span className="text-[10px] text-text-secondary tabular-nums mt-1">
                   {inspectedItem.selectedCount}/{inspectedItem.totalCount} selected
                 </span>
                 <span className="text-[8px] text-text-muted mt-0.5">
@@ -438,7 +438,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
               </span>
               <div className="flex items-center space-x-1 mt-1 text-[10px] text-text-secondary">
                 <Tag className="w-2.5 h-2.5 text-accent" />
-                <span className="font-mono font-semibold">{selectedTags.length} active</span>
+                <span className="font-semibold tabular-nums">{selectedTags.length} active</span>
               </div>
             </div>
           )}
