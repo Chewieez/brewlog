@@ -146,9 +146,25 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
   );
   const [customBeanName, setCustomBeanName] = useState<string>('');
   const [customRoaster, setCustomRoaster] = useState<string>('');
-  const [grinderId, setGrinderId] = useState<string>(
-    pendingBrewSession?.recipe.recommendedGrinderId || ''
+  const primaryGrinder = pendingBrewSession?.recipe.grinderSettings?.find((gs) =>
+    (equipment || []).some((e) => e.id === gs.grinderId)
   );
+  const isRecommendedInEquipment = Boolean(
+    pendingBrewSession?.recipe.recommendedGrinderId &&
+    (equipment || []).some((e) => e.id === pendingBrewSession.recipe.recommendedGrinderId)
+  );
+
+  const initialGrinderId = primaryGrinder
+    ? primaryGrinder.grinderId
+    : isRecommendedInEquipment && pendingBrewSession?.recipe.recommendedGrinderId
+    ? pendingBrewSession.recipe.recommendedGrinderId
+    : '';
+
+  const initialGrindSetting = primaryGrinder
+    ? (primaryGrinder.setting || pendingBrewSession?.recipe.grindSize || 'Medium-Fine')
+    : (pendingBrewSession?.recipe.grindSize || 'Medium-Fine');
+
+  const [grinderId, setGrinderId] = useState<string>(initialGrinderId);
   const [brewerId, setBrewerId] = useState<string>(
     pendingBrewSession?.recipe.recommendedBrewerId || ''
   );
@@ -156,7 +172,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
   const [coffeeDoseGrams, setCoffeeDoseGrams] = useState<number>(20);
   const [waterAmountGrams, setWaterAmountGrams] = useState<number>(300);
   const [actualTimeSeconds, setActualTimeSeconds] = useState<number>(210);
-  const [grindSetting, setGrindSetting] = useState<string>('Medium-Fine');
+  const [grindSetting, setGrindSetting] = useState<string>(initialGrindSetting);
   const [waterTempCelsius, setWaterTempCelsius] = useState<number>(93);
   const [notes, setNotes] = useState<string>('');
   const [rating, setRating] = useState<number>(0);
@@ -194,9 +210,27 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
         setCustomBeanName('Specialty Coffee');
         setCustomRoaster('Local Roaster');
       }
-      if (pendingBrewSession.recipe.recommendedGrinderId) {
-        setGrinderId(pendingBrewSession.recipe.recommendedGrinderId);
+
+      const primary = pendingBrewSession.recipe.grinderSettings?.find((gs) =>
+        (equipment || []).some((e) => e.id === gs.grinderId)
+      );
+      const isRecInEquipment = Boolean(
+        pendingBrewSession.recipe.recommendedGrinderId &&
+        (equipment || []).some((e) => e.id === pendingBrewSession.recipe.recommendedGrinderId)
+      );
+
+      if (primary) {
+        setGrinderId(primary.grinderId);
+        setGrindSetting(primary.setting || pendingBrewSession.recipe.grindSize || 'Medium-Fine');
+      } else {
+        if (isRecInEquipment && pendingBrewSession.recipe.recommendedGrinderId) {
+          setGrinderId(pendingBrewSession.recipe.recommendedGrinderId);
+        } else {
+          setGrinderId('');
+        }
+        setGrindSetting(pendingBrewSession.recipe.grindSize || 'Medium-Fine');
       }
+
       if (pendingBrewSession.recipe.recommendedBrewerId) {
         setBrewerId(pendingBrewSession.recipe.recommendedBrewerId);
       }
@@ -204,11 +238,10 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
       setCoffeeDoseGrams(pendingBrewSession.recipe.coffeeDoseGrams);
       setWaterAmountGrams(pendingBrewSession.recipe.waterAmountGrams);
       setActualTimeSeconds(pendingBrewSession.actualTimeSeconds);
-      setGrindSetting(pendingBrewSession.recipe.grindSize);
       setWaterTempCelsius(pendingBrewSession.recipe.waterTempCelsius);
       setNotes(`Brewed with ${pendingBrewSession.recipe.name}.`);
     }
-  }, [pendingBrewSession]);
+  }, [pendingBrewSession, equipment]);
 
   const scaScore = calculateScaScore(scores);
 
@@ -505,6 +538,12 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* LEFT PANE: Master Cupping Feed (38% width) */}
         <div data-testid="master-feed" className="w-full lg:w-[38%] shrink-0 space-y-4">
+          <div className="flex items-center justify-between text-xs text-text-secondary">
+            <span className="font-medium tabular-nums">
+              {logs.length} {logs.length === 1 ? 'logged review' : 'logged reviews'}
+            </span>
+          </div>
+
           {/* Search Bar */}
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" />
@@ -833,8 +872,9 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div>
-                      <label className="block text-zinc-400 mb-1 font-medium">Brew Method</label>
+                      <label htmlFor="review-brew-method" className="block text-zinc-400 mb-1 font-medium">Brew Method</label>
                       <select
+                        id="review-brew-method"
                         value={brewMethod}
                         onChange={(e) => setBrewMethod(e.target.value as BrewMethodType)}
                         className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-zinc-100 font-medium focus:outline-none focus:border-accent cursor-pointer"
@@ -848,10 +888,11 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     </div>
 
                     <div>
-                      <label className="block text-zinc-400 mb-1 font-medium">
+                      <label htmlFor="review-actual-time" className="block text-zinc-400 mb-1 font-medium">
                         Actual Brew Time (s)
                       </label>
                       <input
+                        id="review-actual-time"
                         type="number"
                         min="10"
                         max="1800"
@@ -864,8 +905,9 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-zinc-400 mb-1 font-medium">Coffee Dose (g)</label>
+                      <label htmlFor="review-coffee-dose" className="block text-zinc-400 mb-1 font-medium">Coffee Dose (g)</label>
                       <input
+                        id="review-coffee-dose"
                         type="number"
                         step="0.1"
                         min="5"
@@ -877,8 +919,9 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     </div>
 
                     <div>
-                      <label className="block text-zinc-400 mb-1 font-medium">Water Amount (g)</label>
+                      <label htmlFor="review-water-amount" className="block text-zinc-400 mb-1 font-medium">Water Amount (g)</label>
                       <input
+                        id="review-water-amount"
                         type="number"
                         min="20"
                         max="2000"
@@ -961,7 +1004,6 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                   </div>
                 </div>
               </div>
-
               {/* Section 2: SCA Sensory Wheel & Descriptors */}
               <div className="p-5 rounded-xl bg-panel border border-border-subtle space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-border-subtle">

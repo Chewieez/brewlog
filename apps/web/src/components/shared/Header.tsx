@@ -1,6 +1,6 @@
 import { UserMenu } from "../../features/auth/UserMenu";
 import React from 'react';
-import { Coffee, Timer, Bean, Scale, BookOpen, Sparkles } from 'lucide-react';
+import { Coffee, Timer, Bean, Scale, BookOpen, Award } from 'lucide-react';
 import { Link, NavLink } from 'react-router';
 
 export interface HeaderProps {
@@ -19,7 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'stash', path: '/stash', label: 'Bean Stash', icon: Bean, badge: beanCount },
     { id: 'recipes', path: '/recipes', label: 'Recipes', icon: BookOpen },
     { id: 'equipment', path: '/equipment', label: 'Equipment', icon: Scale },
-    { id: 'reviews', path: '/reviews', label: 'Reviews', icon: Sparkles, badge: brewCount },
+    { id: 'reviews', path: '/reviews', label: 'Reviews', icon: Award, badge: brewCount },
   ];
 
   return (

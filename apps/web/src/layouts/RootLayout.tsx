@@ -25,7 +25,7 @@ export interface RootOutletContext {
   onAddBean: (bean: Bean) => Promise<void>;
   onUpdateBean: (bean: Bean) => Promise<void>;
   onDeleteBean: (id: string) => Promise<void>;
-  onAddEquipment: (item: Omit<Equipment, 'id' | 'createdAt'>) => Promise<void>;
+  onAddEquipment: (item: Omit<Equipment, 'id' | 'createdAt'>) => Promise<Equipment>;
   onUpdateEquipment: (id: string, updates: Partial<Equipment>) => Promise<Equipment>;
   onDeleteEquipment: (id: string) => Promise<void>;
   onToggleFavorite: (id: string) => Promise<void>;
@@ -177,8 +177,8 @@ export const RootLayout: React.FC = () => {
   );
 
   const onAddEquipment = useCallback(
-    async (item: Omit<Equipment, 'id' | 'createdAt'>) => {
-      await addEquipment(item);
+    async (item: Omit<Equipment, 'id' | 'createdAt'>): Promise<Equipment> => {
+      return await addEquipment(item);
     },
     [addEquipment]
   );

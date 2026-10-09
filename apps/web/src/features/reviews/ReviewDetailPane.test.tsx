@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { ReviewDetailPane } from './ReviewDetailPane';
-import { TastingLog } from '@brewlog/core';
+import { TastingLog, Bean } from '@brewlog/core';
 
 const mockLog: TastingLog = {
   id: 'log-test-1',
@@ -180,18 +180,17 @@ describe('ReviewDetailPane component', () => {
   });
 
   it('prioritizes bean and roaster snapshots over stash beans', () => {
-    const stashBeans = [
+    const stashBeans: Bean[] = [
       {
         id: 'bean-stash-1',
         name: 'Stash Bean Name',
         roaster: 'Stash Roaster',
-        origin: 'Colombia',
-        process: 'Washed' as const,
-        variety: 'Caturra',
-        elevationMeters: 1800,
-        roastLevel: 'light' as const,
+        originCountry: 'Colombia',
+        process: 'washed',
+        variety: ['Caturra'],
+        altitudeMeters: 1800,
+        roastLevel: 'light',
         flavorNotes: ['Caramel'],
-        inStash: true,
         createdAt: '2026-01-01T00:00:00Z',
       },
     ];

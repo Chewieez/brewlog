@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import { BrewRecipe, rescaleRecipeDose } from '@brewlog/core';
+import { BrewRecipe, rescaleRecipeDose, Equipment } from '@brewlog/core';
 import {
   Play,
   BookOpen,
@@ -12,6 +12,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
+import { useEquipment } from '../equipment/useEquipment';
 
 export interface RecipeDetailPaneProps {
   recipe: BrewRecipe;
@@ -19,6 +20,7 @@ export interface RecipeDetailPaneProps {
   onEditRecipe?: (recipe: BrewRecipe) => void;
   onDeleteRecipe?: (recipe: BrewRecipe) => void;
   showMobileBackButton?: boolean;
+  equipment?: Equipment[];
 }
 
 export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
@@ -27,9 +29,21 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
   onEditRecipe,
   onDeleteRecipe,
   showMobileBackButton = false,
+  equipment: propEquipment,
 }) => {
+  const { equipment: contextEquipment = [] } = useEquipment();
+  const equipment = propEquipment ?? contextEquipment;
+
   const [customDose, setCustomDose] = useState<number>(Math.round(recipe.coffeeDoseGrams));
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  // Filter recipe.grinderSettings against active equipment grinders
+  const userGrinders = equipment.filter((e) => e.type === 'grinder');
+  const activeGrinderSettings = (recipe.grinderSettings || []).flatMap((setting) => {
+    const grinder = userGrinders.find((g) => g.id === setting.grinderId);
+    if (!grinder) return [];
+    return [{ setting, grinder }];
+  });
 
   // Sync dose when recipe changes
   useEffect(() => {
@@ -244,6 +258,42 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Grinder Settings Section */}
+      <div className="p-4 rounded-xl bg-panel-recessed border border-border-subtle space-y-2.5">
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-400">
+            Grinder Settings
+          </span>
+        </div>
+
+        {activeGrinderSettings.length > 0 ? (
+          <div className="space-y-2">
+            {activeGrinderSettings.map(({ setting, grinder }, index) => (
+              <div
+                key={setting.grinderId}
+                className="flex items-center justify-between p-2.5 rounded-lg bg-panel border border-border-subtle text-xs"
+              >
+                <div className="flex items-center space-x-2">
+                  <span className="text-zinc-200 font-medium">
+                    {grinder.brand} {grinder.model} — {setting.setting || recipe.grindSize}
+                  </span>
+                  {index === 0 && (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-accent/15 text-accent border border-accent/30">
+                      Primary
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-xs text-zinc-300">
+            <span className="text-zinc-400">Grind Size: </span>
+            <span className="font-medium text-zinc-200">{recipe.grindSize}</span>
+          </div>
+        )}
       </div>
 
       {/* Steps Timeline */}

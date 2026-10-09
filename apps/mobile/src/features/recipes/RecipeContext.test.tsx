@@ -563,4 +563,85 @@ describe('RecipeContext', () => {
     expect(result.current.activeTimerDose).toBe(22);
     expect(result.current.activeTimerRecipe.coffeeDoseGrams).toBe(22);
   });
+
+  it('creates custom recipe with grinderSettings and saves to AsyncStorage', async () => {
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    let created: BrewRecipe | null = null;
+    await act(async () => {
+      created = await result.current.addRecipe({
+        name: 'V60 with Grinder Settings',
+        brewMethod: 'v60',
+        coffeeDoseGrams: 15,
+        waterAmountGrams: 250,
+        ratio: 16.67,
+        grindSize: 'Medium',
+        grinderSettings: [
+          { grinderId: 'grinder-ode', setting: '5.1' },
+          { grinderId: 'grinder-c40', setting: '18 clicks' },
+        ],
+        waterTempCelsius: 93,
+        totalTimeSeconds: 150,
+        description: 'Dialed',
+        stages: [],
+      });
+    });
+
+    expect(created).toBeDefined();
+    expect(created!.grinderSettings).toHaveLength(2);
+    expect(created!.grinderSettings![0]).toEqual({
+      grinderId: 'grinder-ode',
+      setting: '5.1',
+    });
+
+    const stored = await AsyncStorage.getItem('@brewlog/custom_recipes');
+    expect(stored).toBeTruthy();
+    const parsed = JSON.parse(stored!);
+    expect(parsed[0].grinderSettings).toEqual([
+      { grinderId: 'grinder-ode', setting: '5.1' },
+      { grinderId: 'grinder-c40', setting: '18 clicks' },
+    ]);
+  });
+
+  it('persists and restores grinderSettings on activeTimerRecipe', async () => {
+    const customRecipe: BrewRecipe = {
+      id: 'local-rec-active-grinder',
+      name: 'Active Recipe With Grinders',
+      brewMethod: 'v60',
+      description: 'Active',
+      coffeeDoseGrams: 16,
+      waterAmountGrams: 250,
+      ratio: 15.6,
+      grindSize: 'Medium',
+      grinderSettings: [
+        { grinderId: 'grinder-primary', setting: '4.2' },
+      ],
+      waterTempCelsius: 92,
+      totalTimeSeconds: 140,
+      stages: [],
+      isPreset: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    await AsyncStorage.setItem(
+      '@brewlog/custom_recipes',
+      JSON.stringify([customRecipe])
+    );
+    await AsyncStorage.setItem(
+      ACTIVE_RECIPE_STORAGE_KEY,
+      JSON.stringify({ recipeId: customRecipe.id, dose: 16 })
+    );
+
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.activeTimerRecipe.id).toBe(customRecipe.id);
+    expect(result.current.activeTimerRecipe.grinderSettings).toBeDefined();
+    expect(result.current.activeTimerRecipe.grinderSettings![0]).toEqual({
+      grinderId: 'grinder-primary',
+      setting: '4.2',
+    });
+  });
 });
+

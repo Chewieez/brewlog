@@ -101,6 +101,11 @@ export interface BrewStage {
   stageType: StageType;
 }
 
+export interface RecipeGrinderSetting {
+  grinderId: string;
+  setting: string;
+}
+
 export interface BrewRecipe {
   id: string;
   userId?: string;
@@ -108,6 +113,7 @@ export interface BrewRecipe {
   brewMethod: BrewMethodType;
   recommendedBrewerId?: string;
   recommendedGrinderId?: string;
+  grinderSettings?: RecipeGrinderSetting[];
   description: string;
   author?: string;
   coffeeDoseGrams: number;

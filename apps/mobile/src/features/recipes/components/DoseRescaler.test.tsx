@@ -74,11 +74,11 @@ describe('DoseRescaler', () => {
 
   it('selects quick preset dose buttons', () => {
     const onDoseChange = vi.fn();
-    const { getByText } = render(
+    const { getByLabelText } = render(
       <DoseRescaler currentDose={15} baseDose={15} onDoseChange={onDoseChange} />
     );
 
-    fireEvent.click(getByText('Server (30g)'));
+    fireEvent.click(getByLabelText('Server (30g)'));
     expect(onDoseChange).toHaveBeenCalledWith(30);
   });
 

@@ -12,6 +12,7 @@ import {
 } from '@brewlog/core';
 import { useRecipes } from '../../src/features/recipes/RecipeContext';
 import { useOptionalStash } from '../../src/features/stash/StashContext';
+import { useOptionalEquipment } from '../../src/features/equipment/EquipmentContext';
 import { ActiveBeanPill } from '../../src/features/stash/components/ActiveBeanPill';
 import { useMobileBrewTimer } from '../../src/hooks/useMobileBrewTimer';
 import { MethodPills } from '../../src/components/timer/MethodPills';
@@ -23,6 +24,7 @@ import { FreeBrewSplitTimeline } from '../../src/components/timer/FreeBrewSplitT
 import { FONTS } from '../../src/theme/fonts';
 import { AVAILABLE_METHODS } from '../../src/utils/recipeUtils';
 import { mobileFeedback } from '../../src/lib/mobileFeedback';
+import { buildTimerReviewParams } from '../../src/features/timer/buildTimerReviewParams';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -34,6 +36,9 @@ export default function TimerScreen() {
   const activeBrewBean = stash?.activeBrewBean ?? null;
   const setActiveBrewBean = stash?.setActiveBrewBean ?? (() => {});
   const deductBeanDose = stash?.deductBeanDose ?? (async () => {});
+
+  const equipmentContext = useOptionalEquipment();
+  const equipment = equipmentContext?.equipment;
 
   const [timerMode, setTimerMode] = useState<TimerMode>('recipe');
   const [isFreeBrewFinished, setIsFreeBrewFinished] = useState<boolean>(false);
@@ -201,47 +206,14 @@ export default function TimerScreen() {
   };
 
   const handleAddReview = () => {
-    let formattedSplitsNotes: string | undefined;
-    if (splits.length > 0) {
-      const formattedSplits = splits
-        .map(
-          (s) =>
-            `• ${s.label}: ${Math.floor(s.second / 60)}:${String(s.second % 60).padStart(2, '0')} (+${s.intervalSeconds}s)`
-        )
-        .join('\n');
-      formattedSplitsNotes = `Free Brew Splits:\n${formattedSplits}`;
-    }
-
-    const reviewParams: Record<string, string> = {
-      fromTimer: 'true',
-      brewMethod: activeRecipe.brewMethod,
-      dose: String(activeTimerDose),
-      water: String(activeRecipe.waterAmountGrams),
-      actualTime: String(elapsedSeconds),
-    };
-
-    if (activeBrewBean?.id) {
-      reviewParams.beanId = activeBrewBean.id;
-    }
-    if (activeRecipe.id) {
-      reviewParams.recipeId = activeRecipe.id;
-      reviewParams.recipeName = activeRecipe.name;
-    }
-    if (activeRecipe.grindSize) {
-      reviewParams.grind = activeRecipe.grindSize;
-    }
-    if (activeRecipe.waterTempCelsius) {
-      reviewParams.temp = String(activeRecipe.waterTempCelsius);
-    }
-    if (activeRecipe.recommendedGrinderId) {
-      reviewParams.grinderId = activeRecipe.recommendedGrinderId;
-    }
-    if (activeRecipe.recommendedBrewerId) {
-      reviewParams.brewerId = activeRecipe.recommendedBrewerId;
-    }
-    if (formattedSplitsNotes) {
-      reviewParams.notes = formattedSplitsNotes;
-    }
+    const reviewParams = buildTimerReviewParams({
+      activeRecipe,
+      activeTimerDose,
+      elapsedSeconds,
+      activeBrewBean,
+      splits,
+      equipment,
+    });
 
     router.push({
       pathname: '/reviews/modal',

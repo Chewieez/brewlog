@@ -155,4 +155,12 @@ describe('ScaFlavorWheelSvg', () => {
     const homeZero = screen.getAllByRole('checkbox').filter((el) => el.getAttribute('tabindex') === '0');
     expect(homeZero[0]).toBe(allCheckboxes[0]);
   });
+
+  it('ensures active note counters and category counts do not use font-mono', () => {
+    render(<ScaFlavorWheelSvg selectedTags={['Blackberry', 'Peach']} onToggleTag={vi.fn()} />);
+
+    const activeText = screen.getByText('2 active');
+    expect(activeText.className).not.toContain('font-mono');
+    expect(activeText.className).toContain('tabular-nums');
+  });
 });

@@ -7,6 +7,18 @@ import { RecipeDetailRoute } from './RecipeDetailRoute';
 import { RecipeIndexRoute } from './RecipeIndexRoute';
 import { RecipeOutletContext } from './RecipesRoute';
 
+vi.mock('../features/equipment/useEquipment', () => ({
+  useEquipment: vi.fn(() => ({
+    equipment: [],
+    loading: false,
+    addEquipment: vi.fn(),
+    updateEquipment: vi.fn(),
+    deleteEquipment: vi.fn(),
+    toggleFavorite: vi.fn(),
+    refreshEquipment: vi.fn(),
+  })),
+}));
+
 const mockCustomRecipe: BrewRecipe = {
   id: 'custom-pour',
   name: 'Custom Pour Over',
