@@ -277,4 +277,86 @@ describe('ReviewsView', () => {
     expect(grinderSelect.value).toBe('grinder-1');
     expect(grindInput.value).toBe('18 clicks');
   });
+
+  it('ensures numeric parameter inputs, review counts, dates, and brew specs do not use font-mono', () => {
+    const sampleLog: TastingLog = {
+      id: 'log-typography-test',
+      brewMethod: 'v60',
+      brewDate: new Date('2026-10-01T12:00:00Z').toISOString(),
+      beanNameSnapshot: 'Typography Test Bean',
+      roasterSnapshot: 'Test Roaster',
+      recipeNameSnapshot: 'Test Recipe',
+      coffeeDoseGrams: 15,
+      waterAmountGrams: 250,
+      actualTimeSeconds: 180,
+      grindSetting: '14 clicks',
+      grinderSnapshot: 'Ode Gen 2',
+      brewerSnapshot: 'V60',
+      waterTempCelsius: 94,
+      calculatedScaScore: 86.5,
+      rating: 4.5,
+      flavorTags: ['Citrus'],
+      notes: 'Crisp finish',
+      wouldBrewAgain: true,
+      scores: {
+        fragranceAroma: 8,
+        flavor: 8,
+        aftertaste: 8,
+        acidity: 8.5,
+        body: 8,
+        balance: 8,
+        cleanCup: 10,
+        sweetness: 10,
+        uniformity: 10,
+        overall: 8.5,
+      },
+      createdAt: new Date().toISOString(),
+    };
+
+    const { container } = render(
+      <ReviewsView
+        logs={[sampleLog]}
+        beans={INITIAL_BEANS}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    // 1. Parameter inputs: time, dose, water, grind setting, water temp
+    const timeInput = screen.getByLabelText(/Actual Brew Time/i);
+    const doseInput = screen.getByLabelText(/Coffee Dose/i);
+    const waterInput = screen.getByLabelText(/Water Amount/i);
+    const grindInput = screen.getByLabelText(/Grind Setting/i);
+    const tempInput = screen.getByLabelText(/Water Temp/i);
+
+    expect(timeInput.className).not.toContain('font-mono');
+    expect(doseInput.className).not.toContain('font-mono');
+    expect(waterInput.className).not.toContain('font-mono');
+    expect(grindInput.className).not.toContain('font-mono');
+    expect(tempInput.className).not.toContain('font-mono');
+
+    expect(timeInput.className).toContain('tabular-nums');
+    expect(doseInput.className).toContain('tabular-nums');
+    expect(waterInput.className).toContain('tabular-nums');
+    expect(tempInput.className).toContain('tabular-nums');
+
+    // 2. Standard baseline note
+    const baselineNote = screen.getByText(/Standard baseline: 10\.0/i);
+    expect(baselineNote.className).not.toContain('font-mono');
+
+    // 3. Logged reviews counter
+    const loggedReviewsCounter = screen.getByText(/1 logged review/i);
+    expect(loggedReviewsCounter.className).not.toContain('font-mono');
+
+    // 4. Past review card date and rating number
+    const dateSpan = screen.getByText(new Date(sampleLog.brewDate).toLocaleDateString());
+    expect(dateSpan.className).not.toContain('font-mono');
+
+    const ratingWrapper = screen.getByText('4.5').parentElement;
+    expect(ratingWrapper?.className).not.toContain('font-mono');
+
+    // 5. Brew specs line: 15g : 250g (180s)
+    const specsLine = screen.getByText(/15g : 250g \(180s\)/i);
+    expect(specsLine.className).not.toContain('font-mono');
+    expect(specsLine.className).toContain('tabular-nums');
+  });
 });

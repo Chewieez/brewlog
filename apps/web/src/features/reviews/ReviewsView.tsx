@@ -435,41 +435,44 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-zinc-400 mb-1">Actual Brew Time (s)</label>
+                  <label htmlFor="review-actual-time" className="block text-zinc-400 mb-1">Actual Brew Time (s)</label>
                   <input
+                    id="review-actual-time"
                     type="number"
                     min="10"
                     max="1800"
                     value={actualTimeSeconds}
                     onChange={(e) => setActualTimeSeconds(Number(e.target.value))}
-                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-accent font-mono font-bold focus:outline-none focus:border-accent"
+                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-accent font-bold tabular-nums focus:outline-none focus:border-accent"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-zinc-400 mb-1">Coffee Dose (g)</label>
+                  <label htmlFor="review-coffee-dose" className="block text-zinc-400 mb-1">Coffee Dose (g)</label>
                   <input
+                    id="review-coffee-dose"
                     type="number"
                     step="0.1"
                     min="5"
                     max="150"
                     value={coffeeDoseGrams}
                     onChange={(e) => setCoffeeDoseGrams(Number(e.target.value))}
-                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-100 font-mono focus:outline-none focus:border-accent"
+                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-100 tabular-nums focus:outline-none focus:border-accent"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-zinc-400 mb-1">Water Amount (g)</label>
+                  <label htmlFor="review-water-amount" className="block text-zinc-400 mb-1">Water Amount (g)</label>
                   <input
+                    id="review-water-amount"
                     type="number"
                     min="20"
                     max="2000"
                     value={waterAmountGrams}
                     onChange={(e) => setWaterAmountGrams(Number(e.target.value))}
-                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-100 font-mono focus:outline-none focus:border-accent"
+                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-100 tabular-nums focus:outline-none focus:border-accent"
                   />
                 </div>
               </div>
@@ -500,7 +503,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     placeholder="e.g. 14 clicks, 2.5"
                     value={grindSetting}
                     onChange={(e) => setGrindSetting(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-100 placeholder-zinc-500 font-mono focus:outline-none focus:border-accent"
+                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-accent"
                   />
                 </div>
               </div>
@@ -532,7 +535,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     max="100"
                     value={waterTempCelsius}
                     onChange={(e) => setWaterTempCelsius(Number(e.target.value))}
-                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-100 font-mono focus:outline-none focus:border-accent"
+                    className="w-full px-3 py-1.5 rounded-lg bg-panel border border-border-subtle text-zinc-100 tabular-nums focus:outline-none focus:border-accent"
                   />
                 </div>
               </div>
@@ -611,7 +614,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 <span className="text-[11px] font-mono font-semibold text-zinc-400 uppercase tracking-wider">
                   Cup Purity & Consistency (5 Cups, 2 pts / cup)
                 </span>
-                <span className="text-[10px] font-mono text-zinc-500">Standard baseline: 10.0</span>
+                <span className="text-[10px] text-zinc-500 tabular-nums">Standard baseline: 10.0</span>
               </div>
 
               {(
@@ -835,7 +838,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
       <div className="mt-8 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold text-zinc-100">Past Brew Reviews</h3>
-          <span className="text-xs font-mono text-zinc-400">{logs.length} logged reviews</span>
+          <span className="text-xs text-zinc-400 tabular-nums">{logs.length} logged reviews</span>
         </div>
 
         {logs.length === 0 ? (
@@ -855,13 +858,13 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                       {log.brewMethod}
                     </span>
                     <span className="text-xs text-zinc-600">•</span>
-                    <span className="text-xs text-zinc-400 font-mono">
+                    <span className="text-xs text-zinc-400">
                       {new Date(log.brewDate).toLocaleDateString()}
                     </span>
                     {log.rating && (
                       <>
                         <span className="text-xs text-zinc-600">•</span>
-                        <div className="flex items-center text-accent text-xs font-mono">
+                        <div className="flex items-center text-accent text-xs tabular-nums">
                           <Star className="w-3 h-3 fill-current mr-0.5" />
                           <span>{log.rating}</span>
                         </div>
@@ -912,7 +915,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     {log.calculatedScaScore}{' '}
                     <span className="text-xs text-text-muted">SCA pts</span>
                   </div>
-                  <div className="text-xs font-mono text-zinc-400 mt-0.5">
+                  <div className="text-xs text-zinc-400 mt-0.5 tabular-nums">
                     {log.coffeeDoseGrams}g : {log.waterAmountGrams}g ({log.actualTimeSeconds}s)
                   </div>
                 </div>
