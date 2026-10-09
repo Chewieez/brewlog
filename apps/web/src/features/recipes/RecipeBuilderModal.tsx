@@ -18,7 +18,7 @@ import {
   Trash2,
   ArrowUp,
   ArrowDown,
-  Sparkles,
+  BookOpen,
   AlertCircle,
   Clock,
   Droplets,
@@ -458,12 +458,12 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-full max-w-3xl my-8 p-6 sm:p-8 rounded-xl bg-panel border border-border-subtle shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-3xl my-8 p-6 rounded-2xl bg-panel border border-border-subtle shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-border-subtle">
           <div className="flex items-center space-x-2.5">
             <div className="p-2 rounded bg-panel-recessed border border-border-subtle text-accent">
-              <Sparkles className="w-5 h-5" />
+              <BookOpen className="w-5 h-5" />
             </div>
             <div>
               <h2
@@ -586,9 +586,9 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                   htmlFor="recipe-water-temp"
                   className="block text-xs font-medium text-text-secondary mb-1.5"
                 >
-                  Water Temp (°C)
+                  Water Temp
                 </label>
-                <div className="flex items-center space-x-2">
+                <div className="flex rounded bg-panel-recessed border border-border-subtle focus-within:border-accent transition-colors overflow-hidden">
                   <input
                     id="recipe-water-temp"
                     type="number"
@@ -597,9 +597,11 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                     step="1"
                     value={waterTempCelsius}
                     onChange={(e) => setWaterTempCelsius(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-text-primary text-sm focus:outline-none focus:border-accent transition-colors"
+                    className="w-full px-3 py-2 bg-transparent text-text-primary text-sm focus:outline-none"
                   />
-                  <span className="text-xs text-text-muted">°C</span>
+                  <span className="inline-flex items-center px-3 border-l border-border-subtle bg-panel text-xs text-text-muted font-mono select-none">
+                    °C
+                  </span>
                 </div>
               </div>
             </div>
@@ -1156,15 +1158,12 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
             <button
               type="submit"
               disabled={isSaving}
-              className="px-6 py-2 rounded bg-accent hover:bg-accent-hover disabled:opacity-50 text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-md transition-all active:scale-95 flex items-center space-x-2 cursor-pointer"
+              className="px-6 py-2 rounded bg-accent hover:bg-accent-hover disabled:opacity-50 text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-md transition-all active:scale-95 flex items-center justify-center cursor-pointer"
             >
               {isSaving ? (
-                <span>SAVING PROFILE...</span>
+                <span>SAVING...</span>
               ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  <span>{initialRecipe ? "SAVE CHANGES" : "SAVE RECIPE"}</span>
-                </>
+                <span>{initialRecipe ? "SAVE CHANGES" : "SAVE RECIPE"}</span>
               )}
             </button>
           </div>

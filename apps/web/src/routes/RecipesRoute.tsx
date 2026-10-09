@@ -84,7 +84,7 @@ export const RecipesRoute: React.FC = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -117,7 +117,7 @@ export const RecipesRoute: React.FC = () => {
         <div
           className={`${
             recipeId ? 'hidden lg:block' : 'block'
-          } lg:col-span-5`}
+          } lg:col-span-4`}
         >
           <RecipeCatalogList
             recipes={recipes}
@@ -133,7 +133,7 @@ export const RecipesRoute: React.FC = () => {
         <div
           className={`${
             recipeId ? 'block' : 'hidden lg:block'
-          } col-span-1 lg:col-span-7`}
+          } col-span-1 lg:col-span-8`}
         >
           <Outlet context={recipeOutletContextValue} />
         </div>
