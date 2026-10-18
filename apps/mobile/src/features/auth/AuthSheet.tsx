@@ -16,6 +16,7 @@ import {
   BackHandler,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import {
   Sparkles,
@@ -25,6 +26,7 @@ import {
   Lock,
   Mail,
   User as UserIcon,
+  Sliders,
 } from "lucide-react-native";
 import { INDUSTRIAL_PRECISION_THEME } from "@brewlog/core";
 import { FONTS } from "../../theme/fonts";
@@ -49,6 +51,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
     signOut,
   } = useAuth();
 
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const [mode, setMode] = useState<AuthMode>("signin");
   const [email, setEmail] = useState("");
@@ -153,6 +156,11 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
       onClose();
     });
   }, [submitting, onClose, backdropOpacity, translateY]);
+
+  const handleOpenPreferences = useCallback(() => {
+    handleDismiss();
+    router.push("/settings/modal");
+  }, [handleDismiss, router]);
 
   useEffect(() => {
     setPassword("");
@@ -530,6 +538,28 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                     )}
                   </View>
                 )}
+
+                {/* App Preferences Entry Card */}
+                <View style={styles.preferencesSection}>
+                  <TouchableOpacity
+                    onPress={handleOpenPreferences}
+                    activeOpacity={0.8}
+                    style={styles.preferencesCard}
+                    accessibilityRole="button"
+                    accessibilityLabel="App Preferences"
+                  >
+                    <View style={styles.preferencesLeft}>
+                      <View style={styles.preferencesIconWrapper}>
+                        <Sliders size={18} color={colors.accent} />
+                      </View>
+                      <View style={styles.preferencesTextGroup}>
+                        <Text style={styles.preferencesTitle}>APP PREFERENCES</Text>
+                        <Text style={styles.preferencesSubtitle}>Units, timer mode & calibration</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.preferencesChevron}>›</Text>
+                  </TouchableOpacity>
+                </View>
               </ScrollView>
               </Animated.View>
             </TouchableWithoutFeedback>
@@ -820,6 +850,58 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontFamily: FONTS.monoRegular,
     fontSize: 11,
+    color: colors.textMuted,
+  },
+  preferencesSection: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: colors.borderSubtle,
+  },
+  preferencesCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: colors.panelRecessed,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    minHeight: 44,
+  },
+  preferencesLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  preferencesIconWrapper: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: colors.canvas,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
+  preferencesTextGroup: {
+    gap: 2,
+  },
+  preferencesTitle: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 12,
+    letterSpacing: 0.8,
+    color: colors.textPrimary,
+  },
+  preferencesSubtitle: {
+    fontFamily: FONTS.monoRegular,
+    fontSize: 10,
+    color: colors.textMuted,
+  },
+  preferencesChevron: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 16,
     color: colors.textMuted,
   },
 });

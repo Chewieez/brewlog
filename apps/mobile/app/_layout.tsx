@@ -134,6 +134,13 @@ export default function RootLayout() {
                     headerTitleStyle: { fontWeight: '700' },
                   }}
                 />
+                <Stack.Screen
+                  name="settings/modal"
+                  options={{
+                    presentation: 'modal',
+                    headerShown: false,
+                  }}
+                />
                 </Stack>
                 </ReviewsProvider>
               </EquipmentProvider>
