@@ -90,7 +90,7 @@ export default function SettingsModalScreen() {
           <Text style={styles.eyebrow}>SYSTEM // CALIBRATION</Text>
           <View style={styles.titleRow}>
             <Sliders size={20} color={colors.accent} />
-            <Text style={styles.headerTitle}>INSTRUMENT SETTINGS</Text>
+            <Text style={styles.headerTitle}>Instrument Settings</Text>
           </View>
         </View>
 
@@ -113,7 +113,7 @@ export default function SettingsModalScreen() {
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionLabel}>WEIGHT UNIT</Text>
-            <Text style={styles.sectionSublabel}>PRIMARY MASS MEASUREMENT</Text>
+            <Text style={styles.sectionSublabel}>Primary mass measurement</Text>
           </View>
           <View style={styles.segmentedContainer}>
             <TouchableOpacity
@@ -162,7 +162,7 @@ export default function SettingsModalScreen() {
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionLabel}>TEMPERATURE UNIT</Text>
-            <Text style={styles.sectionSublabel}>WATER KETTLE & BREW EXTRACTION</Text>
+            <Text style={styles.sectionSublabel}>Water kettle & brew extraction</Text>
           </View>
           <View style={styles.segmentedContainer}>
             <TouchableOpacity
@@ -211,7 +211,7 @@ export default function SettingsModalScreen() {
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionLabel}>DEFAULT TIMER MODE</Text>
-            <Text style={styles.sectionSublabel}>STARTUP WORKFLOW PREFERENCE</Text>
+            <Text style={styles.sectionSublabel}>Startup workflow preference</Text>
           </View>
           <View style={styles.segmentedContainer}>
             <TouchableOpacity
@@ -260,7 +260,7 @@ export default function SettingsModalScreen() {
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionLabel}>DATE FORMAT</Text>
-            <Text style={styles.sectionSublabel}>ROAST & TASTING LOG TIMESTAMPS</Text>
+            <Text style={styles.sectionSublabel}>Roast & tasting log timestamps</Text>
           </View>
           <View style={styles.dateGridContainer}>
             <TouchableOpacity
