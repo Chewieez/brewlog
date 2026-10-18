@@ -175,6 +175,28 @@ This document tracks upcoming milestones, architectural refactors, and technical
 - **Comprehensive Quality Verification**:
   - 100% test pass rate across 544 unit tests monorepo-wide (`@brewlog/core`: 67, `@brewlog/mobile`: 323, `@brewlog/web`: 154), zero TypeScript errors across all 5 workspaces, and verified bundling on iOS and Android.
 
+### Phase 8: User Preferences & Settings Subsystem (Complete ✅)
+- **Core Domain Conversion & Types (`@brewlog/core`)**:
+  - Defined `UserSettings`, `WeightUnit` (`'metric'` | `'imperial'`), `TemperatureUnit` (`'celsius'` | `'fahrenheit'`), and `DateFormatPreference` (`'locale'` | `'MM/DD/YYYY'` | `'DD/MM/YYYY'` | `'YYYY-MM-DD'`).
+  - Established `DEFAULT_USER_SETTINGS` defaulting to `free_brew`, metric weights, and Celsius temperatures.
+  - Implemented pure conversion and formatting helpers (`gramsToOz`, `ozToGrams`, `celsiusToFahrenheit`, `fahrenheitToCelsius`, `formatWeight`, `formatTemperature`, `formatDisplayDate`) with boundary handling and defensive fallbacks.
+- **Supabase Cloud Schema & Mappers (`@brewlog/supabase`)**:
+  - Authored migration `005_create_user_settings.sql` establishing the `user_settings` table keyed to `user_id` with `updated_at` trigger and strict Row Level Security (RLS) policies allowing users full CRUD over their own preference rows.
+  - Exported database definitions (`UserSettingsRow`, `UserSettingsInsert`, `UserSettingsUpdate`) and bidirectional camelCase/snake_case mappers (`mapDbToUserSettings`, `mapUserSettingsToDb`).
+- **Offline-First State Management & Cloud Sync**:
+  - **Mobile (`SettingsContext`)**: Immediate local hydration via AsyncStorage (`@brewlog/mobile:settings_cache`), optimistic updates, pending mutation tracking during offline states, and automated cloud sync with remote fallback on authentication.
+  - **Web (`SettingsContext`)**: Local hydration via `localStorage` (`brewlog_settings_cache`), optimistic updates, and real-time synchronization with Supabase.
+- **Dedicated Settings UI & Navigation**:
+  - **Mobile**: Built `app/settings/modal.tsx` (`SettingsModalScreen`) accessed via a dedicated "App Preferences" action tile in the slide-up account tray (`AuthSheet`), preserving Apple HIG 5-tab ergonomics. Includes segmented controls for weight unit, temperature unit, default timer mode, and date format preference, with instant live feedback, reset-to-defaults confirmation, and dark chassis aesthetic.
+  - **Web**: Built `/settings` route (`SettingsRoute`) accessed via the user menu dropdown (`UserMenu`), featuring live preview gauge cards, segmented control tabs, reset actions, and responsive layout.
+- **Telemetry & Faceplate Display Integration**:
+  - Connected `TimerHero` on mobile and `TimerView` on web to user settings: respects `defaultTimerMode` (`recipe` vs `free_brew`) on initial cold-load while preserving explicit recipe selection via deep-link parameters (`?mode=recipe` / `params: { mode: 'recipe' }`).
+  - Standardized live weight telemetry displays across faceplate metrics, dose steppers, target water readouts, stage water increments, and recipe specifications to consume `formatWeight` and `formatTemperature`.
+  - Wired `RecipeDetailScreen` (mobile) and `RecipeDetailPane` (web) to format target water and brew temperatures dynamically per user preference.
+- **Comprehensive Quality Verification**:
+  - 100% test pass rate across 93 test suites (764 tests passing monorepo-wide: `@brewlog/core`: 78, `@brewlog/supabase`: 29, `@brewlog/ui`: 32, `@brewlog/mobile`: 424, `@brewlog/web`: 201).
+  - Clean TypeScript verification across all 5 workspaces (`npm run typecheck`).
+
 ---
 
 ## 📋 Technical Debt & Component Refactoring (TODO)
@@ -265,12 +287,12 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
   - **Mobile Equipment Flow**: `EquipmentContext` with AsyncStorage caching, offline queueing, and Supabase sync. `EquipmentCard` with mono accent brand eyebrow, spec badges, and favorite star toggle. `EquipmentCatalogScreen` with category chips (`All`, `Grinders`, `Brewers`, `Scales`, `Kettles`, `Other`) and search filtering. `EquipmentModalScreen` with add/edit/delete flows, dirty state prompts, and hydration guards.
   - **Web Parity & Resilience**: Real-time search filtering and category filter chips in `EquipmentView.tsx`. Add/edit modal flow with confirmation modal for deletion. Star favorite toggling on web cards and in edit modal. Offline sync failure retention and empty cache preservation in `useEquipment.ts`.
   - **Core Package**: Exported `DEFAULT_INITIAL_EQUIPMENT` presets and `GrinderSettingScale` (including `'microns'`) in `@brewlog/core`.
-- [ ] **Phase 8: User Preferences & Settings Subsystem (Cross-Platform) (Upcoming ⏳)**:
-  - **Supabase Cloud Schema (`@brewlog/supabase`)**: `user_settings` table keyed to `user_id` with Row-Level Security (RLS) policies and offline-first local cache fallback. Initial schema stores `default_timer_mode` (`'recipe'` | `'manual'`), `date_format` (`'locale'` | `'MM/DD/YYYY'` | `'DD/MM/YYYY'` | `'YYYY-MM-DD'`), `weight_unit` (`'metric'` [grams/g] | `'imperial'` [ounces/oz, pounds/lb]), and `temperature_unit` (`'celsius'` | `'fahrenheit'`), architected to scale for future preferences (haptic/audio cues, default brew method).
-  - **Settings UI & Navigation**:
-    - **Mobile**: Settings entry button situated in the slide-up account tray (`AuthSheet` opened via `ProfileHeaderButton`), preserving Apple HIG 5-tab ergonomics. Includes selectors for weight scale (metric/imperial), temperature units, and date format.
-    - **Web**: Settings option in the account dropdown menu routing to `/settings`.
-  - **Boot Lifecycle & Domain Converters**: Hydrates user settings on startup and automatically initializes the Timer, Stash bag weights, and Recipe spec displays with localized conversion helpers (`g` ↔ `oz`, `°C` ↔ `°F`) while preserving canonical metric units in core domain stores.
+- [x] **Phase 8: User Preferences & Settings Subsystem (Cross-Platform) (Complete ✅)** *(Design Spec: [docs/superpowers/specs/2026-10-09-phase-8-user-settings-design.md](file:///Users/greglawrence/Projects/brewlog/docs/superpowers/specs/2026-10-09-phase-8-user-settings-design.md))*:
+  - **Core Domain & Math (`@brewlog/core`)**: `UserSettings`, `DEFAULT_USER_SETTINGS` (defaulting to `free_brew`), `gramsToOz`, `ozToGrams`, `celsiusToFahrenheit`, `fahrenheitToCelsius`, `formatWeight`, `formatTemperature`, and `formatDisplayDate`.
+  - **Supabase Cloud Schema (`@brewlog/supabase`)**: `005_create_user_settings.sql` migration, RLS policies, database types, and bidirectional mappers.
+  - **Offline-First Persistence**: `SettingsContext` with AsyncStorage caching (`@brewlog/mobile:settings_cache`) on mobile and `localStorage` (`brewlog_settings_cache`) on web with optimistic local updates and automated Supabase cloud sync.
+  - **Cross-Platform Settings UI**: Mobile modal `app/settings/modal.tsx` launched via `AuthSheet` account tray; Web dedicated `/settings` route accessible via `UserMenu`.
+  - **Telemetry & Instrument Faceplates**: Dynamically localized weights (grams / ounces), brew water temperatures (°C / °F), and default timer modes across `TimerHero`, `TimerView`, `RecipeDetailScreen`, and `RecipeDetailPane`.
 - [ ] **Phase 9: Native Cupping Session Logging Flow**:
   - Complete SCA 10-attribute scoring protocol form on native (`app/(tabs)/cupping.tsx`).
   - Radar chart visualization and spider graphs for sensory profiles.
