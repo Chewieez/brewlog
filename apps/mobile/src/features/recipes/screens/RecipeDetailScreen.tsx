@@ -64,7 +64,7 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
 
   const handleBrew = () => {
     setActiveTimerRecipe(scaledRecipe, customDose);
-    router.replace('/(tabs)');
+    router.replace({ pathname: '/(tabs)', params: { mode: 'recipe' } });
   };
 
   const handleDuplicate = () => {

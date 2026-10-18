@@ -366,5 +366,6 @@ describe('TimerView', () => {
     expect(screen.getAllByText(/oz/i).length).toBeGreaterThan(0);
     expect(screen.getByText('0.53 oz')).toBeDefined(); // 15g
     expect(screen.getByText('8.82 oz')).toBeDefined(); // 250g
+    expect(screen.getAllByText('1.76 oz').length).toBeGreaterThan(0); // 50g stage water
   });
 });

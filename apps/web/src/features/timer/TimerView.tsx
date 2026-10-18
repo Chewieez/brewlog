@@ -91,6 +91,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
   useEffect(() => {
     if (initialRecipe !== initialRecipeRef.current) {
       setMode('recipe');
+      initialRecipeRef.current = initialRecipe;
     }
   }, [initialRecipe]);
 
@@ -707,7 +708,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                             {formatTime(stage.startSecond)} ({stage.durationSeconds}s)
                           </span>
                           <span className="font-light text-sm text-text-primary tabular-nums">
-                            {stage.targetWaterWeightGrams}g
+                            {formatWeight(stage.targetWaterWeightGrams, currentWeightUnit)}
                           </span>
                         </div>
                       </div>

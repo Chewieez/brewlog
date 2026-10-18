@@ -15,7 +15,7 @@ export const RecipeDetailRoute: React.FC = () => {
   const handleSelectRecipeForTimer = useCallback(
     (selectedRecipe: BrewRecipe) => {
       onSelectRecipeForTimer(selectedRecipe);
-      navigate('/timer');
+      navigate('/timer?mode=recipe');
     },
     [onSelectRecipeForTimer, navigate]
   );

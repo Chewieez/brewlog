@@ -161,7 +161,7 @@ describe('RecipeDetailScreen', () => {
     fireEvent.click(getByText('BREW WITH THIS RECIPE'));
 
     expect(mockSetActiveTimerRecipe).toHaveBeenCalled();
-    expect(mockReplace).toHaveBeenCalledWith('/(tabs)');
+    expect(mockReplace).toHaveBeenCalledWith({ pathname: '/(tabs)', params: { mode: 'recipe' } });
   });
 
   it('navigates to builder with duplicateId parameter when Duplicate is clicked', () => {
