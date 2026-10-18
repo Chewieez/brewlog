@@ -113,6 +113,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
         ...settingsRef.current,
         ...updates,
       };
+      settingsRef.current = nextSettings;
       setSettings(nextSettings);
       persistCachedSettings(nextSettings);
 
@@ -130,6 +131,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const resetToDefaults = useCallback(async () => {
     const nextSettings = DEFAULT_USER_SETTINGS;
+    settingsRef.current = nextSettings;
     setSettings(nextSettings);
     persistCachedSettings(nextSettings);
 

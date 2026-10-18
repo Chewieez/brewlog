@@ -10,6 +10,7 @@ import { RecipeIndexRoute } from './routes/RecipeIndexRoute';
 import { RecipeDetailRoute } from './routes/RecipeDetailRoute';
 import { EquipmentRoute } from './routes/EquipmentRoute';
 import { ReviewsRoute } from './routes/ReviewsRoute';
+import { SettingsRoute } from './routes/SettingsRoute';
 import { NotFoundRoute } from './routes/NotFoundRoute';
 
 export const App: React.FC = () => {
@@ -28,6 +29,7 @@ export const App: React.FC = () => {
               </Route>
               <Route path="equipment" element={<EquipmentRoute />} />
               <Route path="reviews" element={<ReviewsRoute />} />
+              <Route path="settings" element={<SettingsRoute />} />
               <Route path="cupping" element={<Navigate to="/reviews" replace />} />
               <Route path="*" element={<NotFoundRoute />} />
             </Route>
