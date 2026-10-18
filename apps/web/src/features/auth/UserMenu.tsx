@@ -68,9 +68,9 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
             <Link
               to="/settings"
               onClick={() => setDropdownOpen(false)}
-              className="w-full flex items-center space-x-2 px-3 py-2 rounded text-text-secondary hover:text-text-primary hover:bg-panel-recessed font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
+              className="w-full flex items-center space-x-2 px-3 py-2 rounded text-text-primary hover:bg-panel-recessed font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
             >
-              <Settings className="w-3.5 h-3.5 text-accent" />
+              <Settings className="w-3.5 h-3.5 text-text-primary" />
               <span>SETTINGS</span>
             </Link>
 
