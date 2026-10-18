@@ -117,7 +117,7 @@ export const SettingsRoute: React.FC = () => {
             </div>
             <div
               data-testid="preview-temp"
-              className="text-lg sm:text-xl font-light tabular-nums text-accent"
+              className="text-lg sm:text-xl font-light tabular-nums text-text-primary"
             >
               {formatTemperature(94, settings.temperatureUnit)}
             </div>

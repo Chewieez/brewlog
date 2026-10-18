@@ -79,9 +79,9 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
                 setDropdownOpen(false);
                 signOut();
               }}
-              className="w-full flex items-center space-x-2 px-3 py-2 rounded text-red-400 hover:text-red-300 hover:bg-red-500/10 font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
+              className="group w-full flex items-center space-x-2 px-3 py-2 rounded text-text-primary hover:bg-panel-recessed font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
             >
-              <LogOut className="w-3.5 h-3.5" />
+              <LogOut className="w-3.5 h-3.5 text-text-primary group-hover:text-red-400 transition-colors" />
               <span>SIGN OUT</span>
             </button>
           </div>
