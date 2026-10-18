@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
 import { AuthProvider } from './features/auth/AuthContext';
+import { SettingsProvider } from './features/settings/SettingsContext';
 import { RootLayout } from './layouts/RootLayout';
 import { TimerRoute } from './routes/TimerRoute';
 import { StashRoute } from './routes/StashRoute';
@@ -14,23 +15,25 @@ import { NotFoundRoute } from './routes/NotFoundRoute';
 export const App: React.FC = () => {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<RootLayout />}>
-            <Route index element={<Navigate to="/timer" replace />} />
-            <Route path="timer" element={<TimerRoute />} />
-            <Route path="stash" element={<StashRoute />} />
-            <Route path="recipes" element={<RecipesRoute />}>
-              <Route index element={<RecipeIndexRoute />} />
-              <Route path=":recipeId" element={<RecipeDetailRoute />} />
+      <SettingsProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<RootLayout />}>
+              <Route index element={<Navigate to="/timer" replace />} />
+              <Route path="timer" element={<TimerRoute />} />
+              <Route path="stash" element={<StashRoute />} />
+              <Route path="recipes" element={<RecipesRoute />}>
+                <Route index element={<RecipeIndexRoute />} />
+                <Route path=":recipeId" element={<RecipeDetailRoute />} />
+              </Route>
+              <Route path="equipment" element={<EquipmentRoute />} />
+              <Route path="reviews" element={<ReviewsRoute />} />
+              <Route path="cupping" element={<Navigate to="/reviews" replace />} />
+              <Route path="*" element={<NotFoundRoute />} />
             </Route>
-            <Route path="equipment" element={<EquipmentRoute />} />
-            <Route path="reviews" element={<ReviewsRoute />} />
-            <Route path="cupping" element={<Navigate to="/reviews" replace />} />
-            <Route path="*" element={<NotFoundRoute />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </SettingsProvider>
     </AuthProvider>
   );
 };
