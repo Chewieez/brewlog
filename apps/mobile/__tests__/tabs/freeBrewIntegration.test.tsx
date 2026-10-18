@@ -13,6 +13,7 @@ vi.mock('expo-router', () => ({
   useRouter: () => ({
     push: mockPush,
   }),
+  useLocalSearchParams: () => ({}),
 }));
 
 vi.mock('../../src/lib/supabase', () => ({
@@ -220,6 +221,8 @@ describe('TimerScreen Free Brew Integration', () => {
       </RecipeProvider>
     );
 
+    fireEvent.press(getByText('GUIDED RECIPE'));
+
     // In guided recipe mode, verify Free Brew specific CTA is not present before or after
     expect(queryByText('SAVE AS CUSTOM RECIPE')).toBeNull();
   });
@@ -232,6 +235,9 @@ describe('TimerScreen Free Brew Integration', () => {
         </StashProvider>
       </RecipeProvider>
     );
+
+    // Switch to GUIDED RECIPE mode
+    fireEvent.press(getByText('GUIDED RECIPE'));
 
     // Start timer in GUIDED RECIPE mode
     const startButton = getByLabelText('Start brew timer');
@@ -301,8 +307,11 @@ describe('TimerScreen Free Brew Integration', () => {
       </RecipeProvider>
     );
 
+    // Switch to GUIDED RECIPE mode
+    fireEvent.press(getByText('GUIDED RECIPE'));
+
     // Initial guided recipe water target is 500g
-    expect(getAllByText(/500\s*g/).length).toBeGreaterThan(0);
+    expect(getAllByText(/500(\.0)?\s*g/).length).toBeGreaterThan(0);
 
     // Expand ratio calculator
     fireEvent.press(getByText('RATIO CALCULATOR'));
@@ -321,7 +330,7 @@ describe('TimerScreen Free Brew Integration', () => {
     fireEvent.press(getByText('APPLY DOSE'));
 
     // TimerHero should now show water target 300g and ratio 1:15
-    expect(getAllByText(/300\s*g/).length).toBeGreaterThan(0);
+    expect(getAllByText(/300(\.0)?\s*g/).length).toBeGreaterThan(0);
     expect(getAllByText(/1:15/).length).toBeGreaterThan(0);
   });
 });

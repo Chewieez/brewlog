@@ -59,6 +59,7 @@ vi.mock('react-native', () => ({
 
 vi.mock('expo-router', () => ({
   useRouter: () => ({ push: vi.fn() }),
+  useLocalSearchParams: () => ({ mode: 'recipe' }),
 }));
 
 vi.mock('../../src/features/recipes/RecipeContext', () => ({
@@ -219,7 +220,7 @@ describe('TimerScreen - Method Pill Tap & Active Brew Guard', () => {
     const { getByLabelText, getByText } = render(<TimerScreen />);
 
     // Initial V60: 30g coffee, 500g water
-    expect(getByText('500g')).toBeDefined();
+    expect(getByText('500.0 g')).toBeDefined();
 
     // Change dose via inline input: 30g -> 20g
     const timerDoseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
@@ -229,7 +230,7 @@ describe('TimerScreen - Method Pill Tap & Active Brew Guard', () => {
     fireEvent.blur(timerDoseInput);
 
     expect(timerDoseInput.value).toBe('20');
-    expect(getByText('333g')).toBeDefined();
+    expect(getByText('333.0 g')).toBeDefined();
   });
 
   it('locks dose input to read-only while timer is running', () => {
@@ -240,7 +241,7 @@ describe('TimerScreen - Method Pill Tap & Active Brew Guard', () => {
 
     // Dose input is locked to read-only static text while running
     expect(queryByLabelText('Timer coffee dose in grams')).toBeNull();
-    expect(getByText('30g')).toBeDefined();
+    expect(getByText('30.0 g')).toBeDefined();
   });
 
   it('applies custom dose from CollapsibleCalculator to timer and rescales recipe', () => {
@@ -261,6 +262,6 @@ describe('TimerScreen - Method Pill Tap & Active Brew Guard', () => {
     // TimerHero should now show 20g dose in input and 333g water target
     const heroDoseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
     expect(heroDoseInput.value).toBe('20');
-    expect(getByText('333g')).toBeDefined();
+    expect(getByText('333.0 g')).toBeDefined();
   });
 });

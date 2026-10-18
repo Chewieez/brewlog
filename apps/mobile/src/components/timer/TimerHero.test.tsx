@@ -91,9 +91,9 @@ describe('TimerHero Component', () => {
     expect(getByText(/1:16.67/)).toBeDefined();
     expect(getByText('1')).toBeDefined(); // mins
     expect(getByText('15')).toBeDefined(); // secs
-    expect(getByText('30g')).toBeDefined();
-    expect(getByText('500g')).toBeDefined();
-    expect(getByText('300g')).toBeDefined();
+    expect(getByText('30.0 g')).toBeDefined();
+    expect(getByText('500.0 g')).toBeDefined();
+    expect(getByText('300.0 g')).toBeDefined();
   });
 
   it('allows inline editing of dose and calls onChangeDose on commit (blur or submit)', () => {
@@ -239,7 +239,7 @@ describe('TimerHero Component', () => {
     );
 
     expect(queryByLabelText('Timer coffee dose in grams')).toBeNull();
-    expect(getByText('18g')).toBeDefined();
+    expect(getByText('18.0 g')).toBeDefined();
   });
 
   it('locks dose to read-only and displays RESET on primary button when isFinished is true', () => {
@@ -276,7 +276,7 @@ describe('TimerHero Component', () => {
 
     // Dose is read-only when finished
     expect(queryByLabelText('Timer coffee dose in grams')).toBeNull();
-    expect(getByText('30g')).toBeDefined();
+    expect(getByText('30.0 g')).toBeDefined();
   });
 
   it('syncs local input text when doseGrams prop updates externally', () => {
@@ -481,6 +481,27 @@ describe('TimerHero Component', () => {
       expect(finishBtn).toBeDefined();
       fireEvent.click(finishBtn);
       expect(onFinish).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('weightUnit formatting', () => {
+    it('formats metrics in imperial ounces when weightUnit="imperial"', () => {
+      const { getByText, getAllByText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={0}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={60}
+          doseGrams={30}
+          weightUnit="imperial"
+        />
+      );
+
+      expect(getAllByText(/oz/i).length).toBeGreaterThan(0);
+      expect(getByText('1.06 oz')).toBeDefined();
+      expect(getByText('17.64 oz')).toBeDefined();
+      expect(getByText('2.12 oz')).toBeDefined();
     });
   });
 });

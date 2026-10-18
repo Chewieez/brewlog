@@ -158,6 +158,10 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 };
 
+export const useOptionalSettings = (): SettingsContextValue | null => {
+  return useContext(SettingsContext);
+};
+
 export const useSettings = (): SettingsContextValue => {
   const context = useContext(SettingsContext);
   if (!context) {
