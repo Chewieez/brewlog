@@ -50,11 +50,8 @@ export const SettingsRoute: React.FC = () => {
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
-              INSTRUMENT SETTINGS
+              Instrument Settings
             </h1>
-            <p className="text-xs sm:text-sm text-text-muted mt-0.5">
-              Configure measurement scales, extraction defaults, and telemetry timestamps.
-            </p>
           </div>
         </div>
       </div>
@@ -65,19 +62,16 @@ export const SettingsRoute: React.FC = () => {
         className="bg-panel border border-accent/40 rounded-xl p-5 sm:p-6 shadow-lg shadow-accent/5 relative overflow-hidden"
       >
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-accent-hover to-accent" />
-        <div className="flex items-center justify-between pb-4 mb-5 border-b border-border-subtle">
+        <div className="flex items-center pb-4 mb-5 border-b border-border-subtle">
           <div className="flex items-center space-x-2.5">
             <Gauge className="w-4 h-4 text-accent" />
             <h2
               id="preview-heading"
               className="text-xs font-mono font-bold tracking-widest uppercase text-accent"
             >
-              CALIBRATION PREVIEW
+              Live Preview
             </h2>
           </div>
-          <span className="text-[11px] font-mono text-text-muted uppercase tracking-wider hidden sm:inline">
-            REAL-TIME INSTRUMENT TELEMETRY
-          </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -131,7 +125,7 @@ export const SettingsRoute: React.FC = () => {
             </div>
             <div
               data-testid="preview-timer-mode"
-              className="text-xs font-mono font-bold uppercase tracking-wider text-text-primary mt-1 truncate"
+              className="text-lg sm:text-xl font-light text-text-primary truncate"
             >
               {settings.defaultTimerMode === 'free_brew' ? 'FREE BREW' : 'GUIDED RECIPE'}
             </div>
@@ -145,7 +139,7 @@ export const SettingsRoute: React.FC = () => {
             </div>
             <div
               data-testid="preview-date"
-              className="text-xs font-mono tabular-nums text-text-primary mt-1 truncate"
+              className="text-lg sm:text-xl font-light tabular-nums text-text-primary truncate"
             >
               {formatDisplayDate(sampleDate, settings.dateFormat)}
             </div>
@@ -169,7 +163,7 @@ export const SettingsRoute: React.FC = () => {
                 WEIGHT UNIT
               </h2>
               <p className="text-xs text-text-muted mt-1">
-                PRIMARY MASS MEASUREMENT FOR COFFEE DOSES AND EXTRACTION WATER
+                Primary mass measurement for coffee doses and extraction water
               </p>
             </div>
 
@@ -216,7 +210,7 @@ export const SettingsRoute: React.FC = () => {
                 TEMPERATURE UNIT
               </h2>
               <p className="text-xs text-text-muted mt-1">
-                WATER KETTLE & BREW EXTRACTION TEMPERATURE READINGS
+                Water kettle and brew extraction temperature readings
               </p>
             </div>
 
@@ -263,7 +257,7 @@ export const SettingsRoute: React.FC = () => {
                 DEFAULT TIMER MODE
               </h2>
               <p className="text-xs text-text-muted mt-1">
-                STARTUP WORKFLOW PREFERENCE FOR THE BREW TIMER INTERFACE
+                Startup workflow preference for the brew timer interface
               </p>
             </div>
 
@@ -310,7 +304,7 @@ export const SettingsRoute: React.FC = () => {
                 DATE FORMAT
               </h2>
               <p className="text-xs text-text-muted mt-1">
-                ROAST & TASTING LOG TIMESTAMPS DISPLAY PRESENTATION
+                Roast and tasting log timestamps display presentation
               </p>
             </div>
 

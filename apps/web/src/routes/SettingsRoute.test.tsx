@@ -52,7 +52,7 @@ describe('SettingsRoute', () => {
     expect(screen.getByText(/TEMPERATURE UNIT/i)).toBeDefined();
     expect(screen.getByText(/DEFAULT TIMER MODE/i)).toBeDefined();
     expect(screen.getByText(/DATE FORMAT/i)).toBeDefined();
-    expect(screen.getByText(/CALIBRATION PREVIEW/i)).toBeDefined();
+    expect(screen.getByText(/LIVE PREVIEW/i)).toBeDefined();
     expect(screen.getByRole('button', { name: /RESET TO DEFAULTS/i })).toBeDefined();
   });
 
