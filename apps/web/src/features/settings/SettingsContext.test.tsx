@@ -311,6 +311,46 @@ describe('SettingsContext (Web)', () => {
     );
   });
 
+  it('logs an error when Supabase upsert fails with an error', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: 'web-user-err' } as any,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    mockUpsert.mockResolvedValueOnce({
+      data: null,
+      error: { message: 'RLS check failed', code: '42501' },
+    });
+
+    const { result } = renderHook(() => useSettings(), {
+      wrapper: ({ children }) => <SettingsProvider>{children}</SettingsProvider>,
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.updateSettings({ weightUnit: 'imperial' });
+    });
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Failed to sync settings to Supabase:',
+      { message: 'RLS check failed', code: '42501' }
+    );
+    consoleErrorSpy.mockRestore();
+  });
+
   it('throws an error when useSettings is used outside of SettingsProvider', () => {
     const originalError = console.error;
     console.error = vi.fn();

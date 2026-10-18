@@ -99,7 +99,10 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
           await persistCachedSettings(remoteSettings);
         } else if (!error && !data) {
           const payload = mapUserSettingsToDb(current, user.id);
-          await supabase.from('user_settings').upsert(payload);
+          const { error: upsertError } = await supabase.from('user_settings').upsert(payload);
+          if (upsertError) {
+            console.error('Failed to sync settings to Supabase:', upsertError);
+          }
         }
       } catch (err) {
         console.error('Failed to sync settings with Supabase:', err);
@@ -119,13 +122,17 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
         ...settingsRef.current,
         ...updates,
       };
+      settingsRef.current = nextSettings;
       setSettings(nextSettings);
       await persistCachedSettings(nextSettings);
 
       if (supabase && user) {
         try {
           const payload = mapUserSettingsToDb(nextSettings, user.id);
-          await supabase.from('user_settings').upsert(payload);
+          const { error } = await supabase.from('user_settings').upsert(payload);
+          if (error) {
+            console.error('Failed to sync settings to Supabase:', error);
+          }
         } catch (err) {
           console.error('Failed to sync updated settings to Supabase:', err);
         }
@@ -136,13 +143,17 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const resetToDefaults = useCallback(async () => {
     const nextSettings = DEFAULT_USER_SETTINGS;
+    settingsRef.current = nextSettings;
     setSettings(nextSettings);
     await persistCachedSettings(nextSettings);
 
     if (supabase && user) {
       try {
         const payload = mapUserSettingsToDb(nextSettings, user.id);
-        await supabase.from('user_settings').upsert(payload);
+        const { error } = await supabase.from('user_settings').upsert(payload);
+        if (error) {
+          console.error('Failed to sync settings to Supabase:', error);
+        }
       } catch (err) {
         console.error('Failed to sync reset settings to Supabase:', err);
       }

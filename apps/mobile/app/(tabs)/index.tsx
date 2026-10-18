@@ -62,9 +62,10 @@ export default function TimerScreen() {
   }, [params?.mode]);
 
   useEffect(() => {
-    if (activeTimerRecipe !== initialRecipeRef.current) {
+    if (activeTimerRecipe.id !== initialRecipeRef.current?.id) {
       setTimerMode('recipe');
     }
+    initialRecipeRef.current = activeTimerRecipe;
   }, [activeTimerRecipe]);
 
   const [isFreeBrewFinished, setIsFreeBrewFinished] = useState<boolean>(false);

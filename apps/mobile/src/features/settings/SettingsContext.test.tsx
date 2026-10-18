@@ -228,6 +228,63 @@ describe('SettingsContext (Mobile)', () => {
     );
   });
 
+  it('preserves sequential synchronous updates using settingsRef', async () => {
+    const { result } = renderHook(() => useSettings(), {
+      wrapper: ({ children }) => <SettingsProvider>{children}</SettingsProvider>,
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      const p1 = result.current.updateSettings({ weightUnit: 'imperial' });
+      const p2 = result.current.updateSettings({ temperatureUnit: 'fahrenheit' });
+      await Promise.all([p1, p2]);
+    });
+
+    expect(result.current.settings.weightUnit).toBe('imperial');
+    expect(result.current.settings.temperatureUnit).toBe('fahrenheit');
+    const stored = await AsyncStorage.getItem(SETTINGS_STORAGE_KEY);
+    expect(JSON.parse(stored!)).toMatchObject({
+      weightUnit: 'imperial',
+      temperatureUnit: 'fahrenheit',
+    });
+  });
+
+  it('logs an error when Supabase upsert fails with an error', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: 'user-err' } as any,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    mockUpsert.mockResolvedValueOnce({
+      data: null,
+      error: { message: 'RLS check failed', code: '42501' },
+    });
+
+    const { result } = renderHook(() => useSettings(), {
+      wrapper: ({ children }) => <SettingsProvider>{children}</SettingsProvider>,
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.updateSettings({ weightUnit: 'imperial' });
+    });
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Failed to sync settings to Supabase:',
+      { message: 'RLS check failed', code: '42501' }
+    );
+    consoleErrorSpy.mockRestore();
+  });
+
   it('throws an error when useSettings is used outside of SettingsProvider', () => {
     // Suppress React boundary console.error during expected throw
     const originalError = console.error;
