@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import React from 'react';
 import { render, fireEvent, cleanup } from '@testing-library/react';
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { BeanCard } from './BeanCard';
 import { Bean } from '@brewlog/core';
 
@@ -84,7 +84,13 @@ vi.mock('lucide-react-native', () => ({
 }));
 
 describe('BeanCard', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-22T00:00:00Z'));
+  });
+
   afterEach(() => {
+    vi.useRealTimers();
     cleanup();
   });
 

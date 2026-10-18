@@ -136,6 +136,8 @@ vi.mock("lucide-react-native", () => ({
   LogOut: () => null,
   AlertCircle: () => null,
   CheckCircle2: () => null,
+  Sliders: () => null,
+  ChevronRight: () => null,
 }));
 
 vi.mock("../../src/lib/supabase", () => ({
@@ -152,6 +154,11 @@ vi.mock("expo-haptics", () => ({
 
 vi.mock("expo-router", () => {
   return {
+    useRouter: () => ({
+      push: vi.fn(),
+      replace: vi.fn(),
+      back: vi.fn(),
+    }),
     Tabs: Object.assign(
       ({ children, screenOptions }: any) => {
         const headerRight = screenOptions?.headerRight ? screenOptions.headerRight() : null;
