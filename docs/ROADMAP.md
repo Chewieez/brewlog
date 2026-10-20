@@ -297,6 +297,11 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
   - Complete SCA 10-attribute scoring protocol form on native (`app/(tabs)/cupping.tsx`).
   - Radar chart visualization and spider graphs for sensory profiles.
   - Session history and exportable cupping sheets.
+- [ ] **Infrastructure: Automated Supabase Migrations & CI/CD Schema Pipeline**:
+  - Integrate Supabase CLI into repository tooling (`npm run db:migrate` or `supabase db push`).
+  - Configure GitHub Actions CI/CD workflow to validate and automatically execute pending SQL migrations from `packages/supabase/migrations/` upon PR merge to `main`.
+  - Add schema validation and type-generation checks to guarantee `database.types.ts` stays in sync with live database schema.
+  - Eliminate manual SQL Editor execution steps for new migrations.
 - [ ] **Phase 10: Platform-Adaptive Navigation & Native Design Systems**:
   - **iOS Liquid Glass Navigation**: Implement native translucent headers and floating tab bar materials (`headerTransparent`, `headerBlurEffect`, under-content scrolling) for iOS 26/27 while preserving solid core theme tokens for cross-platform stability.
   - **Android Material 3 Support with Expo UI**: Implement first-class Material Design 3 navigation chrome and components via Expo UI / Jetpack Compose primitives (tonal elevation, surface container scrolling, native predictive back gesture integration, and dynamic theme tokens).

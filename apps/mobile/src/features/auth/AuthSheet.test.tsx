@@ -185,6 +185,7 @@ vi.mock("lucide-react-native", () => ({
   Mail: () => <span data-testid="mail-icon" />,
   User: () => <span data-testid="user-icon" />,
   Sliders: () => <span data-testid="sliders-icon" />,
+  Settings: () => <span data-testid="settings-icon" />,
 }));
 
 describe("AuthSheet", () => {
@@ -270,7 +271,7 @@ describe("AuthSheet", () => {
     expect(getByText("SIGN OUT")).toBeDefined();
   });
 
-  it("renders APP PREFERENCES entry card and routes to /settings/modal on tap", () => {
+  it("renders Settings entry card and routes to /settings/modal on tap", () => {
     vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
       user: null,
       session: null,
@@ -287,8 +288,8 @@ describe("AuthSheet", () => {
       <AuthSheet visible={true} onClose={mockOnClose} />
     );
 
-    expect(getByText("APP PREFERENCES")).toBeDefined();
-    fireEvent.click(getByText("APP PREFERENCES"));
+    expect(getByText("Settings")).toBeDefined();
+    fireEvent.click(getByText("Settings"));
     expect(mockRouterPush).toHaveBeenCalledWith("/settings/modal");
     expect(mockOnClose).toHaveBeenCalled();
   });

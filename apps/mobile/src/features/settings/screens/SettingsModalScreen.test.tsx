@@ -61,6 +61,7 @@ vi.mock('react-native', () => ({
     onPress,
     accessibilityLabel,
     accessibilityRole,
+    accessibilityState: _accessibilityState,
     disabled,
     hitSlop: _hitSlop,
     style: _style,
@@ -121,11 +122,14 @@ vi.mock('react-native', () => ({
 vi.mock('lucide-react-native', () => ({
   X: () => <span data-testid="x-icon" />,
   Sliders: () => <span data-testid="sliders-icon" />,
+  Settings: () => <span data-testid="settings-icon" />,
   RotateCcw: () => <span data-testid="rotate-ccw-icon" />,
   Cloud: () => <span data-testid="cloud-icon" />,
   HardDrive: () => <span data-testid="hard-drive-icon" />,
   Check: () => <span data-testid="check-icon" />,
   Gauge: () => <span data-testid="gauge-icon" />,
+  ChevronDown: () => <span data-testid="chevron-down-icon" />,
+  ChevronUp: () => <span data-testid="chevron-up-icon" />,
 }));
 
 vi.mock('../../auth/AuthContext', () => ({
@@ -165,7 +169,7 @@ describe('SettingsModalScreen', () => {
       </SettingsProvider>
     );
 
-    expect(getByText(/INSTRUMENT SETTINGS/i)).toBeTruthy();
+    expect(getByText(/^SETTINGS$/i)).toBeTruthy();
     expect(getByText(/SYSTEM \/\/ CALIBRATION/i)).toBeTruthy();
     expect(getByText(/WEIGHT UNIT/i)).toBeTruthy();
     expect(getByText(/TEMPERATURE UNIT/i)).toBeTruthy();
@@ -229,7 +233,7 @@ describe('SettingsModalScreen', () => {
       resetToDefaults: vi.fn().mockResolvedValue(undefined),
     };
 
-    const { getByText } = render(
+    const { getByText, getByLabelText } = render(
       <SettingsContext.Provider value={mockContextValue}>
         <SettingsModalScreen />
       </SettingsContext.Provider>
@@ -248,9 +252,43 @@ describe('SettingsModalScreen', () => {
     fireEvent.press(getByText(/GUIDED RECIPE/i));
     expect(updateSettingsMock).toHaveBeenCalledWith({ defaultTimerMode: 'recipe' });
 
-    // Change date format to YYYY-MM-DD
-    fireEvent.press(getByText(/YYYY-MM-DD/i));
+    // Open date format dropdown and select YYYY-MM-DD
+    fireEvent.press(getByLabelText('Select date format'));
+    fireEvent.press(getByLabelText('YYYY-MM-DD date format'));
     expect(updateSettingsMock).toHaveBeenCalledWith({ dateFormat: 'YYYY-MM-DD' });
+  });
+
+  it('toggles date format dropdown accordion and renders all options with previews', () => {
+    const updateSettingsMock = vi.fn().mockResolvedValue(undefined);
+    const mockContextValue = {
+      settings: DEFAULT_USER_SETTINGS,
+      loading: false,
+      updateSettings: updateSettingsMock,
+      resetToDefaults: vi.fn().mockResolvedValue(undefined),
+    };
+
+    const { getByLabelText, queryByLabelText } = render(
+      <SettingsContext.Provider value={mockContextValue}>
+        <SettingsModalScreen />
+      </SettingsContext.Provider>
+    );
+
+    // Initially collapsed
+    expect(queryByLabelText('YYYY-MM-DD date format')).toBeNull();
+
+    // Expand dropdown
+    fireEvent.press(getByLabelText('Select date format'));
+    expect(queryByLabelText('LOCALE date format')).toBeTruthy();
+    expect(queryByLabelText('YYYY-MM-DD date format')).toBeTruthy();
+    expect(queryByLabelText('MM/DD/YYYY date format')).toBeTruthy();
+    expect(queryByLabelText('DD/MM/YYYY date format')).toBeTruthy();
+
+    // Select DD/MM/YYYY
+    fireEvent.press(getByLabelText('DD/MM/YYYY date format'));
+    expect(updateSettingsMock).toHaveBeenCalledWith({ dateFormat: 'DD/MM/YYYY' });
+
+    // Closes after selection
+    expect(queryByLabelText('DD/MM/YYYY date format')).toBeNull();
   });
 
   it('prompts confirmation Alert on resetToDefaults and executes on confirmation', () => {

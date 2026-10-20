@@ -17,19 +17,6 @@
       "bundleIdentifier": "com.brewlog.app",
       "config": {
         "usesNonExemptEncryption": false
-      },
-      "infoPlist": {
-        "UIApplicationSceneManifest": {
-          "UIApplicationSupportsMultipleScenes": false,
-          "UISceneConfigurations": {
-            "UIWindowSceneSessionRoleApplication": [
-              {
-                "UISceneConfigurationName": "Default Configuration",
-                "UISceneDelegateClassName": "SceneDelegate"
-              }
-            ]
-          }
-        }
       }
     },
     "android": {
@@ -55,6 +42,15 @@
         "expo-navigation-bar",
         {
           "style": "light"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "enableSceneSupport": true,
+            "usePrecompiledModules": false
+          }
         }
       ]
     ]

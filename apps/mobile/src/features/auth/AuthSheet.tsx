@@ -26,7 +26,7 @@ import {
   Lock,
   Mail,
   User as UserIcon,
-  Sliders,
+  Settings,
 } from "lucide-react-native";
 import { INDUSTRIAL_PRECISION_THEME } from "@brewlog/core";
 import { FONTS } from "../../theme/fonts";
@@ -539,21 +539,21 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                   </View>
                 )}
 
-                {/* App Preferences Entry Card */}
+                {/* Settings Entry Card */}
                 <View style={styles.preferencesSection}>
                   <TouchableOpacity
                     onPress={handleOpenPreferences}
                     activeOpacity={0.8}
                     style={styles.preferencesCard}
                     accessibilityRole="button"
-                    accessibilityLabel="App Preferences"
+                    accessibilityLabel="Settings"
                   >
                     <View style={styles.preferencesLeft}>
                       <View style={styles.preferencesIconWrapper}>
-                        <Sliders size={18} color={colors.accent} />
+                        <Settings size={18} color={colors.accent} />
                       </View>
                       <View style={styles.preferencesTextGroup}>
-                        <Text style={styles.preferencesTitle}>APP PREFERENCES</Text>
+                        <Text style={styles.preferencesTitle}>Settings</Text>
                         <Text style={styles.preferencesSubtitle}>Units, timer mode & calibration</Text>
                       </View>
                     </View>

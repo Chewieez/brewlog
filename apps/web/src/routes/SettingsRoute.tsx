@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import {
-  Sliders,
+  Settings,
   RotateCcw,
   Cloud,
   HardDrive,
@@ -46,11 +46,11 @@ export const SettingsRoute: React.FC = () => {
         </div>
         <div className="flex items-center space-x-3">
           <div className="w-9 h-9 rounded-lg bg-panel-recessed border border-border-subtle flex items-center justify-center text-accent">
-            <Sliders className="w-5 h-5" />
+            <Settings className="w-5 h-5" />
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
-              Instrument Settings
+              Settings
             </h1>
           </div>
         </div>

@@ -137,6 +137,7 @@ vi.mock("lucide-react-native", () => ({
   AlertCircle: () => null,
   CheckCircle2: () => null,
   Sliders: () => null,
+  Settings: () => null,
   ChevronRight: () => null,
 }));
 

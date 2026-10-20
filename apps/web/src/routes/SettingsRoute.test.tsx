@@ -46,7 +46,7 @@ describe('SettingsRoute', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText(/INSTRUMENT SETTINGS/i)).toBeDefined();
+    expect(screen.getByRole('heading', { name: /^SETTINGS$/i })).toBeDefined();
     expect(screen.getByText(/SYSTEM \/\/ CALIBRATION/i)).toBeDefined();
     expect(screen.getByText(/WEIGHT UNIT/i)).toBeDefined();
     expect(screen.getByText(/TEMPERATURE UNIT/i)).toBeDefined();

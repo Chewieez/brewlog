@@ -22,7 +22,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
         <Link
           to="/settings"
           aria-label="Settings"
-          title="Instrument Settings"
+          title="Settings"
           className="p-1.5 rounded bg-panel-recessed text-text-secondary hover:text-text-primary border border-border-subtle hover:border-border-active hover:bg-panel cursor-pointer transition-colors flex items-center justify-center"
         >
           <Settings className="w-3.5 h-3.5" />

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,10 +12,13 @@ import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import {
   X,
-  Sliders,
+  Settings,
   RotateCcw,
   Cloud,
   HardDrive,
+  ChevronDown,
+  ChevronUp,
+  Check,
 } from 'lucide-react-native';
 import {
   INDUSTRIAL_PRECISION_THEME,
@@ -23,6 +26,7 @@ import {
   TemperatureUnit,
   TimerModePreference,
   DateFormatPreference,
+  formatDisplayDate,
 } from '@brewlog/core';
 import { useSettings } from '../../src/features/settings/SettingsContext';
 import { useAuth } from '../../src/features/auth/AuthContext';
@@ -30,10 +34,19 @@ import { FONTS } from '../../src/theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
+const DATE_FORMAT_OPTIONS: { id: DateFormatPreference; label: string }[] = [
+  { id: 'locale', label: 'LOCALE' },
+  { id: 'YYYY-MM-DD', label: 'YYYY-MM-DD' },
+  { id: 'MM/DD/YYYY', label: 'MM/DD/YYYY' },
+  { id: 'DD/MM/YYYY', label: 'DD/MM/YYYY' },
+];
+
 export default function SettingsModalScreen() {
   const router = useRouter();
   const { settings, updateSettings, resetToDefaults } = useSettings();
   const { user } = useAuth();
+  const [dateFormatOpen, setDateFormatOpen] = useState(false);
+  const sampleDate = useMemo(() => new Date(), []);
 
   const handleSelectWeight = async (unit: WeightUnit) => {
     if (settings.weightUnit === unit) return;
@@ -89,8 +102,8 @@ export default function SettingsModalScreen() {
         <View style={styles.headerTitleGroup}>
           <Text style={styles.eyebrow}>SYSTEM // CALIBRATION</Text>
           <View style={styles.titleRow}>
-            <Sliders size={20} color={colors.accent} />
-            <Text style={styles.headerTitle}>Instrument Settings</Text>
+            <Settings size={20} color={colors.accent} />
+            <Text style={styles.headerTitle}>Settings</Text>
           </View>
         </View>
 
@@ -262,86 +275,88 @@ export default function SettingsModalScreen() {
             <Text style={styles.sectionLabel}>DATE FORMAT</Text>
             <Text style={styles.sectionSublabel}>Roast & tasting log timestamps</Text>
           </View>
-          <View style={styles.dateGridContainer}>
+
+          <View style={styles.dropdownContainer}>
+            {/* Dropdown Trigger */}
             <TouchableOpacity
-              onPress={() => handleSelectDateFormat('locale')}
+              onPress={() => {
+                Haptics.selectionAsync().catch(() => {});
+                setDateFormatOpen((prev) => !prev);
+              }}
               activeOpacity={0.8}
               style={[
-                styles.dateTab,
-                settings.dateFormat === 'locale' && styles.segmentTabActive,
+                styles.dropdownTrigger,
+                dateFormatOpen && styles.dropdownTriggerOpen,
               ]}
               accessibilityRole="button"
-              accessibilityLabel="Locale date format"
+              accessibilityLabel="Select date format"
+              accessibilityState={{ expanded: dateFormatOpen }}
             >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.dateFormat === 'locale' && styles.segmentTextActive,
-                ]}
-              >
-                LOCALE
-              </Text>
+              <View style={styles.dropdownTriggerLeft}>
+                <Text style={styles.dropdownActiveLabel}>
+                  {DATE_FORMAT_OPTIONS.find((opt) => opt.id === settings.dateFormat)?.label || 'LOCALE'}
+                </Text>
+                <Text style={styles.dropdownActivePreview}>
+                  {formatDisplayDate(sampleDate, settings.dateFormat)}
+                </Text>
+              </View>
+              {dateFormatOpen ? (
+                <ChevronUp size={16} color={colors.accent} />
+              ) : (
+                <ChevronDown size={16} color={colors.textMuted} />
+              )}
             </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={() => handleSelectDateFormat('YYYY-MM-DD')}
-              activeOpacity={0.8}
-              style={[
-                styles.dateTab,
-                settings.dateFormat === 'YYYY-MM-DD' && styles.segmentTabActive,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="ISO YYYY-MM-DD date format"
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.dateFormat === 'YYYY-MM-DD' && styles.segmentTextActive,
-                ]}
-              >
-                YYYY-MM-DD
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => handleSelectDateFormat('MM/DD/YYYY')}
-              activeOpacity={0.8}
-              style={[
-                styles.dateTab,
-                settings.dateFormat === 'MM/DD/YYYY' && styles.segmentTabActive,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="American MM/DD/YYYY date format"
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.dateFormat === 'MM/DD/YYYY' && styles.segmentTextActive,
-                ]}
-              >
-                MM/DD/YYYY
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => handleSelectDateFormat('DD/MM/YYYY')}
-              activeOpacity={0.8}
-              style={[
-                styles.dateTab,
-                settings.dateFormat === 'DD/MM/YYYY' && styles.segmentTabActive,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="European DD/MM/YYYY date format"
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.dateFormat === 'DD/MM/YYYY' && styles.segmentTextActive,
-                ]}
-              >
-                DD/MM/YYYY
-              </Text>
-            </TouchableOpacity>
+            {/* Dropdown Options List */}
+            {dateFormatOpen && (
+              <View style={styles.dropdownMenu}>
+                {DATE_FORMAT_OPTIONS.map((option, index) => {
+                  const isSelected = settings.dateFormat === option.id;
+                  const isLast = index === DATE_FORMAT_OPTIONS.length - 1;
+                  return (
+                    <TouchableOpacity
+                      key={option.id}
+                      onPress={() => {
+                        setDateFormatOpen(false);
+                        handleSelectDateFormat(option.id);
+                      }}
+                      activeOpacity={0.7}
+                      style={[
+                        styles.dropdownOption,
+                        isSelected && styles.dropdownOptionSelected,
+                        !isLast && styles.dropdownOptionDivider,
+                      ]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${option.label} date format`}
+                    >
+                      <View style={styles.dropdownOptionLeft}>
+                        <View style={styles.dropdownOptionCheck}>
+                          {isSelected ? (
+                            <Check size={14} color={colors.accent} />
+                          ) : null}
+                        </View>
+                        <Text
+                          style={[
+                            styles.dropdownOptionLabel,
+                            isSelected && styles.dropdownOptionLabelSelected,
+                          ]}
+                        >
+                          {option.label}
+                        </Text>
+                      </View>
+                      <Text
+                        style={[
+                          styles.dropdownOptionPreview,
+                          isSelected && styles.dropdownOptionPreviewSelected,
+                        ]}
+                      >
+                        {formatDisplayDate(sampleDate, option.id)}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
           </View>
         </View>
 
@@ -528,24 +543,87 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     color: colors.canvas,
   },
-  dateGridContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    backgroundColor: colors.panelRecessed,
+  dropdownContainer: {
     borderRadius: 8,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
-    padding: 3,
-    gap: 4,
+    backgroundColor: colors.panelRecessed,
+    overflow: 'hidden',
   },
-  dateTab: {
-    flexBasis: '49%',
-    flexGrow: 1,
-    minHeight: 44,
-    justifyContent: 'center',
+  dropdownTrigger: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 6,
-    paddingHorizontal: 8,
+    justifyContent: 'space-between',
+    minHeight: 48,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  dropdownTriggerOpen: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderSubtle,
+    backgroundColor: colors.canvas,
+  },
+  dropdownTriggerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  dropdownActiveLabel: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 13,
+    letterSpacing: 0.5,
+    color: colors.textPrimary,
+  },
+  dropdownActivePreview: {
+    fontFamily: FONTS.monoRegular,
+    fontSize: 12,
+    color: colors.textMuted,
+  },
+  dropdownMenu: {
+    backgroundColor: colors.panelRecessed,
+  },
+  dropdownOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 44,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  dropdownOptionSelected: {
+    backgroundColor: colors.canvas,
+  },
+  dropdownOptionDivider: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderSubtle,
+  },
+  dropdownOptionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  dropdownOptionCheck: {
+    width: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dropdownOptionLabel: {
+    fontFamily: FONTS.monoRegular,
+    fontSize: 12,
+    letterSpacing: 0.5,
+    color: colors.textSecondary,
+  },
+  dropdownOptionLabelSelected: {
+    fontFamily: FONTS.monoBold,
+    color: colors.accent,
+  },
+  dropdownOptionPreview: {
+    fontFamily: FONTS.monoRegular,
+    fontSize: 11,
+    color: colors.textMuted,
+  },
+  dropdownOptionPreviewSelected: {
+    color: colors.textPrimary,
   },
   statusCard: {
     backgroundColor: colors.panelRecessed,
