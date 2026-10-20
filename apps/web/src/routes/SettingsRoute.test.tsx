@@ -178,9 +178,7 @@ describe('SettingsRoute', () => {
     });
   });
 
-  it('resets settings to factory defaults when reset button is confirmed', async () => {
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-
+  it('resets settings to factory defaults when reset modal is confirmed', async () => {
     render(
       <MemoryRouter>
         <SettingsProvider>
@@ -200,25 +198,27 @@ describe('SettingsRoute', () => {
       expect(screen.getByTestId('preview-temp').textContent).toBe('201°F');
     });
 
-    // Click reset
+    // Click reset button to open confirmation modal
     const resetBtn = screen.getByRole('button', { name: /RESET TO DEFAULTS/i });
     await act(async () => {
       fireEvent.click(resetBtn);
     });
 
-    expect(confirmSpy).toHaveBeenCalled();
+    expect(screen.getByText('RESTORE FACTORY DEFAULTS')).toBeDefined();
+
+    // Confirm in modal
+    const confirmBtn = screen.getByRole('button', { name: /Reset Defaults/i });
+    await act(async () => {
+      fireEvent.click(confirmBtn);
+    });
 
     await waitFor(() => {
       expect(screen.getByTestId('preview-dose').textContent).toMatch(/18(\.0)?\s*g/);
       expect(screen.getByTestId('preview-temp').textContent).toBe('94°C');
     });
-
-    confirmSpy.mockRestore();
   });
 
-  it('does not reset settings if user cancels the confirmation dialog', async () => {
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
-
+  it('does not reset settings if user cancels the confirmation modal', async () => {
     render(
       <MemoryRouter>
         <SettingsProvider>
@@ -240,10 +240,16 @@ describe('SettingsRoute', () => {
       fireEvent.click(resetBtn);
     });
 
-    expect(confirmSpy).toHaveBeenCalled();
-    expect(screen.getByTestId('preview-dose').textContent).toContain('0.63 oz');
+    expect(screen.getByText('RESTORE FACTORY DEFAULTS')).toBeDefined();
 
-    confirmSpy.mockRestore();
+    // Cancel in modal
+    const cancelBtn = screen.getByRole('button', { name: /Cancel/i });
+    await act(async () => {
+      fireEvent.click(cancelBtn);
+    });
+
+    expect(screen.queryByText('RESTORE FACTORY DEFAULTS')).toBeNull();
+    expect(screen.getByTestId('preview-dose').textContent).toContain('0.63 oz');
   });
 
   it('renders local storage indicator when unauthenticated', async () => {

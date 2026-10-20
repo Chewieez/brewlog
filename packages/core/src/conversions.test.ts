@@ -41,6 +41,15 @@ describe('conversions', () => {
       expect(formatWeight(18, 'imperial')).toBe('0.63 oz');
       expect(formatWeight(300, 'imperial')).toBe('10.58 oz');
     });
+
+    it('converts negative weights symmetrically', () => {
+      expect(gramsToOz(-18)).toBe(-0.63);
+      expect(gramsToOz(-5)).toBe(-0.18);
+      expect(ozToGrams(-0.63)).toBe(-17.9);
+      expect(ozToGrams(-10.58)).toBe(-299.9);
+      expect(formatWeight(-5, 'metric')).toBe('-5.0 g');
+      expect(formatWeight(-5, 'imperial')).toBe('-0.18 oz');
+    });
   });
 
   describe('temperature conversions', () => {

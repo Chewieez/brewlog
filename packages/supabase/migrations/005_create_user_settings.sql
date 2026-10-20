@@ -23,3 +23,19 @@ CREATE POLICY "Users can update own settings" ON public.user_settings
 
 CREATE POLICY "Users can insert own settings" ON public.user_settings
   FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Trigger to automatically update updated_at on UPDATE
+CREATE OR REPLACE FUNCTION public.set_user_settings_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS tr_user_settings_updated_at ON public.user_settings;
+CREATE TRIGGER tr_user_settings_updated_at
+  BEFORE UPDATE ON public.user_settings
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_user_settings_updated_at();
+

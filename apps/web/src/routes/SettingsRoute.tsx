@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Settings,
   RotateCcw,
@@ -21,19 +21,18 @@ import {
 } from '@brewlog/core';
 import { useSettings } from '../features/settings/SettingsContext';
 import { useAuth } from '../features/auth/AuthContext';
+import { ConfirmationModal } from '../components/shared/ConfirmationModal';
 
 export const SettingsRoute: React.FC = () => {
   const { settings, updateSettings, resetToDefaults } = useSettings();
   const { user } = useAuth();
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
   // Stable sample timestamp for preview calibration
   const sampleDate = useMemo(() => new Date('2026-10-18T12:00:00Z'), []);
 
-  const handleReset = async () => {
-    const confirmed = window.confirm(
-      'Restore all instrument settings to factory defaults?'
-    );
-    if (!confirmed) return;
+  const handleConfirmReset = async () => {
+    setIsResetModalOpen(false);
     await resetToDefaults();
   };
 
@@ -407,7 +406,7 @@ export const SettingsRoute: React.FC = () => {
         <div className="pt-2">
           <button
             type="button"
-            onClick={handleReset}
+            onClick={() => setIsResetModalOpen(true)}
             className="w-full sm:w-auto flex items-center justify-center space-x-2 px-5 py-2.5 rounded-lg border border-border-subtle hover:border-status-error/50 hover:bg-status-error/10 text-text-muted hover:text-status-error font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
@@ -415,6 +414,17 @@ export const SettingsRoute: React.FC = () => {
           </button>
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={isResetModalOpen}
+        title="RESTORE FACTORY DEFAULTS"
+        message="Restore all instrument settings to factory defaults? This will reset all unit preferences, display formats, and timer modes."
+        confirmLabel="Reset Defaults"
+        cancelLabel="Cancel"
+        variant="danger"
+        onClose={() => setIsResetModalOpen(false)}
+        onConfirm={handleConfirmReset}
+      />
     </div>
   );
 };

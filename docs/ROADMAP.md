@@ -175,7 +175,7 @@ This document tracks upcoming milestones, architectural refactors, and technical
 - **Comprehensive Quality Verification**:
   - 100% test pass rate across 544 unit tests monorepo-wide (`@brewlog/core`: 67, `@brewlog/mobile`: 323, `@brewlog/web`: 154), zero TypeScript errors across all 5 workspaces, and verified bundling on iOS and Android.
 
-### Phase 8: User Preferences & Settings Subsystem (Complete ✅)
+### Phase 8: User Preferences & Settings Subsystem (Complete)
 - **Core Domain Conversion & Types (`@brewlog/core`)**:
   - Defined `UserSettings`, `WeightUnit` (`'metric'` | `'imperial'`), `TemperatureUnit` (`'celsius'` | `'fahrenheit'`), and `DateFormatPreference` (`'locale'` | `'MM/DD/YYYY'` | `'DD/MM/YYYY'` | `'YYYY-MM-DD'`).
   - Established `DEFAULT_USER_SETTINGS` defaulting to `free_brew`, metric weights, and Celsius temperatures.
@@ -287,7 +287,7 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
   - **Mobile Equipment Flow**: `EquipmentContext` with AsyncStorage caching, offline queueing, and Supabase sync. `EquipmentCard` with mono accent brand eyebrow, spec badges, and favorite star toggle. `EquipmentCatalogScreen` with category chips (`All`, `Grinders`, `Brewers`, `Scales`, `Kettles`, `Other`) and search filtering. `EquipmentModalScreen` with add/edit/delete flows, dirty state prompts, and hydration guards.
   - **Web Parity & Resilience**: Real-time search filtering and category filter chips in `EquipmentView.tsx`. Add/edit modal flow with confirmation modal for deletion. Star favorite toggling on web cards and in edit modal. Offline sync failure retention and empty cache preservation in `useEquipment.ts`.
   - **Core Package**: Exported `DEFAULT_INITIAL_EQUIPMENT` presets and `GrinderSettingScale` (including `'microns'`) in `@brewlog/core`.
-- [x] **Phase 8: User Preferences & Settings Subsystem (Cross-Platform) (Complete ✅)** *(Design Spec: [docs/superpowers/specs/2026-10-09-phase-8-user-settings-design.md](file:///Users/greglawrence/Projects/brewlog/docs/superpowers/specs/2026-10-09-phase-8-user-settings-design.md))*:
+- [x] **Phase 8: User Preferences & Settings Subsystem (Cross-Platform) (Complete)** *(Design Spec: [docs/superpowers/specs/2026-10-09-phase-8-user-settings-design.md](file:///Users/greglawrence/Projects/brewlog/docs/superpowers/specs/2026-10-09-phase-8-user-settings-design.md))*:
   - **Core Domain & Math (`@brewlog/core`)**: `UserSettings`, `DEFAULT_USER_SETTINGS` (defaulting to `free_brew`), `gramsToOz`, `ozToGrams`, `celsiusToFahrenheit`, `fahrenheitToCelsius`, `formatWeight`, `formatTemperature`, and `formatDisplayDate`.
   - **Supabase Cloud Schema (`@brewlog/supabase`)**: `005_create_user_settings.sql` migration, RLS policies, database types, and bidirectional mappers.
   - **Offline-First Persistence**: `SettingsContext` with AsyncStorage caching (`@brewlog/mobile:settings_cache`) on mobile and `localStorage` (`brewlog_settings_cache`) on web with optimistic local updates and automated Supabase cloud sync.

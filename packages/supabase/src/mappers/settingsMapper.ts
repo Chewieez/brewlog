@@ -17,5 +17,6 @@ export function mapUserSettingsToDb(settings: UserSettings, userId: string): Use
     temperature_unit: settings.temperatureUnit,
     default_timer_mode: settings.defaultTimerMode,
     date_format: settings.dateFormat,
+    updated_at: new Date().toISOString(),
   };
 }

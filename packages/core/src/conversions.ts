@@ -13,13 +13,15 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
 };
 
 export function gramsToOz(grams: number): number {
-  if (grams <= 0) return 0;
-  return Number((grams * 0.03527396).toFixed(2));
+  if (grams === 0 || isNaN(grams)) return 0;
+  const res = Number((grams * 0.03527396).toFixed(2));
+  return res === 0 ? 0 : res;
 }
 
 export function ozToGrams(oz: number): number {
-  if (oz <= 0) return 0;
-  return Number((oz * 28.34952).toFixed(1));
+  if (oz === 0 || isNaN(oz)) return 0;
+  const res = Number((oz * 28.34952).toFixed(1));
+  return res === 0 ? 0 : res;
 }
 
 export function celsiusToFahrenheit(c: number): number {

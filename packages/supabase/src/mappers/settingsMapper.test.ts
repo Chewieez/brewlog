@@ -27,12 +27,14 @@ describe('settingsMapper', () => {
 
   it('maps UserSettings domain object to database insert/upsert payload', () => {
     const payload = mapUserSettingsToDb(domain, 'user-123');
-    expect(payload).toEqual({
+    expect(payload).toMatchObject({
       user_id: 'user-123',
       weight_unit: 'imperial',
       temperature_unit: 'fahrenheit',
       default_timer_mode: 'free_brew',
       date_format: 'YYYY-MM-DD',
     });
+    expect(payload.updated_at).toBeDefined();
+    expect(new Date(payload.updated_at!).getTime()).not.toBeNaN();
   });
 });
