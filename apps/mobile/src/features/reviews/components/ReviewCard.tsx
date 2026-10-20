@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Star } from 'lucide-react-native';
-import { TastingLog, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { TastingLog, INDUSTRIAL_PRECISION_THEME, formatDisplayDate } from '@brewlog/core';
+import { useOptionalSettings } from '../../settings/SettingsContext';
 import { FONTS } from '../../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
@@ -12,15 +13,11 @@ export interface ReviewCardProps {
 }
 
 export const ReviewCard: React.FC<ReviewCardProps> = ({ review, onPress }) => {
-  const formattedDate = (() => {
-    if (!review.brewDate) return '';
-    const date = new Date(review.brewDate);
-    if (isNaN(date.getTime())) return '';
-    const mm = (date.getMonth() + 1).toString().padStart(2, '0');
-    const dd = date.getDate().toString().padStart(2, '0');
-    const yyyy = date.getFullYear();
-    return `${mm}/${dd}/${yyyy}`;
-  })();
+  const settingsContext = useOptionalSettings();
+  const dateFormat = settingsContext?.settings.dateFormat ?? 'locale';
+  const formattedDate = review.brewDate
+    ? formatDisplayDate(review.brewDate, dateFormat)
+    : '';
 
   const scaScore = Number(review.calculatedScaScore ?? 0);
 

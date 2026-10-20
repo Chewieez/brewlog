@@ -9,7 +9,9 @@ import {
   Equipment,
   BrewRecipe,
   BrewMethodType,
+  formatDisplayDate,
 } from '@brewlog/core';
+import { useOptionalSettings } from '../settings/SettingsContext';
 import {
   Award,
   Cherry,
@@ -109,6 +111,9 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
   onClearPendingSession,
   onAddTastingLog,
 }) => {
+  const settingsContext = useOptionalSettings();
+  const dateFormat = settingsContext?.settings.dateFormat ?? 'locale';
+
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [flavorViewMode, setFlavorViewMode] = useState<'wheel' | 'tags'>('tags');
   const [scores, setScores] = useState<CuppingAttributes>(DEFAULT_SCORES);
@@ -859,7 +864,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     </span>
                     <span className="text-xs text-zinc-600">•</span>
                     <span className="text-xs text-zinc-400">
-                      {new Date(log.brewDate).toLocaleDateString()}
+                      {formatDisplayDate(log.brewDate, dateFormat)}
                     </span>
                     {log.rating && (
                       <>

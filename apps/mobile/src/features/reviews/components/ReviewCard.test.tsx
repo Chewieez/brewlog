@@ -2,8 +2,9 @@
 import React from 'react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
-import { TastingLog } from '@brewlog/core';
+import { TastingLog, DEFAULT_USER_SETTINGS } from '@brewlog/core';
 import { ReviewCard } from './ReviewCard';
+import { SettingsContext } from '../../settings/SettingsContext';
 
 vi.mock('react-native', () => ({
   View: ({
@@ -154,5 +155,23 @@ describe('ReviewCard', () => {
 
     fireEvent.click(getByRole('button'));
     expect(onPress).toHaveBeenCalledWith(mockReview);
+  });
+
+  it('formats brewDate using formatDisplayDate and SettingsContext', () => {
+    const onPress = vi.fn();
+    const mockContext = {
+      settings: { ...DEFAULT_USER_SETTINGS, dateFormat: 'YYYY-MM-DD' as const },
+      loading: false,
+      updateSettings: vi.fn(),
+      resetToDefaults: vi.fn(),
+    };
+
+    const { getByText } = render(
+      <SettingsContext.Provider value={mockContext}>
+        <ReviewCard review={mockReview} onPress={onPress} />
+      </SettingsContext.Provider>
+    );
+
+    expect(getByText('2026-09-02')).toBeTruthy();
   });
 });

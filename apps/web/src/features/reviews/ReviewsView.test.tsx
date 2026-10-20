@@ -3,7 +3,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
 import { ReviewsView } from './ReviewsView';
 import { INITIAL_BEANS } from '../../lib/sampleData';
-import { DEFAULT_PRESET_RECIPES, Equipment, TastingLog, BrewRecipe } from '@brewlog/core';
+import { DEFAULT_PRESET_RECIPES, Equipment, TastingLog, BrewRecipe, formatDisplayDate } from '@brewlog/core';
 
 const mockEquipment: Equipment[] = [
   {
@@ -348,7 +348,7 @@ describe('ReviewsView', () => {
     expect(loggedReviewsCounter.className).not.toContain('font-mono');
 
     // 4. Past review card date and rating number
-    const dateSpan = screen.getByText(new Date(sampleLog.brewDate).toLocaleDateString());
+    const dateSpan = screen.getByText(formatDisplayDate(sampleLog.brewDate, 'locale'));
     expect(dateSpan.className).not.toContain('font-mono');
 
     const ratingWrapper = screen.getByText('4.5').parentElement;

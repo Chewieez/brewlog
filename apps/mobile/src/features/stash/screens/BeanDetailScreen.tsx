@@ -21,8 +21,9 @@ import {
   Scale,
   Check,
 } from 'lucide-react-native';
-import { Bean, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { Bean, INDUSTRIAL_PRECISION_THEME, formatDisplayDate } from '@brewlog/core';
 import { useStash } from '../StashContext';
+import { useOptionalSettings } from '../../settings/SettingsContext';
 import { calculateBeanRestingInfo, BeanRestingInfo } from '../utils/restingUtils';
 import { FONTS } from '../../../theme/fonts';
 
@@ -58,6 +59,9 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
     unarchiveBean,
     deleteBean,
   } = useStash();
+
+  const settingsContext = useOptionalSettings();
+  const dateFormat = settingsContext?.settings.dateFormat ?? 'locale';
 
   const bean = beans.find((b) => b.id === id);
 
@@ -273,7 +277,9 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
           {bean.roastDate ? (
             <View style={styles.specItem}>
               <Text style={styles.specLabel}>ROAST DATE</Text>
-              <Text style={styles.specValue}>{bean.roastDate}</Text>
+              <Text style={styles.specValue}>
+                {formatDisplayDate(bean.roastDate, dateFormat)}
+              </Text>
             </View>
           ) : null}
         </View>

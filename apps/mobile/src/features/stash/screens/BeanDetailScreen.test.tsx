@@ -3,7 +3,8 @@ import React from 'react';
 import { render, fireEvent as rtlFireEvent, cleanup, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { StashContextValue, StashContext } from '../StashContext';
-import { Bean } from '@brewlog/core';
+import { Bean, DEFAULT_USER_SETTINGS } from '@brewlog/core';
+import { SettingsContext } from '../../settings/SettingsContext';
 
 (globalThis as unknown as { __DEV__: boolean }).__DEV__ = false;
 
@@ -392,5 +393,25 @@ describe('BeanDetailScreen', () => {
     expect(getByText('Coffee Not Found')).toBeTruthy();
     fireEvent.press(getByText('RETURN TO STASH'));
     expect(backMock).toHaveBeenCalled();
+  });
+
+  it('formats roastDate according to SettingsContext', () => {
+    const mockSettingsContext = {
+      settings: { ...DEFAULT_USER_SETTINGS, dateFormat: 'DD/MM/YYYY' as const },
+      loading: false,
+      updateSettings: vi.fn(),
+      resetToDefaults: vi.fn(),
+    };
+
+    const { getByText } = render(
+      <SettingsContext.Provider value={mockSettingsContext}>
+        <StashContext.Provider value={mockContext}>
+          <BeanDetailScreen />
+        </StashContext.Provider>
+      </SettingsContext.Provider>
+    );
+
+    expect(getByText('ROAST DATE')).toBeTruthy();
+    expect(getByText('12/09/2026')).toBeTruthy();
   });
 });

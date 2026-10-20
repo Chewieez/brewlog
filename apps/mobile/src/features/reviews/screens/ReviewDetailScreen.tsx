@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Star, Edit3, Trash2, Check } from 'lucide-react-native';
-import { TastingLog, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { TastingLog, INDUSTRIAL_PRECISION_THEME, formatDisplayDate } from '@brewlog/core';
+import { useOptionalSettings } from '../../settings/SettingsContext';
 import { FONTS } from '../../../theme/fonts';
 import { useReviews } from '../ReviewsContext';
 import { ScaAttributeScoring } from '../components/ScaAttributeScoring';
@@ -63,12 +64,10 @@ export const ReviewDetailScreen: React.FC = () => {
     );
   }
 
+  const settingsContext = useOptionalSettings();
+  const dateFormat = settingsContext?.settings.dateFormat ?? 'locale';
   const formattedDate = review.brewDate
-    ? new Date(review.brewDate).toLocaleDateString(undefined, {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-      })
+    ? formatDisplayDate(review.brewDate, dateFormat)
     : '';
 
   const formattedTime = review.actualTimeSeconds
