@@ -57,12 +57,47 @@ export function formatDisplayDate(
   format: DateFormatPreference
 ): string {
   if (!dateInput) return '—';
+
+  // Handle date-only strings (YYYY-MM-DD) directly to prevent UTC midnight timezone shifts
+  if (typeof dateInput === 'string') {
+    const dateOnlyMatch = dateInput.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (dateOnlyMatch) {
+      const [, year, month, day] = dateOnlyMatch;
+      const numYear = Number(year);
+      const numMonth = Number(month);
+      const numDay = Number(day);
+
+      if (numMonth < 1 || numMonth > 12 || numDay < 1 || numDay > 31) {
+        return '—';
+      }
+
+      switch (format) {
+        case 'YYYY-MM-DD':
+          return `${year}-${month}-${day}`;
+        case 'MM/DD/YYYY':
+          return `${month}/${day}/${year}`;
+        case 'DD/MM/YYYY':
+          return `${day}/${month}/${year}`;
+        case 'locale':
+        default: {
+          const d = new Date(numYear, numMonth - 1, numDay);
+          return d.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          });
+        }
+      }
+    }
+  }
+
   const d = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
   if (isNaN(d.getTime())) return '—';
 
-  const year = d.getUTCFullYear();
-  const month = String(d.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(d.getUTCDate()).padStart(2, '0');
+  // Extract client local calendar date components to maintain parity with toLocaleDateString()
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
 
   switch (format) {
     case 'YYYY-MM-DD':

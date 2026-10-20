@@ -77,10 +77,38 @@ describe('conversions', () => {
       expect(formatDisplayDate(isoDate, 'DD/MM/YYYY')).toBe('09/10/2026');
     });
 
-    it('handles undefined and invalid dates gracefully', () => {
+    it('formats date-only strings consistently across all format options without timezone shift', () => {
+      const dateOnly = '2026-10-18';
+      expect(formatDisplayDate(dateOnly, 'YYYY-MM-DD')).toBe('2026-10-18');
+      expect(formatDisplayDate(dateOnly, 'MM/DD/YYYY')).toBe('10/18/2026');
+      expect(formatDisplayDate(dateOnly, 'DD/MM/YYYY')).toBe('18/10/2026');
+
+      const localeFormatted = formatDisplayDate(dateOnly, 'locale');
+      expect(localeFormatted).toContain('Oct');
+      expect(localeFormatted).toContain('18');
+      expect(localeFormatted).toContain('2026');
+    });
+
+    it('formats Date instances consistently across all format options in local time', () => {
+      // October 18, 2026 local time
+      const localDate = new Date(2026, 9, 18, 20, 45, 0);
+      expect(formatDisplayDate(localDate, 'YYYY-MM-DD')).toBe('2026-10-18');
+      expect(formatDisplayDate(localDate, 'MM/DD/YYYY')).toBe('10/18/2026');
+      expect(formatDisplayDate(localDate, 'DD/MM/YYYY')).toBe('18/10/2026');
+
+      const localeFormatted = formatDisplayDate(localDate, 'locale');
+      expect(localeFormatted).toContain('Oct');
+      expect(localeFormatted).toContain('18');
+      expect(localeFormatted).toContain('2026');
+    });
+
+    it('handles undefined, invalid, and out-of-range dates gracefully', () => {
       expect(formatDisplayDate(undefined, 'YYYY-MM-DD')).toBe('—');
       expect(formatDisplayDate('', 'YYYY-MM-DD')).toBe('—');
       expect(formatDisplayDate('not-a-date', 'YYYY-MM-DD')).toBe('—');
+      expect(formatDisplayDate('2026-13-40', 'YYYY-MM-DD')).toBe('—');
+      expect(formatDisplayDate('2026-00-10', 'YYYY-MM-DD')).toBe('—');
+      expect(formatDisplayDate('2026-10-00', 'YYYY-MM-DD')).toBe('—');
     });
   });
 });
