@@ -1,7 +1,8 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
-import { DEFAULT_PRESET_RECIPES } from '@brewlog/core';
+import { DEFAULT_PRESET_RECIPES, DEFAULT_USER_SETTINGS } from '@brewlog/core';
+import { SettingsContext, SettingsContextValue } from '../../src/features/settings/SettingsContext';
 
 const mockAlert = vi.fn();
 
@@ -57,9 +58,11 @@ vi.mock('react-native', () => ({
   },
 }));
 
+let mockSearchParams: { mode?: string } = { mode: 'recipe' };
+
 vi.mock('expo-router', () => ({
   useRouter: () => ({ push: vi.fn() }),
-  useLocalSearchParams: () => ({ mode: 'recipe' }),
+  useLocalSearchParams: () => mockSearchParams,
 }));
 
 vi.mock('../../src/features/recipes/RecipeContext', () => ({
@@ -263,5 +266,94 @@ describe('TimerScreen - Method Pill Tap & Active Brew Guard', () => {
     const heroDoseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
     expect(heroDoseInput.value).toBe('20');
     expect(getByText('333.0 g')).toBeDefined();
+  });
+});
+
+describe('TimerScreen - Cold Start Mode Hydration', () => {
+  beforeEach(() => {
+    mockSearchParams = {};
+  });
+
+  afterEach(() => {
+    mockSearchParams = { mode: 'recipe' };
+    cleanup();
+  });
+
+  it('synchronizes timerMode to user default preference once AsyncStorage hydration completes', () => {
+    let contextValue: SettingsContextValue = {
+      settings: DEFAULT_USER_SETTINGS, // defaultTimerMode: 'free_brew'
+      loading: true,
+      updateSettings: vi.fn(),
+      resetToDefaults: vi.fn(),
+    };
+
+    const { getByRole, rerender } = render(
+      <SettingsContext.Provider value={contextValue}>
+        <TimerScreen />
+      </SettingsContext.Provider>
+    );
+
+    // Initial render while loading starts in default free brew mode
+    const freeBrewTab = getByRole('button', { name: /FREE BREW/i });
+    expect(freeBrewTab.getAttribute('aria-selected')).toBe('true');
+
+    // AsyncStorage completes hydration: loading becomes false, settings.defaultTimerMode is 'recipe'
+    contextValue = {
+      ...contextValue,
+      loading: false,
+      settings: {
+        ...DEFAULT_USER_SETTINGS,
+        defaultTimerMode: 'recipe',
+      },
+    };
+
+    rerender(
+      <SettingsContext.Provider value={contextValue}>
+        <TimerScreen />
+      </SettingsContext.Provider>
+    );
+
+    // timerMode synchronizes to 'recipe'
+    const recipeTab = getByRole('button', { name: /GUIDED RECIPE/i });
+    expect(recipeTab.getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('does not overwrite explicit params.mode when hydration completes', () => {
+    mockSearchParams = { mode: 'free_brew' };
+
+    let contextValue: SettingsContextValue = {
+      settings: DEFAULT_USER_SETTINGS,
+      loading: true,
+      updateSettings: vi.fn(),
+      resetToDefaults: vi.fn(),
+    };
+
+    const { getByRole, rerender } = render(
+      <SettingsContext.Provider value={contextValue}>
+        <TimerScreen />
+      </SettingsContext.Provider>
+    );
+
+    const freeBrewTab = getByRole('button', { name: /FREE BREW/i });
+    expect(freeBrewTab.getAttribute('aria-selected')).toBe('true');
+
+    // AsyncStorage finishes loading with recipe
+    contextValue = {
+      ...contextValue,
+      loading: false,
+      settings: {
+        ...DEFAULT_USER_SETTINGS,
+        defaultTimerMode: 'recipe',
+      },
+    };
+
+    rerender(
+      <SettingsContext.Provider value={contextValue}>
+        <TimerScreen />
+      </SettingsContext.Provider>
+    );
+
+    // Explicit free_brew param is preserved
+    expect(freeBrewTab.getAttribute('aria-selected')).toBe('true');
   });
 });

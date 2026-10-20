@@ -93,6 +93,17 @@ export default function TimerScreen() {
 
   const isFinished = timerIsFinished || isFreeBrewFinished;
 
+  const hasHydratedSettingsRef = useRef(!settingsContext?.loading);
+
+  useEffect(() => {
+    if (!settingsContext?.loading && !hasHydratedSettingsRef.current) {
+      hasHydratedSettingsRef.current = true;
+      if (!params?.mode && elapsedSeconds === 0 && !isRunning) {
+        setTimerMode(settings.defaultTimerMode);
+      }
+    }
+  }, [settingsContext?.loading, settings.defaultTimerMode, params?.mode, elapsedSeconds, isRunning]);
+
   const reset = useCallback(() => {
     baseReset();
     setIsFreeBrewFinished(false);
@@ -263,6 +274,7 @@ export default function TimerScreen() {
           style={[styles.modeButton, timerMode === 'recipe' && styles.modeButtonActive]}
           accessibilityRole="button"
           accessibilityLabel="Guided Recipe mode"
+          accessibilityState={{ selected: timerMode === 'recipe' }}
         >
           <Text style={[styles.modeButtonText, timerMode === 'recipe' && styles.modeButtonTextActive]}>
             GUIDED RECIPE
@@ -273,6 +285,7 @@ export default function TimerScreen() {
           style={[styles.modeButton, timerMode === 'free_brew' && styles.modeButtonActive]}
           accessibilityRole="button"
           accessibilityLabel="Free Brew mode"
+          accessibilityState={{ selected: timerMode === 'free_brew' }}
         >
           <Text style={[styles.modeButtonText, timerMode === 'free_brew' && styles.modeButtonTextActive]}>
             FREE BREW
