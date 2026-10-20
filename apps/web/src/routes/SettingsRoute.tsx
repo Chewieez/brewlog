@@ -59,9 +59,8 @@ export const SettingsRoute: React.FC = () => {
       {/* Live Calibration Preview Gauge Tile */}
       <section
         aria-labelledby="preview-heading"
-        className="bg-panel border border-accent/40 rounded-xl p-5 sm:p-6 shadow-lg shadow-accent/5 relative overflow-hidden"
+        className="bg-panel border border-accent/40 rounded-xl p-5 sm:p-6 shadow-lg shadow-accent/5"
       >
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-accent-hover to-accent" />
         <div className="flex items-center pb-4 mb-5 border-b border-border-subtle">
           <div className="flex items-center space-x-2.5">
             <Gauge className="w-4 h-4 text-accent" />
@@ -174,7 +173,7 @@ export const SettingsRoute: React.FC = () => {
                 aria-pressed={settings.weightUnit === 'metric'}
                 className={`px-4 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.weightUnit === 'metric'
-                    ? 'bg-accent text-zinc-950 font-bold shadow-sm'
+                    ? 'bg-accent text-canvas font-bold shadow-sm'
                     : 'text-text-secondary hover:text-text-primary hover:bg-panel'
                 }`}
               >
@@ -186,7 +185,7 @@ export const SettingsRoute: React.FC = () => {
                 aria-pressed={settings.weightUnit === 'imperial'}
                 className={`px-4 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.weightUnit === 'imperial'
-                    ? 'bg-accent text-zinc-950 font-bold shadow-sm'
+                    ? 'bg-accent text-canvas font-bold shadow-sm'
                     : 'text-text-secondary hover:text-text-primary hover:bg-panel'
                 }`}
               >
@@ -221,7 +220,7 @@ export const SettingsRoute: React.FC = () => {
                 aria-pressed={settings.temperatureUnit === 'celsius'}
                 className={`px-4 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.temperatureUnit === 'celsius'
-                    ? 'bg-accent text-zinc-950 font-bold shadow-sm'
+                    ? 'bg-accent text-canvas font-bold shadow-sm'
                     : 'text-text-secondary hover:text-text-primary hover:bg-panel'
                 }`}
               >
@@ -233,7 +232,7 @@ export const SettingsRoute: React.FC = () => {
                 aria-pressed={settings.temperatureUnit === 'fahrenheit'}
                 className={`px-4 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.temperatureUnit === 'fahrenheit'
-                    ? 'bg-accent text-zinc-950 font-bold shadow-sm'
+                    ? 'bg-accent text-canvas font-bold shadow-sm'
                     : 'text-text-secondary hover:text-text-primary hover:bg-panel'
                 }`}
               >
@@ -268,7 +267,7 @@ export const SettingsRoute: React.FC = () => {
                 aria-pressed={settings.defaultTimerMode === 'free_brew'}
                 className={`px-4 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.defaultTimerMode === 'free_brew'
-                    ? 'bg-accent text-zinc-950 font-bold shadow-sm'
+                    ? 'bg-accent text-canvas font-bold shadow-sm'
                     : 'text-text-secondary hover:text-text-primary hover:bg-panel'
                 }`}
               >
@@ -280,7 +279,7 @@ export const SettingsRoute: React.FC = () => {
                 aria-pressed={settings.defaultTimerMode === 'recipe'}
                 className={`px-4 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.defaultTimerMode === 'recipe'
-                    ? 'bg-accent text-zinc-950 font-bold shadow-sm'
+                    ? 'bg-accent text-canvas font-bold shadow-sm'
                     : 'text-text-secondary hover:text-text-primary hover:bg-panel'
                 }`}
               >
@@ -315,7 +314,7 @@ export const SettingsRoute: React.FC = () => {
                 aria-pressed={settings.dateFormat === 'locale'}
                 className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'locale'
-                    ? 'bg-accent text-zinc-950 font-bold shadow-sm'
+                    ? 'bg-accent text-canvas font-bold shadow-sm'
                     : 'text-text-secondary hover:text-text-primary hover:bg-panel'
                 }`}
               >
@@ -327,7 +326,7 @@ export const SettingsRoute: React.FC = () => {
                 aria-pressed={settings.dateFormat === 'YYYY-MM-DD'}
                 className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'YYYY-MM-DD'
-                    ? 'bg-accent text-zinc-950 font-bold shadow-sm'
+                    ? 'bg-accent text-canvas font-bold shadow-sm'
                     : 'text-text-secondary hover:text-text-primary hover:bg-panel'
                 }`}
               >
@@ -339,7 +338,7 @@ export const SettingsRoute: React.FC = () => {
                 aria-pressed={settings.dateFormat === 'MM/DD/YYYY'}
                 className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'MM/DD/YYYY'
-                    ? 'bg-accent text-zinc-950 font-bold shadow-sm'
+                    ? 'bg-accent text-canvas font-bold shadow-sm'
                     : 'text-text-secondary hover:text-text-primary hover:bg-panel'
                 }`}
               >
@@ -351,7 +350,7 @@ export const SettingsRoute: React.FC = () => {
                 aria-pressed={settings.dateFormat === 'DD/MM/YYYY'}
                 className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'DD/MM/YYYY'
-                    ? 'bg-accent text-zinc-950 font-bold shadow-sm'
+                    ? 'bg-accent text-canvas font-bold shadow-sm'
                     : 'text-text-secondary hover:text-text-primary hover:bg-panel'
                 }`}
               >
@@ -369,7 +368,7 @@ export const SettingsRoute: React.FC = () => {
           <div className="flex items-start space-x-3.5">
             <div className="mt-0.5">
               {user ? (
-                <Cloud className="w-5 h-5 text-emerald-400" />
+                <Cloud className="w-5 h-5 text-status-success" />
               ) : (
                 <HardDrive className="w-5 h-5 text-accent" />
               )}
@@ -378,13 +377,13 @@ export const SettingsRoute: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <span
                   className={`w-2 h-2 rounded-full ${
-                    user ? 'bg-emerald-400 animate-pulse' : 'bg-accent'
+                    user ? 'bg-status-success animate-pulse' : 'bg-accent'
                   }`}
                 />
                 <h2
                   id="sync-status-heading"
                   className={`text-xs font-mono font-bold uppercase tracking-wider ${
-                    user ? 'text-emerald-400' : 'text-text-primary'
+                    user ? 'text-status-success' : 'text-text-primary'
                   }`}
                 >
                   {user ? 'CLOUD SYNC ACTIVE' : 'LOCAL STORAGE ONLY'}
@@ -409,7 +408,7 @@ export const SettingsRoute: React.FC = () => {
           <button
             type="button"
             onClick={handleReset}
-            className="w-full sm:w-auto flex items-center justify-center space-x-2 px-5 py-2.5 rounded-lg border border-border-subtle hover:border-red-500/50 hover:bg-red-500/10 text-text-muted hover:text-red-400 font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer"
+            className="w-full sm:w-auto flex items-center justify-center space-x-2 px-5 py-2.5 rounded-lg border border-border-subtle hover:border-status-error/50 hover:bg-status-error/10 text-text-muted hover:text-status-error font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
             <span>RESET TO DEFAULTS</span>
