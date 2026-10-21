@@ -1,16 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, ScrollView, StyleSheet, Text, Pressable, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import {
   INDUSTRIAL_PRECISION_THEME,
   DEFAULT_PRESET_RECIPES,
+  DEFAULT_USER_SETTINGS,
   rescaleRecipeDose,
   TimerMode,
   SplitTag,
   splitsToRecipeStages,
 } from '@brewlog/core';
 import { useRecipes } from '../../src/features/recipes/RecipeContext';
+import { useOptionalSettings } from '../../src/features/settings/SettingsContext';
 import { useOptionalStash } from '../../src/features/stash/StashContext';
 import { useOptionalEquipment } from '../../src/features/equipment/EquipmentContext';
 import { ActiveBeanPill } from '../../src/features/stash/components/ActiveBeanPill';
@@ -30,7 +32,11 @@ const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export default function TimerScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ mode?: string }>();
   const { activeTimerRecipe, activeTimerDose, setActiveTimerRecipe } = useRecipes();
+
+  const settingsContext = useOptionalSettings();
+  const settings = settingsContext?.settings ?? DEFAULT_USER_SETTINGS;
 
   const stash = useOptionalStash();
   const activeBrewBean = stash?.activeBrewBean ?? null;
@@ -40,7 +46,28 @@ export default function TimerScreen() {
   const equipmentContext = useOptionalEquipment();
   const equipment = equipmentContext?.equipment;
 
-  const [timerMode, setTimerMode] = useState<TimerMode>('recipe');
+  const initialRecipeRef = useRef(activeTimerRecipe);
+
+  const [timerMode, setTimerMode] = useState<TimerMode>(() => {
+    if (params?.mode === 'recipe' || params?.mode === 'free_brew') {
+      return params.mode;
+    }
+    return settings.defaultTimerMode;
+  });
+
+  useEffect(() => {
+    if (params?.mode === 'recipe' || params?.mode === 'free_brew') {
+      setTimerMode(params.mode);
+    }
+  }, [params?.mode]);
+
+  useEffect(() => {
+    if (activeTimerRecipe.id !== initialRecipeRef.current?.id) {
+      setTimerMode('recipe');
+    }
+    initialRecipeRef.current = activeTimerRecipe;
+  }, [activeTimerRecipe]);
+
   const [isFreeBrewFinished, setIsFreeBrewFinished] = useState<boolean>(false);
   const [isDeducted, setIsDeducted] = useState<boolean>(false);
   const [isDeducting, setIsDeducting] = useState<boolean>(false);
@@ -65,6 +92,17 @@ export default function TimerScreen() {
   } = useMobileBrewTimer(activeRecipe, timerMode);
 
   const isFinished = timerIsFinished || isFreeBrewFinished;
+
+  const hasHydratedSettingsRef = useRef(!settingsContext?.loading);
+
+  useEffect(() => {
+    if (!settingsContext?.loading && !hasHydratedSettingsRef.current) {
+      hasHydratedSettingsRef.current = true;
+      if (!params?.mode && elapsedSeconds === 0 && !isRunning) {
+        setTimerMode(settings.defaultTimerMode);
+      }
+    }
+  }, [settingsContext?.loading, settings.defaultTimerMode, params?.mode, elapsedSeconds, isRunning]);
 
   const reset = useCallback(() => {
     baseReset();
@@ -153,6 +191,7 @@ export default function TimerScreen() {
             onPress: () => {
               reset();
               setActiveTimerRecipe(match, match.coffeeDoseGrams);
+              setTimerMode('recipe');
             },
           },
         ]
@@ -162,6 +201,7 @@ export default function TimerScreen() {
 
     reset();
     setActiveTimerRecipe(match, match.coffeeDoseGrams);
+    setTimerMode('recipe');
   };
 
   const handleApplyDose = (newDose: number, newRatio?: number, newWater?: number) => {
@@ -234,6 +274,7 @@ export default function TimerScreen() {
           style={[styles.modeButton, timerMode === 'recipe' && styles.modeButtonActive]}
           accessibilityRole="button"
           accessibilityLabel="Guided Recipe mode"
+          accessibilityState={{ selected: timerMode === 'recipe' }}
         >
           <Text style={[styles.modeButtonText, timerMode === 'recipe' && styles.modeButtonTextActive]}>
             GUIDED RECIPE
@@ -244,6 +285,7 @@ export default function TimerScreen() {
           style={[styles.modeButton, timerMode === 'free_brew' && styles.modeButtonActive]}
           accessibilityRole="button"
           accessibilityLabel="Free Brew mode"
+          accessibilityState={{ selected: timerMode === 'free_brew' }}
         >
           <Text style={[styles.modeButtonText, timerMode === 'free_brew' && styles.modeButtonTextActive]}>
             FREE BREW
@@ -293,6 +335,7 @@ export default function TimerScreen() {
         onTagSplit={handleTagSplit}
         splitsCount={splits.length}
         onFinish={handleFinishBrew}
+        weightUnit={settings.weightUnit}
       />
 
       {/* Finished Banner or Timeline View */}

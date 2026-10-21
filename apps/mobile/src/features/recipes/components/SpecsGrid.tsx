@@ -1,7 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Droplets, BookOpen, Clock, Thermometer } from 'lucide-react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import {
+  INDUSTRIAL_PRECISION_THEME,
+  WeightUnit,
+  TemperatureUnit,
+  formatWeight,
+  formatTemperature,
+} from '@brewlog/core';
 import { FONTS } from '../../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
@@ -11,6 +17,8 @@ export interface SpecsGridProps {
   ratio: number;
   totalTimeSeconds: number;
   waterTempCelsius?: number;
+  weightUnit?: WeightUnit;
+  temperatureUnit?: TemperatureUnit;
 }
 
 export const SpecsGrid: React.FC<SpecsGridProps> = ({
@@ -18,11 +26,18 @@ export const SpecsGrid: React.FC<SpecsGridProps> = ({
   ratio,
   totalTimeSeconds,
   waterTempCelsius,
+  weightUnit,
+  temperatureUnit,
 }) => {
   const mins = Math.floor(totalTimeSeconds / 60);
   const secs = totalTimeSeconds % 60;
   const timeFormatted = `${mins}m ${String(secs).padStart(2, '0')}s`;
   const ratioFormatted = `1:${Math.round(ratio * 10) / 10}`;
+
+  const waterDisplay = weightUnit ? formatWeight(totalWater, weightUnit) : `${totalWater}g`;
+  const tempDisplay = waterTempCelsius
+    ? (temperatureUnit ? formatTemperature(waterTempCelsius, temperatureUnit) : `${waterTempCelsius}°C`)
+    : (temperatureUnit === 'fahrenheit' ? '200-205°F' : '93-96°C');
 
   return (
     <View style={styles.grid}>
@@ -32,7 +47,7 @@ export const SpecsGrid: React.FC<SpecsGridProps> = ({
         </View>
         <View style={styles.info}>
           <Text style={styles.label}>TOTAL WATER</Text>
-          <Text style={styles.value}>{totalWater}g</Text>
+          <Text style={styles.value}>{waterDisplay}</Text>
         </View>
       </View>
 
@@ -62,9 +77,7 @@ export const SpecsGrid: React.FC<SpecsGridProps> = ({
         </View>
         <View style={styles.info}>
           <Text style={styles.label}>WATER TEMP</Text>
-          <Text style={styles.value}>
-            {waterTempCelsius ? `${waterTempCelsius}°C` : '93-96°C'}
-          </Text>
+          <Text style={styles.value}>{tempDisplay}</Text>
         </View>
       </View>
     </View>

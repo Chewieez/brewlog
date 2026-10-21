@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import { Link } from "react-router";
 import { useAuth } from "./AuthContext";
-import { LogIn, LogOut, ChevronDown } from "lucide-react";
+import { LogIn, LogOut, ChevronDown, Settings } from "lucide-react";
 
 interface UserMenuProps {
   onOpenAuthModal: () => void;
@@ -18,6 +19,14 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
   if (!user) {
     return (
       <div className="flex items-center space-x-2">
+        <Link
+          to="/settings"
+          aria-label="Settings"
+          title="Settings"
+          className="p-1.5 rounded bg-panel-recessed text-text-secondary hover:text-text-primary border border-border-subtle hover:border-border-active hover:bg-panel cursor-pointer transition-colors flex items-center justify-center"
+        >
+          <Settings className="w-3.5 h-3.5" />
+        </Link>
         <button
           onClick={onOpenAuthModal}
           className="flex items-center space-x-1.5 px-3 py-1.5 rounded text-xs font-mono uppercase tracking-wider font-semibold bg-panel-recessed text-text-primary border border-border-subtle hover:border-border-active hover:bg-panel cursor-pointer whitespace-nowrap transition-colors"
@@ -56,14 +65,23 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
               <div className="text-[11px] text-text-muted truncate">{user.email}</div>
             </div>
 
+            <Link
+              to="/settings"
+              onClick={() => setDropdownOpen(false)}
+              className="w-full flex items-center space-x-2 px-3 py-2 rounded text-text-primary hover:bg-panel-recessed font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
+            >
+              <Settings className="w-3.5 h-3.5 text-text-primary" />
+              <span>SETTINGS</span>
+            </Link>
+
             <button
               onClick={() => {
                 setDropdownOpen(false);
                 signOut();
               }}
-              className="w-full flex items-center space-x-2 px-3 py-2 rounded text-red-400 hover:text-red-300 hover:bg-red-500/10 font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
+              className="group w-full flex items-center space-x-2 px-3 py-2 rounded text-text-primary hover:bg-panel-recessed font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
             >
-              <LogOut className="w-3.5 h-3.5" />
+              <LogOut className="w-3.5 h-3.5 text-text-primary group-hover:text-red-400 transition-colors" />
               <span>SIGN OUT</span>
             </button>
           </div>

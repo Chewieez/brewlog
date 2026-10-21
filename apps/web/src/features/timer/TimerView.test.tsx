@@ -91,6 +91,7 @@ describe('TimerView', () => {
     render(
       <TimerView
         recipe={mockRecipe}
+        initialMode="recipe"
         onSelectOtherRecipe={vi.fn()}
         onLogCompletedBrew={handleLog}
       />
@@ -122,6 +123,7 @@ describe('TimerView', () => {
     render(
       <TimerView
         recipe={mockRecipe}
+        initialMode="recipe"
         onSelectOtherRecipe={vi.fn()}
         onLogCompletedBrew={vi.fn()}
       />
@@ -200,6 +202,7 @@ describe('TimerView', () => {
     render(
       <TimerView
         recipe={mockRecipe}
+        initialMode="recipe"
         onSelectOtherRecipe={vi.fn()}
         onLogCompletedBrew={vi.fn()}
       />
@@ -298,6 +301,7 @@ describe('TimerView', () => {
     render(
       <TimerView
         recipe={mockRecipe}
+        initialMode="recipe"
         onSelectOtherRecipe={vi.fn()}
         onLogCompletedBrew={vi.fn()}
       />
@@ -305,7 +309,7 @@ describe('TimerView', () => {
 
     // Initial recipe ratio is 16.67 and target water is 250g
     expect(screen.getByText('1:16.67')).toBeDefined();
-    expect(screen.getByText('250g')).toBeDefined();
+    expect(screen.getByText('250.0 g')).toBeDefined();
 
     // Open translator
     act(() => {
@@ -330,8 +334,38 @@ describe('TimerView', () => {
 
     // Ratio should now be 1:15 and water target should be 300g
     expect(screen.getByText('1:15')).toBeDefined();
-    expect(screen.getAllByText('300g').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('300.0 g').length).toBeGreaterThan(0);
     const doseInput = screen.getByLabelText(/Coffee dose in grams/i) as HTMLInputElement;
     expect(doseInput.value).toBe('20');
+  });
+
+  it('opens in free_brew mode by default on cold start when uninitialized', () => {
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('FREE BREW · MANUAL STOPWATCH')).toBeDefined();
+    expect(screen.getByText(/SPLIT LOG/i)).toBeDefined();
+  });
+
+  it('formats telemetry metrics in imperial units when weightUnit="imperial"', () => {
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        initialMode="recipe"
+        weightUnit="imperial"
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    expect(screen.getAllByText(/oz/i).length).toBeGreaterThan(0);
+    expect(screen.getByText('0.53 oz')).toBeDefined(); // 15g
+    expect(screen.getByText('8.82 oz')).toBeDefined(); // 250g
+    expect(screen.getAllByText('1.76 oz').length).toBeGreaterThan(0); // 50g stage water
   });
 });

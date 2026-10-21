@@ -9,6 +9,7 @@ import { TimerRoute } from './routes/TimerRoute';
 import { StashRoute } from './routes/StashRoute';
 import { NotFoundRoute } from './routes/NotFoundRoute';
 import { AuthProvider } from './features/auth/AuthContext';
+import { SettingsProvider } from './features/settings/SettingsContext';
 import { App } from './App';
 
 vi.mock('./features/auth/AuthContext', () => ({
@@ -23,16 +24,18 @@ vi.mock('./features/auth/AuthContext', () => ({
 function TestApp({ initialPath = '/' }: { initialPath?: string }) {
   return (
     <AuthProvider>
-      <MemoryRouter initialEntries={[initialPath]}>
-        <Routes>
-          <Route element={<RootLayout />}>
-            <Route index element={<Navigate to="/timer" replace />} />
-            <Route path="/timer" element={<TimerRoute />} />
-            <Route path="/stash" element={<StashRoute />} />
-            <Route path="*" element={<NotFoundRoute />} />
-          </Route>
-        </Routes>
-      </MemoryRouter>
+      <SettingsProvider>
+        <MemoryRouter initialEntries={[initialPath]}>
+          <Routes>
+            <Route element={<RootLayout />}>
+              <Route index element={<Navigate to="/timer" replace />} />
+              <Route path="/timer" element={<TimerRoute />} />
+              <Route path="/stash" element={<StashRoute />} />
+              <Route path="*" element={<NotFoundRoute />} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </SettingsProvider>
     </AuthProvider>
   );
 }
@@ -96,7 +99,7 @@ describe('App Routing', () => {
       JSON.stringify({ recipeId: aeropressPreset.id })
     );
 
-    render(<TestApp initialPath="/timer" />);
+    render(<TestApp initialPath="/timer?mode=recipe" />);
     expect(screen.getByText(aeropressPreset.name)).toBeDefined();
   });
 
@@ -130,7 +133,7 @@ describe('App Routing', () => {
       JSON.stringify({ recipeId: customRecipe.id })
     );
 
-    render(<TestApp initialPath="/timer" />);
+    render(<TestApp initialPath="/timer?mode=recipe" />);
     expect(screen.getByText('My Special Filter V60')).toBeDefined();
   });
 
@@ -140,7 +143,7 @@ describe('App Routing', () => {
       JSON.stringify({ recipeId: 'non-existent-or-deleted-id' })
     );
 
-    render(<TestApp initialPath="/timer" />);
+    render(<TestApp initialPath="/timer?mode=recipe" />);
     expect(screen.getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
 
     const stored = localStorage.getItem(WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY);

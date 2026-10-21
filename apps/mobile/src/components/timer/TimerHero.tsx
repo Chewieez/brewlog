@@ -1,7 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Pressable, TextInput, StyleSheet } from 'react-native';
 import { Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react-native';
-import { INDUSTRIAL_PRECISION_THEME, BrewRecipe, TimerMode, SplitTag } from '@brewlog/core';
+import {
+  INDUSTRIAL_PRECISION_THEME,
+  BrewRecipe,
+  TimerMode,
+  SplitTag,
+  WeightUnit,
+  formatWeight,
+  gramsToOz,
+  ozToGrams,
+} from '@brewlog/core';
 import { FONTS } from '../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
@@ -9,21 +18,23 @@ const { colors } = INDUSTRIAL_PRECISION_THEME;
 export interface TimerHeroProps {
   recipe: BrewRecipe;
   elapsedSeconds: number;
+  totalDurationSeconds?: number;
   isRunning: boolean;
   isFinished?: boolean;
-  isMuted: boolean;
-  currentStageTargetWater: number;
-  doseGrams: number;
-  onToggleTimer: () => void;
-  onReset: () => void;
-  onToggleMute: () => void;
-  totalProgress: number;
+  isMuted?: boolean;
+  currentStageTargetWater?: number;
+  doseGrams?: number;
+  onToggleTimer?: () => void;
+  onReset?: () => void;
+  onToggleMute?: () => void;
+  totalProgress?: number;
   onChangeDose?: (newDose: number) => void;
   mode?: TimerMode;
   onSplit?: () => void;
   onTagSplit?: (tag: SplitTag, label: string) => void;
   splitsCount?: number;
   onFinish?: () => void;
+  weightUnit?: WeightUnit;
 }
 
 const QUICK_TAGS: { tag: SplitTag; label: string; chipLabel: string }[] = [
@@ -38,42 +49,64 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
   elapsedSeconds,
   isRunning,
   isFinished = false,
-  isMuted,
-  currentStageTargetWater,
-  doseGrams,
-  onToggleTimer,
-  onReset,
-  onToggleMute,
-  totalProgress,
+  isMuted = false,
+  currentStageTargetWater = 0,
+  doseGrams = recipe.coffeeDoseGrams,
+  onToggleTimer = () => {},
+  onReset = () => {},
+  onToggleMute = () => {},
+  totalProgress = 0,
   onChangeDose,
   mode = 'recipe',
   onSplit,
   onTagSplit,
   splitsCount = 0,
   onFinish,
+  weightUnit = 'metric',
 }) => {
   const mins = Math.floor(elapsedSeconds / 60);
   const secs = elapsedSeconds % 60;
 
-  const [textDose, setTextDose] = useState(String(doseGrams));
+  const getDisplayDose = (grams: number, unit: WeightUnit = 'metric') =>
+    unit === 'imperial' ? String(gramsToOz(grams)) : String(grams);
+
+  const [textDose, setTextDose] = useState(() => getDisplayDose(doseGrams, weightUnit));
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
-    setTextDose(String(doseGrams));
-  }, [doseGrams]);
+    setTextDose(getDisplayDose(doseGrams, weightUnit));
+  }, [doseGrams, weightUnit]);
 
   const handleCommitDose = () => {
     setIsFocused(false);
     const parsed = parseFloat(textDose);
+    const currentDisplayValue = weightUnit === 'imperial' ? gramsToOz(doseGrams) : doseGrams;
+
     if (isNaN(parsed) || parsed <= 0) {
-      setTextDose(String(doseGrams));
+      setTextDose(String(currentDisplayValue));
       return;
     }
-    const clamped = Math.max(1, Math.min(100, Math.round(parsed * 10) / 10));
-    setTextDose(String(clamped));
-    if (clamped !== doseGrams && onChangeDose) {
-      onChangeDose(clamped);
+
+    if (parsed === currentDisplayValue) {
+      setTextDose(String(currentDisplayValue));
+      return;
+    }
+
+    if (weightUnit === 'imperial') {
+      const rawGrams = ozToGrams(parsed);
+      const clampedGrams = Math.max(1, Math.min(100, Math.round(rawGrams * 10) / 10));
+      const displayOz = gramsToOz(clampedGrams);
+      setTextDose(String(displayOz));
+      if (clampedGrams !== doseGrams && onChangeDose) {
+        onChangeDose(clampedGrams);
+      }
+    } else {
+      const clampedGrams = Math.max(1, Math.min(100, Math.round(parsed * 10) / 10));
+      setTextDose(String(clampedGrams));
+      if (clampedGrams !== doseGrams && onChangeDose) {
+        onChangeDose(clampedGrams);
+      }
     }
   };
 
@@ -133,13 +166,13 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
                 returnKeyType="done"
                 selectTextOnFocus
                 style={styles.doseInput}
-                accessibilityLabel="Timer coffee dose in grams"
+                accessibilityLabel={`Timer coffee dose in ${weightUnit === 'imperial' ? 'ounces' : 'grams'}`}
               />
-              <Text style={styles.doseUnit}>g</Text>
+              <Text style={styles.doseUnit}>{weightUnit === 'imperial' ? 'oz' : 'g'}</Text>
             </Pressable>
           ) : (
             <View style={styles.doseDisplayRow}>
-              <Text style={styles.metricValue}>{doseGrams}g</Text>
+              <Text style={styles.metricValue}>{formatWeight(doseGrams, weightUnit)}</Text>
             </View>
           )}
         </View>
@@ -161,12 +194,14 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
           <>
             <View style={styles.metricItem}>
               <Text style={styles.metricLabel}>WATER TARGET</Text>
-              <Text style={styles.metricValue}>{recipe.waterAmountGrams}g</Text>
+              <Text style={styles.metricValue}>
+                {formatWeight(recipe.waterAmountGrams, weightUnit)}
+              </Text>
             </View>
             <View style={styles.metricItem}>
               <Text style={styles.metricLabel}>POUR TO</Text>
               <Text style={[styles.metricValue, styles.metricValueAccent]}>
-                {currentStageTargetWater}g
+                {formatWeight(currentStageTargetWater, weightUnit)}
               </Text>
             </View>
           </>

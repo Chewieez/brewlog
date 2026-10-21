@@ -168,6 +168,14 @@ vi.mock("expo-haptics", () => ({
   },
 }));
 
+const mockRouterPush = vi.fn();
+vi.mock("expo-router", () => ({
+  useRouter: () => ({
+    push: mockRouterPush,
+    back: vi.fn(),
+  }),
+}));
+
 vi.mock("lucide-react-native", () => ({
   Sparkles: () => <span data-testid="sparkles-icon" />,
   LogOut: () => <span data-testid="logout-icon" />,
@@ -176,6 +184,8 @@ vi.mock("lucide-react-native", () => ({
   Lock: () => <span data-testid="lock-icon" />,
   Mail: () => <span data-testid="mail-icon" />,
   User: () => <span data-testid="user-icon" />,
+  Sliders: () => <span data-testid="sliders-icon" />,
+  Settings: () => <span data-testid="settings-icon" />,
 }));
 
 describe("AuthSheet", () => {
@@ -259,6 +269,29 @@ describe("AuthSheet", () => {
     expect(getByText("Greg")).toBeDefined();
     expect(getByText("barista@brewlog.dev")).toBeDefined();
     expect(getByText("SIGN OUT")).toBeDefined();
+  });
+
+  it("renders Settings entry card and routes to /settings/modal on tap", () => {
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    const mockOnClose = vi.fn();
+    const { getByText } = render(
+      <AuthSheet visible={true} onClose={mockOnClose} />
+    );
+
+    expect(getByText("Settings")).toBeDefined();
+    fireEvent.click(getByText("Settings"));
+    expect(mockRouterPush).toHaveBeenCalledWith("/settings/modal");
+    expect(mockOnClose).toHaveBeenCalled();
   });
 
   it("switches to Forgot Password mode and back to Sign In", () => {

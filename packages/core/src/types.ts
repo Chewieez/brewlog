@@ -180,3 +180,16 @@ export interface FlavorWheelNode {
     descriptors?: string[];
   }[];
 }
+
+export type WeightUnit = 'metric' | 'imperial';
+export type TemperatureUnit = 'celsius' | 'fahrenheit';
+export type TimerModePreference = 'recipe' | 'free_brew';
+export type DateFormatPreference = 'locale' | 'YYYY-MM-DD' | 'MM/DD/YYYY' | 'DD/MM/YYYY';
+
+export interface UserSettings {
+  weightUnit: WeightUnit;
+  temperatureUnit: TemperatureUnit;
+  defaultTimerMode: TimerModePreference;
+  dateFormat: DateFormatPreference;
+}
+

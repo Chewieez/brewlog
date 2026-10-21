@@ -8,7 +8,9 @@ import {
   Equipment,
   BrewRecipe,
   BrewMethodType,
+  formatDisplayDate,
 } from '@brewlog/core';
+import { useOptionalSettings } from '../settings/SettingsContext';
 import {
   Plus,
   Search,
@@ -121,6 +123,9 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
   onDeleteTastingLog,
   onBrewAgain,
 }) => {
+  const settingsContext = useOptionalSettings();
+  const dateFormat = settingsContext?.settings.dateFormat ?? 'locale';
+
   // Mode state: 'view' | 'create' | 'edit'
   const [mode, setMode] = useState<'view' | 'create' | 'edit'>(() => {
     return pendingBrewSession ? 'create' : 'view';
@@ -512,10 +517,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
     try {
       const d = new Date(dateStr);
       if (isNaN(d.getTime())) return dateStr;
-      return d.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-      });
+      return formatDisplayDate(dateStr, dateFormat);
     } catch {
       return dateStr;
     }

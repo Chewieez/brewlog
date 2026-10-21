@@ -198,7 +198,8 @@ describe('RecipeDetailPane', () => {
     const slider = screen.getByRole('slider', { name: /coffee dose/i });
     expect(slider.getAttribute('min')).toBe('10');
     expect(slider.getAttribute('max')).toBe('85');
-    expect(screen.getAllByText('85g').length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText('85.0 g')).toBeDefined();
+    expect(screen.getByText('85g')).toBeDefined();
   });
 
   it('renders edit button for custom recipes and calls onEditRecipe when clicked', () => {

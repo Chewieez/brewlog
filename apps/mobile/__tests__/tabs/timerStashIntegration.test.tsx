@@ -102,6 +102,7 @@ vi.mock('react-native', () => ({
 
 vi.mock('expo-router', () => ({
   useRouter: () => ({ push: vi.fn() }),
+  useLocalSearchParams: () => ({ mode: 'recipe' }),
 }));
 
 vi.mock('../../src/lib/mobileFeedback', () => ({

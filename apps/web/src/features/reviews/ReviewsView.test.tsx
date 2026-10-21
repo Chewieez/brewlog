@@ -3,7 +3,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, act, cleanup, within, createEvent } from '@testing-library/react';
 import { ReviewsView } from './ReviewsView';
 import { INITIAL_BEANS } from '../../lib/sampleData';
-import { DEFAULT_PRESET_RECIPES, Equipment, TastingLog, BrewRecipe } from '@brewlog/core';
+import { DEFAULT_PRESET_RECIPES, Equipment, TastingLog, BrewRecipe, formatDisplayDate } from '@brewlog/core';
 
 const mockEquipment: Equipment[] = [
   {
@@ -652,7 +652,8 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     expect(loggedReviewsCounter.className).toContain('tabular-nums');
 
     // 2. Past review card date and rating number
-    const dateSpan = screen.getByText('Oct 1');
+    const masterFeed = screen.getByTestId('master-feed');
+    const dateSpan = within(masterFeed).getByText(formatDisplayDate(sampleLog.brewDate, 'locale'));
     expect(dateSpan.className).not.toContain('font-mono');
     expect(dateSpan.className).toContain('tabular-nums');
 

@@ -1,5 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BrewRecipe, Bean, TimerMode, SplitTag, rescaleRecipeDose, splitsToRecipeStages } from '@brewlog/core';
+import {
+  BrewRecipe,
+  Bean,
+  TimerMode,
+  SplitTag,
+  WeightUnit,
+  rescaleRecipeDose,
+  splitsToRecipeStages,
+  DEFAULT_USER_SETTINGS,
+  formatWeight,
+} from '@brewlog/core';
+import { useSettings, useOptionalSettings } from '../settings/SettingsContext';
 import { useBrewTimer } from './useBrewTimer';
 import { WebRatioTranslator } from './WebRatioTranslator';
 import { coffeeAudio } from '../../lib/audio';
@@ -23,6 +34,7 @@ export interface TimerViewProps {
   selectedBean?: Bean | null;
   beans?: Bean[];
   initialMode?: TimerMode;
+  weightUnit?: WeightUnit;
   onSelectBean?: (bean: Bean) => void;
   onSelectOtherRecipe: () => void;
   onLogCompletedBrew: (recipe: BrewRecipe, actualTimeSeconds: number, bean: Bean | null) => void;
@@ -33,17 +45,55 @@ export const TimerView: React.FC<TimerViewProps> = ({
   recipe: initialRecipe,
   selectedBean,
   beans = [],
-  initialMode = 'recipe',
+  initialMode,
+  weightUnit,
   onSelectBean,
   onSelectOtherRecipe,
   onLogCompletedBrew,
   onSaveAsRecipe,
 }) => {
-  const [mode, setMode] = useState<TimerMode>(initialMode);
+  const settingsContext = useOptionalSettings();
+  const settings = settingsContext?.settings ?? DEFAULT_USER_SETTINGS;
+  const currentWeightUnit = weightUnit ?? settings.weightUnit;
+
+  const initialRecipeRef = useRef(initialRecipe);
+
+  const getQueryMode = (): TimerMode | null => {
+    if (typeof window !== 'undefined' && window.location && window.location.search) {
+      const sp = new URLSearchParams(window.location.search);
+      const m = sp.get('mode');
+      if (m === 'recipe' || m === 'free_brew') return m;
+    }
+    return null;
+  };
+
+  const [mode, setMode] = useState<TimerMode>(() => {
+    if (initialMode) return initialMode;
+    const q = getQueryMode();
+    if (q) return q;
+    return settings.defaultTimerMode;
+  });
+
   const [doseGrams, setDoseGrams] = useState(initialRecipe.coffeeDoseGrams);
   const [recipe, setRecipe] = useState<BrewRecipe>(initialRecipe);
   const [isFreeBrewFinished, setIsFreeBrewFinished] = useState(false);
   const [isRecipeSaved, setIsRecipeSaved] = useState(false);
+
+  useEffect(() => {
+    if (initialMode) {
+      setMode(initialMode);
+    } else {
+      const q = getQueryMode();
+      if (q) setMode(q);
+    }
+  }, [initialMode]);
+
+  useEffect(() => {
+    if (initialRecipe !== initialRecipeRef.current) {
+      setMode('recipe');
+      initialRecipeRef.current = initialRecipe;
+    }
+  }, [initialRecipe]);
 
   // Reset dose and recipe when initial recipe changes
   useEffect(() => {
@@ -373,7 +423,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 COFFEE DOSE
               </div>
               <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
-                {doseGrams}g
+                {formatWeight(doseGrams, currentWeightUnit)}
               </div>
             </div>
 
@@ -382,7 +432,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 WATER TARGET
               </div>
               <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
-                {recipe.waterAmountGrams}g
+                {formatWeight(recipe.waterAmountGrams, currentWeightUnit)}
               </div>
             </div>
 
@@ -391,7 +441,9 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 {mode === 'free_brew' ? 'SPLITS' : 'POUR TO'}
               </div>
               <div className="text-2xl sm:text-3xl font-light text-accent tabular-nums mt-1">
-                {mode === 'free_brew' ? splits.length : `${currentStage.targetWaterWeightGrams}g`}
+                {mode === 'free_brew'
+                  ? splits.length
+                  : formatWeight(currentStage.targetWaterWeightGrams, currentWeightUnit)}
               </div>
             </div>
           </div>
@@ -656,7 +708,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                             {formatTime(stage.startSecond)} ({stage.durationSeconds}s)
                           </span>
                           <span className="font-light text-sm text-text-primary tabular-nums">
-                            {stage.targetWaterWeightGrams}g
+                            {formatWeight(stage.targetWaterWeightGrams, currentWeightUnit)}
                           </span>
                         </div>
                       </div>

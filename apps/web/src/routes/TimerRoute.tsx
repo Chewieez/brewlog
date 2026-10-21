@@ -1,11 +1,15 @@
-import React from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { TimerView } from '../features/timer/TimerView';
 import { useRootOutletContext } from '../layouts/RootLayout';
 import { useRecipes } from '../features/recipes/useRecipes';
-import { BrewRecipe, Bean } from '@brewlog/core';
+import { BrewRecipe, Bean, TimerMode } from '@brewlog/core';
 
 export const TimerRoute: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const modeParam = searchParams.get('mode');
+  const initialMode: TimerMode | undefined =
+    modeParam === 'recipe' || modeParam === 'free_brew' ? (modeParam as TimerMode) : undefined;
+
   const {
     selectedRecipe,
     selectedBean,
@@ -41,8 +45,9 @@ export const TimerRoute: React.FC = () => {
 
   return (
     <TimerView
-      key={selectedRecipe.id}
+      key={`${selectedRecipe.id}-${initialMode ?? 'default'}`}
       recipe={selectedRecipe}
+      initialMode={initialMode}
       selectedBean={selectedBean}
       beans={beans}
       onSelectBean={setSelectedBean}

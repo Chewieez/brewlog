@@ -35,6 +35,7 @@ brewlog/
 * **📝 Reviews & SCA Cupping Logbook**: Score fragrance/aroma, flavor, aftertaste, acidity, body, balance, uniformity, clean cup, sweetness, and overall impression with interactive flavor tags to calculate authentic 0–100 SCA scores.
 * **🎨 Centralized Cross-Platform Design System (`@brewlog/ui`)**: Shared monorepo component package with platform-split rendering layers (`.web.tsx` with Tailwind v4, `.native.tsx` with React Native StyleSheet), unified TypeScript contracts, and industrial precision matte hardware aesthetic across web and mobile (`Button`, `Card`, `Badge`, `Input`, `MetricTile`).
 * **☁️ Cloud Sync, Multi-User & Secure Storage**: Supabase PostgreSQL backend with Row Level Security (RLS), cross-platform authentication (`AuthSheet` modal bottom sheet with sign-in/up/reset, `ProfileHeaderButton` avatar indicator), and hardware-secured session storage (`LargeSecureStore` AES-256 CTR hybrid encryption backed by `expo-secure-store` with `WHEN_UNLOCKED_THIS_DEVICE_ONLY` keychain accessibility).
+* **User Preferences & Instrument Calibration**: Pure domain conversion engines (`gramsToOz`, `celsiusToFahrenheit`) and presentation formatters (`formatWeight`, `formatTemperature`, `formatDisplayDate`) supporting dynamic unit localization (grams / ounces, Celsius / Fahrenheit), customizable date formats, and default brew timer mode selection (`free_brew` stopwatch vs `recipe` stage engine). Delivers offline-first local hydration with automated Supabase cloud sync, dedicated mobile settings modal, and web settings chassis route.
 * **📱 Active Project Milestones & Roadmap**:
   - **Phase 1 (Web App Core Routing)**: Complete ✅ (Declarative client routing, 404 handler, persistent shell).
   - **Phase 2 (Dynamic Recipe Routing)**: Complete ✅ (Master-detail layout, `/recipes/:id`, URL synchronization).
@@ -47,7 +48,7 @@ brewlog/
   - **Phase 7B (Design System App Migration & Integration)**: Active / Next 🚀 (Migrate existing UI surfaces in `apps/web` and `apps/mobile` to consume `@brewlog/ui` Button, Card, Badge, Input, and MetricTile primitives).
   - **Phase 7C (Web Stash Persistence & Recipe Flow Alignment)**: Complete ✅ (Supabase migrations 002/003, core resting engine promotion, Web Stash modal parity & offline sync resilience, Web Recipe Studio custom recipe editing flow).
   - **Phase 7D (Mobile Equipment & Web Parity)**: Complete ✅ (Mobile `EquipmentContext` with offline resilience and optimistic updates, `EquipmentCatalogScreen` with category chips and search filtering, `EquipmentModalScreen` add/edit flows, microns scale type support across `@brewlog/core`, web parity with 'Other' equipment section, and offline sync resilience).
-  - **Phase 8 (User Preferences & Settings Subsystem)**: Upcoming ⏳ (Cross-platform Supabase `user_settings`, default timer mode, unit conversions).
+  - **Phase 8 (User Preferences & Settings Subsystem)**: Complete (Cross-platform Supabase `user_settings`, default timer mode, unit conversions, offline-first state, telemetry integration).
   - **Phase 9 (Native Cupping Session Logging)**: Upcoming ⏳ (SCA 10-attribute scoring protocol).
   - **Phase 10 (Platform-Adaptive Navigation)**: Upcoming ⏳ (iOS Liquid Glass & Android Material Design 3).
   - **Phase 11 (Responsive Adaptive Layouts)**: Upcoming ⏳ (Landscape, foldables, tablets).

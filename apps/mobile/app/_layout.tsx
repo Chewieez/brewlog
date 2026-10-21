@@ -21,6 +21,7 @@ import {
 import { NavigationBar } from 'expo-navigation-bar';
 import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { AuthProvider } from '../src/features/auth/AuthContext';
+import { SettingsProvider } from '../src/features/settings/SettingsContext';
 import { RecipeProvider } from '../src/features/recipes/RecipeContext';
 import { StashProvider } from '../src/features/stash/StashContext';
 import { EquipmentProvider } from '../src/features/equipment/EquipmentContext';
@@ -56,7 +57,8 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
         <AuthProvider>
-          <RecipeProvider>
+          <SettingsProvider>
+            <RecipeProvider>
             <StashProvider>
               <EquipmentProvider>
                 <ReviewsProvider>
@@ -132,11 +134,19 @@ export default function RootLayout() {
                     headerTitleStyle: { fontWeight: '700' },
                   }}
                 />
+                <Stack.Screen
+                  name="settings/modal"
+                  options={{
+                    presentation: 'modal',
+                    headerShown: false,
+                  }}
+                />
                 </Stack>
                 </ReviewsProvider>
               </EquipmentProvider>
             </StashProvider>
-          </RecipeProvider>
+            </RecipeProvider>
+          </SettingsProvider>
         </AuthProvider>
       </KeyboardProvider>
     </SafeAreaProvider>

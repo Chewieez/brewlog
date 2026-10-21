@@ -39,7 +39,7 @@ let mockContext: RecipeOutletContext;
 
 const LocationDisplay = () => {
   const location = useLocation();
-  return <div data-testid="location-display">{location.pathname}</div>;
+  return <div data-testid="location-display">{location.pathname}{location.search}</div>;
 };
 
 const renderWithContext = (initialPath: string) => {
@@ -94,7 +94,7 @@ describe('RecipeDetailRoute', () => {
     fireEvent.click(brewButton);
 
     expect(mockContext.onSelectRecipeForTimer).toHaveBeenCalledTimes(1);
-    expect(screen.getByTestId('location-display').textContent).toBe('/timer');
+    expect(screen.getByTestId('location-display').textContent).toBe('/timer?mode=recipe');
   });
 
   it('calls onEditRecipe when edit button is clicked on a custom recipe', () => {

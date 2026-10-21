@@ -34,6 +34,35 @@ export interface Database {
         };
         Relationships: [];
       };
+      user_settings: {
+        Row: {
+          user_id: string;
+          weight_unit: "metric" | "imperial";
+          temperature_unit: "celsius" | "fahrenheit";
+          default_timer_mode: "recipe" | "free_brew";
+          date_format: "locale" | "YYYY-MM-DD" | "MM/DD/YYYY" | "DD/MM/YYYY";
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          weight_unit?: "metric" | "imperial";
+          temperature_unit?: "celsius" | "fahrenheit";
+          default_timer_mode?: "recipe" | "free_brew";
+          date_format?: "locale" | "YYYY-MM-DD" | "MM/DD/YYYY" | "DD/MM/YYYY";
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          weight_unit?: "metric" | "imperial";
+          temperature_unit?: "celsius" | "fahrenheit";
+          default_timer_mode?: "recipe" | "free_brew";
+          date_format?: "locale" | "YYYY-MM-DD" | "MM/DD/YYYY" | "DD/MM/YYYY";
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       equipment: {
         Row: {
           id: string;
@@ -307,5 +336,8 @@ export type RecipeStageRow = Tables<"recipe_stages">;
 export type RecipeStageInsert = TablesInsert<"recipe_stages">;
 export type ProfileRow = Tables<"profiles">;
 export type ProfileInsert = TablesInsert<"profiles">;
+export type UserSettingsRow = Tables<"user_settings">;
+export type UserSettingsInsert = TablesInsert<"user_settings">;
+export type UserSettingsUpdate = TablesUpdate<"user_settings">;
 
 

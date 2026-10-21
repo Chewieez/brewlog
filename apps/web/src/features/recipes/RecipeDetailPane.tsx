@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import { BrewRecipe, rescaleRecipeDose, Equipment } from '@brewlog/core';
+import {
+  BrewRecipe,
+  rescaleRecipeDose,
+  Equipment,
+  DEFAULT_USER_SETTINGS,
+  formatWeight,
+  formatTemperature,
+} from '@brewlog/core';
 import {
   Play,
   BookOpen,
@@ -13,6 +20,7 @@ import {
 } from 'lucide-react';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 import { useEquipment } from '../equipment/useEquipment';
+import { useOptionalSettings } from '../settings/SettingsContext';
 
 export interface RecipeDetailPaneProps {
   recipe: BrewRecipe;
@@ -33,6 +41,8 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
 }) => {
   const { equipment: contextEquipment = [] } = useEquipment();
   const equipment = propEquipment ?? contextEquipment;
+  const settingsContext = useOptionalSettings();
+  const settings = settingsContext?.settings ?? DEFAULT_USER_SETTINGS;
 
   const [customDose, setCustomDose] = useState<number>(Math.round(recipe.coffeeDoseGrams));
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -156,11 +166,11 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
                 onClick={() => setCustomDose(recipe.coffeeDoseGrams)}
                 className="text-[10px] font-mono text-accent hover:underline cursor-pointer"
               >
-                Reset ({recipe.coffeeDoseGrams}g)
+                Reset ({formatWeight(recipe.coffeeDoseGrams, settings.weightUnit)})
               </button>
             )}
             <span className="text-zinc-100 font-light text-lg tabular-nums">
-              {customDose}g
+              {formatWeight(customDose, settings.weightUnit)}
             </span>
           </div>
         </div>
@@ -221,7 +231,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
             </div>
           </div>
           <div className="text-base sm:text-lg font-light text-zinc-100 tabular-nums">
-            {scaledRecipe.waterAmountGrams}g
+            {formatWeight(scaledRecipe.waterAmountGrams, settings.weightUnit)}
           </div>
         </div>
 
@@ -263,7 +273,9 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
             </div>
           </div>
           <div className="text-base sm:text-lg font-light text-zinc-100 tabular-nums">
-            {recipe.waterTempCelsius ? `${recipe.waterTempCelsius}°C` : '93-96°C'}
+            {recipe.waterTempCelsius
+              ? formatTemperature(recipe.waterTempCelsius, settings.temperatureUnit)
+              : (settings.temperatureUnit === 'fahrenheit' ? '200-205°F' : '93-96°C')}
           </div>
         </div>
       </div>

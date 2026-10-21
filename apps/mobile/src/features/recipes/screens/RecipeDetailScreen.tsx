@@ -6,9 +6,11 @@ import {
   INDUSTRIAL_PRECISION_THEME,
   rescaleRecipeDose,
   Equipment,
+  DEFAULT_USER_SETTINGS,
 } from '@brewlog/core';
 import { useRecipes } from '../RecipeContext';
 import { EquipmentContext, useOptionalEquipment } from '../../equipment/EquipmentContext';
+import { useOptionalSettings } from '../../settings/SettingsContext';
 import { SpecsGrid } from '../components/SpecsGrid';
 import { DoseRescaler } from '../components/DoseRescaler';
 import { StagesTimeline } from '../components/StagesTimeline';
@@ -28,6 +30,8 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
   const router = useRouter();
   const { recipes, deleteRecipe, setActiveTimerRecipe } = useRecipes();
   const equipmentContext = useOptionalEquipment?.() ?? useContext(EquipmentContext);
+  const settingsContext = useOptionalSettings?.();
+  const settings = settingsContext?.settings ?? DEFAULT_USER_SETTINGS;
 
   const recipe = recipes.find((r) => r.id === recipeId);
   const [customDose, setCustomDose] = useState<number>(
@@ -60,7 +64,7 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
 
   const handleBrew = () => {
     setActiveTimerRecipe(scaledRecipe, customDose);
-    router.replace('/(tabs)');
+    router.replace({ pathname: '/(tabs)', params: { mode: 'recipe' } });
   };
 
   const handleDuplicate = () => {
@@ -139,6 +143,8 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
         ratio={scaledRecipe.ratio}
         totalTimeSeconds={scaledRecipe.totalTimeSeconds}
         waterTempCelsius={scaledRecipe.waterTempCelsius}
+        weightUnit={settings.weightUnit}
+        temperatureUnit={settings.temperatureUnit}
       />
 
       <DoseRescaler

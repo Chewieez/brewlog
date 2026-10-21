@@ -32,6 +32,13 @@ BrewLog bridges structured recipe execution with intuitive, unguided brewing via
 ### 8. Centralized Cross-Platform Design System (`@brewlog/ui`)
 To eliminate styling drift and maintain instrument-grade visual continuity across web (React 19 + Tailwind v4) and mobile (Expo SDK 57 + React Native StyleSheet), `@brewlog/ui` introduces platform-split primitives (`.web.tsx` and `.native.tsx`) bound by strict shared TypeScript prop contracts. It enforces project-wide typography standards (purging monospace fonts from numeric values, restricting `JetBrains Mono` strictly to uppercase tags and chassis eyebrows, and standardizing all numeric metrics on `Outfit` tabular figures) without bundling overhead from `react-native-web`.
 
+### 9. User Preferences, Cloud Synchronization & Localized Instrument Telemetry
+BrewLog maintains canonical data representations in metric units ($g$, $ml$, $^{\circ}\text{C}$) across its core database and calculation engine, while delivering fully localized, offline-first preference management across Web and Mobile.
+- **Pure Domain Conversion Engine (`@brewlog/core`)**: Pure bi-directional mathematical converters (`gramsToOz`, `ozToGrams`, `celsiusToFahrenheit`, `fahrenheitToCelsius`) and localized formatters (`formatWeight`, `formatTemperature`, `formatDisplayDate`) strictly isolate presentation formatting from underlying domain models.
+- **Relational PostgreSQL Schema & Strict RLS (`@brewlog/supabase`)**: The `user_settings` table uses PostgreSQL Row Level Security (RLS) to enforce strict per-user authorization boundaries, mapped bi-directionally between relational snake_case columns and TypeScript camelCase domain entities.
+- **Offline-First Synchronization Architecture**: Mobile (`AsyncStorage` via `@brewlog/mobile:settings_cache`) and Web (`localStorage` via `brewlog_settings_cache`) contexts guarantee instant zero-latency boot hydration, optimistic local updates, offline mutation queuing, and automatic bi-directional remote synchronization upon authentication.
+- **Dynamic Faceplate Telemetry & Mode Personalization**: The precision brew timer, stage guidance timelines, dose rescalers, and recipe specification cards dynamically adapt to user-selected weight ($g$ vs $oz$) and temperature ($^{\circ}\text{C}$ vs $^{\circ}\text{F}$) units in real time, while respecting baristas' preferred default timer mode (`free_brew` stopwatch vs `recipe` stage engine) across Web and Mobile.
+
 ---
 
 ## 📈 Learning Roadmap & Architecture Decision Records

@@ -91,9 +91,9 @@ describe('TimerHero Component', () => {
     expect(getByText(/1:16.67/)).toBeDefined();
     expect(getByText('1')).toBeDefined(); // mins
     expect(getByText('15')).toBeDefined(); // secs
-    expect(getByText('30g')).toBeDefined();
-    expect(getByText('500g')).toBeDefined();
-    expect(getByText('300g')).toBeDefined();
+    expect(getByText('30.0 g')).toBeDefined();
+    expect(getByText('500.0 g')).toBeDefined();
+    expect(getByText('300.0 g')).toBeDefined();
   });
 
   it('allows inline editing of dose and calls onChangeDose on commit (blur or submit)', () => {
@@ -239,7 +239,7 @@ describe('TimerHero Component', () => {
     );
 
     expect(queryByLabelText('Timer coffee dose in grams')).toBeNull();
-    expect(getByText('18g')).toBeDefined();
+    expect(getByText('18.0 g')).toBeDefined();
   });
 
   it('locks dose to read-only and displays RESET on primary button when isFinished is true', () => {
@@ -276,7 +276,7 @@ describe('TimerHero Component', () => {
 
     // Dose is read-only when finished
     expect(queryByLabelText('Timer coffee dose in grams')).toBeNull();
-    expect(getByText('30g')).toBeDefined();
+    expect(getByText('30.0 g')).toBeDefined();
   });
 
   it('syncs local input text when doseGrams prop updates externally', () => {
@@ -481,6 +481,123 @@ describe('TimerHero Component', () => {
       expect(finishBtn).toBeDefined();
       fireEvent.click(finishBtn);
       expect(onFinish).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('weightUnit formatting', () => {
+    it('formats metrics in imperial ounces when weightUnit="imperial"', () => {
+      const { getByText, getAllByText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={0}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={60}
+          doseGrams={30}
+          weightUnit="imperial"
+        />
+      );
+
+      expect(getAllByText(/oz/i).length).toBeGreaterThan(0);
+      expect(getByText('1.06 oz')).toBeDefined();
+      expect(getByText('17.64 oz')).toBeDefined();
+      expect(getByText('2.12 oz')).toBeDefined();
+    });
+
+    it('renders editable dose in ounces with oz label when weightUnit="imperial"', () => {
+      const onChangeDose = vi.fn();
+
+      const { getByLabelText, getByText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={0}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={60}
+          doseGrams={18}
+          onChangeDose={onChangeDose}
+          weightUnit="imperial"
+        />
+      );
+
+      const doseInput = getByLabelText('Timer coffee dose in ounces') as HTMLInputElement;
+      expect(doseInput.value).toBe('0.63');
+      expect(getByText('oz')).toBeDefined();
+    });
+
+    it('converts edited ounces to grams and calls onChangeDose on commit', () => {
+      const onChangeDose = vi.fn();
+
+      const { getByLabelText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={0}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={60}
+          doseGrams={18}
+          onChangeDose={onChangeDose}
+          weightUnit="imperial"
+        />
+      );
+
+      const doseInput = getByLabelText('Timer coffee dose in ounces') as HTMLInputElement;
+      fireEvent.change(doseInput, { target: { value: '1.0' } });
+      fireEvent.blur(doseInput);
+
+      // ozToGrams(1.0) = 28.3g
+      expect(onChangeDose).toHaveBeenCalledWith(28.3);
+      expect(doseInput.value).toBe('1');
+    });
+
+    it('does not trigger onChangeDose or conversion drift when blurring unchanged ounces', () => {
+      const onChangeDose = vi.fn();
+
+      const { getByLabelText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={0}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={60}
+          doseGrams={18}
+          onChangeDose={onChangeDose}
+          weightUnit="imperial"
+        />
+      );
+
+      const doseInput = getByLabelText('Timer coffee dose in ounces') as HTMLInputElement;
+      expect(doseInput.value).toBe('0.63');
+
+      // Blur without changing
+      fireEvent.blur(doseInput);
+      expect(onChangeDose).not.toHaveBeenCalled();
+      expect(doseInput.value).toBe('0.63');
+    });
+
+    it('clamps imperial input within safe gram bounds on commit', () => {
+      const onChangeDose = vi.fn();
+
+      const { getByLabelText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={0}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={60}
+          doseGrams={18}
+          onChangeDose={onChangeDose}
+          weightUnit="imperial"
+        />
+      );
+
+      const doseInput = getByLabelText('Timer coffee dose in ounces') as HTMLInputElement;
+
+      // 10 oz = 283.5g -> clamps to 100g -> gramsToOz(100) = 3.53 oz
+      fireEvent.change(doseInput, { target: { value: '10' } });
+      fireEvent.blur(doseInput);
+      expect(onChangeDose).toHaveBeenCalledWith(100);
+      expect(doseInput.value).toBe('3.53');
     });
   });
 });
