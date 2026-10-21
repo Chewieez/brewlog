@@ -711,6 +711,48 @@ describe('RecipeBuilderModal', () => {
       expect((screen.getByRole('combobox', { name: /grinder 1/i }) as HTMLSelectElement).value).toBe('new-k6');
     });
   });
+
+  it('renders target dose, total water, and all step inputs and badges with neutral text styling (not orange text-accent)', () => {
+    const { container } = render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSaveRecipe={vi.fn()}
+        initialRecipe={null}
+        equipment={[]}
+      />
+    );
+
+    const doseInput = screen.getByLabelText(/coffee dose \(g\)/i);
+    const waterInput = screen.getByLabelText(/target water \(g\)/i);
+
+    expect(doseInput.className).toContain('text-text-primary');
+    expect(doseInput.className).not.toContain('text-accent');
+
+    expect(waterInput.className).toContain('text-text-primary');
+    expect(waterInput.className).not.toContain('text-accent');
+
+    // Verify all step water inputs use neutral styling
+    const stageWaterInputs = [
+      container.querySelector('#stage-water-0'),
+      container.querySelector('#stage-water-1'),
+      container.querySelector('#stage-water-2'),
+    ];
+
+    stageWaterInputs.forEach((input) => {
+      expect(input).not.toBeNull();
+      expect(input!.className).toContain('text-text-primary');
+      expect(input!.className).not.toContain('text-accent');
+    });
+
+    // Verify all step number badges use neutral styling
+    const stepBadges = container.querySelectorAll('.p-4 span.w-6.h-6');
+    expect(stepBadges.length).toBe(3);
+    stepBadges.forEach((badge) => {
+      expect(badge.className).toContain('text-text-primary');
+      expect(badge.className).not.toContain('text-accent');
+    });
+  });
 });
 
 

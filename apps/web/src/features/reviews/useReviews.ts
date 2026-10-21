@@ -8,7 +8,19 @@ import { supabase } from "../../lib/supabase";
 import { useAuth } from "../auth/AuthContext";
 import { INITIAL_TASTING_LOGS } from "../../lib/sampleData";
 
-export const useReviews = () => {
+export interface UseReviewsReturn {
+  logs: TastingLog[];
+  loading: boolean;
+  addReview: (log: Omit<TastingLog, "id" | "createdAt">) => Promise<TastingLog | void>;
+  updateReview: (id: string, updates: Partial<TastingLog>) => Promise<TastingLog | void>;
+  deleteReview: (id: string) => Promise<void>;
+  addTastingLog: (log: Omit<TastingLog, "id" | "createdAt">) => Promise<TastingLog | void>;
+  updateTastingLog: (id: string, updates: Partial<TastingLog>) => Promise<TastingLog | void>;
+  deleteTastingLog: (id: string) => Promise<void>;
+  refreshLogs: () => Promise<void>;
+}
+
+export const useReviews = (): UseReviewsReturn => {
   const { user } = useAuth();
   const [logs, setLogs] = useState<TastingLog[]>(INITIAL_TASTING_LOGS);
   const [loading, setLoading] = useState(false);
@@ -45,7 +57,7 @@ export const useReviews = () => {
         id: "local-log-" + Date.now(),
         createdAt: new Date().toISOString(),
       };
-      setLogs([localLog, ...logs]);
+      setLogs((prev) => [localLog, ...prev]);
       return localLog;
     }
 
@@ -57,18 +69,110 @@ export const useReviews = () => {
       .select()
       .single();
 
-    if (!error && data) {
+    if (error) {
+      console.error("addTastingLog error:", error);
+      throw error;
+    }
+
+    if (data) {
       const created: TastingLog = mapTastingLogRowToDomain(data);
-      setLogs([created, ...logs]);
+      setLogs((prev) => [created, ...prev]);
       return created;
+    }
+  };
+
+  const updateTastingLog = async (id: string, updates: Partial<TastingLog>) => {
+    const existing = logs.find((l) => l.id === id);
+    if (!existing) {
+      return;
+    }
+
+    const updatedLog: TastingLog = {
+      ...existing,
+      ...updates,
+      scores: updates.scores ? { ...existing.scores, ...updates.scores } : existing.scores,
+    };
+
+    setLogs((prev) => prev.map((l) => (l.id === id ? updatedLog : l)));
+
+    if (!supabase || !user || id.startsWith("local-log-")) {
+      return updatedLog;
+    }
+
+    try {
+      const payload = mapTastingLogDomainToInsert(updatedLog, user.id);
+      const { data, error } = await supabase
+        .from("tasting_logs")
+        .update(payload)
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("updateTastingLog error:", error);
+        throw error;
+      }
+
+      if (data) {
+        const saved: TastingLog = mapTastingLogRowToDomain(data);
+        setLogs((prev) => prev.map((l) => (l.id === id ? saved : l)));
+        return saved;
+      }
+    } catch (err) {
+      console.error("updateTastingLog exception:", err);
+      setLogs((prev) => prev.map((l) => (l.id === id ? existing : l)));
+      throw err;
+    }
+    return updatedLog;
+  };
+
+  const deleteTastingLog = async (id: string) => {
+    const existingIndex = logs.findIndex((l) => l.id === id);
+    const existing = logs[existingIndex];
+    setLogs((prev) => prev.filter((l) => l.id !== id));
+
+    if (!supabase || !user || id.startsWith("local-log-")) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from("tasting_logs").delete().eq("id", id);
+      if (error) {
+        console.error("deleteTastingLog error:", error);
+        throw error;
+      }
+    } catch (err) {
+      console.error("deleteTastingLog exception:", err);
+      if (existing) {
+        setLogs((prev) => {
+          if (prev.some((l) => l.id === id)) return prev;
+          const existingTime = new Date(existing.brewDate).getTime();
+          const insertIndex = !isNaN(existingTime)
+            ? prev.findIndex((l) => new Date(l.brewDate).getTime() < existingTime)
+            : existingIndex;
+
+          const next = [...prev];
+          if (insertIndex === -1) {
+            next.push(existing);
+          } else {
+            next.splice(insertIndex, 0, existing);
+          }
+          return next;
+        });
+      }
+      throw err;
     }
   };
 
   return {
     logs,
+    loading,
     addReview: addTastingLog,
     addTastingLog,
-    loading,
+    updateReview: updateTastingLog,
+    updateTastingLog,
+    deleteReview: deleteTastingLog,
+    deleteTastingLog,
     refreshLogs: fetchLogs,
   };
 };
