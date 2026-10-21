@@ -138,6 +138,7 @@ export default function SettingsModalScreen() {
               ]}
               accessibilityRole="button"
               accessibilityLabel="Metric grams"
+              accessibilityState={{ selected: settings.weightUnit === 'metric' }}
             >
               <Text
                 style={[
@@ -158,6 +159,7 @@ export default function SettingsModalScreen() {
               ]}
               accessibilityRole="button"
               accessibilityLabel="Imperial ounces"
+              accessibilityState={{ selected: settings.weightUnit === 'imperial' }}
             >
               <Text
                 style={[
@@ -187,6 +189,7 @@ export default function SettingsModalScreen() {
               ]}
               accessibilityRole="button"
               accessibilityLabel="Celsius degrees"
+              accessibilityState={{ selected: settings.temperatureUnit === 'celsius' }}
             >
               <Text
                 style={[
@@ -207,6 +210,7 @@ export default function SettingsModalScreen() {
               ]}
               accessibilityRole="button"
               accessibilityLabel="Fahrenheit degrees"
+              accessibilityState={{ selected: settings.temperatureUnit === 'fahrenheit' }}
             >
               <Text
                 style={[
@@ -236,6 +240,7 @@ export default function SettingsModalScreen() {
               ]}
               accessibilityRole="button"
               accessibilityLabel="Free brew mode"
+              accessibilityState={{ selected: settings.defaultTimerMode === 'free_brew' }}
             >
               <Text
                 style={[
@@ -256,6 +261,7 @@ export default function SettingsModalScreen() {
               ]}
               accessibilityRole="button"
               accessibilityLabel="Guided recipe mode"
+              accessibilityState={{ selected: settings.defaultTimerMode === 'recipe' }}
             >
               <Text
                 style={[
@@ -328,6 +334,7 @@ export default function SettingsModalScreen() {
                       ]}
                       accessibilityRole="button"
                       accessibilityLabel={`${option.label} date format`}
+                      accessibilityState={{ selected: isSelected }}
                     >
                       <View style={styles.dropdownOptionLeft}>
                         <View style={styles.dropdownOptionCheck}>

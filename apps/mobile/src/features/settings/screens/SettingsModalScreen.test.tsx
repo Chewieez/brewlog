@@ -61,7 +61,7 @@ vi.mock('react-native', () => ({
     onPress,
     accessibilityLabel,
     accessibilityRole,
-    accessibilityState: _accessibilityState,
+    accessibilityState,
     disabled,
     hitSlop: _hitSlop,
     style: _style,
@@ -73,6 +73,8 @@ vi.mock('react-native', () => ({
       onClick={disabled ? undefined : onPress}
       aria-label={accessibilityLabel}
       role={accessibilityRole}
+      aria-selected={accessibilityState?.selected}
+      aria-expanded={accessibilityState?.expanded}
       disabled={disabled}
       {...props}
     >
@@ -317,5 +319,23 @@ describe('SettingsModalScreen', () => {
 
     confirmButton.onPress();
     expect(resetToDefaultsMock).toHaveBeenCalled();
+  });
+
+  it('exposes accessibilityState selected on active and inactive segmented controls', () => {
+    const { getByLabelText } = render(
+      <SettingsProvider>
+        <SettingsModalScreen />
+      </SettingsProvider>
+    );
+
+    // Default: metric, celsius, free_brew
+    expect(getByLabelText('Metric grams').getAttribute('aria-selected')).toBe('true');
+    expect(getByLabelText('Imperial ounces').getAttribute('aria-selected')).toBe('false');
+
+    expect(getByLabelText('Celsius degrees').getAttribute('aria-selected')).toBe('true');
+    expect(getByLabelText('Fahrenheit degrees').getAttribute('aria-selected')).toBe('false');
+
+    expect(getByLabelText('Free brew mode').getAttribute('aria-selected')).toBe('true');
+    expect(getByLabelText('Guided recipe mode').getAttribute('aria-selected')).toBe('false');
   });
 });
