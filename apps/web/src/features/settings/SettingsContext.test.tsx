@@ -228,13 +228,15 @@ describe('SettingsContext (Web)', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await waitFor(() => {
-      expect(mockUpsert).toHaveBeenCalledWith({
-        user_id: 'web-user-456',
-        weight_unit: 'metric',
-        temperature_unit: 'celsius',
-        default_timer_mode: 'free_brew',
-        date_format: 'locale',
-      });
+      expect(mockUpsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user_id: 'web-user-456',
+          weight_unit: 'metric',
+          temperature_unit: 'celsius',
+          default_timer_mode: 'free_brew',
+          date_format: 'locale',
+        })
+      );
     });
   });
 
