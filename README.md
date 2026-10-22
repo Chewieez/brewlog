@@ -39,7 +39,7 @@ brewlog/
 * **📱 Active Project Milestones & Roadmap**:
   - **Phase 1 (Web App Core Routing)**: Complete ✅ (Declarative client routing, 404 handler, persistent shell).
   - **Phase 2 (Dynamic Recipe Routing)**: Complete ✅ (Master-detail layout, `/recipes/:id`, URL synchronization).
-  - **Phase 3 (Mobile App Foundation & Shell)**: Complete ✅ (Expo SDK 57, 5-tab shell, drift-free timer).
+  - **Phase 3 (Mobile App Foundation & Shell)**: Complete ✅ (Expo SDK 57, upgraded to Expo SDK 58, 5-tab shell, drift-free timer).
   - **Phase 3C (Supabase Auth & Secure Storage)**: Complete ✅ (Hardware-backed `LargeSecureStore`, `AuthContext` / `useAuth`, `ProfileHeaderButton`, and `AuthSheet` modal).
   - **Phase 4 (Mobile Recipe Studio & Catalog)**: Complete ✅ (Native stack/modal navigation, recipe builder lifecycle, bidirectional timer handoff).
   - **Phase 5 (Stash Manager & Cellar Inventory)**: Complete ✅ (Native bean cellar, roast resting status indicators, dose deduction handoff to timer, pure resting engine, and offline-first cache).
