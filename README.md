@@ -12,7 +12,7 @@ Multi-platform specialty coffee tracking, custom recipe manager, interactive bre
 brewlog/
 ├── apps/
 │   ├── web/               # React 19 + Tailwind CSS v4 + Vite
-│   ├── mobile/            # React Native (Expo SDK 57) + TypeScript
+│   ├── mobile/            # React Native (Expo SDK 58) + TypeScript
 │   ├── wearos/            # (Planned) WearOS Companion App & Tile (Jetpack Compose)
 │   └── watchos/           # (Planned) Apple watchOS Companion App & Complications (SwiftUI)
 ├── packages/
@@ -113,7 +113,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view the 
 
 ---
 
-### 3. Running the Mobile Application (Expo SDK 57)
+### 3. Running the Mobile Application (Expo SDK 58)
 
 ```bash
 # Start interactive Metro bundler on port 8081

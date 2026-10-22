@@ -48,13 +48,5 @@
     "@types/react": "~19.3.0",
     "typescript": "~6.0.3",
     "vitest": "^4.1.11"
-  },
-  "expo": {
-    "install": {
-      "exclude": [
-        "@types/react",
-        "react"
-      ]
-    }
   }
 }
