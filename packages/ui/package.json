@@ -20,9 +20,9 @@
     "@brewlog/core": "*"
   },
   "peerDependencies": {
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "react-native": "0.86.3"
+    "react": ">=19.2.0",
+    "react-dom": ">=19.2.0",
+    "react-native": ">=0.86.0"
   },
   "peerDependenciesMeta": {
     "react-dom": { "optional": true },
