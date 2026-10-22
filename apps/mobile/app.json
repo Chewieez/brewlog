@@ -7,11 +7,6 @@
     "scheme": "brewlog",
     "userInterfaceStyle": "dark",
     "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#09090b"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.brewlog.app",
@@ -48,7 +43,6 @@
         "expo-build-properties",
         {
           "ios": {
-            "enableSceneSupport": true,
             "usePrecompiledModules": false
           }
         }

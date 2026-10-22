@@ -72,7 +72,7 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
 
   const [textDose, setTextDose] = useState(() => getDisplayDose(doseGrams, weightUnit));
   const [isFocused, setIsFocused] = useState(false);
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<React.ComponentRef<typeof TextInput>>(null);
 
   useEffect(() => {
     setTextDose(getDisplayDose(doseGrams, weightUnit));

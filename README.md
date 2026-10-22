@@ -12,7 +12,7 @@ Multi-platform specialty coffee tracking, custom recipe manager, interactive bre
 brewlog/
 ├── apps/
 │   ├── web/               # React 19 + Tailwind CSS v4 + Vite
-│   ├── mobile/            # React Native (Expo SDK 57) + TypeScript
+│   ├── mobile/            # React Native (Expo SDK 58) + TypeScript
 │   ├── wearos/            # (Planned) WearOS Companion App & Tile (Jetpack Compose)
 │   └── watchos/           # (Planned) Apple watchOS Companion App & Complications (SwiftUI)
 ├── packages/
@@ -39,7 +39,7 @@ brewlog/
 * **📱 Active Project Milestones & Roadmap**:
   - **Phase 1 (Web App Core Routing)**: Complete ✅ (Declarative client routing, 404 handler, persistent shell).
   - **Phase 2 (Dynamic Recipe Routing)**: Complete ✅ (Master-detail layout, `/recipes/:id`, URL synchronization).
-  - **Phase 3 (Mobile App Foundation & Shell)**: Complete ✅ (Expo SDK 57, 5-tab shell, drift-free timer).
+  - **Phase 3 (Mobile App Foundation & Shell)**: Complete ✅ (Expo SDK 57, upgraded to Expo SDK 58, 5-tab shell, drift-free timer).
   - **Phase 3C (Supabase Auth & Secure Storage)**: Complete ✅ (Hardware-backed `LargeSecureStore`, `AuthContext` / `useAuth`, `ProfileHeaderButton`, and `AuthSheet` modal).
   - **Phase 4 (Mobile Recipe Studio & Catalog)**: Complete ✅ (Native stack/modal navigation, recipe builder lifecycle, bidirectional timer handoff).
   - **Phase 5 (Stash Manager & Cellar Inventory)**: Complete ✅ (Native bean cellar, roast resting status indicators, dose deduction handoff to timer, pure resting engine, and offline-first cache).
@@ -113,7 +113,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view the 
 
 ---
 
-### 3. Running the Mobile Application (Expo SDK 57)
+### 3. Running the Mobile Application (Expo SDK 58)
 
 ```bash
 # Start interactive Metro bundler on port 8081
