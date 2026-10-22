@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   listContent: {
-    paddingBottom: 36,
+    paddingBottom: 100,
   },
   headerContainer: {
     paddingHorizontal: 16,

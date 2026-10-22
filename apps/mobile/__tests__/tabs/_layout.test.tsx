@@ -153,6 +153,16 @@ vi.mock("expo-haptics", () => ({
   NotificationFeedbackType: {},
 }));
 
+vi.mock("../../src/lib/mobileFeedback", () => ({
+  mobileFeedback: {
+    triggerHapticTap: vi.fn(),
+    triggerHapticCountdown: vi.fn(),
+    triggerHapticStageTransition: vi.fn(),
+    triggerHapticBrewComplete: vi.fn(),
+    playChime: vi.fn(),
+  },
+}));
+
 vi.mock("expo-router", () => {
   return {
     useRouter: () => ({

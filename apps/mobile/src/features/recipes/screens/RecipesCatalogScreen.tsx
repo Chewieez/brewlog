@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   content: {
-    paddingBottom: 32,
+    paddingBottom: 100,
   },
   header: {
     flexDirection: 'row',

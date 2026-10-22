@@ -1,16 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, Keyboard } from 'react-native';
 import { Tabs } from 'expo-router';
-import {
-  Timer,
-  BookOpen,
-  Bean,
-  Scale,
-  Award,
-} from 'lucide-react-native';
 import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { ProfileHeaderButton } from '../../src/features/auth/ProfileHeaderButton';
 import { AuthSheet } from '../../src/features/auth/AuthSheet';
+import { FloatingPillTabBar } from '../../src/components/navigation/FloatingPillTabBar';
 
 export default function TabLayout() {
   const { colors } = INDUSTRIAL_PRECISION_THEME;
@@ -34,25 +28,21 @@ export default function TabLayout() {
   return (
     <View style={styles.container}>
       <Tabs
+        tabBar={(props) => <FloatingPillTabBar {...props} />}
         screenOptions={{
+          animation: 'shift',
           headerStyle: {
             backgroundColor: colors.panel,
           },
-          headerTintColor: colors.textPrimary,
           headerTitleStyle: {
-            fontWeight: '700',
+            color: colors.textPrimary,
           },
           headerRight: renderHeaderRight,
           tabBarStyle: {
-            backgroundColor: colors.panel,
-            borderTopColor: colors.borderSubtle,
-            borderTopWidth: 1,
-          },
-          tabBarActiveTintColor: colors.accent,
-          tabBarInactiveTintColor: colors.textMuted,
-          tabBarLabelStyle: {
-            fontSize: 11,
-            fontWeight: '600',
+            position: 'absolute',
+            backgroundColor: 'transparent',
+            borderTopWidth: 0,
+            elevation: 0,
           },
         }}
       >
@@ -60,45 +50,30 @@ export default function TabLayout() {
           name="index"
           options={{
             title: 'Brew Timer',
-            tabBarIcon: ({ color, size }) => (
-              <Timer size={size} color={color} />
-            ),
           }}
         />
         <Tabs.Screen
           name="stash"
           options={{
             title: 'Stash',
-            tabBarIcon: ({ color, size }) => (
-              <Bean size={size} color={color} />
-            ),
           }}
         />
         <Tabs.Screen
           name="recipes"
           options={{
             title: 'Recipes',
-            tabBarIcon: ({ color, size }) => (
-              <BookOpen size={size} color={color} />
-            ),
           }}
         />
         <Tabs.Screen
           name="equipment"
           options={{
             title: 'Equipment',
-            tabBarIcon: ({ color, size }) => (
-              <Scale size={size} color={color} />
-            ),
           }}
         />
         <Tabs.Screen
           name="reviews"
           options={{
             title: 'Reviews',
-            tabBarIcon: ({ color, size }) => (
-              <Award size={size} color={color} />
-            ),
           }}
         />
       </Tabs>
@@ -114,5 +89,6 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: 'relative',
   },
 });

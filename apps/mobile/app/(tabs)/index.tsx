@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   contentContainer: {
-    paddingBottom: 32,
+    paddingBottom: 100,
   },
   modeToggleContainer: {
     flexDirection: 'row',
