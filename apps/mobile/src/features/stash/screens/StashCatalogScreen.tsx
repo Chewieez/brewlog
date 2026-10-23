@@ -17,6 +17,9 @@ import { useStash } from '../StashContext';
 import { BeanCard } from '../components/BeanCard';
 import { CellarSummaryBar } from '../components/CellarSummaryBar';
 import { calculateBeanRestingInfo } from '../utils/restingUtils';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthModal } from '../../auth/AuthModalContext';
+import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -49,6 +52,8 @@ const PROCESS_OPTIONS: ProcessOption[] = [
 
 export const StashCatalogScreen: React.FC = () => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { openAuthSheet } = useAuthModal();
   const {
     activeBeans,
     frozenBeans,
@@ -254,7 +259,12 @@ export const StashCatalogScreen: React.FC = () => {
   };
 
   const renderHeader = () => (
-    <View style={styles.headerContainer}>
+    <View
+      style={[
+        styles.headerContainer,
+        { paddingTop: Math.max(insets.top, 16) },
+      ]}
+    >
       {/* Top Title & Add Bag Action */}
       <View style={styles.titleRow}>
         <View style={styles.titleTextContainer}>
@@ -264,15 +274,18 @@ export const StashCatalogScreen: React.FC = () => {
             Manage roast dates, resting curves, and freezer storage.
           </Text>
         </View>
-        <Pressable
-          onPress={handleAddBag}
-          style={styles.addButton}
-          accessibilityRole="button"
-          accessibilityLabel="Add new bean to stash"
-        >
-          <Plus size={16} color={colors.canvas} />
-          <Text style={styles.addButtonText}>ADD BEAN</Text>
-        </Pressable>
+        <View style={styles.actionsContainer}>
+          <Pressable
+            onPress={handleAddBag}
+            style={styles.addButton}
+            accessibilityRole="button"
+            accessibilityLabel="Add new bean to stash"
+          >
+            <Plus size={16} color={colors.canvas} />
+            <Text style={styles.addButtonText}>ADD BEAN</Text>
+          </Pressable>
+          <ProfileHeaderButton onPress={openAuthSheet} />
+        </View>
       </View>
 
       {/* Summary Chassis Bar */}
@@ -437,6 +450,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textSecondary,
     lineHeight: 18,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   addButton: {
     flexDirection: 'row',

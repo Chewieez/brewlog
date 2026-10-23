@@ -7,11 +7,16 @@ import { useRecipes } from '../RecipeContext';
 import { MethodFilterBar } from '../components/MethodFilterBar';
 import { RecipeCard } from '../components/RecipeCard';
 import { FONTS } from '../../../theme/fonts';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthModal } from '../../auth/AuthModalContext';
+import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export const RecipesCatalogScreen: React.FC = () => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { openAuthSheet } = useAuthModal();
   const { recipes } = useRecipes();
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
@@ -35,7 +40,7 @@ export const RecipesCatalogScreen: React.FC = () => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
         <View style={styles.headerLeft}>
           <Text style={styles.headerEyebrow}>RECIPE CATALOG</Text>
           <Text style={styles.headerTitle}>Curated Brew Profiles</Text>
@@ -43,15 +48,18 @@ export const RecipesCatalogScreen: React.FC = () => {
             Specialty brew guides alongside your custom recipes.
           </Text>
         </View>
-        <Pressable
-          onPress={handleCreateNew}
-          style={styles.addButton}
-          accessibilityRole="button"
-          accessibilityLabel="Create new custom recipe"
-        >
-          <Plus size={18} color={colors.canvas} />
-          <Text style={styles.addButtonText}>NEW</Text>
-        </Pressable>
+        <View style={styles.actionsContainer}>
+          <Pressable
+            onPress={handleCreateNew}
+            style={styles.addButton}
+            accessibilityRole="button"
+            accessibilityLabel="Create new custom recipe"
+          >
+            <Plus size={18} color={colors.canvas} />
+            <Text style={styles.addButtonText}>NEW</Text>
+          </Pressable>
+          <ProfileHeaderButton onPress={openAuthSheet} />
+        </View>
       </View>
 
       <MethodFilterBar
@@ -95,8 +103,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     paddingHorizontal: 16,
-    paddingTop: 16,
     paddingBottom: 8,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   headerLeft: {
     flex: 1,

@@ -5,84 +5,94 @@ import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { ProfileHeaderButton } from '../../src/features/auth/ProfileHeaderButton';
 import { AuthSheet } from '../../src/features/auth/AuthSheet';
 import { FloatingPillTabBar } from '../../src/components/navigation/FloatingPillTabBar';
+import { AuthModalContext } from '../../src/features/auth/AuthModalContext';
 
 export default function TabLayout() {
   const { colors } = INDUSTRIAL_PRECISION_THEME;
   const [authSheetVisible, setAuthSheetVisible] = useState(false);
 
-  const handleOpenAuthSheet = useCallback(() => {
+  const openAuthSheet = useCallback(() => {
     Keyboard.dismiss();
     setAuthSheetVisible(true);
   }, []);
 
-  const handleCloseAuthSheet = useCallback(() => {
+  const closeAuthSheet = useCallback(() => {
     Keyboard.dismiss();
     setAuthSheetVisible(false);
   }, []);
 
   const renderHeaderRight = useCallback(
-    () => <ProfileHeaderButton onPress={handleOpenAuthSheet} />,
-    [handleOpenAuthSheet]
+    () => <ProfileHeaderButton onPress={openAuthSheet} />,
+    [openAuthSheet]
   );
 
   return (
-    <View style={styles.container}>
-      <Tabs
-        tabBar={(props) => <FloatingPillTabBar {...props} />}
-        screenOptions={{
-          animation: 'shift',
-          headerStyle: {
-            backgroundColor: colors.panel,
-          },
-          headerTitleStyle: {
-            color: colors.textPrimary,
-          },
-          headerRight: renderHeaderRight,
-          tabBarStyle: {
-            position: 'absolute',
-            backgroundColor: 'transparent',
-            borderTopWidth: 0,
-            elevation: 0,
-          },
-        }}
-      >
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: 'Brew Timer',
+    <AuthModalContext.Provider
+      value={{
+        openAuthSheet,
+        closeAuthSheet,
+        isAuthSheetVisible: authSheetVisible,
+      }}
+    >
+      <View style={styles.container}>
+        <Tabs
+          tabBar={(props) => <FloatingPillTabBar {...props} />}
+          screenOptions={{
+            headerShown: false,
+            animation: 'shift',
+            headerStyle: {
+              backgroundColor: colors.panel,
+            },
+            headerTitleStyle: {
+              color: colors.textPrimary,
+            },
+            headerRight: renderHeaderRight,
+            tabBarStyle: {
+              position: 'absolute',
+              backgroundColor: 'transparent',
+              borderTopWidth: 0,
+              elevation: 0,
+            },
           }}
-        />
-        <Tabs.Screen
-          name="stash"
-          options={{
-            title: 'Stash',
-          }}
-        />
-        <Tabs.Screen
-          name="recipes"
-          options={{
-            title: 'Recipes',
-          }}
-        />
-        <Tabs.Screen
-          name="equipment"
-          options={{
-            title: 'Equipment',
-          }}
-        />
-        <Tabs.Screen
-          name="reviews"
-          options={{
-            title: 'Reviews',
-          }}
-        />
-      </Tabs>
+        >
+          <Tabs.Screen
+            name="index"
+            options={{
+              title: 'Brew Timer',
+            }}
+          />
+          <Tabs.Screen
+            name="stash"
+            options={{
+              title: 'Stash',
+            }}
+          />
+          <Tabs.Screen
+            name="recipes"
+            options={{
+              title: 'Recipes',
+            }}
+          />
+          <Tabs.Screen
+            name="equipment"
+            options={{
+              title: 'Equipment',
+            }}
+          />
+          <Tabs.Screen
+            name="reviews"
+            options={{
+              title: 'Reviews',
+            }}
+          />
+        </Tabs>
 
-      <AuthSheet
-        visible={authSheetVisible}
-        onClose={handleCloseAuthSheet}
-      />
-    </View>
+        <AuthSheet
+          visible={authSheetVisible}
+          onClose={closeAuthSheet}
+        />
+      </View>
+    </AuthModalContext.Provider>
   );
 }
 

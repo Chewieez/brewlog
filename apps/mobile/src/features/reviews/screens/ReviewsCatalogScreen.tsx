@@ -15,6 +15,9 @@ import { FONTS } from '../../../theme/fonts';
 import { useReviews } from '../ReviewsContext';
 import { ReviewsSummaryBar } from '../components/ReviewsSummaryBar';
 import { ReviewCard } from '../components/ReviewCard';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthModal } from '../../auth/AuthModalContext';
+import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -45,6 +48,8 @@ const RATING_OPTIONS: FilterOption<RatingFilter>[] = [
 
 export const ReviewsCatalogScreen: React.FC = () => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { openAuthSheet } = useAuthModal();
   const { reviews } = useReviews();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -141,7 +146,12 @@ export const ReviewsCatalogScreen: React.FC = () => {
   }, [reviews, searchQuery, selectedMethod, selectedRating]);
 
   const renderHeader = () => (
-    <View style={styles.headerContainer}>
+    <View
+      style={[
+        styles.headerContainer,
+        { paddingTop: Math.max(insets.top, 16) },
+      ]}
+    >
       {/* Title & Action Row */}
       <View style={styles.titleRow}>
         <View style={styles.titleCol}>
@@ -152,16 +162,19 @@ export const ReviewsCatalogScreen: React.FC = () => {
           </Text>
         </View>
 
-        <Pressable
-          style={styles.addButton}
-          onPress={handleAddReview}
-          accessibilityRole="button"
-          accessibilityLabel="Add Review"
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Plus size={16} color={colors.canvas} />
-          <Text style={styles.addButtonText}>ADD REVIEW</Text>
-        </Pressable>
+        <View style={styles.actionsContainer}>
+          <Pressable
+            style={styles.addButton}
+            onPress={handleAddReview}
+            accessibilityRole="button"
+            accessibilityLabel="Add Review"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Plus size={16} color={colors.canvas} />
+            <Text style={styles.addButtonText}>ADD REVIEW</Text>
+          </Pressable>
+          <ProfileHeaderButton onPress={openAuthSheet} />
+        </View>
       </View>
 
       {/* Summary Metrics Bar */}
@@ -324,6 +337,11 @@ const styles = StyleSheet.create({
   headerContainer: {
     gap: 14,
     marginBottom: 8,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   titleRow: {
     flexDirection: 'row',

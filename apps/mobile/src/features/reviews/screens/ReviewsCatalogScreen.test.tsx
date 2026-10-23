@@ -230,11 +230,16 @@ vi.mock('react-native', () => ({
   },
 }));
 
+vi.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
+
 vi.mock('lucide-react-native', () => ({
   Plus: () => <span data-testid="plus-icon" />,
   Search: () => <span data-testid="search-icon" />,
   X: () => <span data-testid="x-icon" />,
   Star: () => <span data-testid="star-icon" />,
+  User: () => <span data-testid="user-icon" />,
 }));
 
 describe('ReviewsCatalogScreen', () => {

@@ -27,11 +27,16 @@ import { FONTS } from '../../src/theme/fonts';
 import { AVAILABLE_METHODS } from '../../src/utils/recipeUtils';
 import { mobileFeedback } from '../../src/lib/mobileFeedback';
 import { buildTimerReviewParams } from '../../src/features/timer/buildTimerReviewParams';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthModal } from '../../src/features/auth/AuthModalContext';
+import { ProfileHeaderButton } from '../../src/features/auth/ProfileHeaderButton';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export default function TimerScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { openAuthSheet } = useAuthModal();
   const params = useLocalSearchParams<{ mode?: string }>();
   const { activeTimerRecipe, activeTimerDose, setActiveTimerRecipe } = useRecipes();
 
@@ -267,6 +272,20 @@ export default function TimerScreen() {
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
     >
+      {/* Top In-Screen Header */}
+      <View
+        style={[
+          styles.headerContainer,
+          { paddingTop: Math.max(insets.top, 16) },
+        ]}
+      >
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.eyebrow}>PRECISION EXTRACTION</Text>
+          <Text style={styles.title}>Brew Timer</Text>
+        </View>
+        <ProfileHeaderButton onPress={openAuthSheet} />
+      </View>
+
       {/* Top Segmented Mode Switcher */}
       <View style={styles.modeToggleContainer}>
         <Pressable
@@ -442,6 +461,30 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingBottom: 100,
+  },
+  headerContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerTitleContainer: {
+    flex: 1,
+  },
+  eyebrow: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 10,
+    color: colors.accent,
+    letterSpacing: 1.5,
+    marginBottom: 2,
+    textTransform: 'uppercase',
+  },
+  title: {
+    fontFamily: FONTS.displayBold,
+    fontSize: 24,
+    color: colors.textPrimary,
+    fontWeight: '700',
   },
   modeToggleContainer: {
     flexDirection: 'row',

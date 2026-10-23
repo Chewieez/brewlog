@@ -66,6 +66,10 @@ vi.mock('react-native', () => ({
   },
 }));
 
+vi.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
+
 vi.mock('lucide-react-native', () => ({
   Plus: () => null,
   Search: () => null,
@@ -76,6 +80,7 @@ vi.mock('lucide-react-native', () => ({
   Flame: () => null,
   Star: () => null,
   Layers: () => null,
+  User: () => null,
 }));
 
 const mockPush = vi.fn();
