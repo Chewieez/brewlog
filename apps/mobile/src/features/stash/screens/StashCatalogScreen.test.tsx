@@ -17,6 +17,10 @@ const fireEvent = {
 
 (globalThis as unknown as { __DEV__: boolean }).__DEV__ = false;
 
+vi.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
+
 vi.mock('../../../lib/supabase', () => ({
   isSupabaseConfigured: false,
   supabase: null,
@@ -210,6 +214,7 @@ vi.mock('lucide-react-native', () => ({
   Archive: () => <span data-testid="archive-icon" />,
   Snowflake: () => <span data-testid="snowflake-icon" />,
   Star: () => <span data-testid="star-icon" />,
+  User: () => <span data-testid="user-icon" />,
 }));
 
 import { StashCatalogScreen } from './StashCatalogScreen';

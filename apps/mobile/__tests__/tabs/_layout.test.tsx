@@ -21,6 +21,27 @@ vi.mock("react-native", () => ({
     </div>
   ),
   Text: ({ children, style, ...props }: any) => <span {...props}>{children}</span>,
+  Pressable: ({
+    children,
+    onPress,
+    accessibilityLabel,
+    accessibilityRole,
+    style,
+    ...props
+  }: any) => (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onPress?.(e);
+      }}
+      role={accessibilityRole}
+      aria-label={accessibilityLabel}
+      {...props}
+    >
+      {children}
+    </button>
+  ),
   TouchableOpacity: ({
     children,
     onPress,
@@ -151,6 +172,16 @@ vi.mock("expo-haptics", () => ({
   selectionAsync: vi.fn(),
   notificationAsync: vi.fn(),
   NotificationFeedbackType: {},
+}));
+
+vi.mock("../../src/lib/mobileFeedback", () => ({
+  mobileFeedback: {
+    triggerHapticTap: vi.fn(),
+    triggerHapticCountdown: vi.fn(),
+    triggerHapticStageTransition: vi.fn(),
+    triggerHapticBrewComplete: vi.fn(),
+    playChime: vi.fn(),
+  },
 }));
 
 vi.mock("expo-router", () => {

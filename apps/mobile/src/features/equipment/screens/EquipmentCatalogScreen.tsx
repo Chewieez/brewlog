@@ -22,6 +22,9 @@ import { Equipment, EquipmentType, INDUSTRIAL_PRECISION_THEME } from '@brewlog/c
 import { FONTS } from '../../../theme/fonts';
 import { useEquipment } from '../EquipmentContext';
 import { EquipmentCard } from '../components/EquipmentCard';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthModal } from '../../auth/AuthModalContext';
+import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -43,6 +46,8 @@ const CATEGORIES: CategoryOption[] = [
 
 export const EquipmentCatalogScreen: React.FC = () => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { openAuthSheet } = useAuthModal();
   const {
     equipment,
     grinders,
@@ -164,15 +169,23 @@ export const EquipmentCatalogScreen: React.FC = () => {
         keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
-        <View style={styles.headerContainer}>
+        <View
+          style={[
+            styles.headerContainer,
+            { paddingTop: Math.max(insets.top, 16) },
+          ]}
+        >
           <View style={styles.titleRow}>
             <View style={styles.titleTextContainer}>
-              <Text style={styles.headerEyebrow}>BREW GEAR</Text>
               <Text style={styles.headerTitle}>Equipment</Text>
               <Text style={styles.headerSubtitle}>
                 Manage your grinders, brewers, scales, and kettles.
               </Text>
             </View>
+            <ProfileHeaderButton onPress={openAuthSheet} />
+          </View>
+
+          <View style={styles.actionRow}>
             <Pressable
               onPress={handleAddEquipment}
               style={styles.addButton}
@@ -339,13 +352,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: 100,
   },
   headerContainer: {
     paddingHorizontal: 16,
-    paddingTop: 16,
     paddingBottom: 12,
     gap: 14,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   titleRow: {
     flexDirection: 'row',
@@ -356,17 +373,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 12,
   },
-  headerEyebrow: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 11,
-    color: colors.accent,
-    letterSpacing: 1.2,
-    marginBottom: 4,
-    textTransform: 'uppercase',
-  },
   headerTitle: {
-    fontFamily: FONTS.sansBold,
-    fontSize: 22,
+    fontFamily: FONTS.displaySemiBold,
+    fontSize: 26,
     color: colors.textPrimary,
     marginBottom: 4,
   },

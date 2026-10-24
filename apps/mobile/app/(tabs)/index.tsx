@@ -27,11 +27,16 @@ import { FONTS } from '../../src/theme/fonts';
 import { AVAILABLE_METHODS } from '../../src/utils/recipeUtils';
 import { mobileFeedback } from '../../src/lib/mobileFeedback';
 import { buildTimerReviewParams } from '../../src/features/timer/buildTimerReviewParams';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthModal } from '../../src/features/auth/AuthModalContext';
+import { ProfileHeaderButton } from '../../src/features/auth/ProfileHeaderButton';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export default function TimerScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { openAuthSheet } = useAuthModal();
   const params = useLocalSearchParams<{ mode?: string }>();
   const { activeTimerRecipe, activeTimerDose, setActiveTimerRecipe } = useRecipes();
 
@@ -262,11 +267,25 @@ export default function TimerScreen() {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-    >
+    <View style={styles.container}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Top In-Screen Header */}
+        <View
+          style={[
+            styles.headerContainer,
+            { paddingTop: Math.max(insets.top, 16) },
+          ]}
+        >
+          <View style={styles.headerTitleContainer}>
+            <Text style={styles.title}>Timer</Text>
+          </View>
+          <ProfileHeaderButton onPress={openAuthSheet} />
+        </View>
+
       {/* Top Segmented Mode Switcher */}
       <View style={styles.modeToggleContainer}>
         <Pressable
@@ -431,7 +450,8 @@ export default function TimerScreen() {
           />
         </>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -441,7 +461,22 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   contentContainer: {
-    paddingBottom: 32,
+    paddingBottom: 100,
+  },
+  headerContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  headerTitleContainer: {
+    flex: 1,
+  },
+  title: {
+    fontFamily: FONTS.displaySemiBold,
+    fontSize: 26,
+    color: colors.textPrimary,
   },
   modeToggleContainer: {
     flexDirection: 'row',

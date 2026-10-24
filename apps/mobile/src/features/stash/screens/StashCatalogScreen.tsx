@@ -17,6 +17,9 @@ import { useStash } from '../StashContext';
 import { BeanCard } from '../components/BeanCard';
 import { CellarSummaryBar } from '../components/CellarSummaryBar';
 import { calculateBeanRestingInfo } from '../utils/restingUtils';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthModal } from '../../auth/AuthModalContext';
+import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -49,6 +52,8 @@ const PROCESS_OPTIONS: ProcessOption[] = [
 
 export const StashCatalogScreen: React.FC = () => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { openAuthSheet } = useAuthModal();
   const {
     activeBeans,
     frozenBeans,
@@ -254,16 +259,25 @@ export const StashCatalogScreen: React.FC = () => {
   };
 
   const renderHeader = () => (
-    <View style={styles.headerContainer}>
-      {/* Top Title & Add Bag Action */}
+    <View
+      style={[
+        styles.headerContainer,
+        { paddingTop: Math.max(insets.top, 16) },
+      ]}
+    >
+      {/* Top Title & Profile Row */}
       <View style={styles.titleRow}>
         <View style={styles.titleTextContainer}>
-          <Text style={styles.headerEyebrow}>CELLAR INVENTORY</Text>
-          <Text style={styles.headerTitle}>Bean Stash</Text>
+          <Text style={styles.headerTitle}>Stash</Text>
           <Text style={styles.headerSubtitle}>
             Manage roast dates, resting curves, and freezer storage.
           </Text>
         </View>
+        <ProfileHeaderButton onPress={openAuthSheet} />
+      </View>
+
+      {/* Screen Action Button */}
+      <View style={styles.actionRow}>
         <Pressable
           onPress={handleAddBag}
           style={styles.addButton}
@@ -402,7 +416,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   listContent: {
-    paddingBottom: 36,
+    paddingBottom: 100,
   },
   headerContainer: {
     paddingHorizontal: 16,
@@ -419,16 +433,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 12,
   },
-  headerEyebrow: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 11,
-    color: colors.accent,
-    letterSpacing: 1.2,
-    marginBottom: 4,
-  },
   headerTitle: {
-    fontFamily: FONTS.sansBold,
-    fontSize: 22,
+    fontFamily: FONTS.displaySemiBold,
+    fontSize: 26,
     color: colors.textPrimary,
     marginBottom: 4,
   },
@@ -437,6 +444,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textSecondary,
     lineHeight: 18,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   addButton: {
     flexDirection: 'row',

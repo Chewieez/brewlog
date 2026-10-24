@@ -7,11 +7,16 @@ import { useRecipes } from '../RecipeContext';
 import { MethodFilterBar } from '../components/MethodFilterBar';
 import { RecipeCard } from '../components/RecipeCard';
 import { FONTS } from '../../../theme/fonts';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthModal } from '../../auth/AuthModalContext';
+import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export const RecipesCatalogScreen: React.FC = () => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { openAuthSheet } = useAuthModal();
   const { recipes } = useRecipes();
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
@@ -35,23 +40,27 @@ export const RecipesCatalogScreen: React.FC = () => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.headerEyebrow}>RECIPE CATALOG</Text>
-          <Text style={styles.headerTitle}>Curated Brew Profiles</Text>
-          <Text style={styles.headerSubtitle}>
-            Specialty brew guides alongside your custom recipes.
-          </Text>
+      <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
+        <View style={styles.titleRow}>
+          <View style={styles.headerLeft}>
+            <Text style={styles.headerTitle}>Recipes</Text>
+            <Text style={styles.headerSubtitle}>
+              Specialty brew guides alongside your custom recipes.
+            </Text>
+          </View>
+          <ProfileHeaderButton onPress={openAuthSheet} />
         </View>
-        <Pressable
-          onPress={handleCreateNew}
-          style={styles.addButton}
-          accessibilityRole="button"
-          accessibilityLabel="Create new custom recipe"
-        >
-          <Plus size={18} color={colors.canvas} />
-          <Text style={styles.addButtonText}>NEW</Text>
-        </Pressable>
+        <View style={styles.actionRow}>
+          <Pressable
+            onPress={handleCreateNew}
+            style={styles.addButton}
+            accessibilityRole="button"
+            accessibilityLabel="Create new custom recipe"
+          >
+            <Plus size={16} color={colors.canvas} />
+            <Text style={styles.addButtonText}>NEW RECIPE</Text>
+          </Pressable>
+        </View>
       </View>
 
       <MethodFilterBar
@@ -88,30 +97,30 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   content: {
-    paddingBottom: 32,
+    paddingBottom: 100,
   },
   header: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    gap: 14,
+  },
+  titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   headerLeft: {
     flex: 1,
     marginRight: 12,
   },
-  headerEyebrow: {
-    fontSize: 11,
-    fontFamily: FONTS.monoBold,
-    color: colors.accent,
-    letterSpacing: 1.2,
-    marginBottom: 4,
-  },
   headerTitle: {
-    fontSize: 22,
-    fontFamily: FONTS.sansBold,
+    fontSize: 26,
+    fontFamily: FONTS.displaySemiBold,
     color: colors.textPrimary,
     marginBottom: 4,
   },

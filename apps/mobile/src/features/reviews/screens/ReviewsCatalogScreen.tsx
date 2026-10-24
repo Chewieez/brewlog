@@ -15,6 +15,9 @@ import { FONTS } from '../../../theme/fonts';
 import { useReviews } from '../ReviewsContext';
 import { ReviewsSummaryBar } from '../components/ReviewsSummaryBar';
 import { ReviewCard } from '../components/ReviewCard';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthModal } from '../../auth/AuthModalContext';
+import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -45,6 +48,8 @@ const RATING_OPTIONS: FilterOption<RatingFilter>[] = [
 
 export const ReviewsCatalogScreen: React.FC = () => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { openAuthSheet } = useAuthModal();
   const { reviews } = useReviews();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -141,17 +146,25 @@ export const ReviewsCatalogScreen: React.FC = () => {
   }, [reviews, searchQuery, selectedMethod, selectedRating]);
 
   const renderHeader = () => (
-    <View style={styles.headerContainer}>
-      {/* Title & Action Row */}
+    <View
+      style={[
+        styles.headerContainer,
+        { paddingTop: Math.max(insets.top, 16) },
+      ]}
+    >
+      {/* Title & Profile Row */}
       <View style={styles.titleRow}>
         <View style={styles.titleCol}>
-          <Text style={styles.eyebrow}>TASTING JOURNAL</Text>
-          <Text style={styles.title}>Brew Reviews</Text>
+          <Text style={styles.title}>Reviews</Text>
           <Text style={styles.subtitle}>
             SCA scores, flavor profiles & sensory logs
           </Text>
         </View>
+        <ProfileHeaderButton onPress={openAuthSheet} />
+      </View>
 
+      {/* Action Button Row */}
+      <View style={styles.actionRow}>
         <Pressable
           style={styles.addButton}
           onPress={handleAddReview}
@@ -317,12 +330,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   listContent: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 100,
     gap: 12,
   },
   headerContainer: {
     gap: 14,
     marginBottom: 8,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   titleRow: {
     flexDirection: 'row',
@@ -332,13 +351,6 @@ const styles = StyleSheet.create({
   },
   titleCol: {
     flex: 1,
-  },
-  eyebrow: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 10,
-    color: colors.accent,
-    letterSpacing: 1.2,
-    marginBottom: 2,
   },
   title: {
     fontFamily: FONTS.displaySemiBold,

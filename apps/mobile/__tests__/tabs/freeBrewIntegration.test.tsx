@@ -109,6 +109,10 @@ vi.mock('../../src/lib/mobileFeedback', () => ({
   },
 }));
 
+vi.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
+
 vi.mock('lucide-react-native', () => ({
   ChevronDown: () => null,
   ChevronUp: () => null,
@@ -128,6 +132,7 @@ vi.mock('lucide-react-native', () => ({
   Check: () => null,
   Trash2: () => null,
   Award: () => null,
+  User: () => null,
 }));
 
 vi.mock('react-native-svg', () => ({

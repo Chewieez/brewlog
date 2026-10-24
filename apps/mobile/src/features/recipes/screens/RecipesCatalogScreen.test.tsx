@@ -40,8 +40,13 @@ vi.mock('react-native', () => ({
   },
 }));
 
+vi.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
+
 vi.mock('lucide-react-native', () => ({
   Plus: () => null,
+  User: () => null,
 }));
 
 const mockPush = vi.fn();
@@ -78,8 +83,7 @@ describe('RecipesCatalogScreen', () => {
   it('renders header, filter bar, and recipe cards', () => {
     const { getByText } = render(<RecipesCatalogScreen />);
 
-    expect(getByText('RECIPE CATALOG')).toBeDefined();
-    expect(getByText('Curated Brew Profiles')).toBeDefined();
+    expect(getByText('Recipes')).toBeDefined();
     expect(getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
   });
 

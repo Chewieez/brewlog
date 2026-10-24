@@ -9,6 +9,24 @@ vi.mock("react-native", () => ({
     </div>
   ),
   Text: ({ children, style, ...props }: any) => <span {...props}>{children}</span>,
+  Pressable: ({
+    children,
+    onPress,
+    accessibilityLabel,
+    accessibilityRole,
+    style,
+    ...props
+  }: any) => (
+    <button
+      type="button"
+      onClick={onPress}
+      role={accessibilityRole}
+      aria-label={accessibilityLabel}
+      {...props}
+    >
+      {children}
+    </button>
+  ),
   TouchableOpacity: ({
     children,
     onPress,

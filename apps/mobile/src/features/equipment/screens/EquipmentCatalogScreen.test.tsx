@@ -66,6 +66,10 @@ vi.mock('react-native', () => ({
   },
 }));
 
+vi.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
+
 vi.mock('lucide-react-native', () => ({
   Plus: () => null,
   Search: () => null,
@@ -76,6 +80,7 @@ vi.mock('lucide-react-native', () => ({
   Flame: () => null,
   Star: () => null,
   Layers: () => null,
+  User: () => null,
 }));
 
 const mockPush = vi.fn();
@@ -161,10 +166,9 @@ describe('EquipmentCatalogScreen', () => {
     activeEquipmentContext = mockEquipmentContext;
   });
 
-  it('renders BREW GEAR eyebrow, Equipment title, and ADD EQUIPMENT button', () => {
+  it('renders Equipment title and ADD EQUIPMENT button', () => {
     const { getByText, getByRole } = render(<EquipmentCatalogScreen />);
 
-    expect(getByText('BREW GEAR')).toBeDefined();
     expect(getByText('Equipment')).toBeDefined();
     expect(getByText('Manage your grinders, brewers, scales, and kettles.')).toBeDefined();
     expect(getByRole('button', { name: 'Add new equipment' })).toBeDefined();
