@@ -42,35 +42,40 @@ export default function TabLayoutIOS() {
         <NativeTabs.Trigger name="index">
           <NativeTabs.Trigger.Label>Timer</NativeTabs.Trigger.Label>
           <NativeTabs.Trigger.Icon
-            sf={{ default: 'stopwatch', selected: 'stopwatch.fill' }}
+            src={require('../../assets/tabs/timer.png')}
+            renderingMode="template"
           />
         </NativeTabs.Trigger>
 
         <NativeTabs.Trigger name="stash">
           <NativeTabs.Trigger.Label>Stash</NativeTabs.Trigger.Label>
           <NativeTabs.Trigger.Icon
-            sf={{ default: 'cup.and.saucer', selected: 'cup.and.saucer.fill' }}
+            src={require('../../assets/tabs/stash.png')}
+            renderingMode="template"
           />
         </NativeTabs.Trigger>
 
         <NativeTabs.Trigger name="recipes">
           <NativeTabs.Trigger.Label>Recipes</NativeTabs.Trigger.Label>
           <NativeTabs.Trigger.Icon
-            sf={{ default: 'book.closed', selected: 'book.closed.fill' }}
+            src={require('../../assets/tabs/recipes.png')}
+            renderingMode="template"
           />
         </NativeTabs.Trigger>
 
         <NativeTabs.Trigger name="equipment">
           <NativeTabs.Trigger.Label>Equipment</NativeTabs.Trigger.Label>
           <NativeTabs.Trigger.Icon
-            sf={{ default: 'scalemass', selected: 'scalemass.fill' }}
+            src={require('../../assets/tabs/equipment.png')}
+            renderingMode="template"
           />
         </NativeTabs.Trigger>
 
         <NativeTabs.Trigger name="reviews">
           <NativeTabs.Trigger.Label>Reviews</NativeTabs.Trigger.Label>
           <NativeTabs.Trigger.Icon
-            sf={{ default: 'medal', selected: 'medal.fill' }}
+            src={require('../../assets/tabs/reviews.png')}
+            renderingMode="template"
           />
         </NativeTabs.Trigger>
       </NativeTabs>
