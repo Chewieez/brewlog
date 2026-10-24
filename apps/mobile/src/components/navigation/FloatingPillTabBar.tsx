@@ -30,6 +30,13 @@ export interface BottomTabBarProps {
   navigateToTab?: (routeKey: string) => void;
   navigation?: {
     navigate: (name: string, params?: object) => void;
+    emit?: (event: {
+      type: string;
+      target: string;
+      canPreventDefault?: boolean;
+    }) => {
+      defaultPrevented: boolean;
+    };
   };
   insets?: {
     top: number;
@@ -76,6 +83,7 @@ interface TabButtonProps {
   routeName: string;
   isFocused: boolean;
   onPress: () => void;
+  onLongPress?: () => void;
   onLayout: (layout: { x: number; width: number }) => void;
   config: TabItemConfig;
 }
@@ -83,6 +91,7 @@ interface TabButtonProps {
 const TabButton: React.FC<TabButtonProps> = ({
   isFocused,
   onPress,
+  onLongPress,
   onLayout,
   config,
 }) => {
@@ -105,6 +114,7 @@ const TabButton: React.FC<TabButtonProps> = ({
     >
       <Pressable
         onPress={onPress}
+        onLongPress={onLongPress}
         accessibilityRole="tab"
         accessibilityState={{ selected: isFocused }}
         accessibilityLabel={`${label} tab`}
@@ -199,18 +209,35 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
   }, []);
 
   const handlePress = useCallback(
-    (routeKey: string, routeName: string, isFocused: boolean) => {
+    (routeKey: string, routeName: string, isFocused: boolean, params?: object) => {
+      const event = navigation?.emit?.({
+        type: 'tabPress',
+        target: routeKey,
+        canPreventDefault: true,
+      });
+
       if (isFocused) return;
+      if (event?.defaultPrevented) return;
 
       mobileFeedback.triggerHapticTap();
 
       if (typeof navigateToTab === 'function') {
         navigateToTab(routeKey);
       } else if (navigation && typeof navigation.navigate === 'function') {
-        navigation.navigate(routeName);
+        navigation.navigate(routeName, params);
       }
     },
     [navigateToTab, navigation]
+  );
+
+  const handleLongPress = useCallback(
+    (routeKey: string) => {
+      navigation?.emit?.({
+        type: 'tabLongPress',
+        target: routeKey,
+      });
+    },
+    [navigation]
   );
 
   if (isKeyboardVisible) {
@@ -254,7 +281,8 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
             routeKey={route.key}
             routeName={route.name}
             isFocused={isFocused}
-            onPress={() => handlePress(route.key, route.name, isFocused)}
+            onPress={() => handlePress(route.key, route.name, isFocused, route.params)}
+            onLongPress={() => handleLongPress(route.key)}
             onLayout={(layout) => handleTabLayout(index, layout)}
             config={config}
           />

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { DynamicColorIOS, Keyboard } from 'react-native';
+import { Keyboard } from 'react-native';
 import { NativeTabs } from 'expo-router/native-tabs';
 import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { AuthSheet } from '../../src/features/auth/AuthSheet';
@@ -28,12 +28,15 @@ export default function TabLayoutIOS() {
       }}
     >
       <NativeTabs
+        blurEffect="dark"
         tintColor={colors.accent}
         labelStyle={{
-          color: DynamicColorIOS({
-            light: colors.textSecondary,
-            dark: colors.textPrimary,
-          }),
+          default: {
+            color: colors.textSecondary,
+          },
+          selected: {
+            color: colors.accent,
+          },
         }}
       >
         <NativeTabs.Trigger name="index">

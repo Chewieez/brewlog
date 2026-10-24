@@ -10,10 +10,14 @@ vi.mock('react-native', () => ({
     <div data-testid={testID} role={accessibilityRole} {...props}>{children}</div>
   ),
   Text: ({ children, style, numberOfLines, ...props }: any) => <span {...props}>{children}</span>,
-  Pressable: ({ children, onPress, accessibilityLabel, accessibilityRole, accessibilityState, style, android_ripple, ...props }: any) => (
+  Pressable: ({ children, onPress, onLongPress, accessibilityLabel, accessibilityRole, accessibilityState, style, android_ripple, ...props }: any) => (
     <button
       type="button"
       onClick={onPress}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        onLongPress?.();
+      }}
       aria-label={accessibilityLabel}
       role={accessibilityRole}
       aria-selected={accessibilityState?.selected}
@@ -149,5 +153,77 @@ describe('FloatingPillTabBar', () => {
 
     expect(mockTriggerHapticTap).not.toHaveBeenCalled();
     expect(navigateToTab).not.toHaveBeenCalled();
+  });
+
+  it('emits tabPress for both active and inactive tabs', () => {
+    const emit = vi.fn().mockReturnValue({ defaultPrevented: false });
+    const navigate = vi.fn();
+    const { getByLabelText } = render(
+      <FloatingPillTabBar
+        state={{ index: 0, routes }}
+        navigation={{ emit, navigate }}
+      />
+    );
+
+    // Active tab press
+    const timerTab = getByLabelText('Timer tab');
+    fireEvent.click(timerTab);
+    expect(emit).toHaveBeenCalledWith({
+      type: 'tabPress',
+      target: 'index-key',
+      canPreventDefault: true,
+    });
+    expect(navigate).not.toHaveBeenCalled();
+
+    // Inactive tab press
+    const stashTab = getByLabelText('Stash tab');
+    fireEvent.click(stashTab);
+    expect(emit).toHaveBeenCalledWith({
+      type: 'tabPress',
+      target: 'stash-key',
+      canPreventDefault: true,
+    });
+    expect(navigate).toHaveBeenCalledWith('stash', undefined);
+    expect(mockTriggerHapticTap).toHaveBeenCalledTimes(1);
+  });
+
+  it('prevents navigation when tabPress event is defaultPrevented', () => {
+    const emit = vi.fn().mockReturnValue({ defaultPrevented: true });
+    const navigate = vi.fn();
+    const { getByLabelText } = render(
+      <FloatingPillTabBar
+        state={{ index: 0, routes }}
+        navigation={{ emit, navigate }}
+      />
+    );
+
+    const stashTab = getByLabelText('Stash tab');
+    fireEvent.click(stashTab);
+
+    expect(emit).toHaveBeenCalledWith({
+      type: 'tabPress',
+      target: 'stash-key',
+      canPreventDefault: true,
+    });
+    expect(mockTriggerHapticTap).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('emits tabLongPress on long press', () => {
+    const emit = vi.fn();
+    const { getByLabelText } = render(
+      <FloatingPillTabBar
+        state={{ index: 0, routes }}
+        navigation={{ emit, navigate: vi.fn() }}
+      />
+    );
+
+    const stashTab = getByLabelText('Stash tab');
+    fireEvent.contextMenu(stashTab);
+
+    expect(emit).toHaveBeenCalledWith({
+      type: 'tabLongPress',
+      target: 'stash-key',
+    });
   });
 });
