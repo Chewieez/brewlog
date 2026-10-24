@@ -268,8 +268,7 @@ export const StashCatalogScreen: React.FC = () => {
       {/* Top Title & Add Bag Action */}
       <View style={styles.titleRow}>
         <View style={styles.titleTextContainer}>
-          <Text style={styles.headerEyebrow}>CELLAR INVENTORY</Text>
-          <Text style={styles.headerTitle}>Bean Stash</Text>
+          <Text style={styles.headerTitle}>Stash</Text>
           <Text style={styles.headerSubtitle}>
             Manage roast dates, resting curves, and freezer storage.
           </Text>
@@ -431,13 +430,6 @@ const styles = StyleSheet.create({
   titleTextContainer: {
     flex: 1,
     marginRight: 12,
-  },
-  headerEyebrow: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 11,
-    color: colors.accent,
-    letterSpacing: 1.2,
-    marginBottom: 4,
   },
   headerTitle: {
     fontFamily: FONTS.sansBold,

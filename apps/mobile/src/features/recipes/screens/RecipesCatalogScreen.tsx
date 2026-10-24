@@ -42,8 +42,7 @@ export const RecipesCatalogScreen: React.FC = () => {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
         <View style={styles.headerLeft}>
-          <Text style={styles.headerEyebrow}>RECIPE CATALOG</Text>
-          <Text style={styles.headerTitle}>Curated Brew Profiles</Text>
+          <Text style={styles.headerTitle}>Recipes</Text>
           <Text style={styles.headerSubtitle}>
             Specialty brew guides alongside your custom recipes.
           </Text>
@@ -113,13 +112,6 @@ const styles = StyleSheet.create({
   headerLeft: {
     flex: 1,
     marginRight: 12,
-  },
-  headerEyebrow: {
-    fontSize: 11,
-    fontFamily: FONTS.monoBold,
-    color: colors.accent,
-    letterSpacing: 1.2,
-    marginBottom: 4,
   },
   headerTitle: {
     fontSize: 22,

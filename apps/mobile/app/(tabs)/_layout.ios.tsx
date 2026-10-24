@@ -37,7 +37,7 @@ export default function TabLayoutIOS() {
         }}
       >
         <NativeTabs.Trigger name="index">
-          <NativeTabs.Trigger.Label>Brew Timer</NativeTabs.Trigger.Label>
+          <NativeTabs.Trigger.Label>Timer</NativeTabs.Trigger.Label>
           <NativeTabs.Trigger.Icon
             sf={{ default: 'timer', selected: 'timer' }}
           />

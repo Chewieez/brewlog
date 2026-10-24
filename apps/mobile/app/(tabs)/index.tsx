@@ -280,8 +280,7 @@ export default function TimerScreen() {
         ]}
       >
         <View style={styles.headerTitleContainer}>
-          <Text style={styles.eyebrow}>PRECISION EXTRACTION</Text>
-          <Text style={styles.title}>Brew Timer</Text>
+          <Text style={styles.title}>Timer</Text>
         </View>
         <ProfileHeaderButton onPress={openAuthSheet} />
       </View>
@@ -471,14 +470,6 @@ const styles = StyleSheet.create({
   },
   headerTitleContainer: {
     flex: 1,
-  },
-  eyebrow: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 10,
-    color: colors.accent,
-    letterSpacing: 1.5,
-    marginBottom: 2,
-    textTransform: 'uppercase',
   },
   title: {
     fontFamily: FONTS.displayBold,

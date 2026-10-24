@@ -155,8 +155,7 @@ export const ReviewsCatalogScreen: React.FC = () => {
       {/* Title & Action Row */}
       <View style={styles.titleRow}>
         <View style={styles.titleCol}>
-          <Text style={styles.eyebrow}>TASTING JOURNAL</Text>
-          <Text style={styles.title}>Brew Reviews</Text>
+          <Text style={styles.title}>Reviews</Text>
           <Text style={styles.subtitle}>
             SCA scores, flavor profiles & sensory logs
           </Text>
@@ -351,13 +350,6 @@ const styles = StyleSheet.create({
   },
   titleCol: {
     flex: 1,
-  },
-  eyebrow: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 10,
-    color: colors.accent,
-    letterSpacing: 1.2,
-    marginBottom: 2,
   },
   title: {
     fontFamily: FONTS.displaySemiBold,

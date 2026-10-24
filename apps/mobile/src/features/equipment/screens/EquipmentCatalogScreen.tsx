@@ -177,7 +177,6 @@ export const EquipmentCatalogScreen: React.FC = () => {
         >
           <View style={styles.titleRow}>
             <View style={styles.titleTextContainer}>
-              <Text style={styles.headerEyebrow}>BREW GEAR</Text>
               <Text style={styles.headerTitle}>Equipment</Text>
               <Text style={styles.headerSubtitle}>
                 Manage your grinders, brewers, scales, and kettles.
@@ -372,14 +371,6 @@ const styles = StyleSheet.create({
   titleTextContainer: {
     flex: 1,
     marginRight: 12,
-  },
-  headerEyebrow: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 11,
-    color: colors.accent,
-    letterSpacing: 1.2,
-    marginBottom: 4,
-    textTransform: 'uppercase',
   },
   headerTitle: {
     fontFamily: FONTS.sansBold,

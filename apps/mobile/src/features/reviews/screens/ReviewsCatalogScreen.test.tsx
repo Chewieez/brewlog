@@ -253,8 +253,7 @@ describe('ReviewsCatalogScreen', () => {
   it('renders title, summary bar, and review cards', () => {
     const { getByText } = render(<ReviewsCatalogScreen />);
 
-    expect(getByText('TASTING JOURNAL')).toBeTruthy();
-    expect(getByText('Brew Reviews')).toBeTruthy();
+    expect(getByText('Reviews')).toBeTruthy();
     expect(getByText('Worka Sakaro Anaerobic')).toBeTruthy();
     expect(getByText('Southern Weather')).toBeTruthy();
   });

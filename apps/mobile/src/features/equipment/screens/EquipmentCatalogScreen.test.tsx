@@ -166,10 +166,9 @@ describe('EquipmentCatalogScreen', () => {
     activeEquipmentContext = mockEquipmentContext;
   });
 
-  it('renders BREW GEAR eyebrow, Equipment title, and ADD EQUIPMENT button', () => {
+  it('renders Equipment title and ADD EQUIPMENT button', () => {
     const { getByText, getByRole } = render(<EquipmentCatalogScreen />);
 
-    expect(getByText('BREW GEAR')).toBeDefined();
     expect(getByText('Equipment')).toBeDefined();
     expect(getByText('Manage your grinders, brewers, scales, and kettles.')).toBeDefined();
     expect(getByRole('button', { name: 'Add new equipment' })).toBeDefined();

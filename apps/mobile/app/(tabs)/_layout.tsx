@@ -58,7 +58,7 @@ export default function TabLayout() {
           <Tabs.Screen
             name="index"
             options={{
-              title: 'Brew Timer',
+              title: 'Timer',
             }}
           />
           <Tabs.Screen
