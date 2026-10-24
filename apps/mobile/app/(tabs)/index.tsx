@@ -30,6 +30,7 @@ import { buildTimerReviewParams } from '../../src/features/timer/buildTimerRevie
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthModal } from '../../src/features/auth/AuthModalContext';
 import { ProfileHeaderButton } from '../../src/features/auth/ProfileHeaderButton';
+import { getTabScreenBottomPadding } from '../../src/components/navigation/tabBarConstants';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -273,7 +274,10 @@ export default function TimerScreen() {
       <ScrollView
         ref={scrollRef}
         style={styles.container}
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[
+          styles.contentContainer,
+          { paddingBottom: getTabScreenBottomPadding(insets.bottom) },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {/* Top In-Screen Header */}
@@ -463,9 +467,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.canvas,
   },
-  contentContainer: {
-    paddingBottom: 100,
-  },
+  contentContainer: {},
   headerContainer: {
     paddingHorizontal: 16,
     paddingBottom: 8,

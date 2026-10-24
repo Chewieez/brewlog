@@ -20,6 +20,7 @@ import { calculateBeanRestingInfo } from '../utils/restingUtils';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthModal } from '../../auth/AuthModalContext';
 import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
+import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -405,7 +406,10 @@ export const StashCatalogScreen: React.FC = () => {
         renderItem={renderBeanItem}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmptyComponent}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingBottom: getTabScreenBottomPadding(insets.bottom) },
+        ]}
         ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
         keyboardShouldPersistTaps="handled"
       />
@@ -418,9 +422,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.canvas,
   },
-  listContent: {
-    paddingBottom: 100,
-  },
+  listContent: {},
   headerContainer: {
     paddingHorizontal: 16,
     paddingTop: 16,

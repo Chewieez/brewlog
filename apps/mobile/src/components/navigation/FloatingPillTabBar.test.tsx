@@ -115,7 +115,13 @@ vi.mock('../../lib/mobileFeedback', () => ({
   },
 }));
 
-import { FloatingPillTabBar } from './FloatingPillTabBar';
+import {
+  FloatingPillTabBar,
+  getTabScreenBottomPadding,
+  FLOATING_TAB_BAR_HEIGHT,
+  FLOATING_TAB_BAR_BOTTOM_MARGIN,
+  TAB_SCREEN_CONTENT_CLEARANCE,
+} from './FloatingPillTabBar';
 
 describe('FloatingPillTabBar', () => {
   afterEach(() => {
@@ -369,5 +375,29 @@ describe('FloatingPillTabBar', () => {
     });
     expect(navigate).toHaveBeenCalledWith('recipes', undefined);
     expect(mockTriggerHapticTap).toHaveBeenCalledTimes(1);
+  });
+
+  describe('getTabScreenBottomPadding', () => {
+    it('computes correct clearance when insets.bottom is 0 (fallback to minimum margin)', () => {
+      const padding = getTabScreenBottomPadding(0);
+      expect(padding).toBe(
+        FLOATING_TAB_BAR_BOTTOM_MARGIN +
+        FLOATING_TAB_BAR_HEIGHT +
+        TAB_SCREEN_CONTENT_CLEARANCE
+      );
+      expect(padding).toBe(92);
+    });
+
+    it('computes correct clearance with iOS home indicator insets (e.g. 34dp)', () => {
+      const padding = getTabScreenBottomPadding(34);
+      expect(padding).toBe(34 + 64 + 16);
+      expect(padding).toBe(114);
+    });
+
+    it('computes correct clearance with Android 3-button navigation insets (e.g. 48dp)', () => {
+      const padding = getTabScreenBottomPadding(48);
+      expect(padding).toBe(48 + 64 + 16);
+      expect(padding).toBe(128);
+    });
   });
 });

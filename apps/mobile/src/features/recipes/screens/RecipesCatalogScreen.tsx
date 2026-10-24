@@ -10,6 +10,7 @@ import { FONTS } from '../../../theme/fonts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthModal } from '../../auth/AuthModalContext';
 import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
+import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -44,7 +45,10 @@ export const RecipesCatalogScreen: React.FC = () => {
     <ScrollView
       ref={scrollRef}
       style={styles.container}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[
+        styles.content,
+        { paddingBottom: getTabScreenBottomPadding(insets.bottom) },
+      ]}
     >
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
         <View style={styles.titleRow}>
@@ -102,9 +106,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.canvas,
   },
-  content: {
-    paddingBottom: 100,
-  },
+  content: {},
   header: {
     paddingHorizontal: 16,
     paddingBottom: 8,

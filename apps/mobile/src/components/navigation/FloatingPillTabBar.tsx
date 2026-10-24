@@ -21,6 +21,18 @@ import { mobileFeedback } from '../../lib/mobileFeedback';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
+export {
+  FLOATING_TAB_BAR_HEIGHT,
+  FLOATING_TAB_BAR_BOTTOM_MARGIN,
+  TAB_SCREEN_CONTENT_CLEARANCE,
+  getTabScreenBottomPadding,
+} from './tabBarConstants';
+
+import {
+  FLOATING_TAB_BAR_HEIGHT,
+  FLOATING_TAB_BAR_BOTTOM_MARGIN,
+} from './tabBarConstants';
+
 export interface BottomTabBarProps {
   state: {
     index: number;
@@ -256,7 +268,7 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
     return null;
   }
 
-  const bottomOffset = Math.max(insets.bottom, 12);
+  const bottomOffset = Math.max(insets.bottom, FLOATING_TAB_BAR_BOTTOM_MARGIN);
 
   return (
     <View
@@ -311,7 +323,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 16,
     right: 16,
-    height: 64,
+    height: FLOATING_TAB_BAR_HEIGHT,
     borderRadius: 32,
     backgroundColor: colors.panel,
     borderWidth: 1,

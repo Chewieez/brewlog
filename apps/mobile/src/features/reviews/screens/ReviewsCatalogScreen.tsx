@@ -18,6 +18,7 @@ import { ReviewCard } from '../components/ReviewCard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthModal } from '../../auth/AuthModalContext';
 import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
+import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -321,7 +322,10 @@ export const ReviewsCatalogScreen: React.FC = () => {
         )}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmptyComponent}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingBottom: getTabScreenBottomPadding(insets.bottom) },
+        ]}
       />
     </View>
   );
@@ -334,7 +338,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 16,
-    paddingBottom: 100,
     gap: 12,
   },
   headerContainer: {

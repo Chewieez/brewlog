@@ -25,6 +25,7 @@ import { EquipmentCard } from '../components/EquipmentCard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthModal } from '../../auth/AuthModalContext';
 import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
+import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -168,7 +169,10 @@ export const EquipmentCatalogScreen: React.FC = () => {
     <View style={styles.container}>
       <ScrollView
         ref={scrollRef}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: getTabScreenBottomPadding(insets.bottom) },
+        ]}
         keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
@@ -354,9 +358,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.canvas,
   },
-  scrollContent: {
-    paddingBottom: 100,
-  },
+  scrollContent: {},
   headerContainer: {
     paddingHorizontal: 16,
     paddingBottom: 12,
