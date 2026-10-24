@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, ScrollView, StyleSheet, Text, Pressable, Alert } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useScrollToTop } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import {
   INDUSTRIAL_PRECISION_THEME,
@@ -37,6 +37,8 @@ export default function TimerScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { openAuthSheet } = useAuthModal();
+  const scrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
+  useScrollToTop(scrollRef as any);
   const params = useLocalSearchParams<{ mode?: string }>();
   const { activeTimerRecipe, activeTimerDose, setActiveTimerRecipe } = useRecipes();
 
@@ -269,6 +271,7 @@ export default function TimerScreen() {
   return (
     <View style={styles.container}>
       <ScrollView
+        ref={scrollRef}
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}

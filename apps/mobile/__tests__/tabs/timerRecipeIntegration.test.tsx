@@ -79,6 +79,7 @@ vi.mock('../../src/features/recipes/RecipeContext', () => ({
 vi.mock('expo-router', () => ({
   useRouter: () => ({ push: vi.fn() }),
   useLocalSearchParams: () => ({ mode: 'recipe' }),
+  useScrollToTop: vi.fn(),
 }));
 
 vi.mock('../../src/lib/mobileFeedback', () => ({

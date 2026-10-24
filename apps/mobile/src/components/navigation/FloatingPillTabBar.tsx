@@ -38,6 +38,9 @@ export interface BottomTabBarProps {
       defaultPrevented: boolean;
     };
   };
+  emitter?: {
+    emit: (event: any) => any;
+  };
   insets?: {
     top: number;
     right: number;
@@ -156,6 +159,7 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
   state,
   navigateToTab,
   navigation,
+  emitter,
   insets: propInsets,
 }) => {
   const contextInsets = useSafeAreaInsets();
@@ -210,7 +214,8 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
 
   const handlePress = useCallback(
     (routeKey: string, routeName: string, isFocused: boolean, params?: object) => {
-      const event = navigation?.emit?.({
+      const emitEvent = emitter?.emit?.bind(emitter) ?? navigation?.emit?.bind(navigation);
+      const event = emitEvent?.({
         type: 'tabPress',
         target: routeKey,
         canPreventDefault: true,
@@ -227,17 +232,18 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
         navigation.navigate(routeName, params);
       }
     },
-    [navigateToTab, navigation]
+    [emitter, navigateToTab, navigation]
   );
 
   const handleLongPress = useCallback(
     (routeKey: string) => {
-      navigation?.emit?.({
+      const emitEvent = emitter?.emit?.bind(emitter) ?? navigation?.emit?.bind(navigation);
+      emitEvent?.({
         type: 'tabLongPress',
         target: routeKey,
       });
     },
-    [navigation]
+    [emitter, navigation]
   );
 
   if (isKeyboardVisible) {

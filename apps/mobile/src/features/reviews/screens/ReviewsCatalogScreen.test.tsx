@@ -10,6 +10,7 @@ vi.mock('expo-router', () => ({
   useRouter: () => ({
     push: mockPush,
   }),
+  useScrollToTop: vi.fn(),
 }));
 
 const mockReviews: TastingLog[] = [

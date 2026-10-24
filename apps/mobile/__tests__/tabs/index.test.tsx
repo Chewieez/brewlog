@@ -63,6 +63,7 @@ let mockSearchParams: { mode?: string } = { mode: 'recipe' };
 vi.mock('expo-router', () => ({
   useRouter: () => ({ push: vi.fn() }),
   useLocalSearchParams: () => mockSearchParams,
+  useScrollToTop: vi.fn(),
 }));
 
 vi.mock('../../src/features/recipes/RecipeContext', () => ({

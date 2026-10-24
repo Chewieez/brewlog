@@ -52,6 +52,7 @@ vi.mock('lucide-react-native', () => ({
 const mockPush = vi.fn();
 vi.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush }),
+  useScrollToTop: vi.fn(),
 }));
 
 const mockRecipesContext = {

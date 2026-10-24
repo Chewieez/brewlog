@@ -226,4 +226,40 @@ describe('FloatingPillTabBar', () => {
       target: 'stash-key',
     });
   });
+
+  it('emits tabPress and tabLongPress via emitter when provided', () => {
+    const emit = vi.fn().mockReturnValue({ defaultPrevented: false });
+    const navigateToTab = vi.fn();
+    const { getByLabelText } = render(
+      <FloatingPillTabBar
+        state={{ index: 0, routes }}
+        emitter={{ emit }}
+        navigateToTab={navigateToTab}
+      />
+    );
+
+    const timerTab = getByLabelText('Timer tab');
+    fireEvent.click(timerTab);
+    expect(emit).toHaveBeenCalledWith({
+      type: 'tabPress',
+      target: 'index-key',
+      canPreventDefault: true,
+    });
+    expect(navigateToTab).not.toHaveBeenCalled();
+
+    const stashTab = getByLabelText('Stash tab');
+    fireEvent.click(stashTab);
+    expect(emit).toHaveBeenCalledWith({
+      type: 'tabPress',
+      target: 'stash-key',
+      canPreventDefault: true,
+    });
+    expect(navigateToTab).toHaveBeenCalledWith('stash-key');
+
+    fireEvent.contextMenu(stashTab);
+    expect(emit).toHaveBeenCalledWith({
+      type: 'tabLongPress',
+      target: 'stash-key',
+    });
+  });
 });

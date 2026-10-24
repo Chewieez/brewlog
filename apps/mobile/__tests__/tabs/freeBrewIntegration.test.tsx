@@ -14,6 +14,7 @@ vi.mock('expo-router', () => ({
     push: mockPush,
   }),
   useLocalSearchParams: () => ({}),
+  useScrollToTop: vi.fn(),
 }));
 
 vi.mock('../../src/lib/supabase', () => ({

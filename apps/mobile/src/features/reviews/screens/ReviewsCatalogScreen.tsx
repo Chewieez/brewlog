@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus, Search, X } from 'lucide-react-native';
 import { TastingLog, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { FONTS } from '../../../theme/fonts';
@@ -51,6 +51,8 @@ export const ReviewsCatalogScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const { openAuthSheet } = useAuthModal();
   const { reviews } = useReviews();
+  const flatListRef = useRef<FlatList<TastingLog>>(null);
+  useScrollToTop(flatListRef);
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedMethod, setSelectedMethod] = useState<MethodFilter>('all');
@@ -309,6 +311,7 @@ export const ReviewsCatalogScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <FlatList
+        ref={flatListRef}
         data={filteredReviews}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (

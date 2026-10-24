@@ -33,6 +33,7 @@ vi.mock('../../auth/AuthContext', () => ({
 const mockPush = vi.fn();
 vi.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush }),
+  useScrollToTop: vi.fn(),
 }));
 
 vi.mock('react-native', () => ({

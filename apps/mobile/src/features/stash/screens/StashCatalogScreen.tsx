@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   StyleSheet,
   ListRenderItemInfo,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus, Search, X, Bean as BeanIcon, Archive, Snowflake } from 'lucide-react-native';
 import { Bean, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { FONTS } from '../../../theme/fonts';
@@ -54,6 +54,8 @@ export const StashCatalogScreen: React.FC = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { openAuthSheet } = useAuthModal();
+  const flatListRef = useRef<FlatList<Bean>>(null);
+  useScrollToTop(flatListRef);
   const {
     activeBeans,
     frozenBeans,
@@ -397,6 +399,7 @@ export const StashCatalogScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <FlatList
+        ref={flatListRef}
         data={filteredBeans}
         keyExtractor={(item) => item.id}
         renderItem={renderBeanItem}

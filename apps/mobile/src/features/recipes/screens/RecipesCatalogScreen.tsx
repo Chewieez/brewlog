@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { INDUSTRIAL_PRECISION_THEME, BrewRecipe } from '@brewlog/core';
 import { useRecipes } from '../RecipeContext';
@@ -19,6 +19,8 @@ export const RecipesCatalogScreen: React.FC = () => {
   const { openAuthSheet } = useAuthModal();
   const { recipes } = useRecipes();
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  const scrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
+  useScrollToTop(scrollRef as any);
 
   const filteredRecipes = useMemo(() => {
     if (selectedFilter === 'all') return recipes;
@@ -39,7 +41,11 @@ export const RecipesCatalogScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      ref={scrollRef}
+      style={styles.container}
+      contentContainerStyle={styles.content}
+    >
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
         <View style={styles.titleRow}>
           <View style={styles.headerLeft}>
