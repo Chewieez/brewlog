@@ -265,7 +265,7 @@ export const StashCatalogScreen: React.FC = () => {
         { paddingTop: Math.max(insets.top, 16) },
       ]}
     >
-      {/* Top Title & Add Bag Action */}
+      {/* Top Title & Profile Row */}
       <View style={styles.titleRow}>
         <View style={styles.titleTextContainer}>
           <Text style={styles.headerTitle}>Stash</Text>
@@ -273,18 +273,20 @@ export const StashCatalogScreen: React.FC = () => {
             Manage roast dates, resting curves, and freezer storage.
           </Text>
         </View>
-        <View style={styles.actionsContainer}>
-          <Pressable
-            onPress={handleAddBag}
-            style={styles.addButton}
-            accessibilityRole="button"
-            accessibilityLabel="Add new bean to stash"
-          >
-            <Plus size={16} color={colors.canvas} />
-            <Text style={styles.addButtonText}>ADD BEAN</Text>
-          </Pressable>
-          <ProfileHeaderButton onPress={openAuthSheet} />
-        </View>
+        <ProfileHeaderButton onPress={openAuthSheet} />
+      </View>
+
+      {/* Screen Action Button */}
+      <View style={styles.actionRow}>
+        <Pressable
+          onPress={handleAddBag}
+          style={styles.addButton}
+          accessibilityRole="button"
+          accessibilityLabel="Add new bean to stash"
+        >
+          <Plus size={16} color={colors.canvas} />
+          <Text style={styles.addButtonText}>ADD BEAN</Text>
+        </Pressable>
       </View>
 
       {/* Summary Chassis Bar */}
@@ -432,8 +434,8 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   headerTitle: {
-    fontFamily: FONTS.sansBold,
-    fontSize: 22,
+    fontFamily: FONTS.displaySemiBold,
+    fontSize: 26,
     color: colors.textPrimary,
     marginBottom: 4,
   },
@@ -443,10 +445,10 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     lineHeight: 18,
   },
-  actionsContainer: {
+  actionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'flex-start',
   },
   addButton: {
     flexDirection: 'row',

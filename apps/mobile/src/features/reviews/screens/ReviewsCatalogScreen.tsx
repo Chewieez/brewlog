@@ -152,7 +152,7 @@ export const ReviewsCatalogScreen: React.FC = () => {
         { paddingTop: Math.max(insets.top, 16) },
       ]}
     >
-      {/* Title & Action Row */}
+      {/* Title & Profile Row */}
       <View style={styles.titleRow}>
         <View style={styles.titleCol}>
           <Text style={styles.title}>Reviews</Text>
@@ -160,20 +160,21 @@ export const ReviewsCatalogScreen: React.FC = () => {
             SCA scores, flavor profiles & sensory logs
           </Text>
         </View>
+        <ProfileHeaderButton onPress={openAuthSheet} />
+      </View>
 
-        <View style={styles.actionsContainer}>
-          <Pressable
-            style={styles.addButton}
-            onPress={handleAddReview}
-            accessibilityRole="button"
-            accessibilityLabel="Add Review"
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Plus size={16} color={colors.canvas} />
-            <Text style={styles.addButtonText}>ADD REVIEW</Text>
-          </Pressable>
-          <ProfileHeaderButton onPress={openAuthSheet} />
-        </View>
+      {/* Action Button Row */}
+      <View style={styles.actionRow}>
+        <Pressable
+          style={styles.addButton}
+          onPress={handleAddReview}
+          accessibilityRole="button"
+          accessibilityLabel="Add Review"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Plus size={16} color={colors.canvas} />
+          <Text style={styles.addButtonText}>ADD REVIEW</Text>
+        </Pressable>
       </View>
 
       {/* Summary Metrics Bar */}
@@ -329,7 +330,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   listContent: {
-    padding: 16,
+    paddingHorizontal: 16,
     paddingBottom: 100,
     gap: 12,
   },
@@ -337,10 +338,10 @@ const styles = StyleSheet.create({
     gap: 14,
     marginBottom: 8,
   },
-  actionsContainer: {
+  actionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'flex-start',
   },
   titleRow: {
     flexDirection: 'row',

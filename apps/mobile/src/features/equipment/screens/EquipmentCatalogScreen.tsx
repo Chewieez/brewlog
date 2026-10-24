@@ -182,18 +182,19 @@ export const EquipmentCatalogScreen: React.FC = () => {
                 Manage your grinders, brewers, scales, and kettles.
               </Text>
             </View>
-            <View style={styles.actionsContainer}>
-              <Pressable
-                onPress={handleAddEquipment}
-                style={styles.addButton}
-                accessibilityRole="button"
-                accessibilityLabel="Add new equipment"
-              >
-                <Plus size={16} color={colors.canvas} />
-                <Text style={styles.addButtonText}>ADD EQUIPMENT</Text>
-              </Pressable>
-              <ProfileHeaderButton onPress={openAuthSheet} />
-            </View>
+            <ProfileHeaderButton onPress={openAuthSheet} />
+          </View>
+
+          <View style={styles.actionRow}>
+            <Pressable
+              onPress={handleAddEquipment}
+              style={styles.addButton}
+              accessibilityRole="button"
+              accessibilityLabel="Add new equipment"
+            >
+              <Plus size={16} color={colors.canvas} />
+              <Text style={styles.addButtonText}>ADD EQUIPMENT</Text>
+            </Pressable>
           </View>
 
           {/* Search Bar */}
@@ -358,10 +359,10 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     gap: 14,
   },
-  actionsContainer: {
+  actionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'flex-start',
   },
   titleRow: {
     flexDirection: 'row',
@@ -373,8 +374,8 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   headerTitle: {
-    fontFamily: FONTS.sansBold,
-    fontSize: 22,
+    fontFamily: FONTS.displaySemiBold,
+    fontSize: 26,
     color: colors.textPrimary,
     marginBottom: 4,
   },

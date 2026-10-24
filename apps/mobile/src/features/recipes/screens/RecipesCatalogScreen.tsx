@@ -41,23 +41,25 @@ export const RecipesCatalogScreen: React.FC = () => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.headerTitle}>Recipes</Text>
-          <Text style={styles.headerSubtitle}>
-            Specialty brew guides alongside your custom recipes.
-          </Text>
+        <View style={styles.titleRow}>
+          <View style={styles.headerLeft}>
+            <Text style={styles.headerTitle}>Recipes</Text>
+            <Text style={styles.headerSubtitle}>
+              Specialty brew guides alongside your custom recipes.
+            </Text>
+          </View>
+          <ProfileHeaderButton onPress={openAuthSheet} />
         </View>
-        <View style={styles.actionsContainer}>
+        <View style={styles.actionRow}>
           <Pressable
             onPress={handleCreateNew}
             style={styles.addButton}
             accessibilityRole="button"
             accessibilityLabel="Create new custom recipe"
           >
-            <Plus size={18} color={colors.canvas} />
-            <Text style={styles.addButtonText}>NEW</Text>
+            <Plus size={16} color={colors.canvas} />
+            <Text style={styles.addButtonText}>NEW RECIPE</Text>
           </Pressable>
-          <ProfileHeaderButton onPress={openAuthSheet} />
         </View>
       </View>
 
@@ -98,24 +100,27 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   header: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    gap: 14,
+  },
+  titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingHorizontal: 16,
-    paddingBottom: 8,
   },
-  actionsContainer: {
+  actionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'flex-start',
   },
   headerLeft: {
     flex: 1,
     marginRight: 12,
   },
   headerTitle: {
-    fontSize: 22,
-    fontFamily: FONTS.sansBold,
+    fontSize: 26,
+    fontFamily: FONTS.displaySemiBold,
     color: colors.textPrimary,
     marginBottom: 4,
   },

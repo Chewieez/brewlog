@@ -474,10 +474,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontFamily: FONTS.displayBold,
-    fontSize: 24,
+    fontFamily: FONTS.displaySemiBold,
+    fontSize: 26,
     color: colors.textPrimary,
-    fontWeight: '700',
   },
   modeToggleContainer: {
     flexDirection: 'row',
