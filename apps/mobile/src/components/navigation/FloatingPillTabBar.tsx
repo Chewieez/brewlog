@@ -167,6 +167,7 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const tabLayoutsRef = useRef<Record<number, { x: number; width: number }>>({});
   const animX = useRef(new Animated.Value(0)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
   const hasInitialized = useRef(false);
 
   const animateToTab = useCallback(
@@ -177,6 +178,11 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
       if (!hasInitialized.current) {
         animX.setValue(targetX);
         hasInitialized.current = true;
+        Animated.timing(opacityAnim, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }).start();
       } else {
         Animated.spring(animX, {
           toValue: targetX,
@@ -186,7 +192,7 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
         }).start();
       }
     },
-    [animX]
+    [animX, opacityAnim]
   );
 
   useEffect(() => {
@@ -265,9 +271,11 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
     >
       {/* Sliding animated indicator pill */}
       <Animated.View
+        testID="sliding-pill-indicator"
         style={[
           styles.slidingIndicator,
           {
+            opacity: opacityAnim,
             transform: [{ translateX: animX }],
           },
         ]}
