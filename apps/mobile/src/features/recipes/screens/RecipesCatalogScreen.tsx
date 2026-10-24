@@ -130,13 +130,12 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontFamily: FONTS.displaySemiBold,
     color: colors.textPrimary,
-    marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 13,
-    fontFamily: FONTS.sansRegular,
+    fontFamily: FONTS.bodyRegular,
     color: colors.textSecondary,
-    lineHeight: 18,
+    marginTop: 2,
   },
   addButton: {
     flexDirection: 'row',

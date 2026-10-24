@@ -442,13 +442,12 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.displaySemiBold,
     fontSize: 26,
     color: colors.textPrimary,
-    marginBottom: 4,
   },
   headerSubtitle: {
-    fontFamily: FONTS.sansRegular,
+    fontFamily: FONTS.bodyRegular,
     fontSize: 13,
     color: colors.textSecondary,
-    lineHeight: 18,
+    marginTop: 2,
   },
   actionRow: {
     flexDirection: 'row',

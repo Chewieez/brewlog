@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   scrollContent: {},
   headerContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingBottom: 8,
     gap: 14,
   },
   actionRow: {
@@ -382,13 +382,12 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.displaySemiBold,
     fontSize: 26,
     color: colors.textPrimary,
-    marginBottom: 4,
   },
   headerSubtitle: {
-    fontFamily: FONTS.sansRegular,
+    fontFamily: FONTS.bodyRegular,
     fontSize: 13,
     color: colors.textSecondary,
-    lineHeight: 18,
+    marginTop: 2,
   },
   addButton: {
     flexDirection: 'row',
