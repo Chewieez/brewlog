@@ -267,23 +267,24 @@ export default function TimerScreen() {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* Top In-Screen Header */}
-      <View
-        style={[
-          styles.headerContainer,
-          { paddingTop: Math.max(insets.top, 16) },
-        ]}
+    <View style={styles.container}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
       >
-        <View style={styles.headerTitleContainer}>
-          <Text style={styles.title}>Timer</Text>
+        {/* Top In-Screen Header */}
+        <View
+          style={[
+            styles.headerContainer,
+            { paddingTop: Math.max(insets.top, 16) },
+          ]}
+        >
+          <View style={styles.headerTitleContainer}>
+            <Text style={styles.title}>Timer</Text>
+          </View>
+          <ProfileHeaderButton onPress={openAuthSheet} />
         </View>
-        <ProfileHeaderButton onPress={openAuthSheet} />
-      </View>
 
       {/* Top Segmented Mode Switcher */}
       <View style={styles.modeToggleContainer}>
@@ -449,7 +450,8 @@ export default function TimerScreen() {
           />
         </>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -465,7 +467,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 8,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
   },
   headerTitleContainer: {
