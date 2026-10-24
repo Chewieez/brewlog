@@ -41,7 +41,7 @@ vi.mock('react-native', () => ({
       </div>
     );
   },
-  Text: ({ children, style, numberOfLines, ...props }: any) => <span {...props}>{children}</span>,
+  Text: ({ children, style, numberOfLines, maxFontSizeMultiplier, ...props }: any) => <span {...props}>{children}</span>,
   Pressable: ({ children, onPress, onLongPress, accessibilityLabel, accessibilityRole, accessibilityState, style, android_ripple, ...props }: any) => (
     <button
       type="button"
@@ -375,6 +375,43 @@ describe('FloatingPillTabBar', () => {
     });
     expect(navigate).toHaveBeenCalledWith('recipes', undefined);
     expect(mockTriggerHapticTap).toHaveBeenCalledTimes(1);
+  });
+
+  it('respects screen options from descriptors (tabBarLabel, title, tabBarIcon, tabBarAccessibilityLabel)', () => {
+    const customIcon = vi.fn(() => <span data-testid="custom-timer-icon" />);
+    const descriptors = {
+      'index-key': {
+        options: {
+          tabBarLabel: 'Brew Clock',
+          tabBarIcon: customIcon,
+          tabBarAccessibilityLabel: 'Custom Brew Clock Tab',
+        },
+      },
+      'stash-key': {
+        options: {
+          title: 'My Cellar',
+        },
+      },
+    };
+
+    const { getByText, getByTestId, getByLabelText } = render(
+      <FloatingPillTabBar
+        state={{ index: 0, routes }}
+        descriptors={descriptors}
+        navigation={{ navigate: vi.fn(), emit: vi.fn() }}
+      />
+    );
+
+    expect(getByText('Brew Clock')).toBeDefined();
+    expect(getByTestId('custom-timer-icon')).toBeDefined();
+    expect(getByLabelText('Custom Brew Clock Tab')).toBeDefined();
+    expect(customIcon).toHaveBeenCalledWith(
+      expect.objectContaining({
+        focused: true,
+        size: 19,
+      })
+    );
+    expect(getByText('My Cellar')).toBeDefined();
   });
 
   describe('getTabScreenBottomPadding', () => {

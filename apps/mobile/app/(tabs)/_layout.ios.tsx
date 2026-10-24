@@ -42,7 +42,7 @@ export default function TabLayoutIOS() {
         <NativeTabs.Trigger name="index">
           <NativeTabs.Trigger.Label>Timer</NativeTabs.Trigger.Label>
           <NativeTabs.Trigger.Icon
-            sf={{ default: 'timer', selected: 'timer' }}
+            sf={{ default: 'stopwatch', selected: 'stopwatch.fill' }}
           />
         </NativeTabs.Trigger>
 
@@ -70,7 +70,7 @@ export default function TabLayoutIOS() {
         <NativeTabs.Trigger name="reviews">
           <NativeTabs.Trigger.Label>Reviews</NativeTabs.Trigger.Label>
           <NativeTabs.Trigger.Icon
-            sf={{ default: 'rosette', selected: 'rosette' }}
+            sf={{ default: 'medal', selected: 'medal.fill' }}
           />
         </NativeTabs.Trigger>
       </NativeTabs>

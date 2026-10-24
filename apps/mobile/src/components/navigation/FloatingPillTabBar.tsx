@@ -91,6 +91,7 @@ const TAB_CONFIG: Record<string, TabItemConfig> = {
 
 const PILL_WIDTH = 54;
 const PILL_HEIGHT = 30;
+const TAB_ICON_TOP = 8;
 const HORIZONTAL_PADDING = 8;
 
 interface TabButtonProps {
@@ -100,7 +101,9 @@ interface TabButtonProps {
   onPress: () => void;
   onLongPress?: () => void;
   onLayout: (layout: { x: number; width: number }) => void;
-  config: TabItemConfig;
+  label: React.ReactNode;
+  accessibilityLabel: string;
+  renderIcon: (color: string) => React.ReactNode;
 }
 
 const TabButton: React.FC<TabButtonProps> = ({
@@ -108,9 +111,10 @@ const TabButton: React.FC<TabButtonProps> = ({
   onPress,
   onLongPress,
   onLayout,
-  config,
+  label,
+  accessibilityLabel,
+  renderIcon,
 }) => {
-  const { label, Icon } = config;
   const scaleAnim = useRef(new Animated.Value(isFocused ? 1.08 : 1)).current;
 
   useEffect(() => {
@@ -132,7 +136,7 @@ const TabButton: React.FC<TabButtonProps> = ({
         onLongPress={onLongPress}
         accessibilityRole="tab"
         accessibilityState={{ selected: isFocused }}
-        accessibilityLabel={`${label} tab`}
+        accessibilityLabel={accessibilityLabel}
         android_ripple={{
           color: colors.borderActive,
           borderless: true,
@@ -148,20 +152,22 @@ const TabButton: React.FC<TabButtonProps> = ({
             },
           ]}
         >
-          <Icon
-            size={19}
-            color={isFocused ? colors.accent : colors.textMuted}
-          />
+          {renderIcon(isFocused ? colors.accent : colors.textMuted)}
         </Animated.View>
-        <Text
-          style={[
-            styles.label,
-            isFocused && styles.labelActive,
-          ]}
-          numberOfLines={1}
-        >
-          {label}
-        </Text>
+        {typeof label === 'string' ? (
+          <Text
+            style={[
+              styles.label,
+              isFocused && styles.labelActive,
+            ]}
+            numberOfLines={1}
+            maxFontSizeMultiplier={1.2}
+          >
+            {label}
+          </Text>
+        ) : (
+          label
+        )}
       </Pressable>
     </View>
   );
@@ -169,6 +175,7 @@ const TabButton: React.FC<TabButtonProps> = ({
 
 export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
   state,
+  descriptors,
   navigateToTab,
   navigation,
   emitter,
@@ -296,9 +303,42 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
 
       {state.routes.map((route, index) => {
         const isFocused = state.index === index;
-        const config = TAB_CONFIG[route.name] ?? {
+        const descriptor = descriptors?.[route.key] as { options?: any } | undefined;
+        const options = descriptor?.options;
+
+        const defaultItem = TAB_CONFIG[route.name] ?? {
           label: route.name,
           Icon: Timer,
+        };
+
+        const label =
+          typeof options?.tabBarLabel === 'function'
+            ? options.tabBarLabel({
+                focused: isFocused,
+                color: isFocused ? colors.accent : colors.textMuted,
+                position: 'below-icon',
+                children: defaultItem.label,
+              })
+            : typeof options?.tabBarLabel === 'string'
+            ? options.tabBarLabel
+            : typeof options?.title === 'string'
+            ? options.title
+            : defaultItem.label;
+
+        const accessibilityLabel =
+          options?.tabBarAccessibilityLabel ??
+          (typeof label === 'string' ? `${label} tab` : `${route.name} tab`);
+
+        const renderIcon = (iconColor: string) => {
+          if (typeof options?.tabBarIcon === 'function') {
+            return options.tabBarIcon({
+              focused: isFocused,
+              color: iconColor,
+              size: 19,
+            });
+          }
+          const DefaultIcon = defaultItem.Icon;
+          return <DefaultIcon size={19} color={iconColor} />;
         };
 
         return (
@@ -307,10 +347,12 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
             routeKey={route.key}
             routeName={route.name}
             isFocused={isFocused}
+            label={label}
+            accessibilityLabel={accessibilityLabel}
+            renderIcon={renderIcon}
             onPress={() => handlePress(route.key, route.name, isFocused, route.params)}
             onLongPress={() => handleLongPress(route.key)}
             onLayout={(layout) => handleTabLayout(index, layout)}
-            config={config}
           />
         );
       })}
@@ -341,7 +383,7 @@ const styles = StyleSheet.create({
   slidingIndicator: {
     position: 'absolute',
     left: 0,
-    top: 9,
+    top: TAB_ICON_TOP,
     width: PILL_WIDTH,
     height: PILL_HEIGHT,
     borderRadius: PILL_HEIGHT / 2,
@@ -351,7 +393,7 @@ const styles = StyleSheet.create({
   },
   tabButtonWrapper: {
     flex: 1,
-    height: 52,
+    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
@@ -360,7 +402,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: TAB_ICON_TOP,
     borderRadius: 26,
     minWidth: 48,
     minHeight: 48,
