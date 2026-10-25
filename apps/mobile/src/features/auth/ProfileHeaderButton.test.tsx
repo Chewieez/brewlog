@@ -69,8 +69,16 @@ describe("ProfileHeaderButton", () => {
     cleanup();
   });
 
+  it("gracefully renders logged-out icon when rendered outside AuthProvider (auth is null)", () => {
+    vi.spyOn(AuthContextModule, "useOptionalAuth").mockReturnValue(null);
+
+    const { getByLabelText, getByTestId } = render(<ProfileHeaderButton onPress={vi.fn()} />);
+    expect(getByLabelText("Account profile")).toBeDefined();
+    expect(getByTestId("user-icon")).toBeDefined();
+  });
+
   it("renders logged-out icon when user is not signed in", () => {
-    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+    vi.spyOn(AuthContextModule, "useOptionalAuth").mockReturnValue({
       user: null,
       session: null,
       loading: false,
@@ -93,7 +101,7 @@ describe("ProfileHeaderButton", () => {
   });
 
   it("renders user initials and active connection dot when logged in", () => {
-    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+    vi.spyOn(AuthContextModule, "useOptionalAuth").mockReturnValue({
       user: {
         id: "123",
         email: "greg@example.com",
@@ -115,7 +123,7 @@ describe("ProfileHeaderButton", () => {
   });
 
   it("renders two-letter initials when only email (single word) is available", () => {
-    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+    vi.spyOn(AuthContextModule, "useOptionalAuth").mockReturnValue({
       user: {
         id: "123",
         email: "barista@example.com",
@@ -137,7 +145,7 @@ describe("ProfileHeaderButton", () => {
   });
 
   it("renders logged-out icon when user has neither display_name nor email", () => {
-    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+    vi.spyOn(AuthContextModule, "useOptionalAuth").mockReturnValue({
       user: {
         id: "123",
         user_metadata: {},
@@ -157,7 +165,7 @@ describe("ProfileHeaderButton", () => {
   });
 
   it("trims whitespace-only display_name and falls back to email initials", () => {
-    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+    vi.spyOn(AuthContextModule, "useOptionalAuth").mockReturnValue({
       user: {
         id: "123",
         email: "pourover@brewlog.dev",

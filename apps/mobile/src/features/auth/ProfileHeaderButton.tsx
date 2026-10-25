@@ -3,7 +3,7 @@ import { Pressable, View, Text, StyleSheet } from "react-native";
 import { User as UserIcon } from "lucide-react-native";
 import { INDUSTRIAL_PRECISION_THEME } from "@brewlog/core";
 import { FONTS } from "../../theme/fonts";
-import { useAuth } from "./AuthContext";
+import { useOptionalAuth } from "./AuthContext";
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -24,13 +24,8 @@ function getInitials(nameOrEmail: string): string {
 }
 
 export const ProfileHeaderButton: React.FC<ProfileHeaderButtonProps> = ({ onPress }) => {
-  let user = null;
-  try {
-    const auth = useAuth();
-    user = auth?.user ?? null;
-  } catch {
-    user = null;
-  }
+  const auth = useOptionalAuth();
+  const user = auth?.user ?? null;
 
   const rawDisplayName = user?.user_metadata?.display_name;
   const trimmedName = typeof rawDisplayName === "string" ? rawDisplayName.trim() : "";

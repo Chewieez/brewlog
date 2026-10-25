@@ -1,14 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, Keyboard } from 'react-native';
 import { Tabs } from 'expo-router';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
-import { ProfileHeaderButton } from '../../src/features/auth/ProfileHeaderButton';
 import { AuthSheet } from '../../src/features/auth/AuthSheet';
 import { FloatingPillTabBar } from '../../src/components/navigation/FloatingPillTabBar';
 import { AuthModalContext } from '../../src/features/auth/AuthModalContext';
 
 export default function TabLayout() {
-  const { colors } = INDUSTRIAL_PRECISION_THEME;
   const [authSheetVisible, setAuthSheetVisible] = useState(false);
 
   const openAuthSheet = useCallback(() => {
@@ -20,11 +17,6 @@ export default function TabLayout() {
     Keyboard.dismiss();
     setAuthSheetVisible(false);
   }, []);
-
-  const renderHeaderRight = useCallback(
-    () => <ProfileHeaderButton onPress={openAuthSheet} />,
-    [openAuthSheet]
-  );
 
   return (
     <AuthModalContext.Provider
@@ -40,13 +32,6 @@ export default function TabLayout() {
           screenOptions={{
             headerShown: false,
             animation: 'shift',
-            headerStyle: {
-              backgroundColor: colors.panel,
-            },
-            headerTitleStyle: {
-              color: colors.textPrimary,
-            },
-            headerRight: renderHeaderRight,
             tabBarStyle: {
               position: 'absolute',
               backgroundColor: 'transparent',

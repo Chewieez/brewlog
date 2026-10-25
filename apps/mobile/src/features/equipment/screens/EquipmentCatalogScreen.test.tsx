@@ -4,6 +4,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { EquipmentCatalogScreen } from './EquipmentCatalogScreen';
 import { Equipment } from '@brewlog/core';
+import { AuthModalContext } from '../../auth/AuthModalContext';
 
 vi.mock('react-native', () => ({
   View: ({ children, style: _style, accessibilityRole, accessibilityLabel, ...props }: any) => (
@@ -258,5 +259,23 @@ describe('EquipmentCatalogScreen', () => {
       pathname: '/equipment/modal',
       params: { id: 'eq-1' },
     });
+  });
+
+  it('triggers openAuthSheet when ProfileHeaderButton in header is tapped', () => {
+    const mockOpenAuthSheet = vi.fn();
+    const { getByRole } = render(
+      <AuthModalContext.Provider
+        value={{
+          openAuthSheet: mockOpenAuthSheet,
+          closeAuthSheet: vi.fn(),
+          isAuthSheetVisible: false,
+        }}
+      >
+        <EquipmentCatalogScreen />
+      </AuthModalContext.Provider>
+    );
+
+    fireEvent.click(getByRole('button', { name: 'Account profile' }));
+    expect(mockOpenAuthSheet).toHaveBeenCalledTimes(1);
   });
 });

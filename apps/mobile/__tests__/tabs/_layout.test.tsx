@@ -4,6 +4,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, fireEvent, cleanup } from "@testing-library/react";
 import TabLayout from "../../app/(tabs)/_layout";
 import { AuthProvider } from "../../src/features/auth/AuthContext";
+import { useAuthModal } from "../../src/features/auth/AuthModalContext";
 import { Keyboard } from "react-native";
 
 vi.mock("react-native-safe-area-context", () => ({
@@ -192,53 +193,82 @@ vi.mock("expo-router", () => {
       back: vi.fn(),
     }),
     Tabs: Object.assign(
-      ({ children, screenOptions }: any) => {
-        const headerRight = screenOptions?.headerRight ? screenOptions.headerRight() : null;
+      ({ children }: any) => {
         return (
           <div data-testid="tabs-mock">
-            <div data-testid="header-right">{headerRight}</div>
             {children}
           </div>
         );
       },
       {
-        Screen: ({ name }: any) => <div data-testid={`tab-screen-${name}`} />,
+        Screen: ({ name }: any) => {
+          return (
+            <div data-testid={`tab-screen-${name}`}>
+              <TestScreenConsumer screenName={name} />
+            </div>
+          );
+        },
       }
     ),
   };
 });
+
+const TestScreenConsumer: React.FC<{ screenName: string }> = ({ screenName }) => {
+  const { openAuthSheet, closeAuthSheet, isAuthSheetVisible } = useAuthModal();
+  return (
+    <div>
+      <span data-testid={`auth-visible-${screenName}`}>{isAuthSheetVisible ? "true" : "false"}</span>
+      <button
+        type="button"
+        aria-label={`Open auth from ${screenName}`}
+        onClick={openAuthSheet}
+      >
+        Open Auth
+      </button>
+      <button
+        type="button"
+        aria-label={`Close auth from ${screenName}`}
+        onClick={closeAuthSheet}
+      >
+        Close Auth
+      </button>
+    </div>
+  );
+};
 
 describe("TabLayout Integration", () => {
   afterEach(() => {
     cleanup();
   });
 
-  it("mounts Tabs with ProfileHeaderButton in headerRight", () => {
-    const { getByTestId, getByLabelText } = render(
+  it("mounts Tabs with all 5 tab screens wrapped in AuthModalContext.Provider", () => {
+    const { getByTestId } = render(
       <AuthProvider>
         <TabLayout />
       </AuthProvider>
     );
 
     expect(getByTestId("tabs-mock")).toBeDefined();
-    expect(getByLabelText("Account profile")).toBeDefined();
     expect(getByTestId("tab-screen-index")).toBeDefined();
     expect(getByTestId("tab-screen-recipes")).toBeDefined();
     expect(getByTestId("tab-screen-stash")).toBeDefined();
     expect(getByTestId("tab-screen-equipment")).toBeDefined();
     expect(getByTestId("tab-screen-reviews")).toBeDefined();
+
+    expect(getByTestId("auth-visible-index").textContent).toBe("false");
   });
 
-  it("opens AuthSheet when ProfileHeaderButton is clicked", () => {
-    const { getByLabelText, queryByTestId } = render(
+  it("opens AuthSheet when child consumes useAuthModal and calls openAuthSheet", () => {
+    const { getByLabelText, queryByTestId, getByTestId } = render(
       <AuthProvider>
         <TabLayout />
       </AuthProvider>
     );
 
     expect(queryByTestId("modal")).toBeNull();
-    fireEvent.click(getByLabelText("Account profile"));
+    fireEvent.click(getByLabelText("Open auth from index"));
     expect(queryByTestId("modal")).not.toBeNull();
+    expect(getByTestId("auth-visible-index").textContent).toBe("true");
   });
 
   it("dismisses keyboard when opening and closing AuthSheet", () => {
@@ -250,14 +280,14 @@ describe("TabLayout Integration", () => {
 
     vi.mocked(Keyboard.dismiss).mockClear();
 
-    // Open sheet
-    fireEvent.click(getByLabelText("Account profile"));
+    // Open sheet via context
+    fireEvent.click(getByLabelText("Open auth from index"));
     expect(queryByTestId("modal")).not.toBeNull();
     expect(Keyboard.dismiss).toHaveBeenCalled();
 
     vi.mocked(Keyboard.dismiss).mockClear();
 
-    // Close sheet
+    // Close sheet via close button in AuthSheet
     fireEvent.click(getByLabelText("Close sheet"));
     expect(queryByTestId("modal")).toBeNull();
     expect(Keyboard.dismiss).toHaveBeenCalled();
