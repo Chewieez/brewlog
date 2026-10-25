@@ -38,7 +38,7 @@ export const ProfileHeaderButton: React.FC<ProfileHeaderButtonProps> = ({ onPres
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel="Account profile"
-      style={styles.container}
+      style={({ pressed }) => [styles.container, pressed && styles.pressed]}
     >
       {initials ? (
         <View style={styles.avatarBadge}>
@@ -61,6 +61,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: 8,
+  },
+  pressed: {
+    opacity: 0.7,
   },
   iconWrapper: {
     width: 32,

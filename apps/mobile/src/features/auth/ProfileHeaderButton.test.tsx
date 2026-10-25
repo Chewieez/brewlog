@@ -16,17 +16,23 @@ vi.mock("react-native", () => ({
     accessibilityRole,
     style,
     ...props
-  }: any) => (
-    <button
-      type="button"
-      onClick={onPress}
-      role={accessibilityRole}
-      aria-label={accessibilityLabel}
-      {...props}
-    >
-      {children}
-    </button>
-  ),
+  }: any) => {
+    const defaultStyle = typeof style === "function" ? style({ pressed: false }) : style;
+    const pressedStyle = typeof style === "function" ? style({ pressed: true }) : style;
+    return (
+      <button
+        type="button"
+        onClick={onPress}
+        role={accessibilityRole}
+        aria-label={accessibilityLabel}
+        data-style={JSON.stringify(defaultStyle)}
+        data-pressed-style={JSON.stringify(pressedStyle)}
+        {...props}
+      >
+        {typeof children === "function" ? children({ pressed: false }) : children}
+      </button>
+    );
+  },
   TouchableOpacity: ({
     children,
     onPress,
@@ -184,5 +190,17 @@ describe("ProfileHeaderButton", () => {
 
     expect(getByText("PO")).toBeDefined();
     expect(getByTestId("connection-dot")).toBeDefined();
+  });
+
+  it("applies pressed visual feedback opacity when pressed", () => {
+    vi.spyOn(AuthContextModule, "useOptionalAuth").mockReturnValue(null);
+
+    const { getByRole } = render(<ProfileHeaderButton onPress={vi.fn()} />);
+    const button = getByRole("button", { name: "Account profile" });
+
+    const pressedStyle = JSON.parse(button.getAttribute("data-pressed-style") || "[]");
+    expect(pressedStyle).toEqual(
+      expect.arrayContaining([expect.objectContaining({ opacity: 0.7 })])
+    );
   });
 });
