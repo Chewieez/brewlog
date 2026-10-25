@@ -172,7 +172,7 @@ export default function TimerScreen() {
   };
 
   const handleApplyDose = (newDose: number, newRatio?: number, newWater?: number) => {
-    if (isRunning || isFinished) return;
+    if (isRunning || elapsedSeconds > 0 || isFinished) return;
     if (newDose > 0) {
       const roundedDose = Math.round(newDose * 10) / 10;
       if (timerMode === 'free_brew') {
@@ -317,7 +317,6 @@ export default function TimerScreen() {
         mode={timerMode}
         onSplit={() => recordSplit()}
         onTagSplit={handleTagSplit}
-        splitsCount={splits.length}
         onFinish={handleFinishBrew}
         weightUnit={settings.weightUnit}
       />

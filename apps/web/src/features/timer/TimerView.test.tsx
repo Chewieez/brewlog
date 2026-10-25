@@ -367,8 +367,13 @@ describe('TimerView', () => {
     expect(screen.getAllByText(/oz/i).length).toBeGreaterThan(0);
     const doseInput = screen.getByLabelText(/Timer coffee dose in ounces/i) as HTMLInputElement;
     expect(doseInput.value).toBe('0.53'); // 15g
+    expect(doseInput.getAttribute('min')).toBe('0.05');
+    expect(doseInput.getAttribute('max')).toBe('7');
+
     const waterInput = screen.getByLabelText(/Timer water target in ounces/i) as HTMLInputElement;
     expect(waterInput.value).toBe('8.82'); // 250g
+    expect(waterInput.getAttribute('min')).toBe('1');
+    expect(waterInput.getAttribute('max')).toBe('100');
     expect(screen.getAllByText('1.76 oz').length).toBeGreaterThan(0); // 50g stage water
   });
 
@@ -386,7 +391,11 @@ describe('TimerView', () => {
     const waterInput = screen.getByLabelText(/Timer water target in grams/i) as HTMLInputElement;
 
     expect(doseInput.value).toBe('20');
+    expect(doseInput.getAttribute('min')).toBe('1');
+    expect(doseInput.getAttribute('max')).toBe('200');
     expect(waterInput.value).toBe('320');
+    expect(waterInput.getAttribute('min')).toBe('10');
+    expect(waterInput.getAttribute('max')).toBe('3000');
     expect(screen.getByText('1:16')).toBeDefined();
 
     // Inline edit dose to 25g
@@ -409,5 +418,163 @@ describe('TimerView', () => {
     expect(waterInput.value).toBe('350');
     // In free brew, updating water target recalculates ratio: 350 / 25 = 14
     expect(screen.getByText('1:14')).toBeDefined();
+  });
+
+  it('locks dose and water readouts to static text during active and paused brews', () => {
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        initialMode="recipe"
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    // Initial state: inputs should be editable
+    expect(screen.queryByLabelText(/Timer coffee dose in grams/i)).not.toBeNull();
+    expect(screen.queryByLabelText(/Timer water target in grams/i)).not.toBeNull();
+
+    // Start timer (active brew: isRunning = true, elapsedSeconds = 0)
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /START BREW/ }));
+    });
+
+    // During active brew, readouts must switch to static text
+    expect(screen.queryByLabelText(/Timer coffee dose in grams/i)).toBeNull();
+    expect(screen.queryByLabelText(/Timer water target in grams/i)).toBeNull();
+    expect(screen.getByText('15.0 g')).toBeDefined();
+    expect(screen.getByText('250.0 g')).toBeDefined();
+
+    // Advance 1s mid-brew (active brew: isRunning = true, elapsedSeconds = 1)
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    expect(screen.queryByLabelText(/Timer coffee dose in grams/i)).toBeNull();
+    expect(screen.queryByLabelText(/Timer water target in grams/i)).toBeNull();
+
+    // Pause timer mid-brew (paused brew: isRunning = false, elapsedSeconds = 1)
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /PAUSE/ }));
+    });
+
+    expect(screen.getByRole('button', { name: /RESUME/ })).toBeDefined();
+
+    // Readouts must still be locked to static text, no editable inputs
+    expect(screen.queryByLabelText(/Timer coffee dose in grams/i)).toBeNull();
+    expect(screen.queryByLabelText(/Timer water target in grams/i)).toBeNull();
+    expect(screen.getByText('15.0 g')).toBeDefined();
+    expect(screen.getByText('250.0 g')).toBeDefined();
+
+    // Reset timer back to idle state
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /Reset Timer/i }));
+    });
+
+    // Inputs should become editable again
+    expect(screen.queryByLabelText(/Timer coffee dose in grams/i)).not.toBeNull();
+    expect(screen.queryByLabelText(/Timer water target in grams/i)).not.toBeNull();
+  });
+
+  it('reverts inline edits on Escape key press without committing changes', () => {
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        initialMode="free_brew"
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    const doseInput = screen.getByLabelText(/Timer coffee dose in grams/i) as HTMLInputElement;
+    const waterInput = screen.getByLabelText(/Timer water target in grams/i) as HTMLInputElement;
+
+    expect(doseInput.value).toBe('20');
+    expect(waterInput.value).toBe('320');
+
+    // Change dose input then press Escape
+    act(() => {
+      fireEvent.change(doseInput, { target: { value: '25' } });
+      fireEvent.keyDown(doseInput, { key: 'Escape' });
+    });
+
+    // Dose should have reverted to 20 and water remained 320
+    expect(doseInput.value).toBe('20');
+    expect(waterInput.value).toBe('320');
+    expect(screen.getByText('1:16')).toBeDefined();
+
+    // Change water input then press Escape
+    act(() => {
+      fireEvent.change(waterInput, { target: { value: '450' } });
+      fireEvent.keyDown(waterInput, { key: 'Escape' });
+    });
+
+    // Water should have reverted to 320 and dose remained 20
+    expect(waterInput.value).toBe('320');
+    expect(doseInput.value).toBe('20');
+    expect(screen.getByText('1:16')).toBeDefined();
+  });
+
+  it('prevents imperial precision drift on blur and Escape in imperial mode (e.g. 18g -> 0.63 oz invariance)', () => {
+    const recipeWith18gDose: BrewRecipe = {
+      ...mockRecipe,
+      id: 'test-18g-v60',
+      coffeeDoseGrams: 18,
+      waterAmountGrams: 300,
+      ratio: 16.67,
+    };
+
+    render(
+      <TimerView
+        recipe={recipeWith18gDose}
+        initialMode="recipe"
+        weightUnit="imperial"
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    const doseInput = screen.getByLabelText(/Timer coffee dose in ounces/i) as HTMLInputElement;
+    const waterInput = screen.getByLabelText(/Timer water target in ounces/i) as HTMLInputElement;
+
+    // 18g = 0.63 oz; without guard, ozToGrams(0.63) = 17.86g -> rounds to 17.9g (precision drift)
+    expect(doseInput.value).toBe('0.63');
+    expect(waterInput.value).toBe('10.58'); // 300g
+
+    // Focus and blur dose without changing value (must not drift from 18.0g to 17.9g)
+    act(() => {
+      fireEvent.focus(doseInput);
+      fireEvent.blur(doseInput);
+    });
+
+    expect(doseInput.value).toBe('0.63');
+    expect(waterInput.value).toBe('10.58');
+
+    // Focus and blur water target without changing value
+    act(() => {
+      fireEvent.focus(waterInput);
+      fireEvent.blur(waterInput);
+    });
+
+    expect(waterInput.value).toBe('10.58');
+    expect(doseInput.value).toBe('0.63');
+
+    // Change dose then press Escape (must restore 0.63 without drifting dose to 17.9g)
+    act(() => {
+      fireEvent.change(doseInput, { target: { value: '0.85' } });
+      fireEvent.keyDown(doseInput, { key: 'Escape' });
+    });
+
+    expect(doseInput.value).toBe('0.63');
+    expect(waterInput.value).toBe('10.58');
+
+    // Change water target then press Escape (must restore 10.58 without drift)
+    act(() => {
+      fireEvent.change(waterInput, { target: { value: '14.0' } });
+      fireEvent.keyDown(waterInput, { key: 'Escape' });
+    });
+
+    expect(waterInput.value).toBe('10.58');
+    expect(doseInput.value).toBe('0.63');
   });
 });

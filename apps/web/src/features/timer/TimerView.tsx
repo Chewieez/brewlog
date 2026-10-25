@@ -114,8 +114,28 @@ export const TimerView: React.FC<TimerViewProps> = ({
     setRecipeModeRecipe(initialRecipe);
   }, [initialRecipe.id, initialRecipe.coffeeDoseGrams]);
 
+  // Hook into precision brew timer engine
+  const {
+    elapsedSeconds,
+    isRunning,
+    isFinished,
+    isMuted,
+    currentStageIndex,
+    currentStage,
+    splits,
+    recordSplit,
+    removeSplit,
+    toggleTimer,
+    reset: resetTimer,
+    toggleMute,
+    startTimeRef,
+    accumulatedMsRef,
+  } = useBrewTimer(currentRecipe, mode);
+
+  const isMetricEditable = !isRunning && elapsedSeconds === 0 && !isFinished && !isFreeBrewFinished;
+
   const handleApplyDose = (newDose: number, newRatio?: number, newWater?: number) => {
-    if (isRunning || isFinished) return;
+    if (isRunning || elapsedSeconds > 0 || isFinished || isFreeBrewFinished) return;
     if (newDose > 0) {
       const roundedDose = Math.round(newDose * 10) / 10;
       if (mode === 'free_brew') {
@@ -129,7 +149,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
   };
 
   const handleApplyWater = (newWater: number) => {
-    if (isRunning || isFinished) return;
+    if (isRunning || elapsedSeconds > 0 || isFinished || isFreeBrewFinished) return;
     if (newWater > 0) {
       const roundedWater = Math.round(newWater);
       if (mode === 'free_brew') {
@@ -161,11 +181,22 @@ export const TimerView: React.FC<TimerViewProps> = ({
   }, [currentRecipe.waterAmountGrams, currentWeightUnit]);
 
   const handleCommitDose = (e?: React.FocusEvent<HTMLInputElement>) => {
-    const rawVal = e?.target ? e.target.value : textDose;
-    const parsed = parseFloat(rawVal);
     const currentDisplay = currentWeightUnit === 'imperial' ? gramsToOz(currentDose) : currentDose;
 
+    if (!isMetricEditable) {
+      setTextDose(String(currentDisplay));
+      return;
+    }
+
+    const rawVal = e?.target ? e.target.value : textDose;
+    const parsed = parseFloat(rawVal);
+
     if (isNaN(parsed) || parsed <= 0) {
+      setTextDose(String(currentDisplay));
+      return;
+    }
+
+    if (parsed === currentDisplay) {
       setTextDose(String(currentDisplay));
       return;
     }
@@ -187,13 +218,24 @@ export const TimerView: React.FC<TimerViewProps> = ({
   };
 
   const handleCommitWater = (e?: React.FocusEvent<HTMLInputElement>) => {
-    const rawVal = e?.target ? e.target.value : textWater;
-    const parsed = parseFloat(rawVal);
     const currentDisplay = currentWeightUnit === 'imperial'
       ? gramsToOz(currentRecipe.waterAmountGrams)
       : Math.round(currentRecipe.waterAmountGrams);
 
+    if (!isMetricEditable) {
+      setTextWater(String(currentDisplay));
+      return;
+    }
+
+    const rawVal = e?.target ? e.target.value : textWater;
+    const parsed = parseFloat(rawVal);
+
     if (isNaN(parsed) || parsed <= 0) {
+      setTextWater(String(currentDisplay));
+      return;
+    }
+
+    if (parsed === currentDisplay) {
       setTextWater(String(currentDisplay));
       return;
     }
@@ -213,26 +255,6 @@ export const TimerView: React.FC<TimerViewProps> = ({
       }
     }
   };
-
-  // Hook into precision brew timer engine
-  const {
-    elapsedSeconds,
-    isRunning,
-    isFinished,
-    isMuted,
-    currentStageIndex,
-    currentStage,
-    splits,
-    recordSplit,
-    removeSplit,
-    toggleTimer,
-    reset: resetTimer,
-    toggleMute,
-    startTimeRef,
-    accumulatedMsRef,
-  } = useBrewTimer(currentRecipe, mode);
-
-  const isMetricEditable = !isRunning && !isFinished && !isFreeBrewFinished;
 
   const formatTime = (totalSeconds: number) => {
     const mins = Math.floor(totalSeconds / 60);
@@ -517,13 +539,18 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   <input
                     type="number"
                     step={currentWeightUnit === 'imperial' ? '0.01' : '0.1'}
-                    min="1"
-                    max="500"
+                    min={currentWeightUnit === 'imperial' ? '0.05' : '1'}
+                    max={currentWeightUnit === 'imperial' ? '7' : '200'}
                     value={textDose}
                     onChange={(e) => setTextDose(e.target.value)}
                     onBlur={handleCommitDose}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
+                        (e.target as HTMLInputElement).blur();
+                      } else if (e.key === 'Escape') {
+                        const revert = getDisplayDose(currentDose, currentWeightUnit);
+                        setTextDose(revert);
+                        (e.target as HTMLInputElement).value = revert;
                         (e.target as HTMLInputElement).blur();
                       }
                     }}
@@ -551,13 +578,18 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   <input
                     type="number"
                     step={currentWeightUnit === 'imperial' ? '0.1' : '1'}
-                    min="10"
-                    max="5000"
+                    min={currentWeightUnit === 'imperial' ? '1' : '10'}
+                    max={currentWeightUnit === 'imperial' ? '100' : '3000'}
                     value={textWater}
                     onChange={(e) => setTextWater(e.target.value)}
                     onBlur={handleCommitWater}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
+                        (e.target as HTMLInputElement).blur();
+                      } else if (e.key === 'Escape') {
+                        const revert = getDisplayWater(currentRecipe.waterAmountGrams, currentWeightUnit);
+                        setTextWater(revert);
+                        (e.target as HTMLInputElement).value = revert;
                         (e.target as HTMLInputElement).blur();
                       }
                     }}

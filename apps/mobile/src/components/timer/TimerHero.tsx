@@ -32,7 +32,6 @@ export interface TimerHeroProps {
   mode?: TimerMode;
   onSplit?: () => void;
   onTagSplit?: (tag: SplitTag, label: string) => void;
-  splitsCount?: number;
   onFinish?: () => void;
   weightUnit?: WeightUnit;
 }
@@ -60,7 +59,6 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
   mode = 'recipe',
   onSplit,
   onTagSplit,
-  splitsCount = 0,
   onFinish,
   weightUnit = 'metric',
 }) => {
@@ -78,10 +76,18 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
     setTextDose(getDisplayDose(doseGrams, weightUnit));
   }, [doseGrams, weightUnit]);
 
+  const isDoseEditable = !isRunning && elapsedSeconds === 0 && !isFinished && Boolean(onChangeDose);
+
   const handleCommitDose = () => {
     setIsFocused(false);
-    const parsed = parseFloat(textDose);
     const currentDisplayValue = weightUnit === 'imperial' ? gramsToOz(doseGrams) : doseGrams;
+
+    if (!isDoseEditable) {
+      setTextDose(String(currentDisplayValue));
+      return;
+    }
+
+    const parsed = parseFloat(textDose);
 
     if (isNaN(parsed) || parsed <= 0) {
       setTextDose(String(currentDisplayValue));
@@ -95,22 +101,20 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
 
     if (weightUnit === 'imperial') {
       const rawGrams = ozToGrams(parsed);
-      const clampedGrams = Math.max(1, Math.min(100, Math.round(rawGrams * 10) / 10));
+      const clampedGrams = Math.max(1, Math.min(200, Math.round(rawGrams * 10) / 10));
       const displayOz = gramsToOz(clampedGrams);
       setTextDose(String(displayOz));
       if (clampedGrams !== doseGrams && onChangeDose) {
         onChangeDose(clampedGrams);
       }
     } else {
-      const clampedGrams = Math.max(1, Math.min(100, Math.round(parsed * 10) / 10));
+      const clampedGrams = Math.max(1, Math.min(200, Math.round(parsed * 10) / 10));
       setTextDose(String(clampedGrams));
       if (clampedGrams !== doseGrams && onChangeDose) {
         onChangeDose(clampedGrams);
       }
     }
   };
-
-  const isDoseEditable = !isRunning && !isFinished && Boolean(onChangeDose);
 
   return (
     <View style={styles.chassis}>
