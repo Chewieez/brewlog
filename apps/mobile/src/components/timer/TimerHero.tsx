@@ -118,7 +118,7 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
       <View style={styles.recipeHeader}>
         <Text style={styles.recipeSubtitle}>
           {mode === 'free_brew'
-            ? 'FREE BREW · MANUAL STOPWATCH'
+            ? 'MANUAL STOPWATCH'
             : `${recipe.brewMethod.toUpperCase()} · 1:${recipe.ratio}`}
         </Text>
         {mode !== 'free_brew' && (
@@ -177,34 +177,27 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
           )}
         </View>
 
+        <View style={styles.metricItem}>
+          <Text style={styles.metricLabel}>WATER TARGET</Text>
+          <Text style={styles.metricValue}>
+            {formatWeight(recipe.waterAmountGrams, weightUnit)}
+          </Text>
+        </View>
+
         {mode === 'free_brew' ? (
-          <>
-            <View style={styles.metricItem}>
-              <Text style={styles.metricLabel}>RATIO</Text>
-              <Text style={styles.metricValue}>1:{recipe.ratio}</Text>
-            </View>
-            <View style={styles.metricItem}>
-              <Text style={styles.metricLabel}>SPLITS</Text>
-              <Text style={[styles.metricValue, styles.metricValueAccent]}>
-                {splitsCount}
-              </Text>
-            </View>
-          </>
+          <View style={styles.metricItem}>
+            <Text style={styles.metricLabel}>RATIO</Text>
+            <Text style={styles.metricValue}>
+              1:{recipe.ratio}
+            </Text>
+          </View>
         ) : (
-          <>
-            <View style={styles.metricItem}>
-              <Text style={styles.metricLabel}>WATER TARGET</Text>
-              <Text style={styles.metricValue}>
-                {formatWeight(recipe.waterAmountGrams, weightUnit)}
-              </Text>
-            </View>
-            <View style={styles.metricItem}>
-              <Text style={styles.metricLabel}>POUR TO</Text>
-              <Text style={[styles.metricValue, styles.metricValueAccent]}>
-                {formatWeight(currentStageTargetWater, weightUnit)}
-              </Text>
-            </View>
-          </>
+          <View style={styles.metricItem}>
+            <Text style={styles.metricLabel}>POUR TO</Text>
+            <Text style={styles.metricValue}>
+              {formatWeight(currentStageTargetWater, weightUnit)}
+            </Text>
+          </View>
         )}
       </View>
 

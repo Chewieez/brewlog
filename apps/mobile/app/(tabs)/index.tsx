@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, ScrollView, StyleSheet, Text, Pressable, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams, useScrollToTop } from 'expo-router';
-import { Plus } from 'lucide-react-native';
+import { Plus, Check } from 'lucide-react-native';
 import {
   INDUSTRIAL_PRECISION_THEME,
-  DEFAULT_PRESET_RECIPES,
   DEFAULT_USER_SETTINGS,
+  DEFAULT_FREE_BREW_RECIPE,
+  DEFAULT_FREE_BREW_DOSE,
   rescaleRecipeDose,
   TimerMode,
   SplitTag,
   splitsToRecipeStages,
+  BrewRecipe,
 } from '@brewlog/core';
 import { useRecipes } from '../../src/features/recipes/RecipeContext';
 import { useOptionalSettings } from '../../src/features/settings/SettingsContext';
@@ -17,14 +19,12 @@ import { useOptionalStash } from '../../src/features/stash/StashContext';
 import { useOptionalEquipment } from '../../src/features/equipment/EquipmentContext';
 import { ActiveBeanPill } from '../../src/features/stash/components/ActiveBeanPill';
 import { useMobileBrewTimer } from '../../src/hooks/useMobileBrewTimer';
-import { MethodPills } from '../../src/components/timer/MethodPills';
 import { CollapsibleCalculator } from '../../src/components/timer/CollapsibleCalculator';
 import { TimerHero } from '../../src/components/timer/TimerHero';
 import { ActiveStageCard } from '../../src/components/timer/ActiveStageCard';
 import { StageTimeline } from '../../src/components/timer/StageTimeline';
 import { FreeBrewSplitTimeline } from '../../src/components/timer/FreeBrewSplitTimeline';
 import { FONTS } from '../../src/theme/fonts';
-import { AVAILABLE_METHODS } from '../../src/utils/recipeUtils';
 import { mobileFeedback } from '../../src/lib/mobileFeedback';
 import { buildTimerReviewParams } from '../../src/features/timer/buildTimerReviewParams';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -54,8 +54,6 @@ export default function TimerScreen() {
   const equipmentContext = useOptionalEquipment();
   const equipment = equipmentContext?.equipment;
 
-  const initialRecipeRef = useRef(activeTimerRecipe);
-
   const [timerMode, setTimerMode] = useState<TimerMode>(() => {
     if (params?.mode === 'recipe' || params?.mode === 'free_brew') {
       return params.mode;
@@ -69,18 +67,16 @@ export default function TimerScreen() {
     }
   }, [params?.mode]);
 
-  useEffect(() => {
-    if (activeTimerRecipe.id !== initialRecipeRef.current?.id) {
-      setTimerMode('recipe');
-    }
-    initialRecipeRef.current = activeTimerRecipe;
-  }, [activeTimerRecipe]);
-
   const [isFreeBrewFinished, setIsFreeBrewFinished] = useState<boolean>(false);
   const [isDeducted, setIsDeducted] = useState<boolean>(false);
   const [isDeducting, setIsDeducting] = useState<boolean>(false);
 
+  const [freeBrewRecipe, setFreeBrewRecipe] = useState<BrewRecipe>(DEFAULT_FREE_BREW_RECIPE);
+  const [freeBrewDose, setFreeBrewDose] = useState<number>(DEFAULT_FREE_BREW_DOSE);
+
   const activeRecipe = rescaleRecipeDose(activeTimerRecipe, activeTimerDose);
+  const currentRecipe = timerMode === 'free_brew' ? freeBrewRecipe : activeRecipe;
+  const currentDose = timerMode === 'free_brew' ? freeBrewDose : activeTimerDose;
 
   const {
     elapsedSeconds,
@@ -97,7 +93,7 @@ export default function TimerScreen() {
     reset: baseReset,
     toggleMute,
     pause,
-  } = useMobileBrewTimer(activeRecipe, timerMode);
+  } = useMobileBrewTimer(currentRecipe, timerMode);
 
   const isFinished = timerIsFinished || isFreeBrewFinished;
 
@@ -137,7 +133,7 @@ export default function TimerScreen() {
     if (!activeBrewBean || isDeducted || isDeducting) return;
     setIsDeducting(true);
     try {
-      await deductBeanDose(activeBrewBean.id, activeTimerDose);
+      await deductBeanDose(activeBrewBean.id, currentDose);
       mobileFeedback.triggerHapticTap();
       setIsDeducted(true);
     } catch (err) {
@@ -175,52 +171,21 @@ export default function TimerScreen() {
     setTimerMode(newMode);
   };
 
-  const handleSelectMethod = (methodName: string) => {
-    if (activeRecipe.brewMethod.toLowerCase() === methodName.toLowerCase()) {
-      return;
-    }
-
-    const match = DEFAULT_PRESET_RECIPES.find(
-      (r) => r.brewMethod.toLowerCase() === methodName.toLowerCase()
-    );
-    if (!match) return;
-
-    const isBrewActive = isRunning || (elapsedSeconds > 0 && !isFinished);
-
-    if (isBrewActive) {
-      Alert.alert(
-        'Switch Brew Method?',
-        'A brew is currently in progress. Switching methods will reset your timer.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Reset & Switch',
-            style: 'destructive',
-            onPress: () => {
-              reset();
-              setActiveTimerRecipe(match, match.coffeeDoseGrams);
-              setTimerMode('recipe');
-            },
-          },
-        ]
-      );
-      return;
-    }
-
-    reset();
-    setActiveTimerRecipe(match, match.coffeeDoseGrams);
-    setTimerMode('recipe');
-  };
-
   const handleApplyDose = (newDose: number, newRatio?: number, newWater?: number) => {
     if (isRunning || isFinished) return;
     if (newDose > 0) {
       const roundedDose = Math.round(newDose * 10) / 10;
-      if (newRatio !== undefined || newWater !== undefined) {
-        const scaled = rescaleRecipeDose(activeTimerRecipe, roundedDose, newRatio, newWater);
-        setActiveTimerRecipe(scaled, roundedDose);
+      if (timerMode === 'free_brew') {
+        const scaled = rescaleRecipeDose(freeBrewRecipe, roundedDose, newRatio, newWater);
+        setFreeBrewRecipe(scaled);
+        setFreeBrewDose(roundedDose);
       } else {
-        setActiveTimerRecipe(activeTimerRecipe, roundedDose);
+        if (newRatio !== undefined || newWater !== undefined) {
+          const scaled = rescaleRecipeDose(activeTimerRecipe, roundedDose, newRatio, newWater);
+          setActiveTimerRecipe(scaled, roundedDose);
+        } else {
+          setActiveTimerRecipe(activeTimerRecipe, roundedDose);
+        }
       }
     }
   };
@@ -239,24 +204,24 @@ export default function TimerScreen() {
     const generatedStages = splitsToRecipeStages(
       splits,
       elapsedSeconds,
-      activeRecipe.waterAmountGrams
+      currentRecipe.waterAmountGrams
     );
 
     router.push({
       pathname: '/recipe/builder',
       params: {
         stages: JSON.stringify(generatedStages),
-        initialDose: String(activeTimerDose),
-        initialWater: String(activeRecipe.waterAmountGrams),
-        initialMethod: activeRecipe.brewMethod,
+        initialDose: String(currentDose),
+        initialWater: String(currentRecipe.waterAmountGrams),
+        initialMethod: currentRecipe.brewMethod,
       },
     });
   };
 
   const handleAddReview = () => {
     const reviewParams = buildTimerReviewParams({
-      activeRecipe,
-      activeTimerDose,
+      activeRecipe: currentRecipe,
+      activeTimerDose: currentDose,
       elapsedSeconds,
       activeBrewBean,
       splits,
@@ -319,18 +284,11 @@ export default function TimerScreen() {
         </Pressable>
       </View>
 
-      {/* Quick-Start Method Pills */}
-      <MethodPills
-        selectedMethod={activeRecipe.brewMethod}
-        onSelectMethod={handleSelectMethod}
-        methods={AVAILABLE_METHODS}
-      />
-
       {/* Standalone Collapsible Calculator */}
       <CollapsibleCalculator
-        initialDose={activeTimerDose}
-        initialRatio={activeRecipe.ratio}
-        initialWater={activeRecipe.waterAmountGrams}
+        initialDose={currentDose}
+        initialRatio={currentRecipe.ratio}
+        initialWater={currentRecipe.waterAmountGrams}
         onApplyDose={handleApplyDose}
       />
 
@@ -344,13 +302,13 @@ export default function TimerScreen() {
 
       {/* Web-Parity Instrument Faceplate */}
       <TimerHero
-        recipe={activeRecipe}
+        recipe={currentRecipe}
         elapsedSeconds={elapsedSeconds}
         isRunning={isRunning}
         isFinished={isFinished}
         isMuted={isMuted}
         currentStageTargetWater={currentStage?.targetWaterWeightGrams || 0}
-        doseGrams={activeTimerDose}
+        doseGrams={currentDose}
         onToggleTimer={toggleTimer}
         onReset={reset}
         onToggleMute={toggleMute}
@@ -385,16 +343,17 @@ export default function TimerScreen() {
                     pressed && styles.buttonPressed,
                   ]}
                   accessibilityRole="button"
-                  accessibilityLabel={`Deduct ${activeTimerDose}g from stash`}
+                  accessibilityLabel={`Deduct ${currentDose}g from stash`}
                 >
                   <Text style={styles.deductButtonText}>
-                    DEDUCT {activeTimerDose}g FROM STASH
+                    DEDUCT {currentDose}g FROM STASH
                   </Text>
                 </Pressable>
               ) : (
-                <View style={styles.deductedBanner}>
+                <View style={[styles.deductedBanner, { flexDirection: 'row', gap: 6 }]}>
+                  <Check size={14} color={colors.statusSuccess} />
                   <Text style={styles.deductedText}>
-                    ✓ DEDUCTED {activeTimerDose}g • Updated: {currentBeanRemaining}g left
+                    DEDUCTED {currentDose}g • Updated: {currentBeanRemaining}g left
                   </Text>
                 </View>
               )}

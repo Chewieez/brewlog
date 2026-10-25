@@ -301,15 +301,16 @@ describe('TimerView', () => {
     render(
       <TimerView
         recipe={mockRecipe}
-        initialMode="recipe"
+        initialMode="free_brew"
         onSelectOtherRecipe={vi.fn()}
         onLogCompletedBrew={vi.fn()}
       />
     );
 
-    // Initial recipe ratio is 16.67 and target water is 250g
-    expect(screen.getByText('1:16.67')).toBeDefined();
-    expect(screen.getByText('250.0 g')).toBeDefined();
+    // Initial Free Brew starting ratio is 1:16 and target water is 320g
+    expect(screen.getByText('1:16')).toBeDefined();
+    const waterInput = screen.getByLabelText(/Timer water target in grams/i) as HTMLInputElement;
+    expect(waterInput.value).toBe('320');
 
     // Open translator
     act(() => {
@@ -334,8 +335,8 @@ describe('TimerView', () => {
 
     // Ratio should now be 1:15 and water target should be 300g
     expect(screen.getByText('1:15')).toBeDefined();
-    expect(screen.getAllByText('300.0 g').length).toBeGreaterThan(0);
-    const doseInput = screen.getByLabelText(/Coffee dose in grams/i) as HTMLInputElement;
+    expect(waterInput.value).toBe('300');
+    const doseInput = screen.getByLabelText(/Timer coffee dose in grams/i) as HTMLInputElement;
     expect(doseInput.value).toBe('20');
   });
 
@@ -348,7 +349,7 @@ describe('TimerView', () => {
       />
     );
 
-    expect(screen.getByText('FREE BREW · MANUAL STOPWATCH')).toBeDefined();
+    expect(screen.getByText('MANUAL STOPWATCH')).toBeDefined();
     expect(screen.getByText(/SPLIT LOG/i)).toBeDefined();
   });
 
@@ -364,8 +365,49 @@ describe('TimerView', () => {
     );
 
     expect(screen.getAllByText(/oz/i).length).toBeGreaterThan(0);
-    expect(screen.getByText('0.53 oz')).toBeDefined(); // 15g
-    expect(screen.getByText('8.82 oz')).toBeDefined(); // 250g
+    const doseInput = screen.getByLabelText(/Timer coffee dose in ounces/i) as HTMLInputElement;
+    expect(doseInput.value).toBe('0.53'); // 15g
+    const waterInput = screen.getByLabelText(/Timer water target in ounces/i) as HTMLInputElement;
+    expect(waterInput.value).toBe('8.82'); // 250g
     expect(screen.getAllByText('1.76 oz').length).toBeGreaterThan(0); // 50g stage water
+  });
+
+  it('allows inline editing of coffee dose and water target when idle', () => {
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        initialMode="free_brew"
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    const doseInput = screen.getByLabelText(/Timer coffee dose in grams/i) as HTMLInputElement;
+    const waterInput = screen.getByLabelText(/Timer water target in grams/i) as HTMLInputElement;
+
+    expect(doseInput.value).toBe('20');
+    expect(waterInput.value).toBe('320');
+    expect(screen.getByText('1:16')).toBeDefined();
+
+    // Inline edit dose to 25g
+    act(() => {
+      fireEvent.change(doseInput, { target: { value: '25' } });
+      fireEvent.blur(doseInput);
+    });
+
+    expect(doseInput.value).toBe('25');
+    // When dose changes to 25g, water rescales proportionally with ratio 16 -> 400g
+    expect(waterInput.value).toBe('400');
+    expect(screen.getByText('1:16')).toBeDefined();
+
+    // Inline edit water to 350g
+    act(() => {
+      fireEvent.change(waterInput, { target: { value: '350' } });
+      fireEvent.blur(waterInput);
+    });
+
+    expect(waterInput.value).toBe('350');
+    // In free brew, updating water target recalculates ratio: 350 / 25 = 14
+    expect(screen.getByText('1:14')).toBeDefined();
   });
 });

@@ -179,7 +179,7 @@ describe('TimerScreen Free Brew Integration', () => {
     // Switch to Free Brew
     fireEvent.press(getByText('FREE BREW'));
 
-    expect(getByText('FREE BREW · MANUAL STOPWATCH')).toBeTruthy();
+    expect(getByText('MANUAL STOPWATCH')).toBeTruthy();
     expect(getByLabelText('Record Bloom split')).toBeTruthy();
     expect(getByLabelText('Record Pour 1 split')).toBeTruthy();
     expect(getByLabelText('Record Drawdown split')).toBeTruthy();
@@ -276,7 +276,7 @@ describe('TimerScreen Free Brew Integration', () => {
     act(() => {
       alertButtons[1].onPress();
     });
-    expect(getByText('FREE BREW · MANUAL STOPWATCH')).toBeDefined();
+    expect(getByText('MANUAL STOPWATCH')).toBeDefined();
   });
 
   it('formats recorded splits into notes when adding a review from timer', () => {

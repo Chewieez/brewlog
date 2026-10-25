@@ -130,7 +130,7 @@ vi.mock('react-native-svg', () => ({
 import { render, fireEvent, cleanup, act } from '@testing-library/react';
 import TimerScreen from '../../app/(tabs)/index';
 
-describe('TimerScreen - Method Pill Tap & Active Brew Guard', () => {
+describe('TimerScreen - Mode Switch & Active Brew Guard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -139,35 +139,32 @@ describe('TimerScreen - Method Pill Tap & Active Brew Guard', () => {
     cleanup();
   });
 
-  it('switches recipe cleanly when timer is not running or started', () => {
+  it('switches timer mode cleanly when timer is not running or started', () => {
     const { getByText } = render(<TimerScreen />);
 
-    // Initially V60 is selected
-    expect(getByText('V60')).toBeDefined();
-
-    // Tap AeroPress pill while idle
-    fireEvent.click(getByText('AEROPRESS'));
+    // Tap FREE BREW mode button while idle
+    fireEvent.click(getByText('FREE BREW'));
 
     // Should switch without showing an alert
     expect(mockAlert).not.toHaveBeenCalled();
-    expect(getByText(/AeroPress Inverted/i)).toBeDefined();
+    expect(getByText('MANUAL STOPWATCH')).toBeDefined();
   });
 
-  it('guards with confirmation alert when timer is actively running', () => {
+  it('guards with confirmation alert when timer is actively running and switching mode', () => {
     const { getByText, getByLabelText } = render(<TimerScreen />);
 
     // Start timer
     const startButton = getByLabelText('Start brew timer');
     fireEvent.click(startButton);
 
-    // Try tapping Flair pill while running
-    fireEvent.click(getByText('FLAIR'));
+    // Try tapping FREE BREW while running
+    fireEvent.click(getByText('FREE BREW'));
 
     // Must present confirmation alert
     expect(mockAlert).toHaveBeenCalledTimes(1);
     expect(mockAlert).toHaveBeenCalledWith(
-      'Switch Brew Method?',
-      'A brew is currently in progress. Switching methods will reset your timer.',
+      'Switch Timer Mode?',
+      'A brew is currently in progress. Switching modes will reset your timer.',
       expect.any(Array)
     );
 
@@ -177,17 +174,14 @@ describe('TimerScreen - Method Pill Tap & Active Brew Guard', () => {
     expect(alertButtons[0].text).toBe('Cancel');
     expect(alertButtons[1].text).toBe('Reset & Switch');
 
-    // Canceling leaves recipe unchanged (still V60)
-    expect(getByText(/Ultimate V60/i)).toBeDefined();
-
     // Confirming reset & switch executes the switch
     act(() => {
       alertButtons[1].onPress();
     });
-    expect(getByText(/Flair 58 Lever Extraction/i)).toBeDefined();
+    expect(getByText('MANUAL STOPWATCH')).toBeDefined();
   });
 
-  it('guards with confirmation alert when timer is paused mid-brew', () => {
+  it('guards with confirmation alert when timer is paused mid-brew and switching mode', () => {
     vi.useFakeTimers();
     const { getByText, getByLabelText } = render(<TimerScreen />);
 
@@ -204,23 +198,23 @@ describe('TimerScreen - Method Pill Tap & Active Brew Guard', () => {
     const pauseButton = getByLabelText('Pause timer');
     fireEvent.click(pauseButton);
 
-    // Try tapping AeroPress pill while paused mid-brew
-    fireEvent.click(getByText('AEROPRESS'));
+    // Try tapping FREE BREW while paused mid-brew
+    fireEvent.click(getByText('FREE BREW'));
 
     expect(mockAlert).toHaveBeenCalledTimes(1);
     expect(mockAlert).toHaveBeenCalledWith(
-      'Switch Brew Method?',
-      'A brew is currently in progress. Switching methods will reset your timer.',
+      'Switch Timer Mode?',
+      'A brew is currently in progress. Switching modes will reset your timer.',
       expect.any(Array)
     );
     vi.useRealTimers();
   });
 
-  it('does nothing when tapping the currently active method pill', () => {
+  it('does nothing when tapping the currently active mode button', () => {
     const { getByText } = render(<TimerScreen />);
 
-    // Tap V60 when V60 is already active
-    fireEvent.click(getByText('V60'));
+    // Tap GUIDED RECIPE when it is already active
+    fireEvent.click(getByText('GUIDED RECIPE'));
 
     expect(mockAlert).not.toHaveBeenCalled();
   });
@@ -272,6 +266,17 @@ describe('TimerScreen - Method Pill Tap & Active Brew Guard', () => {
     const heroDoseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
     expect(heroDoseInput.value).toBe('20');
     expect(getByText('333.0 g')).toBeDefined();
+  });
+
+  it('initializes Free Brew mode with default starting values (20g coffee, 1:16 ratio, 320g water target)', () => {
+    mockSearchParams = { mode: 'free_brew' };
+    const { getByLabelText, getByText } = render(<TimerScreen />);
+
+    expect(getByText('MANUAL STOPWATCH')).toBeDefined();
+    const heroDoseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
+    expect(heroDoseInput.value).toBe('20');
+    expect(getByText('320.0 g')).toBeDefined();
+    expect(getByText('1:16')).toBeDefined();
   });
 });
 

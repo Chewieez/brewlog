@@ -136,11 +136,4 @@ describe('TimerScreen Recipe Integration', () => {
     expect(getByText('Active Custom V60')).toBeDefined();
     expect(getByText('20')).toBeDefined(); // text input value
   });
-
-  it('switches to preset method when method pill is selected', () => {
-    const { getByText } = render(<TimerScreen />);
-
-    fireEvent.click(getByText('AEROPRESS'));
-    expect(mockSetActiveTimerRecipe).toHaveBeenCalled();
-  });
 });

@@ -1,10 +1,13 @@
 /** @vitest-environment jsdom */
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { WebRatioTranslator } from "./WebRatioTranslator";
 
 describe("WebRatioTranslator", () => {
+  afterEach(() => {
+    cleanup();
+  });
   it("renders and translates proportional dose", () => {
     const onApplyDose = vi.fn();
     render(<WebRatioTranslator currentDose={18} onApplyDose={onApplyDose} />);

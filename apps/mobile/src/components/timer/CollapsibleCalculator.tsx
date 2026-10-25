@@ -23,7 +23,7 @@ export interface CollapsibleCalculatorProps {
 }
 
 export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
-  initialDose = 18,
+  initialDose = 20,
   initialRatio = 16,
   initialWater,
   defaultDose,

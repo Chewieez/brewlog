@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { DEFAULT_PRESET_RECIPES } from "./presets";
+import {
+  DEFAULT_PRESET_RECIPES,
+  DEFAULT_FREE_BREW_DOSE,
+  DEFAULT_FREE_BREW_RATIO,
+  DEFAULT_FREE_BREW_WATER,
+  DEFAULT_FREE_BREW_RECIPE,
+} from "./presets";
 import { DEFAULT_INITIAL_EQUIPMENT, Equipment } from "./index";
 
 describe("Preset Recipes Data Integrity", () => {
@@ -70,3 +76,16 @@ describe('DEFAULT_INITIAL_EQUIPMENT', () => {
     });
   });
 });
+
+describe('Free Brew Defaults', () => {
+  it('should have starting values of 20g coffee, 1:16 ratio, and 320g water', () => {
+    expect(DEFAULT_FREE_BREW_DOSE).toBe(20);
+    expect(DEFAULT_FREE_BREW_RATIO).toBe(16);
+    expect(DEFAULT_FREE_BREW_WATER).toBe(320);
+    expect(DEFAULT_FREE_BREW_RECIPE.coffeeDoseGrams).toBe(20);
+    expect(DEFAULT_FREE_BREW_RECIPE.ratio).toBe(16);
+    expect(DEFAULT_FREE_BREW_RECIPE.waterAmountGrams).toBe(320);
+    expect(DEFAULT_FREE_BREW_RECIPE.stages).toEqual([]);
+  });
+});
+

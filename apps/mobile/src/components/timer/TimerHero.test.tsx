@@ -319,7 +319,7 @@ describe('TimerHero Component', () => {
   });
 
   describe('Free Brew Mode', () => {
-    it('renders FREE BREW · MANUAL STOPWATCH subtitle and RATIO / SPLITS metrics', () => {
+    it('renders MANUAL STOPWATCH subtitle and RATIO / WATER TARGET metrics', () => {
       const { getByText, queryByText } = render(
         <TimerHero
           recipe={baseRecipe}
@@ -337,12 +337,12 @@ describe('TimerHero Component', () => {
         />
       );
 
-      expect(getByText('FREE BREW · MANUAL STOPWATCH')).toBeDefined();
+      expect(getByText('MANUAL STOPWATCH')).toBeDefined();
+      expect(getByText('WATER TARGET')).toBeDefined();
+      expect(getByText('500.0 g')).toBeDefined();
       expect(getByText('RATIO')).toBeDefined();
       expect(getByText(/1:16.67/)).toBeDefined();
-      expect(getByText('SPLITS')).toBeDefined();
-      expect(getByText('3')).toBeDefined();
-      expect(queryByText('WATER TARGET')).toBeNull();
+      expect(queryByText('SPLITS')).toBeNull();
       expect(queryByText('POUR TO')).toBeNull();
     });
 

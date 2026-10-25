@@ -540,7 +540,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
           <button
             type="button"
             onClick={handleStartCreate}
-            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-accent text-zinc-950 hover:bg-accent/90 font-medium text-xs font-sans uppercase tracking-wider shadow-sm cursor-pointer transition-colors"
+            className="self-start sm:self-auto flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-sm transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>LOG REVIEW</span>
