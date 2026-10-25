@@ -42,62 +42,64 @@ export const RecipesCatalogScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView
-      ref={scrollRef}
-      style={styles.container}
-      contentContainerStyle={[
-        styles.content,
-        { paddingBottom: getTabScreenBottomPadding(insets.bottom) },
-      ]}
-    >
-      <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
-        <View style={styles.titleRow}>
-          <View style={styles.headerLeft}>
-            <Text style={styles.headerTitle}>Recipes</Text>
-            <Text style={styles.headerSubtitle}>
-              Specialty brew guides alongside your custom recipes.
-            </Text>
+    <View style={styles.container}>
+      <ScrollView
+        ref={scrollRef}
+        style={styles.container}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: getTabScreenBottomPadding(insets.bottom) },
+        ]}
+      >
+        <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
+          <View style={styles.titleRow}>
+            <View style={styles.headerLeft}>
+              <Text style={styles.headerTitle}>Recipes</Text>
+              <Text style={styles.headerSubtitle}>
+                Specialty brew guides alongside your custom recipes.
+              </Text>
+            </View>
+            <ProfileHeaderButton onPress={openAuthSheet} />
           </View>
-          <ProfileHeaderButton onPress={openAuthSheet} />
-        </View>
-        <View style={styles.actionRow}>
-          <Pressable
-            onPress={handleCreateNew}
-            style={styles.addButton}
-            accessibilityRole="button"
-            accessibilityLabel="Create new custom recipe"
-          >
-            <Plus size={16} color={colors.canvas} />
-            <Text style={styles.addButtonText}>NEW RECIPE</Text>
-          </Pressable>
-        </View>
-      </View>
-
-      <MethodFilterBar
-        recipes={recipes}
-        selectedMethod={selectedFilter}
-        onSelectMethod={setSelectedFilter}
-      />
-
-      <View style={styles.listContainer}>
-        {filteredRecipes.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyTitle}>No Recipes Found</Text>
-            <Text style={styles.emptySubtitle}>
-              No recipes match the selected brew method filter.
-            </Text>
+          <View style={styles.actionRow}>
+            <Pressable
+              onPress={handleCreateNew}
+              style={styles.addButton}
+              accessibilityRole="button"
+              accessibilityLabel="Create new custom recipe"
+            >
+              <Plus size={16} color={colors.canvas} />
+              <Text style={styles.addButtonText}>NEW RECIPE</Text>
+            </Pressable>
           </View>
-        ) : (
-          filteredRecipes.map((recipe) => (
-            <RecipeCard
-              key={recipe.id}
-              recipe={recipe}
-              onPress={handleSelectRecipe}
-            />
-          ))
-        )}
-      </View>
-    </ScrollView>
+        </View>
+
+        <MethodFilterBar
+          recipes={recipes}
+          selectedMethod={selectedFilter}
+          onSelectMethod={setSelectedFilter}
+        />
+
+        <View style={styles.listContainer}>
+          {filteredRecipes.length === 0 ? (
+            <View style={styles.emptyCard}>
+              <Text style={styles.emptyTitle}>No Recipes Found</Text>
+              <Text style={styles.emptySubtitle}>
+                No recipes match the selected brew method filter.
+              </Text>
+            </View>
+          ) : (
+            filteredRecipes.map((recipe) => (
+              <RecipeCard
+                key={recipe.id}
+                recipe={recipe}
+                onPress={handleSelectRecipe}
+              />
+            ))
+          )}
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
