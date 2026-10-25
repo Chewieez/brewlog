@@ -44,6 +44,11 @@ vi.mock('../../src/features/auth/AuthContext', () => ({
     session: null,
     loading: false,
   }),
+  useOptionalAuth: () => ({
+    user: null,
+    session: null,
+    loading: false,
+  }),
 }));
 
 vi.mock('react-native', () => ({

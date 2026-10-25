@@ -28,6 +28,7 @@ vi.mock('../../../lib/supabase', () => ({
 
 vi.mock('../../auth/AuthContext', () => ({
   useAuth: () => ({ user: null }),
+  useOptionalAuth: () => ({ user: null }),
 }));
 
 const mockPush = vi.fn();
