@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   StyleSheet,
   ListRenderItemInfo,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus, Search, X, Bean as BeanIcon, Archive, Snowflake } from 'lucide-react-native';
 import { Bean, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { FONTS } from '../../../theme/fonts';
@@ -17,6 +17,10 @@ import { useStash } from '../StashContext';
 import { BeanCard } from '../components/BeanCard';
 import { CellarSummaryBar } from '../components/CellarSummaryBar';
 import { calculateBeanRestingInfo } from '../utils/restingUtils';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthModal } from '../../auth/AuthModalContext';
+import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
+import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -49,6 +53,10 @@ const PROCESS_OPTIONS: ProcessOption[] = [
 
 export const StashCatalogScreen: React.FC = () => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { openAuthSheet } = useAuthModal();
+  const flatListRef = useRef<FlatList<Bean>>(null);
+  useScrollToTop(flatListRef);
   const {
     activeBeans,
     frozenBeans,
@@ -254,16 +262,25 @@ export const StashCatalogScreen: React.FC = () => {
   };
 
   const renderHeader = () => (
-    <View style={styles.headerContainer}>
-      {/* Top Title & Add Bag Action */}
+    <View
+      style={[
+        styles.headerContainer,
+        { paddingTop: Math.max(insets.top, 16) },
+      ]}
+    >
+      {/* Top Title & Profile Row */}
       <View style={styles.titleRow}>
         <View style={styles.titleTextContainer}>
-          <Text style={styles.headerEyebrow}>CELLAR INVENTORY</Text>
-          <Text style={styles.headerTitle}>Bean Stash</Text>
+          <Text style={styles.headerTitle}>Stash</Text>
           <Text style={styles.headerSubtitle}>
             Manage roast dates, resting curves, and freezer storage.
           </Text>
         </View>
+        <ProfileHeaderButton onPress={openAuthSheet} />
+      </View>
+
+      {/* Screen Action Button */}
+      <View style={styles.actionRow}>
         <Pressable
           onPress={handleAddBag}
           style={styles.addButton}
@@ -383,12 +400,16 @@ export const StashCatalogScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <FlatList
+        ref={flatListRef}
         data={filteredBeans}
         keyExtractor={(item) => item.id}
         renderItem={renderBeanItem}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmptyComponent}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingBottom: getTabScreenBottomPadding(insets.bottom) },
+        ]}
         ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
         keyboardShouldPersistTaps="handled"
       />
@@ -401,9 +422,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.canvas,
   },
-  listContent: {
-    paddingBottom: 36,
-  },
+  listContent: {},
   headerContainer: {
     paddingHorizontal: 16,
     paddingTop: 16,
@@ -419,24 +438,21 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 12,
   },
-  headerEyebrow: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 11,
-    color: colors.accent,
-    letterSpacing: 1.2,
-    marginBottom: 4,
-  },
   headerTitle: {
-    fontFamily: FONTS.sansBold,
-    fontSize: 22,
+    fontFamily: FONTS.displaySemiBold,
+    fontSize: 26,
     color: colors.textPrimary,
-    marginBottom: 4,
   },
   headerSubtitle: {
-    fontFamily: FONTS.sansRegular,
+    fontFamily: FONTS.bodyRegular,
     fontSize: 13,
     color: colors.textSecondary,
-    lineHeight: 18,
+    marginTop: 2,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   addButton: {
     flexDirection: 'row',

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, ScrollView, StyleSheet, Text, Pressable, Alert } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useScrollToTop } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import {
   INDUSTRIAL_PRECISION_THEME,
@@ -27,11 +27,19 @@ import { FONTS } from '../../src/theme/fonts';
 import { AVAILABLE_METHODS } from '../../src/utils/recipeUtils';
 import { mobileFeedback } from '../../src/lib/mobileFeedback';
 import { buildTimerReviewParams } from '../../src/features/timer/buildTimerReviewParams';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthModal } from '../../src/features/auth/AuthModalContext';
+import { ProfileHeaderButton } from '../../src/features/auth/ProfileHeaderButton';
+import { getTabScreenBottomPadding } from '../../src/components/navigation/tabBarConstants';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export default function TimerScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { openAuthSheet } = useAuthModal();
+  const scrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
+  useScrollToTop(scrollRef as any);
   const params = useLocalSearchParams<{ mode?: string }>();
   const { activeTimerRecipe, activeTimerDose, setActiveTimerRecipe } = useRecipes();
 
@@ -262,11 +270,29 @@ export default function TimerScreen() {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-    >
+    <View style={styles.container}>
+      <ScrollView
+        ref={scrollRef}
+        style={styles.container}
+        contentContainerStyle={[
+          styles.contentContainer,
+          { paddingBottom: getTabScreenBottomPadding(insets.bottom) },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Top In-Screen Header */}
+        <View
+          style={[
+            styles.headerContainer,
+            { paddingTop: Math.max(insets.top, 16) },
+          ]}
+        >
+          <View style={styles.headerTitleContainer}>
+            <Text style={styles.title}>Timer</Text>
+          </View>
+          <ProfileHeaderButton onPress={openAuthSheet} />
+        </View>
+
       {/* Top Segmented Mode Switcher */}
       <View style={styles.modeToggleContainer}>
         <Pressable
@@ -431,7 +457,8 @@ export default function TimerScreen() {
           />
         </>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -440,8 +467,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.canvas,
   },
-  contentContainer: {
-    paddingBottom: 32,
+  contentContainer: {},
+  headerContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  headerTitleContainer: {
+    flex: 1,
+  },
+  title: {
+    fontFamily: FONTS.displaySemiBold,
+    fontSize: 26,
+    color: colors.textPrimary,
   },
   modeToggleContainer: {
     flexDirection: 'row',

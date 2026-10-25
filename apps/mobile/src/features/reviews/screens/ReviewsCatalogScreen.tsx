@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,13 +8,17 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus, Search, X } from 'lucide-react-native';
 import { TastingLog, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import { FONTS } from '../../../theme/fonts';
 import { useReviews } from '../ReviewsContext';
 import { ReviewsSummaryBar } from '../components/ReviewsSummaryBar';
 import { ReviewCard } from '../components/ReviewCard';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthModal } from '../../auth/AuthModalContext';
+import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
+import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -45,7 +49,11 @@ const RATING_OPTIONS: FilterOption<RatingFilter>[] = [
 
 export const ReviewsCatalogScreen: React.FC = () => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { openAuthSheet } = useAuthModal();
   const { reviews } = useReviews();
+  const flatListRef = useRef<FlatList<TastingLog>>(null);
+  useScrollToTop(flatListRef);
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedMethod, setSelectedMethod] = useState<MethodFilter>('all');
@@ -141,17 +149,25 @@ export const ReviewsCatalogScreen: React.FC = () => {
   }, [reviews, searchQuery, selectedMethod, selectedRating]);
 
   const renderHeader = () => (
-    <View style={styles.headerContainer}>
-      {/* Title & Action Row */}
+    <View
+      style={[
+        styles.headerContainer,
+        { paddingTop: Math.max(insets.top, 16) },
+      ]}
+    >
+      {/* Title & Profile Row */}
       <View style={styles.titleRow}>
         <View style={styles.titleCol}>
-          <Text style={styles.eyebrow}>TASTING JOURNAL</Text>
-          <Text style={styles.title}>Brew Reviews</Text>
+          <Text style={styles.title}>Reviews</Text>
           <Text style={styles.subtitle}>
             SCA scores, flavor profiles & sensory logs
           </Text>
         </View>
+        <ProfileHeaderButton onPress={openAuthSheet} />
+      </View>
 
+      {/* Action Button Row */}
+      <View style={styles.actionRow}>
         <Pressable
           style={styles.addButton}
           onPress={handleAddReview}
@@ -296,6 +312,7 @@ export const ReviewsCatalogScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <FlatList
+        ref={flatListRef}
         data={filteredReviews}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
@@ -305,7 +322,10 @@ export const ReviewsCatalogScreen: React.FC = () => {
         )}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmptyComponent}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingBottom: getTabScreenBottomPadding(insets.bottom) },
+        ]}
       />
     </View>
   );
@@ -317,12 +337,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.canvas,
   },
   listContent: {
-    padding: 16,
+    paddingHorizontal: 16,
     gap: 12,
   },
   headerContainer: {
     gap: 14,
     marginBottom: 8,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   titleRow: {
     flexDirection: 'row',
@@ -332,13 +357,6 @@ const styles = StyleSheet.create({
   },
   titleCol: {
     flex: 1,
-  },
-  eyebrow: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 10,
-    color: colors.accent,
-    letterSpacing: 1.2,
-    marginBottom: 2,
   },
   title: {
     fontFamily: FONTS.displaySemiBold,

@@ -10,6 +10,7 @@ vi.mock('expo-router', () => ({
   useRouter: () => ({
     push: mockPush,
   }),
+  useScrollToTop: vi.fn(),
 }));
 
 const mockReviews: TastingLog[] = [
@@ -230,11 +231,16 @@ vi.mock('react-native', () => ({
   },
 }));
 
+vi.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
+
 vi.mock('lucide-react-native', () => ({
   Plus: () => <span data-testid="plus-icon" />,
   Search: () => <span data-testid="search-icon" />,
   X: () => <span data-testid="x-icon" />,
   Star: () => <span data-testid="star-icon" />,
+  User: () => <span data-testid="user-icon" />,
 }));
 
 describe('ReviewsCatalogScreen', () => {
@@ -248,8 +254,7 @@ describe('ReviewsCatalogScreen', () => {
   it('renders title, summary bar, and review cards', () => {
     const { getByText } = render(<ReviewsCatalogScreen />);
 
-    expect(getByText('TASTING JOURNAL')).toBeTruthy();
-    expect(getByText('Brew Reviews')).toBeTruthy();
+    expect(getByText('Reviews')).toBeTruthy();
     expect(getByText('Worka Sakaro Anaerobic')).toBeTruthy();
     expect(getByText('Southern Weather')).toBeTruthy();
   });

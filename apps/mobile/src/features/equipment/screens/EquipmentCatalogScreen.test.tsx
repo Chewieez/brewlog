@@ -4,6 +4,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { EquipmentCatalogScreen } from './EquipmentCatalogScreen';
 import { Equipment } from '@brewlog/core';
+import { AuthModalContext } from '../../auth/AuthModalContext';
 
 vi.mock('react-native', () => ({
   View: ({ children, style: _style, accessibilityRole, accessibilityLabel, ...props }: any) => (
@@ -66,6 +67,10 @@ vi.mock('react-native', () => ({
   },
 }));
 
+vi.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
+
 vi.mock('lucide-react-native', () => ({
   Plus: () => null,
   Search: () => null,
@@ -76,11 +81,13 @@ vi.mock('lucide-react-native', () => ({
   Flame: () => null,
   Star: () => null,
   Layers: () => null,
+  User: () => null,
 }));
 
 const mockPush = vi.fn();
 vi.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush }),
+  useScrollToTop: vi.fn(),
 }));
 
 const mockItems: Equipment[] = [
@@ -161,10 +168,9 @@ describe('EquipmentCatalogScreen', () => {
     activeEquipmentContext = mockEquipmentContext;
   });
 
-  it('renders BREW GEAR eyebrow, Equipment title, and ADD EQUIPMENT button', () => {
+  it('renders Equipment title and ADD EQUIPMENT button', () => {
     const { getByText, getByRole } = render(<EquipmentCatalogScreen />);
 
-    expect(getByText('BREW GEAR')).toBeDefined();
     expect(getByText('Equipment')).toBeDefined();
     expect(getByText('Manage your grinders, brewers, scales, and kettles.')).toBeDefined();
     expect(getByRole('button', { name: 'Add new equipment' })).toBeDefined();
@@ -253,5 +259,23 @@ describe('EquipmentCatalogScreen', () => {
       pathname: '/equipment/modal',
       params: { id: 'eq-1' },
     });
+  });
+
+  it('triggers openAuthSheet when ProfileHeaderButton in header is tapped', () => {
+    const mockOpenAuthSheet = vi.fn();
+    const { getByRole } = render(
+      <AuthModalContext.Provider
+        value={{
+          openAuthSheet: mockOpenAuthSheet,
+          closeAuthSheet: vi.fn(),
+          isAuthSheetVisible: false,
+        }}
+      >
+        <EquipmentCatalogScreen />
+      </AuthModalContext.Provider>
+    );
+
+    fireEvent.click(getByRole('button', { name: 'Account profile' }));
+    expect(mockOpenAuthSheet).toHaveBeenCalledTimes(1);
   });
 });

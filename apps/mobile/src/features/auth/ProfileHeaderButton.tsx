@@ -1,9 +1,9 @@
 import React from "react";
-import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
+import { Pressable, View, Text, StyleSheet } from "react-native";
 import { User as UserIcon } from "lucide-react-native";
 import { INDUSTRIAL_PRECISION_THEME } from "@brewlog/core";
 import { FONTS } from "../../theme/fonts";
-import { useAuth } from "./AuthContext";
+import { useOptionalAuth } from "./AuthContext";
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
@@ -24,7 +24,8 @@ function getInitials(nameOrEmail: string): string {
 }
 
 export const ProfileHeaderButton: React.FC<ProfileHeaderButtonProps> = ({ onPress }) => {
-  const { user } = useAuth();
+  const auth = useOptionalAuth();
+  const user = auth?.user ?? null;
 
   const rawDisplayName = user?.user_metadata?.display_name;
   const trimmedName = typeof rawDisplayName === "string" ? rawDisplayName.trim() : "";
@@ -33,12 +34,11 @@ export const ProfileHeaderButton: React.FC<ProfileHeaderButtonProps> = ({ onPres
   const initials = displayName ? getInitials(displayName) : null;
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel="Account profile"
-      activeOpacity={0.7}
-      style={styles.container}
+      style={({ pressed }) => [styles.container, pressed && styles.pressed]}
     >
       {initials ? (
         <View style={styles.avatarBadge}>
@@ -50,7 +50,7 @@ export const ProfileHeaderButton: React.FC<ProfileHeaderButtonProps> = ({ onPres
           <UserIcon size={20} color={colors.textMuted} />
         </View>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -61,6 +61,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: 8,
+  },
+  pressed: {
+    opacity: 0.7,
   },
   iconWrapper: {
     width: 32,

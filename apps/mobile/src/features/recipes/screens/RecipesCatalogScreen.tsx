@@ -1,19 +1,27 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { INDUSTRIAL_PRECISION_THEME, BrewRecipe } from '@brewlog/core';
 import { useRecipes } from '../RecipeContext';
 import { MethodFilterBar } from '../components/MethodFilterBar';
 import { RecipeCard } from '../components/RecipeCard';
 import { FONTS } from '../../../theme/fonts';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthModal } from '../../auth/AuthModalContext';
+import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
+import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export const RecipesCatalogScreen: React.FC = () => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { openAuthSheet } = useAuthModal();
   const { recipes } = useRecipes();
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  const scrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
+  useScrollToTop(scrollRef as any);
 
   const filteredRecipes = useMemo(() => {
     if (selectedFilter === 'all') return recipes;
@@ -34,51 +42,64 @@ export const RecipesCatalogScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.headerEyebrow}>RECIPE CATALOG</Text>
-          <Text style={styles.headerTitle}>Curated Brew Profiles</Text>
-          <Text style={styles.headerSubtitle}>
-            Specialty brew guides alongside your custom recipes.
-          </Text>
-        </View>
-        <Pressable
-          onPress={handleCreateNew}
-          style={styles.addButton}
-          accessibilityRole="button"
-          accessibilityLabel="Create new custom recipe"
-        >
-          <Plus size={18} color={colors.canvas} />
-          <Text style={styles.addButtonText}>NEW</Text>
-        </Pressable>
-      </View>
-
-      <MethodFilterBar
-        recipes={recipes}
-        selectedMethod={selectedFilter}
-        onSelectMethod={setSelectedFilter}
-      />
-
-      <View style={styles.listContainer}>
-        {filteredRecipes.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyTitle}>No Recipes Found</Text>
-            <Text style={styles.emptySubtitle}>
-              No recipes match the selected brew method filter.
-            </Text>
+    <View style={styles.container}>
+      <ScrollView
+        ref={scrollRef}
+        style={styles.container}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: getTabScreenBottomPadding(insets.bottom) },
+        ]}
+      >
+        <View style={[styles.header, { paddingTop: Math.max(insets.top, 16) }]}>
+          <View style={styles.titleRow}>
+            <View style={styles.headerLeft}>
+              <Text style={styles.headerTitle}>Recipes</Text>
+              <Text style={styles.headerSubtitle}>
+                Specialty brew guides alongside your custom recipes.
+              </Text>
+            </View>
+            <ProfileHeaderButton onPress={openAuthSheet} />
           </View>
-        ) : (
-          filteredRecipes.map((recipe) => (
-            <RecipeCard
-              key={recipe.id}
-              recipe={recipe}
-              onPress={handleSelectRecipe}
-            />
-          ))
-        )}
-      </View>
-    </ScrollView>
+          <View style={styles.actionRow}>
+            <Pressable
+              onPress={handleCreateNew}
+              style={styles.addButton}
+              accessibilityRole="button"
+              accessibilityLabel="Create new custom recipe"
+            >
+              <Plus size={16} color={colors.canvas} />
+              <Text style={styles.addButtonText}>NEW RECIPE</Text>
+            </Pressable>
+          </View>
+        </View>
+
+        <MethodFilterBar
+          recipes={recipes}
+          selectedMethod={selectedFilter}
+          onSelectMethod={setSelectedFilter}
+        />
+
+        <View style={styles.listContainer}>
+          {filteredRecipes.length === 0 ? (
+            <View style={styles.emptyCard}>
+              <Text style={styles.emptyTitle}>No Recipes Found</Text>
+              <Text style={styles.emptySubtitle}>
+                No recipes match the selected brew method filter.
+              </Text>
+            </View>
+          ) : (
+            filteredRecipes.map((recipe) => (
+              <RecipeCard
+                key={recipe.id}
+                recipe={recipe}
+                onPress={handleSelectRecipe}
+              />
+            ))
+          )}
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -87,39 +108,36 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.canvas,
   },
-  content: {
-    paddingBottom: 32,
-  },
+  content: {},
   header: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    gap: 14,
+  },
+  titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   headerLeft: {
     flex: 1,
     marginRight: 12,
   },
-  headerEyebrow: {
-    fontSize: 11,
-    fontFamily: FONTS.monoBold,
-    color: colors.accent,
-    letterSpacing: 1.2,
-    marginBottom: 4,
-  },
   headerTitle: {
-    fontSize: 22,
-    fontFamily: FONTS.sansBold,
+    fontSize: 26,
+    fontFamily: FONTS.displaySemiBold,
     color: colors.textPrimary,
-    marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 13,
-    fontFamily: FONTS.sansRegular,
+    fontFamily: FONTS.bodyRegular,
     color: colors.textSecondary,
-    lineHeight: 18,
+    marginTop: 2,
   },
   addButton: {
     flexDirection: 'row',

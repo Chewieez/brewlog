@@ -62,6 +62,7 @@ vi.mock('@expo-google-fonts/jetbrains-mono', () => ({
 vi.mock('../src/features/auth/AuthContext', () => ({
   AuthProvider: ({ children }: any) => <div data-testid="mock-auth-provider">{children}</div>,
   useAuth: () => ({ user: null }),
+  useOptionalAuth: () => ({ user: null }),
 }));
 
 vi.mock('../src/features/recipes/RecipeContext', () => ({
