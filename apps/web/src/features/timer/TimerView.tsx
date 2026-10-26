@@ -163,14 +163,31 @@ export const TimerView: React.FC<TimerViewProps> = ({
     }
   };
 
+  const handleApplyRatio = (newRatio: number) => {
+    if (isRunning || elapsedSeconds > 0 || isFinished || isFreeBrewFinished) return;
+    if (newRatio > 0) {
+      const roundedRatio = Math.round(newRatio * 10) / 10;
+      if (mode === 'free_brew') {
+        const targetWater = freeBrewRecipe.waterAmountGrams;
+        const newDose = calculateCoffeeDose(targetWater, roundedRatio);
+        const clampedDose = Math.max(1, Math.min(200, Math.round(newDose * 10) / 10));
+        setFreeBrewDose(clampedDose);
+        setFreeBrewRecipe((prev) => rescaleRecipeDose(prev, clampedDose, roundedRatio, targetWater));
+      }
+    }
+  };
+
   const getDisplayDose = (grams: number, unit: WeightUnit) =>
     unit === 'imperial' ? String(gramsToOz(grams)) : String(grams);
 
   const getDisplayWater = (grams: number, unit: WeightUnit) =>
     unit === 'imperial' ? String(gramsToOz(grams)) : String(Math.round(grams));
 
+  const getDisplayRatio = (ratioVal: number) => String(Number(ratioVal.toFixed(1)));
+
   const [textDose, setTextDose] = useState(() => getDisplayDose(currentDose, currentWeightUnit));
   const [textWater, setTextWater] = useState(() => getDisplayWater(currentRecipe.waterAmountGrams, currentWeightUnit));
+  const [textRatio, setTextRatio] = useState(() => getDisplayRatio(currentRecipe.ratio));
 
   useEffect(() => {
     setTextDose(getDisplayDose(currentDose, currentWeightUnit));
@@ -179,6 +196,10 @@ export const TimerView: React.FC<TimerViewProps> = ({
   useEffect(() => {
     setTextWater(getDisplayWater(currentRecipe.waterAmountGrams, currentWeightUnit));
   }, [currentRecipe.waterAmountGrams, currentWeightUnit]);
+
+  useEffect(() => {
+    setTextRatio(getDisplayRatio(currentRecipe.ratio));
+  }, [currentRecipe.ratio]);
 
   const handleCommitDose = (e?: React.FocusEvent<HTMLInputElement>) => {
     const currentDisplay = currentWeightUnit === 'imperial' ? gramsToOz(currentDose) : currentDose;
@@ -253,6 +274,34 @@ export const TimerView: React.FC<TimerViewProps> = ({
       if (clampedGrams !== currentRecipe.waterAmountGrams) {
         handleApplyWater(clampedGrams);
       }
+    }
+  };
+
+  const handleCommitRatio = (e?: React.FocusEvent<HTMLInputElement>) => {
+    const currentDisplay = Number(currentRecipe.ratio.toFixed(1));
+
+    if (!isMetricEditable) {
+      setTextRatio(String(currentDisplay));
+      return;
+    }
+
+    const rawVal = e?.target ? e.target.value : textRatio;
+    const parsed = parseFloat(rawVal);
+
+    if (isNaN(parsed) || parsed <= 0) {
+      setTextRatio(String(currentDisplay));
+      return;
+    }
+
+    if (parsed === currentDisplay) {
+      setTextRatio(String(currentDisplay));
+      return;
+    }
+
+    const clampedRatio = Math.max(1, Math.min(30, Math.round(parsed * 10) / 10));
+    setTextRatio(String(clampedRatio));
+    if (clampedRatio !== currentRecipe.ratio) {
+      handleApplyRatio(clampedRatio);
     }
   };
 
@@ -612,11 +661,45 @@ export const TimerView: React.FC<TimerViewProps> = ({
               <div className="text-[11px] font-mono tracking-widest text-text-muted uppercase">
                 {mode === 'free_brew' ? 'RATIO' : 'POUR TO'}
               </div>
-              <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
-                {mode === 'free_brew'
-                  ? `1:${currentRecipe.ratio}`
-                  : formatWeight(currentStage.targetWaterWeightGrams, currentWeightUnit)}
-              </div>
+              {mode === 'free_brew' ? (
+                isMetricEditable ? (
+                  <div className="flex items-baseline border-b border-border-subtle focus-within:border-accent transition-colors mt-1 w-fit">
+                    <span className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums select-none">
+                      1:
+                    </span>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="1"
+                      max="30"
+                      value={textRatio}
+                      onChange={(e) => setTextRatio(e.target.value)}
+                      onBlur={handleCommitRatio}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          (e.target as HTMLInputElement).blur();
+                        } else if (e.key === 'Escape') {
+                          const revert = getDisplayRatio(currentRecipe.ratio);
+                          setTextRatio(revert);
+                          (e.target as HTMLInputElement).value = revert;
+                          (e.target as HTMLInputElement).blur();
+                        }
+                      }}
+                      style={{ width: `${Math.max(1, (textRatio || '').length)}ch` }}
+                      className="bg-transparent text-2xl sm:text-3xl font-light text-text-primary tabular-nums focus:outline-none p-0 text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      aria-label="Timer brew ratio"
+                    />
+                  </div>
+                ) : (
+                  <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
+                    1:{currentRecipe.ratio}
+                  </div>
+                )
+              ) : (
+                <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
+                  {formatWeight(currentStage.targetWaterWeightGrams, currentWeightUnit)}
+                </div>
+              )}
             </div>
           </div>
 

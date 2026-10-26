@@ -577,10 +577,11 @@ const styles = StyleSheet.create({
     marginLeft: 2,
   },
   ratioPrefix: {
-    fontSize: 24,
+    fontSize: 26,
     fontFamily: FONTS.displayLight,
-    color: colors.textMuted,
-    marginRight: 1,
+    color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
+    marginRight: 0,
   },
   metricValueAccent: {
     color: colors.accent,
