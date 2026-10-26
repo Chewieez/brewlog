@@ -592,6 +592,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   onClick={() => doseInputRef.current?.focus()}
                   className="flex items-baseline border-b border-border-subtle focus-within:border-accent transition-colors mt-1 w-fit cursor-text"
                 >
+                  {/* Note: explicit onClick ensures focus delegation in simulated environments like JSDOM / RTL while htmlFor provides native browser label behavior */}
                   <input
                     id="timer-coffee-dose-input"
                     ref={doseInputRef}
@@ -638,6 +639,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   onClick={() => waterInputRef.current?.focus()}
                   className="flex items-baseline border-b border-border-subtle focus-within:border-accent transition-colors mt-1 w-fit cursor-text"
                 >
+                  {/* Note: explicit onClick ensures focus delegation in simulated environments like JSDOM / RTL while htmlFor provides native browser label behavior */}
                   <input
                     id="timer-water-target-input"
                     ref={waterInputRef}
@@ -685,6 +687,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                     onClick={() => ratioInputRef.current?.focus()}
                     className="flex items-baseline border-b border-border-subtle focus-within:border-accent transition-colors mt-1 w-fit cursor-text"
                   >
+                    {/* Note: explicit onClick ensures focus delegation in simulated environments like JSDOM / RTL while htmlFor provides native browser label behavior */}
                     <span className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums select-none cursor-text">
                       1:
                     </span>

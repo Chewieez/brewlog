@@ -210,6 +210,7 @@ export default function TimerScreen() {
 
   const handleApplyRatio = (newRatio: number) => {
     if (isRunning || elapsedSeconds > 0 || isFinished) return;
+    if (timerMode !== 'free_brew') return;
     if (newRatio > 0) {
       const roundedRatio = Math.round(newRatio * 10) / 10;
       const targetWater = freeBrewRecipe.waterAmountGrams;

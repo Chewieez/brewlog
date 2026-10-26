@@ -582,7 +582,6 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontVariant: ['tabular-nums'],
     marginRight: 0,
-    pointerEvents: 'none',
   },
   metricValueAccent: {
     color: colors.accent,
