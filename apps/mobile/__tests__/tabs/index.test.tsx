@@ -220,10 +220,11 @@ describe('TimerScreen - Mode Switch & Active Brew Guard', () => {
   });
 
   it('adjusts dose via inline timer input and rescales recipe water target', () => {
-    const { getByLabelText, getByText } = render(<TimerScreen />);
+    const { getByLabelText } = render(<TimerScreen />);
 
     // Initial V60: 30g coffee, 500g water
-    expect(getByText('500.0 g')).toBeDefined();
+    const waterInput = getByLabelText('Timer water target in grams') as HTMLInputElement;
+    expect(waterInput.value).toBe('500');
 
     // Change dose via inline input: 30g -> 20g
     const timerDoseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
@@ -233,7 +234,7 @@ describe('TimerScreen - Mode Switch & Active Brew Guard', () => {
     fireEvent.blur(timerDoseInput);
 
     expect(timerDoseInput.value).toBe('20');
-    expect(getByText('333.0 g')).toBeDefined();
+    expect(waterInput.value).toBe('333');
   });
 
   it('locks dose input to read-only while timer is running', () => {
@@ -248,7 +249,7 @@ describe('TimerScreen - Mode Switch & Active Brew Guard', () => {
   });
 
   it('applies custom dose from CollapsibleCalculator to timer and rescales recipe', () => {
-    const { getByLabelText, getByText } = render(<TimerScreen />);
+    const { getByLabelText } = render(<TimerScreen />);
 
     // Open calculator
     const calcToggle = getByLabelText('Toggle Ratio Calculator');
@@ -265,7 +266,8 @@ describe('TimerScreen - Mode Switch & Active Brew Guard', () => {
     // TimerHero should now show 20g dose in input and 333g water target
     const heroDoseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
     expect(heroDoseInput.value).toBe('20');
-    expect(getByText('333.0 g')).toBeDefined();
+    const heroWaterInput = getByLabelText('Timer water target in grams') as HTMLInputElement;
+    expect(heroWaterInput.value).toBe('333');
   });
 
   it('initializes Free Brew mode with default starting values (20g coffee, 1:16 ratio, 320g water target)', () => {
@@ -275,8 +277,68 @@ describe('TimerScreen - Mode Switch & Active Brew Guard', () => {
     expect(getByText('MANUAL STOPWATCH')).toBeDefined();
     const heroDoseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
     expect(heroDoseInput.value).toBe('20');
-    expect(getByText('320.0 g')).toBeDefined();
-    expect(getByText('1:16')).toBeDefined();
+    const heroWaterInput = getByLabelText('Timer water target in grams') as HTMLInputElement;
+    expect(heroWaterInput.value).toBe('320');
+    const heroRatioInput = getByLabelText('Timer brew ratio') as HTMLInputElement;
+    expect(heroRatioInput.value).toBe('16');
+    expect(getByText('1:')).toBeDefined();
+  });
+
+  it('adjusts water target via inline timer input and rescales dose in Guided Recipe mode', () => {
+    mockSearchParams = { mode: 'recipe' };
+    const { getByLabelText } = render(<TimerScreen />);
+
+    const waterInput = getByLabelText('Timer water target in grams') as HTMLInputElement;
+    expect(waterInput.value).toBe('500');
+
+    // Change water target to 300
+    fireEvent.change(waterInput, { target: { value: '300' } });
+    fireEvent.blur(waterInput);
+
+    expect(waterInput.value).toBe('300');
+    // calculateCoffeeDose(300, 16.67) = 18.0g
+    const doseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
+    expect(doseInput.value).toBe('18');
+  });
+
+  it('adjusts water target via inline timer input and recalculates ratio in Free Brew mode', () => {
+    mockSearchParams = { mode: 'free_brew' };
+    const { getByLabelText } = render(<TimerScreen />);
+
+    const waterInput = getByLabelText('Timer water target in grams') as HTMLInputElement;
+    expect(waterInput.value).toBe('320');
+
+    // Change water target to 300
+    fireEvent.change(waterInput, { target: { value: '300' } });
+    fireEvent.blur(waterInput);
+
+    expect(waterInput.value).toBe('300');
+    // calculateRatio(20, 300) = 15.0
+    const ratioInput = getByLabelText('Timer brew ratio') as HTMLInputElement;
+    expect(ratioInput.value).toBe('15');
+    // Coffee dose remains fixed at 20
+    const doseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
+    expect(doseInput.value).toBe('20');
+  });
+
+  it('adjusts ratio via inline timer input and changes only coffee dose in Free Brew mode', () => {
+    mockSearchParams = { mode: 'free_brew' };
+    const { getByLabelText } = render(<TimerScreen />);
+
+    const ratioInput = getByLabelText('Timer brew ratio') as HTMLInputElement;
+    expect(ratioInput.value).toBe('16');
+
+    // Change ratio to 15
+    fireEvent.change(ratioInput, { target: { value: '15' } });
+    fireEvent.blur(ratioInput);
+
+    expect(ratioInput.value).toBe('15');
+    // Water remains fixed at 320
+    const waterInput = getByLabelText('Timer water target in grams') as HTMLInputElement;
+    expect(waterInput.value).toBe('320');
+    // calculateCoffeeDose(320, 15) = 21.3
+    const doseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
+    expect(doseInput.value).toBe('21.3');
   });
 });
 
