@@ -308,7 +308,8 @@ describe('TimerView', () => {
     );
 
     // Initial Free Brew starting ratio is 1:16 and target water is 320g
-    expect(screen.getByText('1:16')).toBeDefined();
+    const initialRatioInput = screen.getByLabelText(/Timer brew ratio/i) as HTMLInputElement;
+    expect(initialRatioInput.value).toBe('16');
     const waterInput = screen.getByLabelText(/Timer water target in grams/i) as HTMLInputElement;
     expect(waterInput.value).toBe('320');
 
@@ -333,8 +334,9 @@ describe('TimerView', () => {
       fireEvent.click(screen.getByText(/APPLY DOSE/i));
     });
 
-    // Ratio should now be 1:15 and water target should be 300g
-    expect(screen.getByText('1:15')).toBeDefined();
+    // Ratio should now be 15 and water target should be 300g
+    const ratioInput = screen.getByLabelText(/Timer brew ratio/i) as HTMLInputElement;
+    expect(ratioInput.value).toBe('15');
     expect(waterInput.value).toBe('300');
     const doseInput = screen.getByLabelText(/Timer coffee dose in grams/i) as HTMLInputElement;
     expect(doseInput.value).toBe('20');
@@ -389,6 +391,7 @@ describe('TimerView', () => {
 
     const doseInput = screen.getByLabelText(/Timer coffee dose in grams/i) as HTMLInputElement;
     const waterInput = screen.getByLabelText(/Timer water target in grams/i) as HTMLInputElement;
+    const ratioInput = screen.getByLabelText(/Timer brew ratio/i) as HTMLInputElement;
 
     expect(doseInput.value).toBe('20');
     expect(doseInput.getAttribute('min')).toBe('1');
@@ -396,7 +399,8 @@ describe('TimerView', () => {
     expect(waterInput.value).toBe('320');
     expect(waterInput.getAttribute('min')).toBe('10');
     expect(waterInput.getAttribute('max')).toBe('3000');
-    expect(screen.getByText('1:16')).toBeDefined();
+    expect(ratioInput.value).toBe('16');
+    expect(screen.getByText('1:')).toBeDefined();
 
     // Inline edit dose to 25g
     act(() => {
@@ -407,7 +411,7 @@ describe('TimerView', () => {
     expect(doseInput.value).toBe('25');
     // When dose changes to 25g, water rescales proportionally with ratio 16 -> 400g
     expect(waterInput.value).toBe('400');
-    expect(screen.getByText('1:16')).toBeDefined();
+    expect(ratioInput.value).toBe('16');
 
     // Inline edit water to 350g
     act(() => {
@@ -417,7 +421,51 @@ describe('TimerView', () => {
 
     expect(waterInput.value).toBe('350');
     // In free brew, updating water target recalculates ratio: 350 / 25 = 14
-    expect(screen.getByText('1:14')).toBeDefined();
+    expect(ratioInput.value).toBe('14');
+  });
+
+  it('allows inline editing of ratio in Free Brew mode and changes only coffee dose', () => {
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        initialMode="free_brew"
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    const doseInput = screen.getByLabelText(/Timer coffee dose in grams/i) as HTMLInputElement;
+    const waterInput = screen.getByLabelText(/Timer water target in grams/i) as HTMLInputElement;
+    const ratioInput = screen.getByLabelText(/Timer brew ratio/i) as HTMLInputElement;
+
+    expect(doseInput.value).toBe('20');
+    expect(waterInput.value).toBe('320');
+    expect(ratioInput.value).toBe('16');
+
+    // Clicking the "1:" label prefix sets focus on the ratio input
+    const ratioPrefix = screen.getByText('1:');
+    fireEvent.click(ratioPrefix);
+    expect(document.activeElement).toBe(ratioInput);
+
+    // Inline edit ratio to 15
+    act(() => {
+      fireEvent.change(ratioInput, { target: { value: '15' } });
+      fireEvent.blur(ratioInput);
+    });
+
+    expect(ratioInput.value).toBe('15');
+    // Water remains fixed at 320g
+    expect(waterInput.value).toBe('320');
+    // calculateCoffeeDose(320, 15) = 21.3g
+    expect(doseInput.value).toBe('21.3');
+
+    // Ratio also reverts on Escape
+    act(() => {
+      fireEvent.change(ratioInput, { target: { value: '18' } });
+      fireEvent.keyDown(ratioInput, { key: 'Escape' });
+    });
+
+    expect(ratioInput.value).toBe('15');
   });
 
   it('locks dose and water readouts to static text during active and paused brews', () => {
@@ -488,9 +536,11 @@ describe('TimerView', () => {
 
     const doseInput = screen.getByLabelText(/Timer coffee dose in grams/i) as HTMLInputElement;
     const waterInput = screen.getByLabelText(/Timer water target in grams/i) as HTMLInputElement;
+    const ratioInput = screen.getByLabelText(/Timer brew ratio/i) as HTMLInputElement;
 
     expect(doseInput.value).toBe('20');
     expect(waterInput.value).toBe('320');
+    expect(ratioInput.value).toBe('16');
 
     // Change dose input then press Escape
     act(() => {
@@ -501,7 +551,7 @@ describe('TimerView', () => {
     // Dose should have reverted to 20 and water remained 320
     expect(doseInput.value).toBe('20');
     expect(waterInput.value).toBe('320');
-    expect(screen.getByText('1:16')).toBeDefined();
+    expect(ratioInput.value).toBe('16');
 
     // Change water input then press Escape
     act(() => {
@@ -512,7 +562,7 @@ describe('TimerView', () => {
     // Water should have reverted to 320 and dose remained 20
     expect(waterInput.value).toBe('320');
     expect(doseInput.value).toBe('20');
-    expect(screen.getByText('1:16')).toBeDefined();
+    expect(ratioInput.value).toBe('16');
   });
 
   it('prevents imperial precision drift on blur and Escape in imperial mode (e.g. 18g -> 0.63 oz invariance)', () => {

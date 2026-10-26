@@ -29,6 +29,8 @@ export interface TimerHeroProps {
   onToggleMute?: () => void;
   totalProgress?: number;
   onChangeDose?: (newDose: number) => void;
+  onChangeWater?: (newWater: number) => void;
+  onChangeRatio?: (newRatio: number) => void;
   mode?: TimerMode;
   onSplit?: () => void;
   onTagSplit?: (tag: SplitTag, label: string) => void;
@@ -56,6 +58,8 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
   onToggleMute = () => {},
   totalProgress = 0,
   onChangeDose,
+  onChangeWater,
+  onChangeRatio,
   mode = 'recipe',
   onSplit,
   onTagSplit,
@@ -68,15 +72,39 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
   const getDisplayDose = (grams: number, unit: WeightUnit = 'metric') =>
     unit === 'imperial' ? String(gramsToOz(grams)) : String(grams);
 
+  const getDisplayWater = (grams: number, unit: WeightUnit = 'metric') =>
+    unit === 'imperial' ? String(gramsToOz(grams)) : String(Math.round(grams));
+
+  const getDisplayRatio = (ratioVal: number) => String(Number(ratioVal.toFixed(1)));
+
   const [textDose, setTextDose] = useState(() => getDisplayDose(doseGrams, weightUnit));
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<React.ComponentRef<typeof TextInput>>(null);
+
+  const [textWater, setTextWater] = useState(() => getDisplayWater(recipe.waterAmountGrams, weightUnit));
+  const [isWaterFocused, setIsWaterFocused] = useState(false);
+  const waterInputRef = useRef<React.ComponentRef<typeof TextInput>>(null);
+
+  const [textRatio, setTextRatio] = useState(() => getDisplayRatio(recipe.ratio));
+  const [isRatioFocused, setIsRatioFocused] = useState(false);
+  const ratioInputRef = useRef<React.ComponentRef<typeof TextInput>>(null);
 
   useEffect(() => {
     setTextDose(getDisplayDose(doseGrams, weightUnit));
   }, [doseGrams, weightUnit]);
 
+  useEffect(() => {
+    setTextWater(getDisplayWater(recipe.waterAmountGrams, weightUnit));
+  }, [recipe.waterAmountGrams, weightUnit]);
+
+  useEffect(() => {
+    setTextRatio(getDisplayRatio(recipe.ratio));
+  }, [recipe.ratio]);
+
   const isDoseEditable = !isRunning && elapsedSeconds === 0 && !isFinished && Boolean(onChangeDose);
+  const isWaterEditable = !isRunning && elapsedSeconds === 0 && !isFinished && Boolean(onChangeWater);
+  const isRatioEditable =
+    mode === 'free_brew' && !isRunning && elapsedSeconds === 0 && !isFinished && Boolean(onChangeRatio);
 
   const handleCommitDose = () => {
     setIsFocused(false);
@@ -113,6 +141,73 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
       if (clampedGrams !== doseGrams && onChangeDose) {
         onChangeDose(clampedGrams);
       }
+    }
+  };
+
+  const handleCommitWater = () => {
+    setIsWaterFocused(false);
+    const currentDisplayValue =
+      weightUnit === 'imperial' ? gramsToOz(recipe.waterAmountGrams) : Math.round(recipe.waterAmountGrams);
+
+    if (!isWaterEditable) {
+      setTextWater(String(currentDisplayValue));
+      return;
+    }
+
+    const parsed = parseFloat(textWater);
+
+    if (isNaN(parsed) || parsed <= 0) {
+      setTextWater(String(currentDisplayValue));
+      return;
+    }
+
+    if (parsed === currentDisplayValue) {
+      setTextWater(String(currentDisplayValue));
+      return;
+    }
+
+    if (weightUnit === 'imperial') {
+      const rawGrams = ozToGrams(parsed);
+      const clampedGrams = Math.max(10, Math.min(3000, Math.round(rawGrams)));
+      const displayOz = gramsToOz(clampedGrams);
+      setTextWater(String(displayOz));
+      if (clampedGrams !== recipe.waterAmountGrams && onChangeWater) {
+        onChangeWater(clampedGrams);
+      }
+    } else {
+      const clampedGrams = Math.max(10, Math.min(3000, Math.round(parsed)));
+      setTextWater(String(clampedGrams));
+      if (clampedGrams !== recipe.waterAmountGrams && onChangeWater) {
+        onChangeWater(clampedGrams);
+      }
+    }
+  };
+
+  const handleCommitRatio = () => {
+    setIsRatioFocused(false);
+    const currentDisplayValue = Number(recipe.ratio.toFixed(1));
+
+    if (!isRatioEditable) {
+      setTextRatio(String(currentDisplayValue));
+      return;
+    }
+
+    const parsed = parseFloat(textRatio);
+
+    if (isNaN(parsed) || parsed <= 0) {
+      setTextRatio(String(currentDisplayValue));
+      return;
+    }
+
+    if (parsed === currentDisplayValue) {
+      setTextRatio(String(currentDisplayValue));
+      return;
+    }
+
+    const clampedRatio = Math.max(1, Math.min(30, Math.round(parsed * 10) / 10));
+    setTextRatio(String(clampedRatio));
+    if (clampedRatio !== recipe.ratio && onChangeRatio) {
+      onChangeRatio(clampedRatio);
     }
   };
 
@@ -172,7 +267,7 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
                 style={styles.doseInput}
                 accessibilityLabel={`Timer coffee dose in ${weightUnit === 'imperial' ? 'ounces' : 'grams'}`}
               />
-              <Text style={styles.doseUnit}>{weightUnit === 'imperial' ? 'oz' : 'g'}</Text>
+              <Text pointerEvents="none" style={styles.doseUnit}>{weightUnit === 'imperial' ? 'oz' : 'g'}</Text>
             </Pressable>
           ) : (
             <View style={styles.doseDisplayRow}>
@@ -183,17 +278,75 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
 
         <View style={styles.metricItem}>
           <Text style={styles.metricLabel}>WATER TARGET</Text>
-          <Text style={styles.metricValue}>
-            {formatWeight(recipe.waterAmountGrams, weightUnit)}
-          </Text>
+          {isWaterEditable ? (
+            <Pressable
+              onPress={() => waterInputRef.current?.focus()}
+              hitSlop={{ top: 8, bottom: 8, left: 4, right: 8 }}
+              style={[
+                styles.doseInputWrapper,
+                isWaterFocused && styles.doseInputWrapperFocused,
+              ]}
+              accessibilityRole="none"
+            >
+              <TextInput
+                ref={waterInputRef}
+                value={textWater}
+                onChangeText={setTextWater}
+                onFocus={() => setIsWaterFocused(true)}
+                onBlur={handleCommitWater}
+                onSubmitEditing={handleCommitWater}
+                keyboardType="decimal-pad"
+                returnKeyType="done"
+                selectTextOnFocus
+                style={styles.doseInput}
+                accessibilityLabel={`Timer water target in ${weightUnit === 'imperial' ? 'ounces' : 'grams'}`}
+              />
+              <Text pointerEvents="none" style={styles.doseUnit}>{weightUnit === 'imperial' ? 'oz' : 'g'}</Text>
+            </Pressable>
+          ) : (
+            <View style={styles.doseDisplayRow}>
+              <Text style={styles.metricValue}>
+                {formatWeight(recipe.waterAmountGrams, weightUnit)}
+              </Text>
+            </View>
+          )}
         </View>
 
         {mode === 'free_brew' ? (
           <View style={styles.metricItem}>
             <Text style={styles.metricLabel}>RATIO</Text>
-            <Text style={styles.metricValue}>
-              1:{recipe.ratio}
-            </Text>
+            {isRatioEditable ? (
+              <Pressable
+                onPress={() => ratioInputRef.current?.focus()}
+                hitSlop={{ top: 8, bottom: 8, left: 4, right: 8 }}
+                style={[
+                  styles.doseInputWrapper,
+                  isRatioFocused && styles.doseInputWrapperFocused,
+                ]}
+                accessibilityRole="none"
+              >
+                <Text pointerEvents="none" style={styles.ratioPrefix}>1:</Text>
+                <TextInput
+                  ref={ratioInputRef}
+                  value={textRatio}
+                  onChangeText={setTextRatio}
+                  onFocus={() => setIsRatioFocused(true)}
+                  onBlur={handleCommitRatio}
+                  onSubmitEditing={handleCommitRatio}
+                  keyboardType="decimal-pad"
+                  returnKeyType="done"
+                  selectTextOnFocus
+                  style={styles.doseInput}
+                  accessibilityLabel="Timer brew ratio"
+                />
+              </Pressable>
+            ) : (
+              <View style={styles.doseDisplayRow}>
+                <Text style={styles.metricValue}>
+                  1:{recipe.ratio}
+                </Text>
+              </View>
+            )}
           </View>
         ) : (
           <View style={styles.metricItem}>
@@ -422,6 +575,13 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.displayLight,
     color: colors.textMuted,
     marginLeft: 2,
+  },
+  ratioPrefix: {
+    fontSize: 26,
+    fontFamily: FONTS.displayLight,
+    color: colors.textPrimary,
+    fontVariant: ['tabular-nums'],
+    marginRight: 0,
   },
   metricValueAccent: {
     color: colors.accent,

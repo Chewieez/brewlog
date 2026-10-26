@@ -8,6 +8,8 @@ import {
   DEFAULT_FREE_BREW_RECIPE,
   DEFAULT_FREE_BREW_DOSE,
   rescaleRecipeDose,
+  calculateRatio,
+  calculateCoffeeDose,
   TimerMode,
   SplitTag,
   splitsToRecipeStages,
@@ -190,6 +192,36 @@ export default function TimerScreen() {
     }
   };
 
+  const handleApplyWater = (newWater: number) => {
+    if (isRunning || elapsedSeconds > 0 || isFinished) return;
+    if (newWater > 0) {
+      const roundedWater = Math.round(newWater);
+      if (timerMode === 'free_brew') {
+        const newRatio = calculateRatio(freeBrewDose, roundedWater);
+        const scaled = rescaleRecipeDose(freeBrewRecipe, freeBrewDose, newRatio, roundedWater);
+        setFreeBrewRecipe(scaled);
+      } else {
+        const newDose = calculateCoffeeDose(roundedWater, activeRecipe.ratio);
+        const scaled = rescaleRecipeDose(activeTimerRecipe, newDose, activeRecipe.ratio, roundedWater);
+        setActiveTimerRecipe(scaled, newDose);
+      }
+    }
+  };
+
+  const handleApplyRatio = (newRatio: number) => {
+    if (isRunning || elapsedSeconds > 0 || isFinished) return;
+    if (timerMode !== 'free_brew') return;
+    if (newRatio > 0) {
+      const roundedRatio = Math.round(newRatio * 10) / 10;
+      const targetWater = freeBrewRecipe.waterAmountGrams;
+      const calculatedDose = calculateCoffeeDose(targetWater, roundedRatio);
+      const clampedDose = Math.max(1, Math.min(200, Math.round(calculatedDose * 10) / 10));
+      const scaled = rescaleRecipeDose(freeBrewRecipe, clampedDose, roundedRatio, targetWater);
+      setFreeBrewRecipe(scaled);
+      setFreeBrewDose(clampedDose);
+    }
+  };
+
   const handleFinishBrew = () => {
     pause?.();
     mobileFeedback.triggerHapticBrewComplete();
@@ -314,6 +346,8 @@ export default function TimerScreen() {
         onToggleMute={toggleMute}
         totalProgress={totalProgress}
         onChangeDose={handleApplyDose}
+        onChangeWater={handleApplyWater}
+        onChangeRatio={timerMode === 'free_brew' ? handleApplyRatio : undefined}
         mode={timerMode}
         onSplit={() => recordSplit()}
         onTagSplit={handleTagSplit}

@@ -341,6 +341,186 @@ describe('TimerHero Component', () => {
     expect(doseInput.value).toBe('22');
   });
 
+  describe('Water Target inline editing', () => {
+    it('allows inline editing of water target and calls onChangeWater on commit (blur)', () => {
+      const onChangeWater = vi.fn();
+
+      const { getByLabelText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={0}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={60}
+          doseGrams={18}
+          onChangeWater={onChangeWater}
+        />
+      );
+
+      const waterInput = getByLabelText('Timer water target in grams') as HTMLInputElement;
+      expect(waterInput.value).toBe('500');
+
+      fireEvent.change(waterInput, { target: { value: '450' } });
+      expect(waterInput.value).toBe('450');
+      expect(onChangeWater).not.toHaveBeenCalled();
+
+      fireEvent.blur(waterInput);
+      expect(onChangeWater).toHaveBeenCalledWith(450);
+    });
+
+    it('calls onChangeWater on Enter key submit', () => {
+      const onChangeWater = vi.fn();
+
+      const { getByLabelText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={0}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={60}
+          doseGrams={18}
+          onChangeWater={onChangeWater}
+        />
+      );
+
+      const waterInput = getByLabelText('Timer water target in grams') as HTMLInputElement;
+      fireEvent.change(waterInput, { target: { value: '350' } });
+      fireEvent.keyDown(waterInput, { key: 'Enter' });
+
+      expect(onChangeWater).toHaveBeenCalledWith(350);
+    });
+
+    it('resets to current water target if empty or non-positive input is blurred', () => {
+      const onChangeWater = vi.fn();
+
+      const { getByLabelText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={0}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={60}
+          doseGrams={18}
+          onChangeWater={onChangeWater}
+        />
+      );
+
+      const waterInput = getByLabelText('Timer water target in grams') as HTMLInputElement;
+      fireEvent.change(waterInput, { target: { value: '' } });
+      fireEvent.blur(waterInput);
+
+      expect(waterInput.value).toBe('500');
+      expect(onChangeWater).not.toHaveBeenCalled();
+
+      fireEvent.change(waterInput, { target: { value: '-10' } });
+      fireEvent.blur(waterInput);
+
+      expect(waterInput.value).toBe('500');
+      expect(onChangeWater).not.toHaveBeenCalled();
+    });
+
+    it('clamps water target input within limits (10g - 3000g) on commit', () => {
+      const onChangeWater = vi.fn();
+
+      const { getByLabelText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={0}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={60}
+          doseGrams={18}
+          onChangeWater={onChangeWater}
+        />
+      );
+
+      const waterInput = getByLabelText('Timer water target in grams') as HTMLInputElement;
+
+      // Upper bound clamp
+      fireEvent.change(waterInput, { target: { value: '5000' } });
+      fireEvent.blur(waterInput);
+      expect(onChangeWater).toHaveBeenCalledWith(3000);
+      expect(waterInput.value).toBe('3000');
+
+      // Lower bound clamp
+      fireEvent.change(waterInput, { target: { value: '5' } });
+      fireEvent.blur(waterInput);
+      expect(onChangeWater).toHaveBeenCalledWith(10);
+      expect(waterInput.value).toBe('10');
+    });
+
+    it('locks water target to read-only when running, paused mid-brew, or finished', () => {
+      const onChangeWater = vi.fn();
+
+      // Running
+      const { getByText, queryByLabelText, rerender } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={10}
+          isRunning={true}
+          isMuted={false}
+          currentStageTargetWater={60}
+          onChangeWater={onChangeWater}
+        />
+      );
+
+      expect(queryByLabelText('Timer water target in grams')).toBeNull();
+      expect(getByText('500.0 g')).toBeDefined();
+
+      // Paused mid-brew
+      rerender(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={15}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={60}
+          onChangeWater={onChangeWater}
+        />
+      );
+      expect(queryByLabelText('Timer water target in grams')).toBeNull();
+
+      // Finished
+      rerender(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={200}
+          isRunning={false}
+          isFinished={true}
+          isMuted={false}
+          currentStageTargetWater={60}
+          onChangeWater={onChangeWater}
+        />
+      );
+      expect(queryByLabelText('Timer water target in grams')).toBeNull();
+    });
+
+    it('syncs local input text when recipe.waterAmountGrams updates externally', () => {
+      const { getByLabelText, rerender } = render(
+        <TimerHero
+          recipe={{ ...baseRecipe, waterAmountGrams: 300 }}
+          elapsedSeconds={0}
+          isRunning={false}
+          onChangeWater={vi.fn()}
+        />
+      );
+
+      const waterInput = getByLabelText('Timer water target in grams') as HTMLInputElement;
+      expect(waterInput.value).toBe('300');
+
+      rerender(
+        <TimerHero
+          recipe={{ ...baseRecipe, waterAmountGrams: 420 }}
+          elapsedSeconds={0}
+          isRunning={false}
+          onChangeWater={vi.fn()}
+        />
+      );
+
+      expect(waterInput.value).toBe('420');
+    });
+  });
+
   describe('Free Brew Mode', () => {
     it('renders MANUAL STOPWATCH subtitle and RATIO / WATER TARGET metrics', () => {
       const { getByText, queryByText } = render(
@@ -504,6 +684,210 @@ describe('TimerHero Component', () => {
       fireEvent.click(finishBtn);
       expect(onFinish).toHaveBeenCalledTimes(1);
     });
+
+    describe('Ratio inline editing', () => {
+      it('allows inline editing of ratio in free brew mode and calls onChangeRatio on commit (blur)', () => {
+        const onChangeRatio = vi.fn();
+
+        const { getByLabelText, getByText } = render(
+          <TimerHero
+            recipe={baseRecipe}
+            elapsedSeconds={0}
+            isRunning={false}
+            isMuted={false}
+            currentStageTargetWater={0}
+            doseGrams={15}
+            mode="free_brew"
+            onChangeRatio={onChangeRatio}
+          />
+        );
+
+        const ratioPrefix = getByText('1:');
+        fireEvent.click(ratioPrefix);
+        const ratioInput = getByLabelText('Timer brew ratio') as HTMLInputElement;
+        expect(document.activeElement).toBe(ratioInput);
+        expect(ratioInput.value).toBe('16.7');
+
+        fireEvent.change(ratioInput, { target: { value: '15' } });
+        expect(ratioInput.value).toBe('15');
+        expect(onChangeRatio).not.toHaveBeenCalled();
+
+        fireEvent.blur(ratioInput);
+        expect(onChangeRatio).toHaveBeenCalledWith(15);
+      });
+
+      it('calls onChangeRatio on Enter key submit', () => {
+        const onChangeRatio = vi.fn();
+
+        const { getByLabelText, getByText } = render(
+          <TimerHero
+            recipe={baseRecipe}
+            elapsedSeconds={0}
+            isRunning={false}
+            isMuted={false}
+            currentStageTargetWater={0}
+            doseGrams={15}
+            mode="free_brew"
+            onChangeRatio={onChangeRatio}
+          />
+        );
+
+        const ratioPrefix = getByText('1:');
+        fireEvent.click(ratioPrefix);
+        const ratioInput = getByLabelText('Timer brew ratio') as HTMLInputElement;
+        expect(document.activeElement).toBe(ratioInput);
+        fireEvent.change(ratioInput, { target: { value: '17.5' } });
+        fireEvent.keyDown(ratioInput, { key: 'Enter' });
+
+        expect(onChangeRatio).toHaveBeenCalledWith(17.5);
+      });
+
+      it('resets to current ratio if empty or non-positive input is blurred', () => {
+        const onChangeRatio = vi.fn();
+
+        const { getByLabelText, getByText } = render(
+          <TimerHero
+            recipe={baseRecipe}
+            elapsedSeconds={0}
+            isRunning={false}
+            isMuted={false}
+            currentStageTargetWater={0}
+            doseGrams={15}
+            mode="free_brew"
+            onChangeRatio={onChangeRatio}
+          />
+        );
+
+        const ratioPrefix = getByText('1:');
+        fireEvent.click(ratioPrefix);
+        const ratioInput = getByLabelText('Timer brew ratio') as HTMLInputElement;
+        expect(document.activeElement).toBe(ratioInput);
+        fireEvent.change(ratioInput, { target: { value: '' } });
+        fireEvent.blur(ratioInput);
+
+        expect(ratioInput.value).toBe('16.7');
+        expect(onChangeRatio).not.toHaveBeenCalled();
+
+        fireEvent.change(ratioInput, { target: { value: '-2' } });
+        fireEvent.blur(ratioInput);
+
+        expect(ratioInput.value).toBe('16.7');
+        expect(onChangeRatio).not.toHaveBeenCalled();
+      });
+
+      it('clamps ratio input within limits (1.0 - 30.0) on commit', () => {
+        const onChangeRatio = vi.fn();
+
+        const { getByLabelText, getByText } = render(
+          <TimerHero
+            recipe={baseRecipe}
+            elapsedSeconds={0}
+            isRunning={false}
+            isMuted={false}
+            currentStageTargetWater={0}
+            doseGrams={15}
+            mode="free_brew"
+            onChangeRatio={onChangeRatio}
+          />
+        );
+
+        const ratioPrefix = getByText('1:');
+        fireEvent.click(ratioPrefix);
+        const ratioInput = getByLabelText('Timer brew ratio') as HTMLInputElement;
+        expect(document.activeElement).toBe(ratioInput);
+
+        // Upper clamp
+        fireEvent.change(ratioInput, { target: { value: '45' } });
+        fireEvent.blur(ratioInput);
+        expect(onChangeRatio).toHaveBeenCalledWith(30);
+        expect(ratioInput.value).toBe('30');
+
+        // Lower clamp
+        fireEvent.change(ratioInput, { target: { value: '0.5' } });
+        fireEvent.blur(ratioInput);
+        expect(onChangeRatio).toHaveBeenCalledWith(1);
+        expect(ratioInput.value).toBe('1');
+      });
+
+      it('locks ratio to read-only when timer is running, paused mid-brew, or finished', () => {
+        const onChangeRatio = vi.fn();
+
+        // Running
+        const { getByText, queryByLabelText, rerender } = render(
+          <TimerHero
+            recipe={baseRecipe}
+            elapsedSeconds={20}
+            isRunning={true}
+            isMuted={false}
+            currentStageTargetWater={0}
+            doseGrams={15}
+            mode="free_brew"
+            onChangeRatio={onChangeRatio}
+          />
+        );
+
+        expect(queryByLabelText('Timer brew ratio')).toBeNull();
+        expect(getByText('1:16.67')).toBeDefined();
+
+        // Paused mid-brew
+        rerender(
+          <TimerHero
+            recipe={baseRecipe}
+            elapsedSeconds={20}
+            isRunning={false}
+            isMuted={false}
+            currentStageTargetWater={0}
+            doseGrams={15}
+            mode="free_brew"
+            onChangeRatio={onChangeRatio}
+          />
+        );
+        expect(queryByLabelText('Timer brew ratio')).toBeNull();
+
+        // Finished
+        rerender(
+          <TimerHero
+            recipe={baseRecipe}
+            elapsedSeconds={120}
+            isRunning={false}
+            isFinished={true}
+            isMuted={false}
+            currentStageTargetWater={0}
+            doseGrams={15}
+            mode="free_brew"
+            onChangeRatio={onChangeRatio}
+          />
+        );
+        expect(queryByLabelText('Timer brew ratio')).toBeNull();
+      });
+
+      it('syncs local input text when recipe.ratio updates externally', () => {
+        const { getByLabelText, rerender } = render(
+          <TimerHero
+            recipe={{ ...baseRecipe, ratio: 15 }}
+            elapsedSeconds={0}
+            isRunning={false}
+            mode="free_brew"
+            onChangeRatio={vi.fn()}
+          />
+        );
+
+        const ratioInput = getByLabelText('Timer brew ratio') as HTMLInputElement;
+        expect(ratioInput.value).toBe('15');
+
+        rerender(
+          <TimerHero
+            recipe={{ ...baseRecipe, ratio: 18 }}
+            elapsedSeconds={0}
+            isRunning={false}
+            mode="free_brew"
+            onChangeRatio={vi.fn()}
+          />
+        );
+
+        expect(ratioInput.value).toBe('18');
+      });
+    });
   });
 
   describe('weightUnit formatting', () => {
@@ -620,6 +1004,102 @@ describe('TimerHero Component', () => {
       fireEvent.blur(doseInput);
       expect(onChangeDose).toHaveBeenCalledWith(200);
       expect(doseInput.value).toBe('7.05');
+    });
+
+    it('renders editable water target in ounces with oz label when weightUnit="imperial"', () => {
+      const onChangeWater = vi.fn();
+
+      const { getByLabelText, getByText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={0}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={60}
+          doseGrams={18}
+          onChangeWater={onChangeWater}
+          weightUnit="imperial"
+        />
+      );
+
+      const waterInput = getByLabelText('Timer water target in ounces') as HTMLInputElement;
+      expect(waterInput.value).toBe('17.64');
+      expect(getByText('oz')).toBeDefined();
+    });
+
+    it('converts edited water ounces to grams and calls onChangeWater on commit', () => {
+      const onChangeWater = vi.fn();
+
+      const { getByLabelText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={0}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={60}
+          doseGrams={18}
+          onChangeWater={onChangeWater}
+          weightUnit="imperial"
+        />
+      );
+
+      const waterInput = getByLabelText('Timer water target in ounces') as HTMLInputElement;
+      fireEvent.change(waterInput, { target: { value: '10.0' } });
+      fireEvent.blur(waterInput);
+
+      // ozToGrams(10.0) = 283.5g -> Math.round = 284g
+      expect(onChangeWater).toHaveBeenCalledWith(284);
+      expect(waterInput.value).toBe('10.02');
+    });
+
+    it('does not trigger onChangeWater or conversion drift when blurring unchanged water ounces', () => {
+      const onChangeWater = vi.fn();
+
+      const { getByLabelText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={0}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={60}
+          doseGrams={18}
+          onChangeWater={onChangeWater}
+          weightUnit="imperial"
+        />
+      );
+
+      const waterInput = getByLabelText('Timer water target in ounces') as HTMLInputElement;
+      expect(waterInput.value).toBe('17.64');
+
+      // Blur without changing
+      fireEvent.blur(waterInput);
+      expect(onChangeWater).not.toHaveBeenCalled();
+      expect(waterInput.value).toBe('17.64');
+    });
+
+    it('clamps imperial water input within safe gram bounds (10g - 3000g) on commit', () => {
+      const onChangeWater = vi.fn();
+
+      const { getByLabelText } = render(
+        <TimerHero
+          recipe={baseRecipe}
+          elapsedSeconds={0}
+          isRunning={false}
+          isMuted={false}
+          currentStageTargetWater={60}
+          doseGrams={18}
+          onChangeWater={onChangeWater}
+          weightUnit="imperial"
+        />
+      );
+
+      const waterInput = getByLabelText('Timer water target in ounces') as HTMLInputElement;
+
+      // 150 oz = 4252.4g -> clamps to 3000g -> gramsToOz(3000) = 105.82 oz
+      fireEvent.change(waterInput, { target: { value: '150' } });
+      fireEvent.blur(waterInput);
+      expect(onChangeWater).toHaveBeenCalledWith(3000);
+      expect(waterInput.value).toBe('105.82');
     });
   });
 });
