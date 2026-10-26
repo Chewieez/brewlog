@@ -255,19 +255,19 @@ describe('TimerScreen - Mode Switch & Active Brew Guard', () => {
     const calcToggle = getByLabelText('Toggle Ratio Calculator');
     fireEvent.click(calcToggle);
 
-    // Change dose input in calculator to 20
-    const doseInput = getByLabelText('Coffee dose in grams');
+    // Change target coffee input in calculator to 20
+    const doseInput = getByLabelText('Target coffee dose in grams');
     fireEvent.change(doseInput, { target: { value: '20' } });
 
     // Click Apply Dose
     const applyBtn = getByLabelText('Apply dose to timer');
     fireEvent.click(applyBtn);
 
-    // TimerHero should now show 20g dose in input and 333g water target
+    // TimerHero should now show 20g dose in input and 334g water target
     const heroDoseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
     expect(heroDoseInput.value).toBe('20');
     const heroWaterInput = getByLabelText('Timer water target in grams') as HTMLInputElement;
-    expect(heroWaterInput.value).toBe('333');
+    expect(heroWaterInput.value).toBe('334');
   });
 
   it('initializes Free Brew mode with default starting values (20g coffee, 1:16 ratio, 320g water target)', () => {

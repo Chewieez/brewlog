@@ -318,9 +318,9 @@ export default function TimerScreen() {
 
       {/* Standalone Collapsible Calculator */}
       <CollapsibleCalculator
-        initialDose={currentDose}
-        initialRatio={currentRecipe.ratio}
-        initialWater={currentRecipe.waterAmountGrams}
+        currentDose={currentDose}
+        baseCoffee={currentDose}
+        baseWater={currentRecipe.waterAmountGrams}
         onApplyDose={handleApplyDose}
       />
 

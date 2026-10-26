@@ -10,6 +10,8 @@ export interface WebRatioTranslatorProps {
   className?: string;
 }
 
+export type RatioTranslatorProps = WebRatioTranslatorProps;
+
 export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
   currentDose = 18,
   baseCoffee,
@@ -271,3 +273,6 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
     </div>
   );
 };
+
+export const RatioTranslator = WebRatioTranslator;
+export default WebRatioTranslator;
