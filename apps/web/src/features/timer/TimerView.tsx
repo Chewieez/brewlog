@@ -8,7 +8,13 @@ import {
   rescaleRecipeDose,
   splitsToRecipeStages,
   DEFAULT_USER_SETTINGS,
+  DEFAULT_FREE_BREW_RECIPE,
+  DEFAULT_FREE_BREW_DOSE,
   formatWeight,
+  calculateRatio,
+  calculateCoffeeDose,
+  gramsToOz,
+  ozToGrams,
 } from '@brewlog/core';
 import { useSettings, useOptionalSettings } from '../settings/SettingsContext';
 import { useBrewTimer } from './useBrewTimer';
@@ -74,8 +80,15 @@ export const TimerView: React.FC<TimerViewProps> = ({
     return settings.defaultTimerMode;
   });
 
-  const [doseGrams, setDoseGrams] = useState(initialRecipe.coffeeDoseGrams);
-  const [recipe, setRecipe] = useState<BrewRecipe>(initialRecipe);
+  const [freeBrewRecipe, setFreeBrewRecipe] = useState<BrewRecipe>(DEFAULT_FREE_BREW_RECIPE);
+  const [freeBrewDose, setFreeBrewDose] = useState<number>(DEFAULT_FREE_BREW_DOSE);
+
+  const [recipeModeDose, setRecipeModeDose] = useState<number>(initialRecipe.coffeeDoseGrams);
+  const [recipeModeRecipe, setRecipeModeRecipe] = useState<BrewRecipe>(initialRecipe);
+
+  const currentRecipe = mode === 'free_brew' ? freeBrewRecipe : recipeModeRecipe;
+  const currentDose = mode === 'free_brew' ? freeBrewDose : recipeModeDose;
+
   const [isFreeBrewFinished, setIsFreeBrewFinished] = useState(false);
   const [isRecipeSaved, setIsRecipeSaved] = useState(false);
 
@@ -97,18 +110,9 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
   // Reset dose and recipe when initial recipe changes
   useEffect(() => {
-    setDoseGrams(initialRecipe.coffeeDoseGrams);
-    setRecipe(initialRecipe);
+    setRecipeModeDose(initialRecipe.coffeeDoseGrams);
+    setRecipeModeRecipe(initialRecipe);
   }, [initialRecipe.id, initialRecipe.coffeeDoseGrams]);
-
-  const handleApplyDose = (newDose: number, newRatio?: number, newWater?: number) => {
-    if (isRunning || isFinished) return;
-    if (newDose > 0) {
-      const roundedDose = Math.round(newDose * 10) / 10;
-      setDoseGrams(roundedDose);
-      setRecipe((prev) => rescaleRecipeDose(prev, roundedDose, newRatio, newWater));
-    }
-  };
 
   // Hook into precision brew timer engine
   const {
@@ -126,7 +130,131 @@ export const TimerView: React.FC<TimerViewProps> = ({
     toggleMute,
     startTimeRef,
     accumulatedMsRef,
-  } = useBrewTimer(recipe, mode);
+  } = useBrewTimer(currentRecipe, mode);
+
+  const isMetricEditable = !isRunning && elapsedSeconds === 0 && !isFinished && !isFreeBrewFinished;
+
+  const handleApplyDose = (newDose: number, newRatio?: number, newWater?: number) => {
+    if (isRunning || elapsedSeconds > 0 || isFinished || isFreeBrewFinished) return;
+    if (newDose > 0) {
+      const roundedDose = Math.round(newDose * 10) / 10;
+      if (mode === 'free_brew') {
+        setFreeBrewDose(roundedDose);
+        setFreeBrewRecipe((prev) => rescaleRecipeDose(prev, roundedDose, newRatio, newWater));
+      } else {
+        setRecipeModeDose(roundedDose);
+        setRecipeModeRecipe((prev) => rescaleRecipeDose(prev, roundedDose, newRatio, newWater));
+      }
+    }
+  };
+
+  const handleApplyWater = (newWater: number) => {
+    if (isRunning || elapsedSeconds > 0 || isFinished || isFreeBrewFinished) return;
+    if (newWater > 0) {
+      const roundedWater = Math.round(newWater);
+      if (mode === 'free_brew') {
+        const newRatio = calculateRatio(freeBrewDose, roundedWater);
+        setFreeBrewRecipe((prev) => rescaleRecipeDose(prev, freeBrewDose, newRatio, roundedWater));
+      } else {
+        const newDose = calculateCoffeeDose(roundedWater, recipeModeRecipe.ratio);
+        setRecipeModeDose(newDose);
+        setRecipeModeRecipe((prev) => rescaleRecipeDose(prev, newDose, recipeModeRecipe.ratio, roundedWater));
+      }
+    }
+  };
+
+  const getDisplayDose = (grams: number, unit: WeightUnit) =>
+    unit === 'imperial' ? String(gramsToOz(grams)) : String(grams);
+
+  const getDisplayWater = (grams: number, unit: WeightUnit) =>
+    unit === 'imperial' ? String(gramsToOz(grams)) : String(Math.round(grams));
+
+  const [textDose, setTextDose] = useState(() => getDisplayDose(currentDose, currentWeightUnit));
+  const [textWater, setTextWater] = useState(() => getDisplayWater(currentRecipe.waterAmountGrams, currentWeightUnit));
+
+  useEffect(() => {
+    setTextDose(getDisplayDose(currentDose, currentWeightUnit));
+  }, [currentDose, currentWeightUnit]);
+
+  useEffect(() => {
+    setTextWater(getDisplayWater(currentRecipe.waterAmountGrams, currentWeightUnit));
+  }, [currentRecipe.waterAmountGrams, currentWeightUnit]);
+
+  const handleCommitDose = (e?: React.FocusEvent<HTMLInputElement>) => {
+    const currentDisplay = currentWeightUnit === 'imperial' ? gramsToOz(currentDose) : currentDose;
+
+    if (!isMetricEditable) {
+      setTextDose(String(currentDisplay));
+      return;
+    }
+
+    const rawVal = e?.target ? e.target.value : textDose;
+    const parsed = parseFloat(rawVal);
+
+    if (isNaN(parsed) || parsed <= 0) {
+      setTextDose(String(currentDisplay));
+      return;
+    }
+
+    if (parsed === currentDisplay) {
+      setTextDose(String(currentDisplay));
+      return;
+    }
+
+    if (currentWeightUnit === 'imperial') {
+      const rawGrams = ozToGrams(parsed);
+      const clampedGrams = Math.max(1, Math.min(200, Math.round(rawGrams * 10) / 10));
+      setTextDose(String(gramsToOz(clampedGrams)));
+      if (clampedGrams !== currentDose) {
+        handleApplyDose(clampedGrams);
+      }
+    } else {
+      const clampedGrams = Math.max(1, Math.min(200, Math.round(parsed * 10) / 10));
+      setTextDose(String(clampedGrams));
+      if (clampedGrams !== currentDose) {
+        handleApplyDose(clampedGrams);
+      }
+    }
+  };
+
+  const handleCommitWater = (e?: React.FocusEvent<HTMLInputElement>) => {
+    const currentDisplay = currentWeightUnit === 'imperial'
+      ? gramsToOz(currentRecipe.waterAmountGrams)
+      : Math.round(currentRecipe.waterAmountGrams);
+
+    if (!isMetricEditable) {
+      setTextWater(String(currentDisplay));
+      return;
+    }
+
+    const rawVal = e?.target ? e.target.value : textWater;
+    const parsed = parseFloat(rawVal);
+
+    if (isNaN(parsed) || parsed <= 0) {
+      setTextWater(String(currentDisplay));
+      return;
+    }
+
+    if (parsed === currentDisplay) {
+      setTextWater(String(currentDisplay));
+      return;
+    }
+
+    if (currentWeightUnit === 'imperial') {
+      const rawGrams = ozToGrams(parsed);
+      const clampedGrams = Math.max(10, Math.min(3000, Math.round(rawGrams)));
+      setTextWater(String(gramsToOz(clampedGrams)));
+      if (clampedGrams !== currentRecipe.waterAmountGrams) {
+        handleApplyWater(clampedGrams);
+      }
+    } else {
+      const clampedGrams = Math.max(10, Math.min(3000, Math.round(parsed)));
+      setTextWater(String(clampedGrams));
+      if (clampedGrams !== currentRecipe.waterAmountGrams) {
+        handleApplyWater(clampedGrams);
+      }
+    }
+  };
 
   const formatTime = (totalSeconds: number) => {
     const mins = Math.floor(totalSeconds / 60);
@@ -177,18 +305,18 @@ export const TimerView: React.FC<TimerViewProps> = ({
     const generatedStages = splitsToRecipeStages(
       splits,
       elapsedSeconds,
-      recipe.waterAmountGrams
+      currentRecipe.waterAmountGrams
     );
 
     const customRecipe: Omit<BrewRecipe, 'id' | 'createdAt'> = {
-      name: `Free Brew ${recipe.brewMethod.toUpperCase()}`,
-      brewMethod: recipe.brewMethod,
+      name: `Free Brew ${currentRecipe.brewMethod.toUpperCase()}`,
+      brewMethod: currentRecipe.brewMethod,
       description: `Extracted via Free Brew stopwatch (${splits.length} splits)`,
-      coffeeDoseGrams: doseGrams,
-      waterAmountGrams: recipe.waterAmountGrams,
-      ratio: recipe.ratio,
-      grindSize: recipe.grindSize,
-      waterTempCelsius: recipe.waterTempCelsius,
+      coffeeDoseGrams: currentDose,
+      waterAmountGrams: currentRecipe.waterAmountGrams,
+      ratio: currentRecipe.ratio,
+      grindSize: currentRecipe.grindSize,
+      waterTempCelsius: currentRecipe.waterTempCelsius,
       totalTimeSeconds: Math.max(1, elapsedSeconds),
       isPreset: false,
       stages: generatedStages,
@@ -202,13 +330,14 @@ export const TimerView: React.FC<TimerViewProps> = ({
     const generatedStages = splitsToRecipeStages(
       splits,
       elapsedSeconds,
-      recipe.waterAmountGrams
+      currentRecipe.waterAmountGrams
     );
 
     const completedRecipe: BrewRecipe = {
-      ...recipe,
+      ...currentRecipe,
       id: `free-brew-${Date.now()}`,
-      name: `Free Brew (${recipe.brewMethod.toUpperCase()})`,
+      name: `Free Brew (${currentRecipe.brewMethod.toUpperCase()})`,
+      coffeeDoseGrams: currentDose,
       totalTimeSeconds: Math.max(1, elapsedSeconds),
       stages: generatedStages,
     };
@@ -220,7 +349,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
   useEffect(() => {
     if (mode === 'free_brew' || !progressBarRef.current) return;
 
-    const totalMs = recipe.totalTimeSeconds * 1000;
+    const totalMs = currentRecipe.totalTimeSeconds * 1000;
     if (totalMs <= 0) {
       progressBarRef.current.style.width = '0%';
       return;
@@ -248,11 +377,11 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
     animationFrameId = requestAnimationFrame(updateBar);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [mode, isRunning, elapsedSeconds === 0, recipe.totalTimeSeconds, startTimeRef, accumulatedMsRef]);
+  }, [mode, isRunning, elapsedSeconds === 0, currentRecipe.totalTimeSeconds, startTimeRef, accumulatedMsRef]);
 
   // Linear extraction progress calculation
-  const totalProgressPercent = recipe.totalTimeSeconds > 0
-    ? Math.min(100, Math.round((elapsedSeconds / recipe.totalTimeSeconds) * 100))
+  const totalProgressPercent = currentRecipe.totalTimeSeconds > 0
+    ? Math.min(100, Math.round((elapsedSeconds / currentRecipe.totalTimeSeconds) * 100))
     : 0;
 
   return (
@@ -285,12 +414,6 @@ export const TimerView: React.FC<TimerViewProps> = ({
             FREE BREW
           </button>
         </div>
-
-        <div className="text-right">
-          <span className="text-[11px] font-mono text-text-muted uppercase tracking-wider">
-            {mode === 'recipe' ? 'Stage Engine' : 'Stopwatch Mode'}
-          </span>
-        </div>
       </div>
 
       {/* Top Device Context Bar */}
@@ -298,16 +421,16 @@ export const TimerView: React.FC<TimerViewProps> = ({
         <div>
           <div className="flex items-center space-x-2.5">
             <span className="font-mono uppercase px-2 py-0.5 text-xs text-text-secondary border border-border-subtle rounded">
-              {recipe.brewMethod}
+              {currentRecipe.brewMethod}
             </span>
             <h2 className="text-2xl font-bold text-text-primary tracking-tight">
-              {mode === 'free_brew' ? 'Free Brew Stopwatch' : recipe.name}
+              {mode === 'free_brew' ? 'Free Brew Stopwatch' : currentRecipe.name}
             </h2>
           </div>
           <p className="text-xs text-text-muted mt-1.5">
             {mode === 'free_brew'
               ? 'Precision manual split tracking & custom extraction stopwatch.'
-              : recipe.description}
+              : currentRecipe.description}
           </p>
 
           {/* Active Bean Indicator / Inline Selector */}
@@ -339,26 +462,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
-          {/* Dose Scaler */}
-          <div className="flex items-center space-x-2 px-3 py-1.5 border border-border-subtle rounded">
-            <span className="text-xs text-text-muted font-mono uppercase text-[11px] tracking-wider">Coffee:</span>
-            <input
-              type="number"
-              min="5"
-              max="100"
-              step="1"
-              value={doseGrams}
-              onChange={(e) => {
-                const val = Number(e.target.value) || 0;
-                handleApplyDose(Math.max(5, Math.min(100, Math.round(val))));
-              }}
-              className="w-10 bg-transparent text-sm font-light tabular-nums text-text-primary focus:outline-none text-right"
-              aria-label="Coffee dose in grams"
-            />
-            <span className="text-xs text-text-muted font-light">g</span>
-          </div>
-
+        <div className="flex items-center">
           <button
             type="button"
             onClick={onSelectOtherRecipe}
@@ -375,16 +479,24 @@ export const TimerView: React.FC<TimerViewProps> = ({
         {/* Left Column: Direct Instrument Readouts (Timer + Metrics + Hardware Controls) */}
         <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
           
+          {/* Integrated Ratio Translator Collapsible Drawer */}
+          <WebRatioTranslator
+            currentDose={currentDose}
+            baseCoffee={currentDose}
+            baseWater={currentRecipe.waterAmountGrams}
+            onApplyDose={handleApplyDose}
+          />
+
           {/* Active Stage & Progress Header */}
           <div className="space-y-2.5">
             <div className="flex items-center justify-between text-xs">
               <span className="text-accent font-bold tracking-widest uppercase font-mono">
-                {mode === 'free_brew' ? 'FREE BREW · MANUAL STOPWATCH' : currentStage.name}
+                {mode === 'free_brew' ? 'MANUAL STOPWATCH' : currentStage.name}
               </span>
               <span className="text-text-muted tabular-nums">
                 {mode === 'free_brew'
                   ? `${splits.length} Splits Recorded`
-                  : `${totalProgressPercent}% · Target: ${formatTime(recipe.totalTimeSeconds)}`}
+                  : `${totalProgressPercent}% · Target: ${formatTime(currentRecipe.totalTimeSeconds)}`}
               </span>
             </div>
             
@@ -422,27 +534,87 @@ export const TimerView: React.FC<TimerViewProps> = ({
               <div className="text-[11px] font-mono tracking-widest text-text-muted uppercase">
                 COFFEE DOSE
               </div>
-              <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
-                {formatWeight(doseGrams, currentWeightUnit)}
-              </div>
+              {isMetricEditable ? (
+                <div className="flex items-baseline border-b border-border-subtle focus-within:border-accent transition-colors mt-1 w-fit">
+                  <input
+                    type="number"
+                    step={currentWeightUnit === 'imperial' ? '0.01' : '0.1'}
+                    min={currentWeightUnit === 'imperial' ? '0.05' : '1'}
+                    max={currentWeightUnit === 'imperial' ? '7' : '200'}
+                    value={textDose}
+                    onChange={(e) => setTextDose(e.target.value)}
+                    onBlur={handleCommitDose}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        (e.target as HTMLInputElement).blur();
+                      } else if (e.key === 'Escape') {
+                        const revert = getDisplayDose(currentDose, currentWeightUnit);
+                        setTextDose(revert);
+                        (e.target as HTMLInputElement).value = revert;
+                        (e.target as HTMLInputElement).blur();
+                      }
+                    }}
+                    style={{ width: `${Math.max(1, (textDose || '').length)}ch` }}
+                    className="bg-transparent text-2xl sm:text-3xl font-light text-text-primary tabular-nums focus:outline-none p-0 text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    aria-label={`Timer coffee dose in ${currentWeightUnit === 'imperial' ? 'ounces' : 'grams'}`}
+                  />
+                  <span className="text-xl sm:text-2xl font-light text-text-muted select-none ml-1">
+                    {currentWeightUnit === 'imperial' ? 'oz' : 'g'}
+                  </span>
+                </div>
+              ) : (
+                <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
+                  {formatWeight(currentDose, currentWeightUnit)}
+                </div>
+              )}
             </div>
 
             <div>
               <div className="text-[11px] font-mono tracking-widest text-text-muted uppercase">
                 WATER TARGET
               </div>
-              <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
-                {formatWeight(recipe.waterAmountGrams, currentWeightUnit)}
-              </div>
+              {isMetricEditable ? (
+                <div className="flex items-baseline border-b border-border-subtle focus-within:border-accent transition-colors mt-1 w-fit">
+                  <input
+                    type="number"
+                    step={currentWeightUnit === 'imperial' ? '0.1' : '1'}
+                    min={currentWeightUnit === 'imperial' ? '1' : '10'}
+                    max={currentWeightUnit === 'imperial' ? '100' : '3000'}
+                    value={textWater}
+                    onChange={(e) => setTextWater(e.target.value)}
+                    onBlur={handleCommitWater}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        (e.target as HTMLInputElement).blur();
+                      } else if (e.key === 'Escape') {
+                        const revert = getDisplayWater(currentRecipe.waterAmountGrams, currentWeightUnit);
+                        setTextWater(revert);
+                        (e.target as HTMLInputElement).value = revert;
+                        (e.target as HTMLInputElement).blur();
+                      }
+                    }}
+                    style={{ width: `${Math.max(1, (textWater || '').length)}ch` }}
+                    className="bg-transparent text-2xl sm:text-3xl font-light text-text-primary tabular-nums focus:outline-none p-0 text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    aria-label={`Timer water target in ${currentWeightUnit === 'imperial' ? 'ounces' : 'grams'}`}
+                  />
+                  <span className="text-xl sm:text-2xl font-light text-text-muted select-none ml-1">
+                    {currentWeightUnit === 'imperial' ? 'oz' : 'g'}
+                  </span>
+                </div>
+              ) : (
+                <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
+                  {formatWeight(currentRecipe.waterAmountGrams, currentWeightUnit)}
+                </div>
+              )}
             </div>
 
             <div>
               <div className="text-[11px] font-mono tracking-widest text-text-muted uppercase">
-                {mode === 'free_brew' ? 'SPLITS' : 'POUR TO'}
+                {mode === 'free_brew' ? 'RATIO' : 'POUR TO'}
               </div>
-              <div className="text-2xl sm:text-3xl font-light text-accent tabular-nums mt-1">
+              <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
                 {mode === 'free_brew'
-                  ? splits.length
+                  ? `1:${currentRecipe.ratio}`
                   : formatWeight(currentStage.targetWaterWeightGrams, currentWeightUnit)}
               </div>
             </div>
@@ -453,16 +625,10 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
           {/* Controls & Quick Tag Actions */}
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
-              <div className="flex items-center space-x-6 text-xs font-mono text-text-muted uppercase tracking-wider">
-                <div>METHOD: <span className="text-text-primary font-bold">{recipe.brewMethod}</span></div>
-                <div>RATIO: <span className="text-text-primary font-bold">1:{recipe.ratio}</span></div>
-              </div>
-
-              <div className="flex items-center space-x-3">
-                <button
-                  type="button"
-                  onClick={toggleTimer}
+            <div className="flex items-center space-x-3 pt-1">
+              <button
+                type="button"
+                onClick={toggleTimer}
                   disabled={isFreeBrewFinished}
                   className={`flex items-center space-x-2 px-8 py-3 rounded font-mono text-xs uppercase tracking-wider font-bold transition-all ${
                     isFreeBrewFinished
@@ -532,7 +698,6 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   )}
                 </button>
               </div>
-            </div>
 
             {/* Quick Tag Chips (Free Brew Mode) */}
             {mode === 'free_brew' && !isFreeBrewFinished && (
@@ -588,21 +753,12 @@ export const TimerView: React.FC<TimerViewProps> = ({
             )}
           </div>
 
-          {/* Integrated Ratio Translator Collapsible Drawer */}
-          <WebRatioTranslator
-            currentDose={doseGrams}
-            baseCoffee={doseGrams}
-            baseWater={recipe.waterAmountGrams}
-            onApplyDose={handleApplyDose}
-            className="mt-6"
-          />
-
           {/* Guided Recipe Finish Banner */}
           {mode === 'recipe' && isFinished && (
             <div className="pt-4 animate-fade-in">
               <button
                 type="button"
-                onClick={() => onLogCompletedBrew(recipe, elapsedSeconds, selectedBean || null)}
+                onClick={() => onLogCompletedBrew(currentRecipe, elapsedSeconds, selectedBean || null)}
                 className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all"
                 aria-label="ADD REVIEW"
               >
@@ -662,13 +818,13 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   POUR TIMELINE
                 </h3>
                 <span className="text-xs text-accent font-semibold tabular-nums">
-                  {recipe.stages.length} Stages
+                  {currentRecipe.stages.length} Stages
                 </span>
               </div>
 
               {/* Continuous linear stage rows */}
               <div className="divide-y divide-border-subtle/40">
-                {recipe.stages.map((stage, idx) => {
+                {currentRecipe.stages.map((stage, idx) => {
                   const isCurrent = idx === currentStageIndex && elapsedSeconds > 0;
                   const isPast = elapsedSeconds >= stage.startSecond + stage.durationSeconds;
 
@@ -724,7 +880,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               <div className="mt-4 pt-3 border-t border-border-subtle flex items-center justify-between text-xs text-text-muted">
                 <span className="font-mono text-[11px] uppercase tracking-wider">TOTAL EXTRACTION TARGET</span>
                 <span className="text-text-primary font-light text-sm tabular-nums">
-                  {formatTime(recipe.totalTimeSeconds)}
+                  {formatTime(currentRecipe.totalTimeSeconds)}
                 </span>
               </div>
             </>

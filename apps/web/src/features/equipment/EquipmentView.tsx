@@ -219,9 +219,6 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-[11px] font-mono uppercase tracking-widest text-accent font-semibold block mb-1">
-            BREW GEAR
-          </span>
           <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Equipment</h2>
           <p className="text-sm text-zinc-400 mt-1">
             Manage your grinders, brewers, scales, and kettles to pair with dial-in recipes and tasting logs.

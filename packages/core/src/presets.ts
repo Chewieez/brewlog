@@ -1,5 +1,26 @@
 import { BrewRecipe, Equipment, TastingLog } from "./types";
 
+export const DEFAULT_FREE_BREW_DOSE = 20;
+export const DEFAULT_FREE_BREW_RATIO = 16;
+export const DEFAULT_FREE_BREW_WATER = 320;
+
+export const DEFAULT_FREE_BREW_RECIPE: BrewRecipe = {
+  id: "preset-free-brew-default",
+  name: "Free Brew",
+  brewMethod: "v60",
+  description: "Free brew manual stopwatch.",
+  author: "Custom",
+  coffeeDoseGrams: DEFAULT_FREE_BREW_DOSE,
+  waterAmountGrams: DEFAULT_FREE_BREW_WATER,
+  ratio: DEFAULT_FREE_BREW_RATIO,
+  grindSize: "Medium",
+  waterTempCelsius: 96,
+  totalTimeSeconds: 0,
+  isPreset: true,
+  createdAt: "2026-01-01T00:00:00.000Z",
+  stages: [],
+};
+
 export const DEFAULT_PRESET_RECIPES: BrewRecipe[] = [
   {
     id: "preset-v60-hoffmann",

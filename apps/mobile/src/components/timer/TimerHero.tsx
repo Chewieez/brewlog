@@ -32,7 +32,6 @@ export interface TimerHeroProps {
   mode?: TimerMode;
   onSplit?: () => void;
   onTagSplit?: (tag: SplitTag, label: string) => void;
-  splitsCount?: number;
   onFinish?: () => void;
   weightUnit?: WeightUnit;
 }
@@ -60,7 +59,6 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
   mode = 'recipe',
   onSplit,
   onTagSplit,
-  splitsCount = 0,
   onFinish,
   weightUnit = 'metric',
 }) => {
@@ -78,10 +76,18 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
     setTextDose(getDisplayDose(doseGrams, weightUnit));
   }, [doseGrams, weightUnit]);
 
+  const isDoseEditable = !isRunning && elapsedSeconds === 0 && !isFinished && Boolean(onChangeDose);
+
   const handleCommitDose = () => {
     setIsFocused(false);
-    const parsed = parseFloat(textDose);
     const currentDisplayValue = weightUnit === 'imperial' ? gramsToOz(doseGrams) : doseGrams;
+
+    if (!isDoseEditable) {
+      setTextDose(String(currentDisplayValue));
+      return;
+    }
+
+    const parsed = parseFloat(textDose);
 
     if (isNaN(parsed) || parsed <= 0) {
       setTextDose(String(currentDisplayValue));
@@ -95,14 +101,14 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
 
     if (weightUnit === 'imperial') {
       const rawGrams = ozToGrams(parsed);
-      const clampedGrams = Math.max(1, Math.min(100, Math.round(rawGrams * 10) / 10));
+      const clampedGrams = Math.max(1, Math.min(200, Math.round(rawGrams * 10) / 10));
       const displayOz = gramsToOz(clampedGrams);
       setTextDose(String(displayOz));
       if (clampedGrams !== doseGrams && onChangeDose) {
         onChangeDose(clampedGrams);
       }
     } else {
-      const clampedGrams = Math.max(1, Math.min(100, Math.round(parsed * 10) / 10));
+      const clampedGrams = Math.max(1, Math.min(200, Math.round(parsed * 10) / 10));
       setTextDose(String(clampedGrams));
       if (clampedGrams !== doseGrams && onChangeDose) {
         onChangeDose(clampedGrams);
@@ -110,15 +116,13 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
     }
   };
 
-  const isDoseEditable = !isRunning && !isFinished && Boolean(onChangeDose);
-
   return (
     <View style={styles.chassis}>
       {/* Recipe Title & Specs Header */}
       <View style={styles.recipeHeader}>
         <Text style={styles.recipeSubtitle}>
           {mode === 'free_brew'
-            ? 'FREE BREW · MANUAL STOPWATCH'
+            ? 'MANUAL STOPWATCH'
             : `${recipe.brewMethod.toUpperCase()} · 1:${recipe.ratio}`}
         </Text>
         {mode !== 'free_brew' && (
@@ -177,34 +181,27 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
           )}
         </View>
 
+        <View style={styles.metricItem}>
+          <Text style={styles.metricLabel}>WATER TARGET</Text>
+          <Text style={styles.metricValue}>
+            {formatWeight(recipe.waterAmountGrams, weightUnit)}
+          </Text>
+        </View>
+
         {mode === 'free_brew' ? (
-          <>
-            <View style={styles.metricItem}>
-              <Text style={styles.metricLabel}>RATIO</Text>
-              <Text style={styles.metricValue}>1:{recipe.ratio}</Text>
-            </View>
-            <View style={styles.metricItem}>
-              <Text style={styles.metricLabel}>SPLITS</Text>
-              <Text style={[styles.metricValue, styles.metricValueAccent]}>
-                {splitsCount}
-              </Text>
-            </View>
-          </>
+          <View style={styles.metricItem}>
+            <Text style={styles.metricLabel}>RATIO</Text>
+            <Text style={styles.metricValue}>
+              1:{recipe.ratio}
+            </Text>
+          </View>
         ) : (
-          <>
-            <View style={styles.metricItem}>
-              <Text style={styles.metricLabel}>WATER TARGET</Text>
-              <Text style={styles.metricValue}>
-                {formatWeight(recipe.waterAmountGrams, weightUnit)}
-              </Text>
-            </View>
-            <View style={styles.metricItem}>
-              <Text style={styles.metricLabel}>POUR TO</Text>
-              <Text style={[styles.metricValue, styles.metricValueAccent]}>
-                {formatWeight(currentStageTargetWater, weightUnit)}
-              </Text>
-            </View>
-          </>
+          <View style={styles.metricItem}>
+            <Text style={styles.metricLabel}>POUR TO</Text>
+            <Text style={styles.metricValue}>
+              {formatWeight(currentStageTargetWater, weightUnit)}
+            </Text>
+          </View>
         )}
       </View>
 

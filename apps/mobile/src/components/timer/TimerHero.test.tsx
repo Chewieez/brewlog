@@ -185,7 +185,7 @@ describe('TimerHero Component', () => {
     expect(onChangeDose).not.toHaveBeenCalled();
   });
 
-  it('clamps input within limits (1g - 100g) on commit', () => {
+  it('clamps input within limits (1g - 200g) on commit', () => {
     const onChangeDose = vi.fn();
 
     const { getByLabelText } = render(
@@ -207,10 +207,10 @@ describe('TimerHero Component', () => {
     const doseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
 
     // Test upper bound clamp
-    fireEvent.change(doseInput, { target: { value: '150' } });
+    fireEvent.change(doseInput, { target: { value: '250' } });
     fireEvent.blur(doseInput);
-    expect(onChangeDose).toHaveBeenCalledWith(100);
-    expect(doseInput.value).toBe('100');
+    expect(onChangeDose).toHaveBeenCalledWith(200);
+    expect(doseInput.value).toBe('200');
 
     // Test lower bound clamp
     fireEvent.change(doseInput, { target: { value: '0.2' } });
@@ -234,6 +234,29 @@ describe('TimerHero Component', () => {
         onReset={vi.fn()}
         onToggleMute={vi.fn()}
         totalProgress={10}
+        onChangeDose={onChangeDose}
+      />
+    );
+
+    expect(queryByLabelText('Timer coffee dose in grams')).toBeNull();
+    expect(getByText('18.0 g')).toBeDefined();
+  });
+
+  it('locks dose to read-only when timer is paused mid-brew (elapsedSeconds > 0, isRunning = false)', () => {
+    const onChangeDose = vi.fn();
+
+    const { getByText, queryByLabelText } = render(
+      <TimerHero
+        recipe={baseRecipe}
+        elapsedSeconds={15}
+        isRunning={false}
+        isMuted={false}
+        currentStageTargetWater={60}
+        doseGrams={18}
+        onToggleTimer={vi.fn()}
+        onReset={vi.fn()}
+        onToggleMute={vi.fn()}
+        totalProgress={15}
         onChangeDose={onChangeDose}
       />
     );
@@ -319,7 +342,7 @@ describe('TimerHero Component', () => {
   });
 
   describe('Free Brew Mode', () => {
-    it('renders FREE BREW · MANUAL STOPWATCH subtitle and RATIO / SPLITS metrics', () => {
+    it('renders MANUAL STOPWATCH subtitle and RATIO / WATER TARGET metrics', () => {
       const { getByText, queryByText } = render(
         <TimerHero
           recipe={baseRecipe}
@@ -333,16 +356,15 @@ describe('TimerHero Component', () => {
           onToggleMute={vi.fn()}
           totalProgress={0}
           mode="free_brew"
-          splitsCount={3}
         />
       );
 
-      expect(getByText('FREE BREW · MANUAL STOPWATCH')).toBeDefined();
+      expect(getByText('MANUAL STOPWATCH')).toBeDefined();
+      expect(getByText('WATER TARGET')).toBeDefined();
+      expect(getByText('500.0 g')).toBeDefined();
       expect(getByText('RATIO')).toBeDefined();
       expect(getByText(/1:16.67/)).toBeDefined();
-      expect(getByText('SPLITS')).toBeDefined();
-      expect(getByText('3')).toBeDefined();
-      expect(queryByText('WATER TARGET')).toBeNull();
+      expect(queryByText('SPLITS')).toBeNull();
       expect(queryByText('POUR TO')).toBeNull();
     });
 
@@ -593,11 +615,11 @@ describe('TimerHero Component', () => {
 
       const doseInput = getByLabelText('Timer coffee dose in ounces') as HTMLInputElement;
 
-      // 10 oz = 283.5g -> clamps to 100g -> gramsToOz(100) = 3.53 oz
+      // 10 oz = 283.5g -> clamps to 200g -> gramsToOz(200) = 7.05 oz
       fireEvent.change(doseInput, { target: { value: '10' } });
       fireEvent.blur(doseInput);
-      expect(onChangeDose).toHaveBeenCalledWith(100);
-      expect(doseInput.value).toBe('3.53');
+      expect(onChangeDose).toHaveBeenCalledWith(200);
+      expect(doseInput.value).toBe('7.05');
     });
   });
 });
