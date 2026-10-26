@@ -48,7 +48,7 @@ Provides an automated, single-invocation command (`/start-work [issue]` or natur
 
 ---
 
-## 3. Base Branch Synchronization & Worktree Creation
+## 3. Workspace / Worktree Creation & Synchronization
 
 ### 3.1 Base Branch Determination
 1. Determine the base branch:
@@ -64,7 +64,27 @@ Provides an automated, single-invocation command (`/start-work [issue]` or natur
    git fetch origin "$BASE_BRANCH":"$BASE_BRANCH" 2>/dev/null || true
    ```
 
-### 3.2 Git Worktree Creation
+### 3.2 Workspace / Worktree Creation
+
+#### In Orca (Dedicated Workspace)
+If inside Orca (`$TERM_PROGRAM == "Orca"` or `$ORCA_TAB_ID` present):
+1. Check if an Orca workspace already exists for this branch:
+   ```bash
+   EXISTING_WT=$(orca worktree list --json 2>/dev/null | jq -r --arg b "$BRANCH_NAME" '.result.worktrees[] | select(.branch == "refs/heads/" + $b or .branch == "refs/heads/Chewieez/" + $b or .displayName == $b) | .path' | head -1)
+   ```
+2. If it exists, activate it.
+3. If new, create the first-class Orca workspace:
+   ```bash
+   CREATE_RES=$(orca worktree create \
+     --name "$BRANCH_NAME" \
+     --base-branch "$BASE_BRANCH" \
+     ${ISSUE_NUM:+--issue "$ISSUE_NUM"} \
+     --activate \
+     --json)
+   WORKTREE_PATH=$(echo "$CREATE_RES" | jq -r '.result.worktree.path')
+   ```
+
+#### Outside Orca (iTerm2 / Terminal.app)
 1. Check `.gitignore` for `.worktrees/`:
    ```bash
    git check-ignore -q .worktrees 2>/dev/null || {
@@ -82,10 +102,12 @@ Provides an automated, single-invocation command (`/start-work [issue]` or natur
      ```bash
      git worktree add ".worktrees/$BRANCH_NAME" -b "$BRANCH_NAME" "origin/$BASE_BRANCH"
      ```
-3. Copy local environment overrides if present:
-   ```bash
-   [ -f ".env.local" ] && cp ".env.local" ".worktrees/$BRANCH_NAME/.env.local" || true
-   ```
+
+#### Environment Forwarding (Both Environments)
+Copy local environment overrides if present:
+```bash
+[ -f "$REPO_ROOT/.env.local" ] && cp "$REPO_ROOT/.env.local" "$WORKTREE_PATH/.env.local" || true
+```
 
 ---
 
