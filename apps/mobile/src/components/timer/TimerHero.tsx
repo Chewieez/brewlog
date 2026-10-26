@@ -267,7 +267,7 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
                 style={styles.doseInput}
                 accessibilityLabel={`Timer coffee dose in ${weightUnit === 'imperial' ? 'ounces' : 'grams'}`}
               />
-              <Text style={styles.doseUnit}>{weightUnit === 'imperial' ? 'oz' : 'g'}</Text>
+              <Text pointerEvents="none" style={styles.doseUnit}>{weightUnit === 'imperial' ? 'oz' : 'g'}</Text>
             </Pressable>
           ) : (
             <View style={styles.doseDisplayRow}>
@@ -301,7 +301,7 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
                 style={styles.doseInput}
                 accessibilityLabel={`Timer water target in ${weightUnit === 'imperial' ? 'ounces' : 'grams'}`}
               />
-              <Text style={styles.doseUnit}>{weightUnit === 'imperial' ? 'oz' : 'g'}</Text>
+              <Text pointerEvents="none" style={styles.doseUnit}>{weightUnit === 'imperial' ? 'oz' : 'g'}</Text>
             </Pressable>
           ) : (
             <View style={styles.doseDisplayRow}>
@@ -325,7 +325,7 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
                 ]}
                 accessibilityRole="none"
               >
-                <Text style={styles.ratioPrefix}>1:</Text>
+                <Text pointerEvents="none" style={styles.ratioPrefix}>1:</Text>
                 <TextInput
                   ref={ratioInputRef}
                   value={textRatio}
@@ -582,6 +582,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontVariant: ['tabular-nums'],
     marginRight: 0,
+    pointerEvents: 'none',
   },
   metricValueAccent: {
     color: colors.accent,

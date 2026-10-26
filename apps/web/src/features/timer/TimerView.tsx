@@ -63,6 +63,9 @@ export const TimerView: React.FC<TimerViewProps> = ({
   const currentWeightUnit = weightUnit ?? settings.weightUnit;
 
   const initialRecipeRef = useRef(initialRecipe);
+  const doseInputRef = useRef<HTMLInputElement>(null);
+  const waterInputRef = useRef<HTMLInputElement>(null);
+  const ratioInputRef = useRef<HTMLInputElement>(null);
 
   const getQueryMode = (): TimerMode | null => {
     if (typeof window !== 'undefined' && window.location && window.location.search) {
@@ -584,13 +587,20 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 COFFEE DOSE
               </div>
               {isMetricEditable ? (
-                <div className="flex items-baseline border-b border-border-subtle focus-within:border-accent transition-colors mt-1 w-fit">
+                <label
+                  htmlFor="timer-coffee-dose-input"
+                  onClick={() => doseInputRef.current?.focus()}
+                  className="flex items-baseline border-b border-border-subtle focus-within:border-accent transition-colors mt-1 w-fit cursor-text"
+                >
                   <input
+                    id="timer-coffee-dose-input"
+                    ref={doseInputRef}
                     type="number"
                     step={currentWeightUnit === 'imperial' ? '0.01' : '0.1'}
                     min={currentWeightUnit === 'imperial' ? '0.05' : '1'}
                     max={currentWeightUnit === 'imperial' ? '7' : '200'}
                     value={textDose}
+                    onFocus={(e) => e.target.select()}
                     onChange={(e) => setTextDose(e.target.value)}
                     onBlur={handleCommitDose}
                     onKeyDown={(e) => {
@@ -604,13 +614,13 @@ export const TimerView: React.FC<TimerViewProps> = ({
                       }
                     }}
                     style={{ width: `${Math.max(1, (textDose || '').length)}ch` }}
-                    className="bg-transparent text-2xl sm:text-3xl font-light text-text-primary tabular-nums focus:outline-none p-0 text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="bg-transparent text-2xl sm:text-3xl font-light text-text-primary tabular-nums focus:outline-none p-0 text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text"
                     aria-label={`Timer coffee dose in ${currentWeightUnit === 'imperial' ? 'ounces' : 'grams'}`}
                   />
-                  <span className="text-xl sm:text-2xl font-light text-text-muted select-none ml-1">
+                  <span className="text-xl sm:text-2xl font-light text-text-muted select-none ml-1 cursor-text">
                     {currentWeightUnit === 'imperial' ? 'oz' : 'g'}
                   </span>
-                </div>
+                </label>
               ) : (
                 <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
                   {formatWeight(currentDose, currentWeightUnit)}
@@ -623,13 +633,20 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 WATER TARGET
               </div>
               {isMetricEditable ? (
-                <div className="flex items-baseline border-b border-border-subtle focus-within:border-accent transition-colors mt-1 w-fit">
+                <label
+                  htmlFor="timer-water-target-input"
+                  onClick={() => waterInputRef.current?.focus()}
+                  className="flex items-baseline border-b border-border-subtle focus-within:border-accent transition-colors mt-1 w-fit cursor-text"
+                >
                   <input
+                    id="timer-water-target-input"
+                    ref={waterInputRef}
                     type="number"
                     step={currentWeightUnit === 'imperial' ? '0.1' : '1'}
                     min={currentWeightUnit === 'imperial' ? '1' : '10'}
                     max={currentWeightUnit === 'imperial' ? '100' : '3000'}
                     value={textWater}
+                    onFocus={(e) => e.target.select()}
                     onChange={(e) => setTextWater(e.target.value)}
                     onBlur={handleCommitWater}
                     onKeyDown={(e) => {
@@ -643,13 +660,13 @@ export const TimerView: React.FC<TimerViewProps> = ({
                       }
                     }}
                     style={{ width: `${Math.max(1, (textWater || '').length)}ch` }}
-                    className="bg-transparent text-2xl sm:text-3xl font-light text-text-primary tabular-nums focus:outline-none p-0 text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="bg-transparent text-2xl sm:text-3xl font-light text-text-primary tabular-nums focus:outline-none p-0 text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text"
                     aria-label={`Timer water target in ${currentWeightUnit === 'imperial' ? 'ounces' : 'grams'}`}
                   />
-                  <span className="text-xl sm:text-2xl font-light text-text-muted select-none ml-1">
+                  <span className="text-xl sm:text-2xl font-light text-text-muted select-none ml-1 cursor-text">
                     {currentWeightUnit === 'imperial' ? 'oz' : 'g'}
                   </span>
-                </div>
+                </label>
               ) : (
                 <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
                   {formatWeight(currentRecipe.waterAmountGrams, currentWeightUnit)}
@@ -663,16 +680,23 @@ export const TimerView: React.FC<TimerViewProps> = ({
               </div>
               {mode === 'free_brew' ? (
                 isMetricEditable ? (
-                  <div className="flex items-baseline border-b border-border-subtle focus-within:border-accent transition-colors mt-1 w-fit">
-                    <span className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums select-none">
+                  <label
+                    htmlFor="timer-brew-ratio-input"
+                    onClick={() => ratioInputRef.current?.focus()}
+                    className="flex items-baseline border-b border-border-subtle focus-within:border-accent transition-colors mt-1 w-fit cursor-text"
+                  >
+                    <span className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums select-none cursor-text">
                       1:
                     </span>
                     <input
+                      id="timer-brew-ratio-input"
+                      ref={ratioInputRef}
                       type="number"
                       step="0.1"
                       min="1"
                       max="30"
                       value={textRatio}
+                      onFocus={(e) => e.target.select()}
                       onChange={(e) => setTextRatio(e.target.value)}
                       onBlur={handleCommitRatio}
                       onKeyDown={(e) => {
@@ -686,10 +710,10 @@ export const TimerView: React.FC<TimerViewProps> = ({
                         }
                       }}
                       style={{ width: `${Math.max(1, (textRatio || '').length)}ch` }}
-                      className="bg-transparent text-2xl sm:text-3xl font-light text-text-primary tabular-nums focus:outline-none p-0 text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="bg-transparent text-2xl sm:text-3xl font-light text-text-primary tabular-nums focus:outline-none p-0 text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text"
                       aria-label="Timer brew ratio"
                     />
-                  </div>
+                  </label>
                 ) : (
                   <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
                     1:{currentRecipe.ratio}

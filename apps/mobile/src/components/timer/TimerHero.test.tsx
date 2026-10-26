@@ -689,7 +689,7 @@ describe('TimerHero Component', () => {
       it('allows inline editing of ratio in free brew mode and calls onChangeRatio on commit (blur)', () => {
         const onChangeRatio = vi.fn();
 
-        const { getByLabelText } = render(
+        const { getByLabelText, getByText } = render(
           <TimerHero
             recipe={baseRecipe}
             elapsedSeconds={0}
@@ -702,7 +702,10 @@ describe('TimerHero Component', () => {
           />
         );
 
+        const ratioPrefix = getByText('1:');
+        fireEvent.click(ratioPrefix);
         const ratioInput = getByLabelText('Timer brew ratio') as HTMLInputElement;
+        expect(document.activeElement).toBe(ratioInput);
         expect(ratioInput.value).toBe('16.7');
 
         fireEvent.change(ratioInput, { target: { value: '15' } });
@@ -716,7 +719,7 @@ describe('TimerHero Component', () => {
       it('calls onChangeRatio on Enter key submit', () => {
         const onChangeRatio = vi.fn();
 
-        const { getByLabelText } = render(
+        const { getByLabelText, getByText } = render(
           <TimerHero
             recipe={baseRecipe}
             elapsedSeconds={0}
@@ -729,7 +732,10 @@ describe('TimerHero Component', () => {
           />
         );
 
+        const ratioPrefix = getByText('1:');
+        fireEvent.click(ratioPrefix);
         const ratioInput = getByLabelText('Timer brew ratio') as HTMLInputElement;
+        expect(document.activeElement).toBe(ratioInput);
         fireEvent.change(ratioInput, { target: { value: '17.5' } });
         fireEvent.keyDown(ratioInput, { key: 'Enter' });
 
@@ -739,7 +745,7 @@ describe('TimerHero Component', () => {
       it('resets to current ratio if empty or non-positive input is blurred', () => {
         const onChangeRatio = vi.fn();
 
-        const { getByLabelText } = render(
+        const { getByLabelText, getByText } = render(
           <TimerHero
             recipe={baseRecipe}
             elapsedSeconds={0}
@@ -752,7 +758,10 @@ describe('TimerHero Component', () => {
           />
         );
 
+        const ratioPrefix = getByText('1:');
+        fireEvent.click(ratioPrefix);
         const ratioInput = getByLabelText('Timer brew ratio') as HTMLInputElement;
+        expect(document.activeElement).toBe(ratioInput);
         fireEvent.change(ratioInput, { target: { value: '' } });
         fireEvent.blur(ratioInput);
 
@@ -769,7 +778,7 @@ describe('TimerHero Component', () => {
       it('clamps ratio input within limits (1.0 - 30.0) on commit', () => {
         const onChangeRatio = vi.fn();
 
-        const { getByLabelText } = render(
+        const { getByLabelText, getByText } = render(
           <TimerHero
             recipe={baseRecipe}
             elapsedSeconds={0}
@@ -782,7 +791,10 @@ describe('TimerHero Component', () => {
           />
         );
 
+        const ratioPrefix = getByText('1:');
+        fireEvent.click(ratioPrefix);
         const ratioInput = getByLabelText('Timer brew ratio') as HTMLInputElement;
+        expect(document.activeElement).toBe(ratioInput);
 
         // Upper clamp
         fireEvent.change(ratioInput, { target: { value: '45' } });

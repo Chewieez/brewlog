@@ -442,6 +442,11 @@ describe('TimerView', () => {
     expect(waterInput.value).toBe('320');
     expect(ratioInput.value).toBe('16');
 
+    // Clicking the "1:" label prefix sets focus on the ratio input
+    const ratioPrefix = screen.getByText('1:');
+    fireEvent.click(ratioPrefix);
+    expect(document.activeElement).toBe(ratioInput);
+
     // Inline edit ratio to 15
     act(() => {
       fireEvent.change(ratioInput, { target: { value: '15' } });
