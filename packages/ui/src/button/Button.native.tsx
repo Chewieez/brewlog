@@ -89,9 +89,9 @@ const styles = StyleSheet.create({
   lgContainer: { minHeight: 52, paddingHorizontal: 20, paddingVertical: 14 },
   primaryContainer: { backgroundColor: colors.accent },
   secondaryContainer: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.panel,
     borderWidth: 1,
-    borderColor: colors.borderSubtle,
+    borderColor: colors.borderActive,
   },
   ghostContainer: { backgroundColor: 'transparent' },
   dangerContainer: {

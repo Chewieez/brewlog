@@ -180,7 +180,7 @@ export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
   };
 
   return (
-    <View style={styles.card}>
+    <View style={styles.container}>
       {/* Header Accordion Toggle */}
       <Pressable
         onPress={() => setIsExpanded((prev) => !prev)}
@@ -304,20 +304,15 @@ export const RatioTranslator = CollapsibleCalculator;
 export default CollapsibleCalculator;
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.panel,
-    borderColor: colors.borderSubtle,
-    borderWidth: 1,
-    borderRadius: 8,
-    marginHorizontal: 16,
-    marginVertical: 6,
-    overflow: 'hidden',
+  container: {
+    paddingHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 6,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 14,
     paddingVertical: 10,
     minHeight: 44,
   },
@@ -333,10 +328,14 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   body: {
+    backgroundColor: colors.panel,
+    borderColor: colors.borderSubtle,
+    borderWidth: 1,
+    borderRadius: 8,
     paddingHorizontal: 14,
-    paddingBottom: 14,
-    borderTopWidth: 1,
-    borderTopColor: colors.borderSubtle,
+    paddingVertical: 14,
+    marginTop: 8,
+    marginBottom: 10,
     gap: 12,
   },
   subtitle: {
@@ -344,7 +343,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontFamily: FONTS.sansRegular,
     lineHeight: 16,
-    marginTop: 10,
+    marginTop: 0,
   },
   inputRow: {
     flexDirection: 'row',

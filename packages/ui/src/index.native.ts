@@ -18,3 +18,6 @@ export { MetricTile } from './metric-tile/MetricTile.native';
 export * from './showcase/UiShowcase.types';
 export { UiShowcase } from './showcase/UiShowcase.native';
 
+export * from './segmented-control/SegmentedControl.types';
+export { SegmentedControl } from './segmented-control/SegmentedControl.native';
+
