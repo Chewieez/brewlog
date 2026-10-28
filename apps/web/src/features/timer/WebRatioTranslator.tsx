@@ -21,7 +21,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
 }) => {
   const initialBaseCoffee = baseCoffee ?? 20;
   const initialBaseWater = baseWater ?? 300;
-  const initialTargetCoffee = baseCoffee ?? currentDose ?? 18;
+  const initialTargetCoffee = currentDose ?? baseCoffee ?? 18;
   const [isOpen, setIsOpen] = useState(false);
   const [sourceCoffee, setSourceCoffee] = useState(String(initialBaseCoffee));
   const [sourceWater, setSourceWater] = useState(String(initialBaseWater));
@@ -45,23 +45,20 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
   }, []);
 
   useEffect(() => {
-    if (baseCoffee !== undefined && baseWater !== undefined) {
-      setSourceCoffee(String(baseCoffee));
-      setSourceWater(String(baseWater));
-      setTargetCoffee(String(baseCoffee));
-      setTargetWater(String(baseWater));
-    } else if (currentDose && currentDose > 0) {
-      setTargetCoffee(String(currentDose));
-      const sc = parseFloat(sourceCoffee) || 20;
-      const sw = parseFloat(sourceWater) || 300;
-      if (sc > 0 && sw > 0) {
-        const res = solveProportionalScale({
-          sourceCoffee: sc,
-          sourceWater: sw,
-          targetCoffee: currentDose,
-        });
-        setTargetWater(String(res.targetWater));
-      }
+    const sc = baseCoffee ?? 20;
+    const sw = baseWater ?? 300;
+    const tc = currentDose ?? baseCoffee ?? 18;
+
+    setSourceCoffee(String(sc));
+    setSourceWater(String(sw));
+    setTargetCoffee(String(tc));
+    if (sc > 0 && sw > 0 && tc > 0) {
+      const res = solveProportionalScale({
+        sourceCoffee: sc,
+        sourceWater: sw,
+        targetCoffee: tc,
+      });
+      setTargetWater(String(res.targetWater));
     }
   }, [baseCoffee, baseWater, currentDose]);
 
