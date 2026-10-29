@@ -22,6 +22,7 @@ import { useOptionalEquipment } from '../../src/features/equipment/EquipmentCont
 import { ActiveBeanPill } from '../../src/features/stash/components/ActiveBeanPill';
 import { useMobileBrewTimer } from '../../src/hooks/useMobileBrewTimer';
 import { CollapsibleCalculator } from '../../src/components/timer/CollapsibleCalculator';
+import { SegmentedControl } from '@brewlog/ui';
 import { TimerHero } from '../../src/components/timer/TimerHero';
 import { ActiveStageCard } from '../../src/components/timer/ActiveStageCard';
 import { StageTimeline } from '../../src/components/timer/StageTimeline';
@@ -292,35 +293,23 @@ export default function TimerScreen() {
 
       {/* Top Segmented Mode Switcher */}
       <View style={styles.modeToggleContainer}>
-        <Pressable
-          onPress={() => handleSwitchMode('recipe')}
-          style={[styles.modeButton, timerMode === 'recipe' && styles.modeButtonActive]}
-          accessibilityRole="button"
-          accessibilityLabel="Guided Recipe mode"
-          accessibilityState={{ selected: timerMode === 'recipe' }}
-        >
-          <Text style={[styles.modeButtonText, timerMode === 'recipe' && styles.modeButtonTextActive]}>
-            GUIDED RECIPE
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={() => handleSwitchMode('free_brew')}
-          style={[styles.modeButton, timerMode === 'free_brew' && styles.modeButtonActive]}
-          accessibilityRole="button"
-          accessibilityLabel="Free Brew mode"
-          accessibilityState={{ selected: timerMode === 'free_brew' }}
-        >
-          <Text style={[styles.modeButtonText, timerMode === 'free_brew' && styles.modeButtonTextActive]}>
-            FREE BREW
-          </Text>
-        </Pressable>
+        <SegmentedControl<TimerMode>
+          value={timerMode}
+          onChange={handleSwitchMode}
+          ariaLabel="Timer mode switcher"
+          fullWidth
+          options={[
+            { value: 'recipe', label: 'GUIDED RECIPE', accessibilityLabel: 'Guided Recipe mode' },
+            { value: 'free_brew', label: 'FREE BREW', accessibilityLabel: 'Free Brew mode' },
+          ]}
+        />
       </View>
 
       {/* Standalone Collapsible Calculator */}
       <CollapsibleCalculator
-        initialDose={currentDose}
-        initialRatio={currentRecipe.ratio}
-        initialWater={currentRecipe.waterAmountGrams}
+        currentDose={currentDose}
+        baseCoffee={currentDose}
+        baseWater={currentRecipe.waterAmountGrams}
         onApplyDose={handleApplyDose}
       />
 
@@ -476,34 +465,9 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   modeToggleContainer: {
-    flexDirection: 'row',
     marginHorizontal: 16,
     marginTop: 8,
     marginBottom: 4,
-    backgroundColor: colors.panelRecessed,
-    borderRadius: 8,
-    padding: 3,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-  },
-  modeButton: {
-    flex: 1,
-    minHeight: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 6,
-  },
-  modeButtonActive: {
-    backgroundColor: colors.accent,
-  },
-  modeButtonText: {
-    color: colors.textMuted,
-    fontSize: 11,
-    fontFamily: FONTS.monoBold,
-    letterSpacing: 1.2,
-  },
-  modeButtonTextActive: {
-    color: colors.canvas,
   },
   finishedBanner: {
     marginHorizontal: 16,

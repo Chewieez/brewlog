@@ -326,11 +326,9 @@ describe('TimerScreen Free Brew Integration', () => {
 
     // Expand ratio calculator
     fireEvent.press(getByText('RATIO CALCULATOR'));
-    // Expand nested converter
-    fireEvent.press(getByText('CONVERTER'));
 
-    const sourceCoffeeInput = getByLabelText('Baseline coffee dose in grams');
-    const sourceWaterInput = getByLabelText('Baseline water amount in grams');
+    const sourceCoffeeInput = getByLabelText('Source coffee dose in grams');
+    const sourceWaterInput = getByLabelText('Source water amount in grams');
     const targetCoffeeInput = getByLabelText('Target coffee dose in grams');
 
     fireEvent.change(sourceCoffeeInput, { target: { value: '20' } });

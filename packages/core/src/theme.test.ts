@@ -8,8 +8,8 @@ describe('theme tokens', () => {
     expect(INDUSTRIAL_PRECISION_THEME.colors.canvas).toBe('#121214');
     expect(INDUSTRIAL_PRECISION_THEME.colors.panel).toBe('#18181b');
     expect(INDUSTRIAL_PRECISION_THEME.colors.panelRecessed).toBe('#202024');
-    expect(INDUSTRIAL_PRECISION_THEME.colors.borderSubtle).toBe('#27272a');
-    expect(INDUSTRIAL_PRECISION_THEME.colors.borderActive).toBe('#3f3f46');
+    expect(INDUSTRIAL_PRECISION_THEME.colors.borderSubtle).toBe('#3f3f46');
+    expect(INDUSTRIAL_PRECISION_THEME.colors.borderActive).toBe('#52525b');
     expect(INDUSTRIAL_PRECISION_THEME.colors.accent).toBe('#d97736');
     expect(INDUSTRIAL_PRECISION_THEME.colors.accentHover).toBe('#e88344');
     expect(INDUSTRIAL_PRECISION_THEME.colors.textPrimary).toBe('#f4f4f5');

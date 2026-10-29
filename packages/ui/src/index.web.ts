@@ -18,3 +18,6 @@ export { MetricTile } from './metric-tile/MetricTile.web';
 export * from './showcase/UiShowcase.types';
 export { UiShowcase } from './showcase/UiShowcase.web';
 
+export * from './segmented-control/SegmentedControl.types';
+export { SegmentedControl } from './segmented-control/SegmentedControl.web';
+

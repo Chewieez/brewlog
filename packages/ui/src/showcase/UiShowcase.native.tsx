@@ -5,6 +5,7 @@ import { Card } from '../card/Card.native';
 import { Badge } from '../badge/Badge.native';
 import { Input } from '../input/Input.native';
 import { MetricTile } from '../metric-tile/MetricTile.native';
+import { SegmentedControl } from '../segmented-control/SegmentedControl.native';
 import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
 import type { UiShowcaseProps } from './UiShowcase.types';
 
@@ -12,6 +13,8 @@ const colors = INDUSTRIAL_PRECISION_THEME.colors;
 
 export const UiShowcase: React.FC<UiShowcaseProps> = ({ testID }) => {
   const [dose, setDose] = useState('18.5');
+  const [segmentMode, setSegmentMode] = useState<'recipe' | 'free'>('recipe');
+  const [ratio, setRatio] = useState<'1:15' | '1:16' | '1:17'>('1:16');
 
   return (
     <ScrollView testID={testID} contentContainerStyle={styles.container}>
@@ -43,6 +46,33 @@ export const UiShowcase: React.FC<UiShowcaseProps> = ({ testID }) => {
       <Card variant="default">
         <Text style={styles.cardText}>Standard Chassis Card</Text>
       </Card>
+
+      <Text style={styles.sectionHeader}>SHOWCASE: SEGMENTED CONTROL</Text>
+      <Card variant="default">
+        <View style={styles.segmentedControlSection}>
+          <Text style={styles.sublabel}>FIXED WIDTH</Text>
+          <SegmentedControl
+            options={[
+              { value: 'recipe', label: 'GUIDED RECIPE' },
+              { value: 'free', label: 'FREE BREW' },
+            ]}
+            value={segmentMode}
+            onChange={setSegmentMode}
+            fullWidth={false}
+          />
+          <Text style={[styles.sublabel, { marginTop: 12 }]}>FULL WIDTH</Text>
+          <SegmentedControl
+            options={[
+              { value: '1:15', label: '1:15' },
+              { value: '1:16', label: '1:16' },
+              { value: '1:17', label: '1:17' },
+            ]}
+            value={ratio}
+            onChange={setRatio}
+            fullWidth={true}
+          />
+        </View>
+      </Card>
     </ScrollView>
   );
 };
@@ -68,4 +98,12 @@ const styles = StyleSheet.create({
   },
   badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   cardText: { color: colors.textPrimary, fontFamily: 'Outfit_400Regular', fontSize: 14 },
+  segmentedControlSection: { gap: 8 },
+  sublabel: {
+    fontFamily: 'JetBrainsMono_700Bold',
+    fontSize: 10,
+    color: colors.textSecondary,
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
 });

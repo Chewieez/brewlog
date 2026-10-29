@@ -6,12 +6,14 @@ export interface WebRatioTranslatorProps {
   currentDose?: number;
   baseCoffee?: number;
   baseWater?: number;
-  onApplyDose: (dose: number, ratio?: number, water?: number) => void;
+  onApplyDose?: (dose: number, ratio?: number, water?: number) => void;
   className?: string;
 }
 
+export type RatioTranslatorProps = WebRatioTranslatorProps;
+
 export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
-  currentDose = 18,
+  currentDose,
   baseCoffee,
   baseWater,
   onApplyDose,
@@ -19,7 +21,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
 }) => {
   const initialBaseCoffee = baseCoffee ?? 20;
   const initialBaseWater = baseWater ?? 300;
-  const initialTargetCoffee = baseCoffee ?? currentDose ?? 18;
+  const initialTargetCoffee = currentDose ?? baseCoffee ?? 18;
   const [isOpen, setIsOpen] = useState(false);
   const [sourceCoffee, setSourceCoffee] = useState(String(initialBaseCoffee));
   const [sourceWater, setSourceWater] = useState(String(initialBaseWater));
@@ -43,23 +45,20 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
   }, []);
 
   useEffect(() => {
-    if (baseCoffee !== undefined && baseWater !== undefined) {
-      setSourceCoffee(String(baseCoffee));
-      setSourceWater(String(baseWater));
-      setTargetCoffee(String(baseCoffee));
-      setTargetWater(String(baseWater));
-    } else if (currentDose && currentDose > 0) {
-      setTargetCoffee(String(currentDose));
-      const sc = parseFloat(sourceCoffee) || 20;
-      const sw = parseFloat(sourceWater) || 300;
-      if (sc > 0 && sw > 0) {
-        const res = solveProportionalScale({
-          sourceCoffee: sc,
-          sourceWater: sw,
-          targetCoffee: currentDose,
-        });
-        setTargetWater(String(res.targetWater));
-      }
+    const sc = baseCoffee ?? 20;
+    const sw = baseWater ?? 300;
+    const tc = currentDose ?? baseCoffee ?? 18;
+
+    setSourceCoffee(String(sc));
+    setSourceWater(String(sw));
+    setTargetCoffee(String(tc));
+    if (sc > 0 && sw > 0 && tc > 0) {
+      const res = solveProportionalScale({
+        sourceCoffee: sc,
+        sourceWater: sw,
+        targetCoffee: tc,
+      });
+      setTargetWater(String(res.targetWater));
     }
   }, [baseCoffee, baseWater, currentDose]);
 
@@ -122,7 +121,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
 
   const handleApply = () => {
     const dose = parseFloat(targetCoffee) || 0;
-    if (dose > 0) {
+    if (dose > 0 && onApplyDose) {
       const doseToApply = Number(dose.toFixed(1));
       const waterVal = parseFloat(targetWater) || 0;
       const waterToApply = waterVal > 0 ? Math.round(waterVal) : undefined;
@@ -140,12 +139,12 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
   };
 
   return (
-    <div className={`border border-border-subtle rounded bg-panel-recessed ${className}`}>
+    <div className={`w-full ${className}`}>
       {/* Header Accordion Toggle */}
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full flex items-center justify-between px-3.5 py-2.5 text-left text-xs font-mono uppercase tracking-wider text-text-secondary hover:text-text-primary hover:bg-panel transition-colors cursor-pointer"
+        className="w-full flex items-center justify-between pt-0 pb-2.5 text-left text-xs font-mono uppercase tracking-wider text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
         aria-expanded={isOpen}
       >
         <div className="flex items-center space-x-2">
@@ -161,7 +160,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
 
       {/* Collapsible Content */}
       {isOpen && (
-        <div className="p-3.5 border-t border-border-subtle space-y-4">
+        <div className="mt-3 p-4 border border-border-subtle rounded bg-panel-recessed space-y-4">
           <p className="text-xs text-text-muted">
             Translate recipe dose & water proportionally to match your target coffee dose.
           </p>
@@ -250,24 +249,31 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleApply}
-            disabled={tcNum <= 0}
-            className="w-full flex items-center justify-center space-x-1.5 px-3 py-2 rounded bg-accent hover:bg-accent-hover disabled:opacity-50 text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer"
-            aria-label={isApplied ? "Dose applied to timer" : "Apply dose to timer"}
-          >
-            {isApplied ? (
-              <>
-                <Check className="w-3.5 h-3.5" />
-                <span>DOSE APPLIED</span>
-              </>
-            ) : (
-              <span>APPLY DOSE</span>
-            )}
-          </button>
+          {onApplyDose && (
+            <div className="flex justify-start pt-1">
+              <button
+                type="button"
+                onClick={handleApply}
+                disabled={tcNum <= 0}
+                className="flex items-center justify-center space-x-1.5 px-5 py-2 rounded border border-border-active hover:border-text-secondary bg-panel hover:bg-panel-recessed disabled:opacity-50 disabled:cursor-not-allowed text-text-primary font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer shadow-sm active:scale-95"
+                aria-label={isApplied ? "Dose applied to timer" : "Apply dose to timer"}
+              >
+                {isApplied ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-status-success" />
+                    <span className="text-status-success font-bold">DOSE APPLIED</span>
+                  </>
+                ) : (
+                  <span>APPLY DOSE</span>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 };
+
+export const RatioTranslator = WebRatioTranslator;
+export default WebRatioTranslator;

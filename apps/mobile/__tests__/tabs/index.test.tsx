@@ -255,19 +255,19 @@ describe('TimerScreen - Mode Switch & Active Brew Guard', () => {
     const calcToggle = getByLabelText('Toggle Ratio Calculator');
     fireEvent.click(calcToggle);
 
-    // Change dose input in calculator to 20
-    const doseInput = getByLabelText('Coffee dose in grams');
+    // Change target coffee input in calculator to 20
+    const doseInput = getByLabelText('Target coffee dose in grams');
     fireEvent.change(doseInput, { target: { value: '20' } });
 
     // Click Apply Dose
     const applyBtn = getByLabelText('Apply dose to timer');
     fireEvent.click(applyBtn);
 
-    // TimerHero should now show 20g dose in input and 333g water target
+    // TimerHero should now show 20g dose in input and 334g water target
     const heroDoseInput = getByLabelText('Timer coffee dose in grams') as HTMLInputElement;
     expect(heroDoseInput.value).toBe('20');
     const heroWaterInput = getByLabelText('Timer water target in grams') as HTMLInputElement;
-    expect(heroWaterInput.value).toBe('333');
+    expect(heroWaterInput.value).toBe('334');
   });
 
   it('initializes Free Brew mode with default starting values (20g coffee, 1:16 ratio, 320g water target)', () => {
@@ -368,7 +368,7 @@ describe('TimerScreen - Cold Start Mode Hydration', () => {
 
     // Initial render while loading starts in default free brew mode
     const freeBrewTab = getByRole('button', { name: /FREE BREW/i });
-    expect(freeBrewTab.getAttribute('aria-selected')).toBe('true');
+    expect(freeBrewTab.getAttribute('aria-pressed')).toBe('true');
 
     // AsyncStorage completes hydration: loading becomes false, settings.defaultTimerMode is 'recipe'
     contextValue = {
@@ -388,7 +388,7 @@ describe('TimerScreen - Cold Start Mode Hydration', () => {
 
     // timerMode synchronizes to 'recipe'
     const recipeTab = getByRole('button', { name: /GUIDED RECIPE/i });
-    expect(recipeTab.getAttribute('aria-selected')).toBe('true');
+    expect(recipeTab.getAttribute('aria-pressed')).toBe('true');
   });
 
   it('does not overwrite explicit params.mode when hydration completes', () => {
@@ -408,7 +408,7 @@ describe('TimerScreen - Cold Start Mode Hydration', () => {
     );
 
     const freeBrewTab = getByRole('button', { name: /FREE BREW/i });
-    expect(freeBrewTab.getAttribute('aria-selected')).toBe('true');
+    expect(freeBrewTab.getAttribute('aria-pressed')).toBe('true');
 
     // AsyncStorage finishes loading with recipe
     contextValue = {
@@ -427,6 +427,6 @@ describe('TimerScreen - Cold Start Mode Hydration', () => {
     );
 
     // Explicit free_brew param is preserved
-    expect(freeBrewTab.getAttribute('aria-selected')).toBe('true');
+    expect(freeBrewTab.getAttribute('aria-pressed')).toBe('true');
   });
 });

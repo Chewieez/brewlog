@@ -19,6 +19,7 @@ import {
 import { useSettings, useOptionalSettings } from '../settings/SettingsContext';
 import { useBrewTimer } from './useBrewTimer';
 import { WebRatioTranslator } from './WebRatioTranslator';
+import { SegmentedControl } from '@brewlog/ui';
 import { coffeeAudio } from '../../lib/audio';
 import {
   Play,
@@ -440,32 +441,15 @@ export const TimerView: React.FC<TimerViewProps> = ({
     <div className="max-w-7xl mx-auto pb-12">
       {/* Top Segmented Mode Switcher */}
       <div className="flex items-center justify-between gap-4 pb-4 mb-6 border-b border-border-subtle">
-        <div className="inline-flex p-1 bg-panel border border-border-subtle rounded space-x-1">
-          <button
-            type="button"
-            onClick={() => handleSwitchMode('recipe')}
-            aria-label="Guided Recipe mode"
-            className={`px-4 py-1.5 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
-              mode === 'recipe'
-                ? 'bg-accent text-zinc-950 font-bold shadow-sm'
-                : 'text-text-secondary hover:text-text-primary hover:bg-panel-recessed'
-            }`}
-          >
-            GUIDED RECIPE
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSwitchMode('free_brew')}
-            aria-label="Free Brew mode"
-            className={`px-4 py-1.5 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
-              mode === 'free_brew'
-                ? 'bg-accent text-zinc-950 font-bold shadow-sm'
-                : 'text-text-secondary hover:text-text-primary hover:bg-panel-recessed'
-            }`}
-          >
-            FREE BREW
-          </button>
-        </div>
+        <SegmentedControl<TimerMode>
+          value={mode}
+          onChange={handleSwitchMode}
+          ariaLabel="Timer mode switcher"
+          options={[
+            { value: 'recipe', label: 'GUIDED RECIPE' },
+            { value: 'free_brew', label: 'FREE BREW' },
+          ]}
+        />
       </div>
 
       {/* Top Device Context Bar */}
@@ -518,7 +502,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
           <button
             type="button"
             onClick={onSelectOtherRecipe}
-            className="px-3.5 py-1.5 rounded border border-border-subtle hover:border-border-active hover:bg-panel text-xs font-mono uppercase tracking-wider text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
+            className="px-3.5 py-1.5 rounded border border-border-active hover:border-text-secondary bg-panel hover:bg-panel-recessed text-xs font-mono uppercase tracking-wider text-text-primary transition-all cursor-pointer shadow-sm active:scale-95"
           >
             CHANGE RECIPE
           </button>
@@ -531,40 +515,42 @@ export const TimerView: React.FC<TimerViewProps> = ({
         {/* Left Column: Direct Instrument Readouts (Timer + Metrics + Hardware Controls) */}
         <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
           
-          {/* Integrated Ratio Translator Collapsible Drawer */}
-          <WebRatioTranslator
-            currentDose={currentDose}
-            baseCoffee={currentDose}
-            baseWater={currentRecipe.waterAmountGrams}
-            onApplyDose={handleApplyDose}
-          />
+          <div className="space-y-5">
+            {/* Integrated Ratio Translator Collapsible Drawer */}
+            <WebRatioTranslator
+              currentDose={currentDose}
+              baseCoffee={currentDose}
+              baseWater={currentRecipe.waterAmountGrams}
+              onApplyDose={handleApplyDose}
+            />
 
-          {/* Active Stage & Progress Header */}
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-accent font-bold tracking-widest uppercase font-mono">
-                {mode === 'free_brew' ? 'MANUAL STOPWATCH' : currentStage.name}
-              </span>
-              <span className="text-text-muted tabular-nums">
-                {mode === 'free_brew'
-                  ? `${splits.length} Splits Recorded`
-                  : `${totalProgressPercent}% · Target: ${formatTime(currentRecipe.totalTimeSeconds)}`}
-              </span>
-            </div>
-            
-            {/* Sleek linear progress line on chassis */}
-            <div className="w-full h-1 bg-panel-recessed overflow-hidden rounded-full">
-              {mode === 'recipe' ? (
-                <div
-                  ref={progressBarRef}
-                  className={`h-full bg-accent ${isResetting ? 'transition-all duration-300 ease-out' : ''}`}
-                />
-              ) : (
-                <div
-                  className={`h-full bg-accent/60 ${isRunning ? 'animate-pulse' : ''}`}
-                  style={{ width: isRunning || elapsedSeconds > 0 ? '100%' : '0%' }}
-                />
-              )}
+            {/* Active Stage & Progress Header */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-accent font-bold tracking-widest uppercase font-mono">
+                  {mode === 'free_brew' ? 'MANUAL STOPWATCH' : currentStage.name}
+                </span>
+                <span className="text-text-muted tabular-nums">
+                  {mode === 'free_brew'
+                    ? `${splits.length} Splits Recorded`
+                    : `${totalProgressPercent}% · Target: ${formatTime(currentRecipe.totalTimeSeconds)}`}
+                </span>
+              </div>
+              
+              {/* Sleek linear progress line on chassis */}
+              <div className="w-full h-1 bg-panel-recessed overflow-hidden rounded-full">
+                {mode === 'recipe' ? (
+                  <div
+                    ref={progressBarRef}
+                    className={`h-full bg-accent ${isResetting ? 'transition-all duration-300 ease-out' : ''}`}
+                  />
+                ) : (
+                  <div
+                    className={`h-full bg-accent/60 ${isRunning ? 'animate-pulse' : ''}`}
+                    style={{ width: isRunning || elapsedSeconds > 0 ? '100%' : '0%' }}
+                  />
+                )}
+              </div>
             </div>
           </div>
 

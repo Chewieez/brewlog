@@ -92,6 +92,31 @@ describe("WebRatioTranslator", () => {
     expect(onApplyDose).toHaveBeenCalledWith(18, 16.7, 300);
   });
 
+  it("falls back to baseCoffee when currentDose is omitted", () => {
+    const onApplyDose = vi.fn();
+    render(
+      <WebRatioTranslator
+        baseCoffee={22}
+        baseWater={350}
+        onApplyDose={onApplyDose}
+      />
+    );
+
+    fireEvent.click(screen.getByText(/RATIO CALCULATOR/i));
+
+    const sourceCoffee = screen.getByLabelText(/source coffee/i) as HTMLInputElement;
+    const targetCoffee = screen.getByLabelText(/target coffee/i) as HTMLInputElement;
+
+    expect(sourceCoffee.value).toBe("22");
+    expect(targetCoffee.value).toBe("22");
+  });
+
+  it("does not render apply dose button when onApplyDose is omitted", () => {
+    render(<WebRatioTranslator currentDose={18} />);
+    fireEvent.click(screen.getByText(/RATIO CALCULATOR/i));
+    expect(screen.queryByText(/APPLY DOSE/i)).toBeNull();
+  });
+
   it("cleans up applied badge timeout on unmount without errors", () => {
     vi.useFakeTimers();
     const onApplyDose = vi.fn();

@@ -4,10 +4,13 @@ import { Card } from '../card/Card.web';
 import { Badge } from '../badge/Badge.web';
 import { Input } from '../input/Input.web';
 import { MetricTile } from '../metric-tile/MetricTile.web';
+import { SegmentedControl } from '../segmented-control/SegmentedControl.web';
 import type { UiShowcaseProps } from './UiShowcase.types';
 
 export const UiShowcase: React.FC<UiShowcaseProps> = ({ testID }) => {
   const [dose, setDose] = useState('18.5');
+  const [segmentMode, setSegmentMode] = useState<'recipe' | 'free'>('recipe');
+  const [ratio, setRatio] = useState<'1:15' | '1:16' | '1:17'>('1:16');
 
   return (
     <div data-testid={testID} className="p-6 space-y-8 bg-canvas text-text-primary max-w-2xl mx-auto">
@@ -55,6 +58,39 @@ export const UiShowcase: React.FC<UiShowcaseProps> = ({ testID }) => {
           <Card variant="default"><p className="text-sm">Standard Chassis Card</p></Card>
           <Card variant="recessed"><p className="text-sm text-text-secondary">Recessed Panel Card</p></Card>
         </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-xs font-mono uppercase text-text-muted tracking-wider">SHOWCASE: SEGMENTED CONTROL</h2>
+        <Card variant="default">
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs font-mono text-text-secondary mb-2">FIXED WIDTH</p>
+              <SegmentedControl
+                options={[
+                  { value: 'recipe', label: 'GUIDED RECIPE' },
+                  { value: 'free', label: 'FREE BREW' },
+                ]}
+                value={segmentMode}
+                onChange={setSegmentMode}
+                fullWidth={false}
+              />
+            </div>
+            <div>
+              <p className="text-xs font-mono text-text-secondary mb-2">FULL WIDTH</p>
+              <SegmentedControl
+                options={[
+                  { value: '1:15', label: '1:15' },
+                  { value: '1:16', label: '1:16' },
+                  { value: '1:17', label: '1:17' },
+                ]}
+                value={ratio}
+                onChange={setRatio}
+                fullWidth={true}
+              />
+            </div>
+          </div>
+        </Card>
       </section>
     </div>
   );
