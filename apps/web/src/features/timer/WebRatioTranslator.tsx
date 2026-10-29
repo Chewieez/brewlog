@@ -254,13 +254,13 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
               type="button"
               onClick={handleApply}
               disabled={tcNum <= 0}
-              className="flex items-center justify-center space-x-1.5 px-5 py-2 rounded border border-border-active hover:border-zinc-400 bg-panel hover:bg-panel-recessed disabled:opacity-50 disabled:cursor-not-allowed text-text-primary font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer shadow-sm active:scale-95"
+              className="flex items-center justify-center space-x-1.5 px-5 py-2 rounded border border-border-active hover:border-text-secondary bg-panel hover:bg-panel-recessed disabled:opacity-50 disabled:cursor-not-allowed text-text-primary font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer shadow-sm active:scale-95"
               aria-label={isApplied ? "Dose applied to timer" : "Apply dose to timer"}
             >
               {isApplied ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-emerald-400 font-bold">DOSE APPLIED</span>
+                  <Check className="w-3.5 h-3.5 text-status-success" />
+                  <span className="text-status-success font-bold">DOSE APPLIED</span>
                 </>
               ) : (
                 <span>APPLY DOSE</span>

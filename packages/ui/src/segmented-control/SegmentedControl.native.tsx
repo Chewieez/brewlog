@@ -10,6 +10,7 @@ export function SegmentedControl<T extends string = string>({
   value,
   onChange,
   size = 'md',
+  fullWidth = true,
   testID,
   ariaLabel,
 }: SegmentedControlProps<T>) {
@@ -18,9 +19,13 @@ export function SegmentedControl<T extends string = string>({
   return (
     <View
       testID={testID}
-      accessibilityRole="radiogroup"
+      role="group"
       accessibilityLabel={ariaLabel}
-      style={[styles.container, isSm && styles.containerSm]}
+      style={[
+        styles.container,
+        fullWidth ? styles.fullWidth : styles.fixedWidth,
+        isSm && styles.containerSm,
+      ]}
     >
       {options.map((option) => {
         const isSelected = option.value === value;
@@ -30,7 +35,7 @@ export function SegmentedControl<T extends string = string>({
             testID={option.testID}
             accessibilityRole="button"
             accessibilityState={{ selected: isSelected }}
-            aria-selected={isSelected}
+            aria-pressed={isSelected}
             accessibilityLabel={option.accessibilityLabel || option.label}
             onPress={() => onChange(option.value)}
             style={[
@@ -64,6 +69,13 @@ const styles = StyleSheet.create({
     padding: 3,
     borderWidth: 1,
     borderColor: colors.borderActive,
+  },
+  fullWidth: {
+    width: '100%',
+  },
+  fixedWidth: {
+    width: 320,
+    alignSelf: 'flex-start',
   },
   containerSm: {
     padding: 2.5,

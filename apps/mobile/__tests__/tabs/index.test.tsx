@@ -368,7 +368,7 @@ describe('TimerScreen - Cold Start Mode Hydration', () => {
 
     // Initial render while loading starts in default free brew mode
     const freeBrewTab = getByRole('button', { name: /FREE BREW/i });
-    expect(freeBrewTab.getAttribute('aria-selected')).toBe('true');
+    expect(freeBrewTab.getAttribute('aria-pressed')).toBe('true');
 
     // AsyncStorage completes hydration: loading becomes false, settings.defaultTimerMode is 'recipe'
     contextValue = {
@@ -388,7 +388,7 @@ describe('TimerScreen - Cold Start Mode Hydration', () => {
 
     // timerMode synchronizes to 'recipe'
     const recipeTab = getByRole('button', { name: /GUIDED RECIPE/i });
-    expect(recipeTab.getAttribute('aria-selected')).toBe('true');
+    expect(recipeTab.getAttribute('aria-pressed')).toBe('true');
   });
 
   it('does not overwrite explicit params.mode when hydration completes', () => {
@@ -408,7 +408,7 @@ describe('TimerScreen - Cold Start Mode Hydration', () => {
     );
 
     const freeBrewTab = getByRole('button', { name: /FREE BREW/i });
-    expect(freeBrewTab.getAttribute('aria-selected')).toBe('true');
+    expect(freeBrewTab.getAttribute('aria-pressed')).toBe('true');
 
     // AsyncStorage finishes loading with recipe
     contextValue = {
@@ -427,6 +427,6 @@ describe('TimerScreen - Cold Start Mode Hydration', () => {
     );
 
     // Explicit free_brew param is preserved
-    expect(freeBrewTab.getAttribute('aria-selected')).toBe('true');
+    expect(freeBrewTab.getAttribute('aria-pressed')).toBe('true');
   });
 });

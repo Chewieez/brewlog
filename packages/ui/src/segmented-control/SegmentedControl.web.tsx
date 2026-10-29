@@ -27,11 +27,10 @@ export function SegmentedControl<T extends string = string>({
             key={option.value}
             type="button"
             aria-pressed={isSelected}
-            aria-selected={isSelected}
             aria-label={option.accessibilityLabel || option.label}
             data-testid={option.testID}
             onClick={() => onChange(option.value)}
-            className={`flex items-center justify-center h-full rounded-md font-mono uppercase tracking-[0.12em] font-bold transition-all cursor-pointer ${
+            className={`flex items-center justify-center h-full rounded-md font-mono uppercase tracking-[0.12em] font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent ${
               isSelected
                 ? 'bg-accent text-canvas shadow-xs'
                 : 'text-text-muted hover:text-text-primary hover:bg-panel/40'

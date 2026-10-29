@@ -502,7 +502,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
           <button
             type="button"
             onClick={onSelectOtherRecipe}
-            className="px-3.5 py-1.5 rounded border border-border-active hover:border-zinc-400 bg-panel hover:bg-panel-recessed text-xs font-mono uppercase tracking-wider text-text-primary transition-all cursor-pointer shadow-sm active:scale-95"
+            className="px-3.5 py-1.5 rounded border border-border-active hover:border-text-secondary bg-panel hover:bg-panel-recessed text-xs font-mono uppercase tracking-wider text-text-primary transition-all cursor-pointer shadow-sm active:scale-95"
           >
             CHANGE RECIPE
           </button>
