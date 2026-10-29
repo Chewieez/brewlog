@@ -3,17 +3,26 @@ import React from 'react';
 
 vi.mock('react-native', () => {
   return {
-    View: ({ children, testID, style, ...props }: any) => (
-      <div data-testid={testID} data-style={JSON.stringify(style)} {...props}>
+    View: ({ children, testID, style, accessibilityLabel, ...props }: any) => (
+      <div data-testid={testID} aria-label={accessibilityLabel} data-style={JSON.stringify(style)} {...props}>
         {children}
       </div>
     ),
-    Text: ({ children, testID, style, ...props }: any) => (
+    Text: ({ children, testID, style, numberOfLines, ...props }: any) => (
       <span data-testid={testID} data-style={JSON.stringify(style)} {...props}>
         {children}
       </span>
     ),
-    Pressable: ({ children, testID, onPress, accessibilityRole, accessibilityLabel, style, ...props }: any) => {
+    Pressable: ({
+      children,
+      testID,
+      onPress,
+      accessibilityRole,
+      accessibilityLabel,
+      accessibilityState,
+      style,
+      ...props
+    }: any) => {
       const resolvedStyle = typeof style === 'function' ? style({ pressed: false }) : style;
       return (
         <button
@@ -77,5 +86,13 @@ describe('SegmentedControl (native)', () => {
       <SegmentedControl testID="segmented-control" options={options} value="recipe" onChange={() => {}} fullWidth={false} />
     );
     expect(container.getAttribute('data-style')).toContain('320');
+  });
+
+  it('defaults fullWidth to false with maxWidth constraint', () => {
+    render(<SegmentedControl testID="segmented-control-default" options={options} value="recipe" onChange={() => {}} />);
+    const container = screen.getByTestId('segmented-control-default');
+    const style = container.getAttribute('data-style');
+    expect(style).toContain('320');
+    expect(style).toContain('"maxWidth":"100%"');
   });
 });

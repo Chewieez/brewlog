@@ -10,7 +10,7 @@ export function SegmentedControl<T extends string = string>({
   value,
   onChange,
   size = 'md',
-  fullWidth = true,
+  fullWidth = false,
   testID,
   ariaLabel,
 }: SegmentedControlProps<T>) {
@@ -75,6 +75,7 @@ const styles = StyleSheet.create({
   },
   fixedWidth: {
     width: 320,
+    maxWidth: '100%',
     alignSelf: 'flex-start',
   },
   containerSm: {

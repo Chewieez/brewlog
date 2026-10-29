@@ -6,14 +6,14 @@ export interface WebRatioTranslatorProps {
   currentDose?: number;
   baseCoffee?: number;
   baseWater?: number;
-  onApplyDose: (dose: number, ratio?: number, water?: number) => void;
+  onApplyDose?: (dose: number, ratio?: number, water?: number) => void;
   className?: string;
 }
 
 export type RatioTranslatorProps = WebRatioTranslatorProps;
 
 export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
-  currentDose = 18,
+  currentDose,
   baseCoffee,
   baseWater,
   onApplyDose,
@@ -121,7 +121,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
 
   const handleApply = () => {
     const dose = parseFloat(targetCoffee) || 0;
-    if (dose > 0) {
+    if (dose > 0 && onApplyDose) {
       const doseToApply = Number(dose.toFixed(1));
       const waterVal = parseFloat(targetWater) || 0;
       const waterToApply = waterVal > 0 ? Math.round(waterVal) : undefined;
@@ -249,24 +249,26 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
             </div>
           </div>
 
-          <div className="flex justify-start pt-1">
-            <button
-              type="button"
-              onClick={handleApply}
-              disabled={tcNum <= 0}
-              className="flex items-center justify-center space-x-1.5 px-5 py-2 rounded border border-border-active hover:border-text-secondary bg-panel hover:bg-panel-recessed disabled:opacity-50 disabled:cursor-not-allowed text-text-primary font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer shadow-sm active:scale-95"
-              aria-label={isApplied ? "Dose applied to timer" : "Apply dose to timer"}
-            >
-              {isApplied ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-status-success" />
-                  <span className="text-status-success font-bold">DOSE APPLIED</span>
-                </>
-              ) : (
-                <span>APPLY DOSE</span>
-              )}
-            </button>
-          </div>
+          {onApplyDose && (
+            <div className="flex justify-start pt-1">
+              <button
+                type="button"
+                onClick={handleApply}
+                disabled={tcNum <= 0}
+                className="flex items-center justify-center space-x-1.5 px-5 py-2 rounded border border-border-active hover:border-text-secondary bg-panel hover:bg-panel-recessed disabled:opacity-50 disabled:cursor-not-allowed text-text-primary font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer shadow-sm active:scale-95"
+                aria-label={isApplied ? "Dose applied to timer" : "Apply dose to timer"}
+              >
+                {isApplied ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-status-success" />
+                    <span className="text-status-success font-bold">DOSE APPLIED</span>
+                  </>
+                ) : (
+                  <span>APPLY DOSE</span>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

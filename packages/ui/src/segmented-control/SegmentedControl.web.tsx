@@ -11,7 +11,7 @@ export function SegmentedControl<T extends string = string>({
   ariaLabel,
 }: SegmentedControlProps<T>) {
   const containerSizeClasses = size === 'sm' ? 'h-9 text-[10px]' : 'h-11 text-[11px]';
-  const widthClasses = fullWidth ? 'w-full' : 'w-80';
+  const widthClasses = fullWidth ? 'w-full' : 'w-80 max-w-full';
 
   return (
     <div

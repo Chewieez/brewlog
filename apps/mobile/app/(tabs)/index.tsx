@@ -297,6 +297,7 @@ export default function TimerScreen() {
           value={timerMode}
           onChange={handleSwitchMode}
           ariaLabel="Timer mode switcher"
+          fullWidth
           options={[
             { value: 'recipe', label: 'GUIDED RECIPE', accessibilityLabel: 'Guided Recipe mode' },
             { value: 'free_brew', label: 'FREE BREW', accessibilityLabel: 'Free Brew mode' },
