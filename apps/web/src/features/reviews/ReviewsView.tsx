@@ -776,10 +776,10 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 <button
                   type="button"
                   onClick={handleStartCreate}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-accent text-zinc-950 font-semibold text-xs uppercase tracking-wider hover:bg-accent/90 cursor-pointer"
+                  className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-sm transition-colors cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
-                  LOG FIRST REVIEW
+                  <span>LOG FIRST REVIEW</span>
                 </button>
               </div>
             )

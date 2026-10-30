@@ -201,6 +201,7 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
 
     // Empty state has LOG FIRST REVIEW button
     const firstReviewBtn = screen.getByRole('button', { name: /LOG FIRST REVIEW/i });
+    expect(firstReviewBtn.className).toContain('px-4 py-2.5');
     fireEvent.click(firstReviewBtn);
 
     const grinderSelect = screen.getByLabelText(/Grinder/i);

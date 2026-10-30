@@ -39,9 +39,6 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="text-lg sm:text-xl font-bold tracking-tight text-zinc-100">
                 BrewLog
               </span>
-              <span className="hidden xl:inline-block ml-2 px-2 py-0.5 text-[10px] font-mono font-medium tracking-wider uppercase rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
-                Precision
-              </span>
             </div>
           </Link>
 
