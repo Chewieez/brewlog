@@ -855,7 +855,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               <button
                 type="button"
                 onClick={() => onLogCompletedBrew(currentRecipe, elapsedSeconds, selectedBean || null)}
-                className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all"
+                className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs uppercase tracking-wider font-bold shadow-sm cursor-pointer transition-colors"
                 aria-label="ADD REVIEW"
               >
                 <Plus className="w-4 h-4" />
@@ -875,7 +875,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 <button
                   type="button"
                   onClick={handleAddReview}
-                  className="flex items-center justify-center space-x-2 py-2.5 px-3 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-all"
+                  className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-colors"
                   aria-label="ADD REVIEW"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -885,7 +885,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   type="button"
                   onClick={handleSaveFreeBrewRecipe}
                   disabled={isRecipeSaved}
-                  className="flex items-center justify-center space-x-2 py-2.5 px-3 rounded border border-border-subtle bg-panel hover:bg-panel-recessed text-text-primary font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl border border-border-subtle bg-panel hover:bg-panel-recessed text-text-primary font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   aria-label="SAVE AS CUSTOM RECIPE"
                 >
                   {isRecipeSaved ? (

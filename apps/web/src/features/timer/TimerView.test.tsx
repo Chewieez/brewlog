@@ -111,6 +111,7 @@ describe('TimerView', () => {
       name: /ADD REVIEW/,
     });
     expect(completeBtn).toBeDefined();
+    expect(completeBtn.className).toContain('px-4 py-2.5');
     expect(screen.getByText('ADD REVIEW')).toBeDefined();
 
     act(() => {
@@ -283,7 +284,9 @@ describe('TimerView', () => {
     });
 
     expect(addReviewBtn).toBeDefined();
+    expect(addReviewBtn.className).toContain('px-4 py-2.5');
     expect(saveRecipeBtn).toBeDefined();
+    expect(saveRecipeBtn.className).toContain('px-4 py-2.5');
 
     act(() => {
       fireEvent.click(saveRecipeBtn);

@@ -54,4 +54,15 @@ describe('Header', () => {
     const logoLink = screen.getByRole('link', { name: /BrewLog Home, switch to Brew Timer/i });
     expect(logoLink.getAttribute('href')).toBe('/timer');
   });
+
+  it('does not render "Precision" in the header branding', () => {
+    render(
+      <MemoryRouter initialEntries={['/timer']}>
+        <Header beanCount={0} brewCount={0} onOpenAuthModal={vi.fn()} />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('BrewLog')).toBeDefined();
+    expect(screen.queryByText(/Precision/i)).toBeNull();
+  });
 });
