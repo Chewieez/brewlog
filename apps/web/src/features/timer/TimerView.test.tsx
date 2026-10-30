@@ -286,6 +286,7 @@ describe('TimerView', () => {
     expect(addReviewBtn).toBeDefined();
     expect(addReviewBtn.className).toContain('px-4 py-2.5');
     expect(saveRecipeBtn).toBeDefined();
+    expect(saveRecipeBtn.className).toContain('px-4 py-2.5');
 
     act(() => {
       fireEvent.click(saveRecipeBtn);
