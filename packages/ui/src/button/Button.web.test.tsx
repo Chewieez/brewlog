@@ -97,4 +97,16 @@ describe('Button (web)', () => {
     rerender(<Button label="GHOST" variant="ghost" />);
     expect(screen.getByRole('button', { name: 'GHOST' }).className).toContain('cursor-pointer');
   });
+
+  it('does not render an empty span element when no label or children are provided for icon-only buttons', () => {
+    const { container } = render(
+      <Button
+        accessibilityLabel="Close"
+        icon={<span data-testid="test-icon">X</span>}
+      />
+    );
+    const spans = container.querySelectorAll('button > span');
+    expect(spans).toHaveLength(1);
+    expect(screen.getByTestId('test-icon')).toBeInTheDocument();
+  });
 });

@@ -33,6 +33,7 @@ export const Button: React.FC<ButtonProps> = ({
   }
 
   const content = children ?? label;
+  const hasContent = content !== undefined && content !== null && content !== '';
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     onClick?.(e);
@@ -53,7 +54,7 @@ export const Button: React.FC<ButtonProps> = ({
       ) : (
         icon && iconPosition === 'left' && <span className="shrink-0">{icon}</span>
       )}
-      <span>{content}</span>
+      {hasContent && <span>{content}</span>}
       {!loading && icon && iconPosition === 'right' && <span className="shrink-0">{icon}</span>}
     </button>
   );

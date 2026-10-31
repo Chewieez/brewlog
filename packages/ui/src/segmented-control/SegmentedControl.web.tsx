@@ -10,7 +10,7 @@ export function SegmentedControl<T extends string = string>({
   testID,
   ariaLabel,
 }: SegmentedControlProps<T>) {
-  const containerSizeClasses = size === 'sm' ? 'h-9 text-[10px]' : 'h-11 text-[11px]';
+  const buttonSizeClasses = size === 'sm' ? 'h-8 text-xs' : 'h-10 text-xs';
   const widthClasses = fullWidth ? 'w-full' : 'w-80 max-w-full';
 
   return (
@@ -18,7 +18,7 @@ export function SegmentedControl<T extends string = string>({
       role="group"
       aria-label={ariaLabel}
       data-testid={testID}
-      className={`inline-grid grid-flow-col auto-cols-fr p-[3px] segmented-track rounded-lg select-none ${containerSizeClasses} ${widthClasses}`}
+      className={`inline-grid grid-flow-col auto-cols-fr p-1 segmented-track rounded-lg select-none ${widthClasses}`}
     >
       {options.map((option) => {
         const isSelected = option.value === value;
@@ -30,7 +30,7 @@ export function SegmentedControl<T extends string = string>({
             aria-label={option.accessibilityLabel || option.label}
             data-testid={option.testID}
             onClick={() => onChange(option.value)}
-            className={`flex items-center justify-center h-full rounded-md font-mono uppercase tracking-[0.12em] font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent ${
+            className={`flex items-center justify-center ${buttonSizeClasses} px-3 rounded-md font-mono uppercase tracking-[0.12em] font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent ${
               isSelected
                 ? 'segmented-thumb-active shadow-sm'
                 : 'text-foreground-muted hover:text-foreground hover:bg-black/[0.04] dark:hover:bg-white/[0.04]'

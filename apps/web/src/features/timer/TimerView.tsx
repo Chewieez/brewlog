@@ -464,6 +464,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
           value={mode}
           onChange={handleSwitchMode}
           ariaLabel="Timer mode switcher"
+          size="sm"
           options={[
             { value: 'recipe', label: 'GUIDED RECIPE' },
             { value: 'free_brew', label: 'FREE BREW' },

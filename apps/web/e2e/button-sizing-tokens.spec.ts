@@ -57,7 +57,7 @@ test.describe("Design System Button Sizing Tokens", () => {
   });
 
   test("all interactive buttons across primary views conform to [32px, 40px, 48px]", async ({ page }) => {
-    const routes = ["/stash", "/recipes", "/equipment", "/reviews", "/settings"];
+    const routes = ["/timer", "/stash", "/recipes", "/equipment", "/reviews", "/settings"];
     for (const route of routes) {
       await page.goto(route);
       const buttons = await page.locator("button:visible, a[role='button']:visible").all();
@@ -65,11 +65,11 @@ test.describe("Design System Button Sizing Tokens", () => {
         const box = await btn.boundingBox();
         if (box && box.height > 10 && box.width > 10) {
           const valid = isValidHeight(box.height);
-          if (!valid) {
-            const text = (await btn.innerText()).trim();
-            console.error(`Invalid button height: ${box.height}px on route ${route} ("${text}")`);
-          }
-          expect(valid).toBe(true);
+          const text = (await btn.innerText()).trim();
+          expect(
+            valid,
+            `Button "${text}" on route ${route} has height ${box.height}px (expected 32, 40, or 48px)`
+          ).toBe(true);
         }
       }
     }

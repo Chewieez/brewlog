@@ -144,7 +144,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full flex items-center justify-between pt-0 pb-2.5 text-left text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground transition-colors cursor-pointer"
+        className="w-full h-8 flex items-center justify-between text-left text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground transition-colors cursor-pointer"
         aria-expanded={isOpen}
       >
         <div className="flex items-center space-x-2">
