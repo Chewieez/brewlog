@@ -26,24 +26,24 @@ export const getScaTier = (score: number) => {
   if (score >= 90.0) {
     return {
       label: 'Outstanding',
-      classes: 'text-emerald-300 bg-emerald-950/50 border-emerald-800',
+      classes: 'text-emerald-900 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800',
     };
   }
   if (score >= 85.0) {
     return {
       label: 'Excellent',
-      classes: 'text-accent bg-panel-recessed border-accent/50',
+      classes: 'text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 border-amber-300 dark:border-amber-800',
     };
   }
   if (score >= 80.0) {
     return {
       label: 'Very Good',
-      classes: 'text-zinc-200 bg-panel-recessed border-zinc-700',
+      classes: 'text-blue-900 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/60 border-blue-300 dark:border-blue-800',
     };
   }
   return {
     label: 'Commercial',
-    classes: 'text-zinc-400 bg-zinc-900 border-zinc-800',
+    classes: 'text-stone-800 dark:text-stone-400 bg-stone-100 dark:bg-stone-900/60 border-stone-300 dark:border-stone-800',
   };
 };
 
@@ -140,7 +140,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <span
               data-testid="method-badge"
-              className="text-xs font-semibold px-2 py-0.5 rounded bg-panel-recessed text-text-secondary uppercase tracking-wider"
+              className="text-xs font-mono font-bold px-2.5 py-0.5 rounded uppercase tracking-wider bg-[#fbf6f0] dark:bg-[#1e140d] text-[#8c3707] dark:text-[#fed7aa] border border-[#ecdac8] dark:border-[#4a2612]"
             >
               {log.brewMethod}
             </span>
@@ -148,7 +148,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
               {formatDate(log.brewDate)}
             </span>
             {log.wouldBrewAgain && (
-              <span className="inline-flex items-center gap-1 text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 px-2 py-0.5 rounded-full">
+              <span className="inline-flex items-center gap-1 text-xs text-emerald-900 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 px-2.5 py-0.5 rounded-full font-medium">
                 <CheckCircle2 className="w-3 h-3" /> Would Brew Again
               </span>
             )}
@@ -202,7 +202,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             {log.calculatedScaScore.toFixed(1)}
           </div>
           <div className="text-sm text-text-secondary font-medium">/ 100</div>
-          <div className="h-6 w-px bg-zinc-800" />
+          <div className="h-6 w-px bg-border-subtle" />
           <span
             className={`px-3 py-1 rounded-full text-xs font-semibold border ${tier.classes}`}
           >
@@ -218,7 +218,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
               className={`w-4 h-4 ${
                 s <= (log.rating || 0)
                   ? 'fill-amber-400 text-amber-400'
-                  : 'text-zinc-700'
+                  : 'text-border-subtle dark:text-zinc-700'
               }`}
             />
           ))}
@@ -306,11 +306,11 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
                   <span className="font-medium text-text-secondary">
                     {attr.label}
                   </span>
-                  <span className="tabular-nums font-semibold text-zinc-200">
+                  <span className="tabular-nums font-semibold text-text-primary">
                     {scoreValue.toFixed(1)}
                   </span>
                 </div>
-                <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+                <div className="h-1.5 w-full bg-border-subtle rounded-full overflow-hidden">
                   <div
                     className="h-full bg-accent rounded-full transition-all duration-300"
                     style={{ width: `${percentage}%` }}
@@ -374,7 +374,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
               Grinder & Setting
             </span>
-            <div className="text-xs font-medium text-zinc-200 mt-1">
+            <div className="text-xs font-medium text-text-primary mt-1">
               <div>{grinderName}</div>
               {log.grindSetting && (
                 <div className="text-text-secondary mt-0.5">
@@ -388,7 +388,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
               Brewer
             </span>
-            <div className="text-xs font-medium text-zinc-200 mt-1">
+            <div className="text-xs font-medium text-text-primary mt-1">
               {brewerName}
             </div>
           </div>
@@ -397,7 +397,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
               Water Temperature
             </span>
-            <div className="text-xs font-medium text-zinc-200 mt-1 tabular-nums">
+            <div className="text-xs font-medium text-text-primary mt-1 tabular-nums">
               {log.waterTempCelsius ? `${log.waterTempCelsius}°C` : 'Not recorded'}
             </div>
           </div>
@@ -410,7 +410,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           <div className="text-sm font-semibold uppercase tracking-wider text-text-secondary border-b border-border-subtle pb-3">
             Cupper's Tasting Notes
           </div>
-          <blockquote className="border-l-2 border-accent pl-4 py-1 text-sm text-zinc-200 italic font-sans leading-relaxed">
+          <blockquote className="border-l-2 border-accent pl-4 py-1 text-sm text-text-primary italic font-sans leading-relaxed">
             "{log.notes}"
           </blockquote>
         </div>
@@ -428,13 +428,13 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           >
             <div className="flex items-center gap-3 text-rose-400">
               <AlertTriangle className="w-6 h-6 shrink-0" />
-              <h2 id="delete-dialog-title" className="text-lg font-bold text-zinc-100">
+              <h2 id="delete-dialog-title" className="text-lg font-bold text-text-primary">
                 Delete Tasting Log
               </h2>
             </div>
             <p className="text-sm text-text-secondary">
               Are you sure you want to delete this tasting log for{' '}
-              <strong className="text-zinc-100">{beanName}</strong>? This action cannot be undone.
+              <strong className="text-text-primary">{beanName}</strong>? This action cannot be undone.
             </p>
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
