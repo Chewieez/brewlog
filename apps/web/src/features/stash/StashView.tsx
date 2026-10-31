@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from '@brewlog/ui';
 import {
   Bean,
   ProcessMethod,
@@ -841,33 +842,35 @@ export const StashView: React.FC<StashViewProps> = ({
               {/* Action Buttons */}
               <div className="flex items-center justify-between pt-3 border-t border-border-subtle">
                 {editingBean && onDeleteBean ? (
-                  <button
+                  <Button
                     type="button"
+                    variant="danger"
+                    size="md"
                     disabled={isDeleting || isSaving}
+                    loading={isDeleting}
                     onClick={() => setIsDeleteConfirmOpen(true)}
-                    className="px-3.5 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-500 hover:text-red-400 font-mono text-xs uppercase tracking-wider font-semibold transition-colors cursor-pointer disabled:opacity-50"
-                  >
-                    {isDeleting ? 'DELETING...' : 'DELETE BEAN'}
-                  </button>
+                    label={isDeleting ? 'DELETING...' : 'DELETE BEAN'}
+                  />
                 ) : (
                   <div />
                 )}
 
                 <div className="flex space-x-3">
-                  <button
+                  <Button
                     type="button"
+                    variant="secondary"
+                    size="md"
                     onClick={() => setIsModalOpen(false)}
-                    className="btn-tactile-secondary h-9 px-4 rounded-lg font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer"
-                  >
-                    CANCEL
-                  </button>
-                  <button
+                    label="CANCEL"
+                  />
+                  <Button
                     type="submit"
+                    variant="primary"
+                    size="md"
                     disabled={isSaving || isDeleting}
-                    className="btn-tactile-primary h-9 px-5 rounded-lg font-mono text-xs uppercase tracking-wider font-bold cursor-pointer disabled:opacity-50"
-                  >
-                    {isSaving ? 'SAVING...' : editingBean ? 'SAVE CHANGES' : 'SAVE BEAN'}
-                  </button>
+                    loading={isSaving}
+                    label={isSaving ? 'SAVING...' : editingBean ? 'SAVE CHANGES' : 'SAVE BEAN'}
+                  />
                 </div>
               </div>
             </form>

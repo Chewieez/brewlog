@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Button } from "@brewlog/ui";
 import { Equipment, EquipmentType, GrinderSettingScale } from "@brewlog/core";
 import { Sliders, Plus, Coffee, Scale, Flame, Trash2, Search, X, Star, Layers } from "lucide-react";
 import { ConfirmationModal } from "../../components/shared/ConfirmationModal";
@@ -560,30 +561,30 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
 
               <div className="flex items-center justify-between pt-3 border-t border-border-subtle">
                 {editingEquipment && onDeleteEquipment ? (
-                  <button
+                  <Button
                     type="button"
+                    variant="danger"
+                    size="md"
                     onClick={() => setIsDeleteConfirmOpen(true)}
-                    className="px-3 py-2 rounded-xl text-red-500 hover:text-red-400 hover:bg-red-500/10 text-xs font-mono uppercase tracking-wider font-semibold transition-colors cursor-pointer"
-                  >
-                    DELETE
-                  </button>
+                    label="DELETE"
+                  />
                 ) : (
                   <div />
                 )}
                 <div className="flex items-center space-x-3">
-                  <button
+                  <Button
                     type="button"
+                    variant="secondary"
+                    size="md"
                     onClick={() => setIsModalOpen(false)}
-                    className="btn-tactile-secondary h-9 px-4 rounded-lg font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer"
-                  >
-                    CANCEL
-                  </button>
-                  <button
+                    label="CANCEL"
+                  />
+                  <Button
                     type="submit"
-                    className="btn-tactile-primary h-9 px-5 rounded-lg font-mono text-xs uppercase tracking-wider font-bold cursor-pointer"
-                  >
-                    {editingEquipment ? "SAVE CHANGES" : "SAVE EQUIPMENT"}
-                  </button>
+                    variant="primary"
+                    size="md"
+                    label={editingEquipment ? "SAVE CHANGES" : "SAVE EQUIPMENT"}
+                  />
                 </div>
               </div>
             </form>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Button } from "@brewlog/ui";
 import {
   BrewRecipe,
   BrewStage,
@@ -1148,24 +1149,21 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
 
           {/* Footer Actions */}
           <div className="flex items-center justify-end space-x-3 pt-4 border-t border-border-subtle">
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="md"
               onClick={onClose}
-              className="px-4 py-2 rounded bg-panel-recessed text-text-secondary hover:text-text-primary hover:bg-panel border border-border-subtle font-mono text-xs uppercase tracking-wider transition-colors cursor-pointer"
-            >
-              CANCEL
-            </button>
-            <button
+              label="CANCEL"
+            />
+            <Button
               type="submit"
+              variant="primary"
+              size="md"
               disabled={isSaving}
-              className="px-6 py-2 rounded bg-accent hover:bg-accent-hover disabled:opacity-50 text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-md transition-all active:scale-95 flex items-center justify-center cursor-pointer"
-            >
-              {isSaving ? (
-                <span>SAVING...</span>
-              ) : (
-                <span>{initialRecipe ? "SAVE CHANGES" : "SAVE RECIPE"}</span>
-              )}
-            </button>
+              loading={isSaving}
+              label={isSaving ? "SAVING..." : initialRecipe ? "SAVE CHANGES" : "SAVE RECIPE"}
+            />
           </div>
         </form>
       </div>
