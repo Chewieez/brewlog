@@ -88,10 +88,10 @@ export const RecipesRoute: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
+          <h2 className="text-2xl font-bold tracking-tight text-text-primary">
             Recipe Studio
           </h2>
-          <p className="text-sm text-zinc-400 mt-1">
+          <p className="text-sm text-text-secondary mt-1">
             World Champion & Expert brew profiles alongside your custom dialed-in recipes.
           </p>
         </div>
@@ -103,7 +103,7 @@ export const RecipesRoute: React.FC = () => {
               setEditingRecipe(null);
               setIsBuilderModalOpen(true);
             }}
-            className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-colors shadow-sm"
+            className="flex items-center space-x-2 px-4 py-2.5 rounded-xl btn-tactile-primary font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-colors border-0"
           >
             <Plus className="w-4 h-4" />
             <span>NEW RECIPE</span>

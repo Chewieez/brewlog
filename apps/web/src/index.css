@@ -1,12 +1,13 @@
 @import "tailwindcss";
+@custom-variant dark (&:where([data-theme="tactile-dark"], [data-theme="tactile-dark"] *));
 @source "../../../packages/ui/src";
 
 :root {
   --color-canvas: #0e0d0c;
   --color-panel: #171513;
   --color-panel-recessed: #12100f;
-  --color-border-subtle: #262320;
-  --color-border-active: #38332f;
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border-active: rgba(255, 255, 255, 0.12);
   --color-accent: #d97736;
   --color-accent-hover: #e88344;
   --color-text-primary: #f5f0eb;
@@ -16,7 +17,22 @@
   --color-status-warning: #f59e0b;
   --color-status-error: #ef4444;
 
-  --shadow-elevation-card: 0 4px 20px rgba(0, 0, 0, 0.35);
+  --btn-primary-bg: linear-gradient(180deg, #e08242 0%, #cb6a28 100%);
+  --btn-primary-text: #0e0d0c;
+  --btn-primary-shadow: 0 2px 10px rgba(217, 119, 54, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+
+  --btn-secondary-bg: rgba(255, 255, 255, 0.06);
+  --btn-secondary-hover: rgba(255, 255, 255, 0.10);
+  --btn-secondary-text: #f5f0eb;
+  --btn-secondary-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 3px rgba(0, 0, 0, 0.4);
+
+  --seg-bg: #12100f;
+  --seg-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+  --seg-active-bg: #24201c;
+  --seg-active-text: #f5f0eb;
+  --seg-active-shadow: 0 2px 8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+
+  --shadow-elevation-card: 0 8px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07);
   --shadow-elevation-thumb: 0 2px 8px rgba(0, 0, 0, 0.45);
   --highlight-rim: inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
@@ -27,8 +43,8 @@
   --color-panel-recessed: #f1f5f9;
   --color-border-subtle: #e2e8f0;
   --color-border-active: #cbd5e1;
-  --color-accent: #d97736;
-  --color-accent-hover: #c76a2b;
+  --color-accent: #c25412;
+  --color-accent-hover: #9a3412;
   --color-text-primary: #0f172a;
   --color-text-secondary: #475569;
   --color-text-muted: #64748b;
@@ -36,17 +52,32 @@
   --color-status-warning: #d97706;
   --color-status-error: #dc2626;
 
-  --shadow-elevation-card: 0 4px 16px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
-  --shadow-elevation-thumb: 0 2px 6px rgba(15, 23, 42, 0.08);
-  --highlight-rim: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --btn-primary-bg: linear-gradient(180deg, #c25412 0%, #a34208 100%);
+  --btn-primary-text: #ffffff;
+  --btn-primary-shadow: 0 2px 8px rgba(163, 66, 8, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+
+  --btn-secondary-bg: #ffffff;
+  --btn-secondary-hover: #f8fafc;
+  --btn-secondary-text: #0f172a;
+  --btn-secondary-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04), inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+
+  --seg-bg: #f1f5f9;
+  --seg-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06);
+  --seg-active-bg: #ffffff;
+  --seg-active-text: #0f172a;
+  --seg-active-shadow: 0 1px 3px rgba(15, 23, 42, 0.1), 0 1px 2px rgba(15, 23, 42, 0.06);
+
+  --shadow-elevation-card: 0 4px 16px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-elevation-thumb: 0 2px 6px rgba(15, 23, 42, 0.12);
+  --highlight-rim: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 [data-theme="tactile-dark"] {
   --color-canvas: #0e0d0c;
   --color-panel: #171513;
   --color-panel-recessed: #12100f;
-  --color-border-subtle: #262320;
-  --color-border-active: #38332f;
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border-active: rgba(255, 255, 255, 0.12);
   --color-accent: #d97736;
   --color-accent-hover: #e88344;
   --color-text-primary: #f5f0eb;
@@ -56,7 +87,22 @@
   --color-status-warning: #f59e0b;
   --color-status-error: #ef4444;
 
-  --shadow-elevation-card: 0 4px 20px rgba(0, 0, 0, 0.35);
+  --btn-primary-bg: linear-gradient(180deg, #e08242 0%, #cb6a28 100%);
+  --btn-primary-text: #0e0d0c;
+  --btn-primary-shadow: 0 2px 10px rgba(217, 119, 54, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+
+  --btn-secondary-bg: rgba(255, 255, 255, 0.06);
+  --btn-secondary-hover: rgba(255, 255, 255, 0.10);
+  --btn-secondary-text: #f5f0eb;
+  --btn-secondary-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 3px rgba(0, 0, 0, 0.4);
+
+  --seg-bg: #12100f;
+  --seg-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+  --seg-active-bg: #24201c;
+  --seg-active-text: #f5f0eb;
+  --seg-active-shadow: 0 2px 8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+
+  --shadow-elevation-card: 0 8px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07);
   --shadow-elevation-thumb: 0 2px 8px rgba(0, 0, 0, 0.45);
   --highlight-rim: inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
@@ -105,4 +151,47 @@
 .hardware-panel-inset {
   background-color: var(--color-panel-recessed);
   border: 1px solid var(--color-border-subtle);
+}
+
+.btn-tactile-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  box-shadow: var(--btn-primary-shadow);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s ease, filter 0.15s ease, opacity 0.15s ease;
+}
+.btn-tactile-primary:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+.btn-tactile-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-tactile-secondary {
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  box-shadow: var(--btn-secondary-shadow);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.15s ease, color 0.15s ease;
+}
+.btn-tactile-secondary:hover:not(:disabled) {
+  background-color: var(--btn-secondary-hover);
+}
+.btn-tactile-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.segmented-track {
+  background-color: var(--seg-bg);
+  box-shadow: var(--seg-shadow);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.segmented-thumb-active {
+  background-color: var(--seg-active-bg);
+  color: var(--seg-active-text);
+  box-shadow: var(--seg-active-shadow);
+  border: none;
 }

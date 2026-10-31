@@ -72,6 +72,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
       const resolved = resolveTheme(settings.theme, isSystemDark);
 
       document.documentElement.setAttribute('data-theme', resolved.id);
+      document.documentElement.classList.toggle('dark', resolved.isDark);
       Object.entries(resolved.colors).forEach(([key, value]) => {
         const kebab = key.replace(/([A-Z])/g, '-$1').toLowerCase();
         document.documentElement.style.setProperty(`--color-${kebab}`, value);

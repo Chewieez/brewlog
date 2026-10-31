@@ -186,15 +186,15 @@ export const SettingsRoute: React.FC = () => {
               </p>
             </div>
 
-            <div className="inline-flex p-1 bg-panel-recessed border border-border-subtle rounded-lg space-x-1 self-start sm:self-auto">
+            <div className="segmented-track inline-flex p-1 rounded-lg space-x-1 self-start sm:self-auto">
               <button
                 type="button"
                 onClick={() => updateSettings({ theme: 'system' })}
                 aria-pressed={settings.theme === 'system'}
-                className={`flex items-center space-x-1.5 px-3 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`flex items-center space-x-1.5 px-3 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.theme === 'system'
-                    ? 'bg-accent text-canvas font-bold shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                    ? 'segmented-thumb-active shadow-sm'
+                    : 'text-text-muted hover:text-text-primary'
                 }`}
               >
                 <Monitor className="w-3.5 h-3.5" />
@@ -204,10 +204,10 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ theme: 'tactile_dark' })}
                 aria-pressed={settings.theme === 'tactile_dark'}
-                className={`flex items-center space-x-1.5 px-3 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`flex items-center space-x-1.5 px-3 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.theme === 'tactile_dark'
-                    ? 'bg-accent text-canvas font-bold shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                    ? 'segmented-thumb-active shadow-sm'
+                    : 'text-text-muted hover:text-text-primary'
                 }`}
               >
                 <Moon className="w-3.5 h-3.5" />
@@ -217,10 +217,10 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ theme: 'studio_light' })}
                 aria-pressed={settings.theme === 'studio_light'}
-                className={`flex items-center space-x-1.5 px-3 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`flex items-center space-x-1.5 px-3 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.theme === 'studio_light'
-                    ? 'bg-accent text-canvas font-bold shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                    ? 'segmented-thumb-active shadow-sm'
+                    : 'text-text-muted hover:text-text-primary'
                 }`}
               >
                 <Sun className="w-3.5 h-3.5" />
@@ -229,6 +229,7 @@ export const SettingsRoute: React.FC = () => {
             </div>
           </div>
         </section>
+
         {/* Section 1: Weight Unit */}
         <section
           aria-labelledby="weight-heading"
@@ -247,15 +248,15 @@ export const SettingsRoute: React.FC = () => {
               </p>
             </div>
 
-            <div className="inline-flex p-1 bg-panel-recessed border border-border-subtle rounded-lg space-x-1 self-start sm:self-auto">
+            <div className="segmented-track inline-flex p-1 rounded-lg space-x-1 self-start sm:self-auto">
               <button
                 type="button"
                 onClick={() => updateSettings({ weightUnit: 'metric' })}
                 aria-pressed={settings.weightUnit === 'metric'}
-                className={`px-4 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.weightUnit === 'metric'
-                    ? 'bg-accent text-canvas font-bold shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                    ? 'segmented-thumb-active shadow-sm'
+                    : 'text-text-muted hover:text-text-primary'
                 }`}
               >
                 METRIC (g)
@@ -264,10 +265,10 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ weightUnit: 'imperial' })}
                 aria-pressed={settings.weightUnit === 'imperial'}
-                className={`px-4 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.weightUnit === 'imperial'
-                    ? 'bg-accent text-canvas font-bold shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                    ? 'segmented-thumb-active shadow-sm'
+                    : 'text-text-muted hover:text-text-primary'
                 }`}
               >
                 IMPERIAL (oz)
@@ -294,15 +295,15 @@ export const SettingsRoute: React.FC = () => {
               </p>
             </div>
 
-            <div className="inline-flex p-1 bg-panel-recessed border border-border-subtle rounded-lg space-x-1 self-start sm:self-auto">
+            <div className="segmented-track inline-flex p-1 rounded-lg space-x-1 self-start sm:self-auto">
               <button
                 type="button"
                 onClick={() => updateSettings({ temperatureUnit: 'celsius' })}
                 aria-pressed={settings.temperatureUnit === 'celsius'}
-                className={`px-4 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.temperatureUnit === 'celsius'
-                    ? 'bg-accent text-canvas font-bold shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                    ? 'segmented-thumb-active shadow-sm'
+                    : 'text-text-muted hover:text-text-primary'
                 }`}
               >
                 CELSIUS (°C)
@@ -311,10 +312,10 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ temperatureUnit: 'fahrenheit' })}
                 aria-pressed={settings.temperatureUnit === 'fahrenheit'}
-                className={`px-4 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.temperatureUnit === 'fahrenheit'
-                    ? 'bg-accent text-canvas font-bold shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                    ? 'segmented-thumb-active shadow-sm'
+                    : 'text-text-muted hover:text-text-primary'
                 }`}
               >
                 FAHRENHEIT (°F)
@@ -341,15 +342,15 @@ export const SettingsRoute: React.FC = () => {
               </p>
             </div>
 
-            <div className="inline-flex p-1 bg-panel-recessed border border-border-subtle rounded-lg space-x-1 self-start sm:self-auto">
+            <div className="segmented-track inline-flex p-1 rounded-lg space-x-1 self-start sm:self-auto">
               <button
                 type="button"
                 onClick={() => updateSettings({ defaultTimerMode: 'free_brew' })}
                 aria-pressed={settings.defaultTimerMode === 'free_brew'}
-                className={`px-4 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.defaultTimerMode === 'free_brew'
-                    ? 'bg-accent text-canvas font-bold shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                    ? 'segmented-thumb-active shadow-sm'
+                    : 'text-text-muted hover:text-text-primary'
                 }`}
               >
                 FREE BREW
@@ -358,10 +359,10 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ defaultTimerMode: 'recipe' })}
                 aria-pressed={settings.defaultTimerMode === 'recipe'}
-                className={`px-4 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.defaultTimerMode === 'recipe'
-                    ? 'bg-accent text-canvas font-bold shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                    ? 'segmented-thumb-active shadow-sm'
+                    : 'text-text-muted hover:text-text-primary'
                 }`}
               >
                 GUIDED RECIPE
@@ -388,15 +389,15 @@ export const SettingsRoute: React.FC = () => {
               </p>
             </div>
 
-            <div className="inline-flex p-1 bg-panel-recessed border border-border-subtle rounded-lg space-x-1 flex-wrap sm:flex-nowrap gap-1 self-start lg:self-auto">
+            <div className="segmented-track inline-flex p-1 rounded-lg space-x-1 flex-wrap sm:flex-nowrap gap-1 self-start lg:self-auto">
               <button
                 type="button"
                 onClick={() => updateSettings({ dateFormat: 'locale' })}
                 aria-pressed={settings.dateFormat === 'locale'}
-                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'locale'
-                    ? 'bg-accent text-canvas font-bold shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                    ? 'segmented-thumb-active shadow-sm'
+                    : 'text-text-muted hover:text-text-primary'
                 }`}
               >
                 LOCALE
@@ -405,10 +406,10 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ dateFormat: 'YYYY-MM-DD' })}
                 aria-pressed={settings.dateFormat === 'YYYY-MM-DD'}
-                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'YYYY-MM-DD'
-                    ? 'bg-accent text-canvas font-bold shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                    ? 'segmented-thumb-active shadow-sm'
+                    : 'text-text-muted hover:text-text-primary'
                 }`}
               >
                 YYYY-MM-DD
@@ -417,10 +418,10 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ dateFormat: 'MM/DD/YYYY' })}
                 aria-pressed={settings.dateFormat === 'MM/DD/YYYY'}
-                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'MM/DD/YYYY'
-                    ? 'bg-accent text-canvas font-bold shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                    ? 'segmented-thumb-active shadow-sm'
+                    : 'text-text-muted hover:text-text-primary'
                 }`}
               >
                 MM/DD/YYYY
@@ -429,10 +430,10 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ dateFormat: 'DD/MM/YYYY' })}
                 aria-pressed={settings.dateFormat === 'DD/MM/YYYY'}
-                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'DD/MM/YYYY'
-                    ? 'bg-accent text-canvas font-bold shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                    ? 'segmented-thumb-active shadow-sm'
+                    : 'text-text-muted hover:text-text-primary'
                 }`}
               >
                 DD/MM/YYYY

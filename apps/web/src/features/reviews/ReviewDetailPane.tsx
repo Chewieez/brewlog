@@ -132,7 +132,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
       : '—';
 
   return (
-    <div className="animate-fade-in text-zinc-100 font-sans pb-8">
+    <div className="animate-fade-in text-text-primary font-sans pb-8">
       {/* Header & Action Bar */}
       <div className="sticky top-0 z-20 bg-canvas pb-6">
         <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -140,7 +140,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <span
               data-testid="method-badge"
-              className="text-xs font-semibold px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 uppercase tracking-wider"
+              className="text-xs font-semibold px-2 py-0.5 rounded bg-panel-recessed text-text-secondary uppercase tracking-wider"
             >
               {log.brewMethod}
             </span>
@@ -166,7 +166,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           {onBrewAgain && (
             <button
               onClick={() => onBrewAgain(log)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-panel-recessed text-accent border border-accent/40 hover:border-accent hover:bg-accent/10 transition-colors cursor-pointer shadow-xs"
+              className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold rounded-lg btn-tactile-primary cursor-pointer border-0"
               title="Transfer coffee and specs to Brew Timer"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
@@ -175,14 +175,14 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           )}
           <button
             onClick={() => onEdit(log)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-panel-recessed text-zinc-200 hover:text-zinc-100 border border-border-subtle hover:border-zinc-600 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-lg btn-tactile-secondary text-text-muted hover:text-text-primary cursor-pointer border-0"
           >
             <Edit3 className="w-3.5 h-3.5" />
             Edit
           </button>
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-panel-recessed text-rose-400 hover:text-rose-300 hover:bg-rose-950/20 border border-border-subtle hover:border-rose-900 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-lg btn-tactile-secondary text-rose-400 hover:text-rose-300 cursor-pointer border-0"
           >
             <Trash2 className="w-3.5 h-3.5" />
             Delete
@@ -198,7 +198,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           data-testid="hero-score-badge"
           className="whitespace-nowrap flex items-center gap-3"
         >
-          <div className="text-4xl font-light text-zinc-100 tabular-nums">
+          <div className="text-4xl font-light text-text-primary tabular-nums">
             {log.calculatedScaScore.toFixed(1)}
           </div>
           <div className="text-sm text-text-secondary font-medium">/ 100</div>
@@ -234,13 +234,13 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           <div className="text-sm font-semibold uppercase tracking-wider text-text-secondary">
             Sensory Profile
           </div>
-          <div className="flex items-center space-x-1 p-1 rounded bg-panel-recessed border border-border-subtle">
+          <div className="flex items-center p-0.5 rounded-lg segmented-track">
             <button
               onClick={() => setSensoryTab('descriptors')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
                 sensoryTab === 'descriptors'
-                  ? 'bg-accent text-zinc-950 font-semibold shadow-xs'
-                  : 'text-text-secondary hover:text-zinc-100'
+                  ? 'segmented-thumb-active font-semibold'
+                  : 'text-text-muted hover:text-text-primary'
               }`}
             >
               <Tag className="w-3.5 h-3.5" />
@@ -248,10 +248,10 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             </button>
             <button
               onClick={() => setSensoryTab('wheel')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
                 sensoryTab === 'wheel'
-                  ? 'bg-accent text-zinc-950 font-semibold shadow-xs'
-                  : 'text-text-secondary hover:text-zinc-100'
+                  ? 'segmented-thumb-active font-semibold'
+                  : 'text-text-muted hover:text-text-primary'
               }`}
             >
               <PieChart className="w-3.5 h-3.5" />
@@ -333,7 +333,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
               Dose
             </span>
-            <span className="text-sm font-semibold text-zinc-100 tabular-nums">
+            <span className="text-sm font-semibold text-text-primary tabular-nums">
               {log.coffeeDoseGrams}g
             </span>
           </div>
@@ -342,7 +342,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
               Water
             </span>
-            <span className="text-sm font-semibold text-zinc-100 tabular-nums">
+            <span className="text-sm font-semibold text-text-primary tabular-nums">
               {log.waterAmountGrams}g
             </span>
           </div>
@@ -351,7 +351,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
               Ratio
             </span>
-            <span className="text-sm font-semibold text-zinc-100 tabular-nums">
+            <span className="text-sm font-semibold text-text-primary tabular-nums">
               {brewRatio}
             </span>
           </div>
@@ -362,7 +362,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             </span>
             <span
               data-testid="brew-time-telemetry"
-              className="text-sm font-semibold text-zinc-100 tabular-nums"
+              className="text-sm font-semibold text-text-primary tabular-nums"
             >
               {formatBrewTime(log.actualTimeSeconds)}
             </span>
@@ -440,7 +440,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-xs font-medium rounded-lg bg-panel-recessed text-zinc-300 hover:text-zinc-100 border border-border-subtle hover:border-zinc-600 transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-medium rounded-lg btn-tactile-secondary text-text-muted hover:text-text-primary transition-colors cursor-pointer border-0"
               >
                 Cancel
               </button>
@@ -450,7 +450,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
                   setShowDeleteModal(false);
                   onDelete(log);
                 }}
-                className="px-4 py-2 text-xs font-semibold rounded-lg bg-rose-600 text-white hover:bg-rose-500 transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold rounded-lg bg-rose-600 text-white hover:bg-rose-500 transition-colors cursor-pointer border-0"
               >
                 Confirm Delete
               </button>

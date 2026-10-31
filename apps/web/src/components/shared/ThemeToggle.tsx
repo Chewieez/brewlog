@@ -1,10 +1,11 @@
 import React from 'react';
 import { Sun, Moon, Monitor } from 'lucide-react';
+import { ThemePreference } from '@brewlog/core';
 import { useSettings } from '../../features/settings/SettingsContext';
 
 export const ThemeToggle: React.FC = () => {
-  let settings = { theme: 'system' as const };
-  let updateSettings: (updates: { theme: 'system' | 'tactile_dark' | 'studio_light' }) => Promise<void> = async () => {};
+  let settings: { theme?: ThemePreference } = { theme: 'system' };
+  let updateSettings: (updates: { theme: ThemePreference }) => Promise<void> = async () => {};
 
   try {
     const ctx = useSettings();
@@ -56,7 +57,7 @@ export const ThemeToggle: React.FC = () => {
       aria-label={label}
       title={label}
       data-testid="theme-toggle-button"
-      className="p-1.5 rounded-lg bg-panel-recessed text-text-secondary hover:text-text-primary border border-border-subtle hover:border-border-active hover:bg-panel cursor-pointer transition-colors flex items-center justify-center flex-shrink-0"
+      className="btn-tactile-secondary w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
     >
       {icon}
     </button>

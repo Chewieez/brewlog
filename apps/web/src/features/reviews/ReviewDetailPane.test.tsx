@@ -110,7 +110,7 @@ describe('ReviewDetailPane component', () => {
     expect(screen.getByText(/1:15/)).toBeDefined();
 
     const timeElement = screen.getByTestId('brew-time-telemetry');
-    expect(timeElement.className).toContain('text-zinc-100');
+    expect(timeElement.className).toContain('text-text-primary');
     expect(timeElement.className).not.toContain('text-accent');
   });
 

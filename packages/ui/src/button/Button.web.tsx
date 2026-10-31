@@ -20,11 +20,11 @@ export const Button: React.FC<ButtonProps> = ({
     lg: 'h-12 px-6 text-sm gap-2.5',
   }[size];
 
-  let variantClasses = 'bg-copper hover:bg-copper-hover text-canvas font-mono font-bold uppercase tracking-wider shadow-sm active:scale-[0.98] transition-all';
+  let variantClasses = 'btn-tactile-primary border-0 font-mono font-bold uppercase tracking-wider';
   if (variant === 'secondary') {
-    variantClasses = 'bg-panel-recessed hover:bg-panel text-text-primary border-0 shadow-xs active:scale-[0.98] font-mono font-bold uppercase tracking-wider transition-all';
+    variantClasses = 'btn-tactile-secondary border-0 font-mono font-bold uppercase tracking-wider';
   } else if (variant === 'ghost') {
-    variantClasses = 'bg-transparent hover:bg-panel-recessed text-text-secondary hover:text-text-primary uppercase font-medium active:scale-[0.98] transition-all';
+    variantClasses = 'bg-transparent hover:bg-panel-recessed text-text-secondary hover:text-text-primary uppercase font-medium active:scale-[0.98] transition-all border-0';
   } else if (variant === 'danger') {
     variantClasses = 'bg-status-error/10 hover:bg-status-error/20 text-status-error border border-status-error/40 font-mono font-bold uppercase tracking-wider active:scale-[0.98] transition-all';
   }
