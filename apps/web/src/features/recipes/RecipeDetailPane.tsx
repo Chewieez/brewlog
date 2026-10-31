@@ -365,7 +365,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
         message={
           <>
             Are you sure you want to delete{' '}
-            <strong className="text-zinc-200">"{recipe.name}"</strong>? This action
+            <strong className="text-text-primary">"{recipe.name}"</strong>? This action
             cannot be undone.
           </>
         }

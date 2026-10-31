@@ -176,7 +176,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
         message={
           <>
             Are you sure you want to delete{' '}
-            <strong className="text-zinc-200">"{recipeToDelete?.name}"</strong>? This
+            <strong className="text-text-primary">"{recipeToDelete?.name}"</strong>? This
             action cannot be undone.
           </>
         }

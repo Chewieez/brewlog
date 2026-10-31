@@ -1,21 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Sun, Moon, Monitor } from 'lucide-react';
 import { ThemePreference } from '@brewlog/core';
-import { useSettings } from '../../features/settings/SettingsContext';
+import { SettingsContext } from '../../features/settings/SettingsContext';
 
 export const ThemeToggle: React.FC = () => {
-  let settings: { theme?: ThemePreference } = { theme: 'system' };
-  let updateSettings: (updates: { theme: ThemePreference }) => Promise<void> = async () => {};
-
-  try {
-    const ctx = useSettings();
-    settings = ctx.settings as any;
-    updateSettings = ctx.updateSettings;
-  } catch {
-    // Graceful fallback for test harnesses or isolated headers without SettingsProvider
-  }
-
-  const theme = settings.theme ?? 'system';
+  const ctx = useContext(SettingsContext);
+  const theme: ThemePreference = ctx?.settings.theme ?? 'system';
+  const updateSettings = ctx?.updateSettings ?? (async () => {});
 
   const handleCycleTheme = () => {
     if (theme === 'system') {
