@@ -48,7 +48,7 @@ brewlog/
   - **Phase 7B (Design System App Migration & Integration)**: Active / Next 🚀 (Migrate existing UI surfaces in `apps/web` and `apps/mobile` to consume `@brewlog/ui` Button, Card, Badge, Input, and MetricTile primitives).
   - **Phase 7C (Web Stash Persistence & Recipe Flow Alignment)**: Complete ✅ (Supabase migrations 002/003, core resting engine promotion, Web Stash modal parity & offline sync resilience, Web Recipe Studio custom recipe editing flow).
   - **Phase 7D (Mobile Equipment & Web Parity)**: Complete ✅ (Mobile `EquipmentContext` with offline resilience and optimistic updates, `EquipmentCatalogScreen` with category chips and search filtering, `EquipmentModalScreen` add/edit flows, microns scale type support across `@brewlog/core`, web parity with 'Other' equipment section, and offline sync resilience).
-  - **Phase 8 (User Preferences & Settings Subsystem)**: Complete (Cross-platform Supabase `user_settings`, default timer mode, unit conversions, offline-first state, telemetry integration).
+  - **Phase 8 (User Preferences & Settings Subsystem)**: Complete ✅ (Cross-platform Supabase `user_settings`, default timer mode, unit conversions, offline-first state, telemetry integration).
   - **Phase 9 (Native Cupping Session Logging)**: Upcoming ⏳ (SCA 10-attribute scoring protocol).
   - **Phase 10 (Platform-Adaptive Navigation)**: Upcoming ⏳ (iOS Liquid Glass & Android Material Design 3).
   - **Phase 11 (Responsive Adaptive Layouts)**: Upcoming ⏳ (Landscape, foldables, tablets).
