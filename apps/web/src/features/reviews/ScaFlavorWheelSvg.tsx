@@ -376,7 +376,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                   {inspectedItem.category}
                 </span>
 
-                <span className="text-xs sm:text-sm font-bold text-text-primary mt-1 leading-tight line-clamp-2">
+                <span className="text-xs sm:text-sm font-bold text-foreground mt-1 leading-tight line-clamp-2">
                   {inspectedItem.name}
                 </span>
 
@@ -393,7 +393,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                   className={`pointer-events-auto mt-1 px-2.5 py-0.5 rounded text-[10px] font-sans uppercase tracking-wider font-bold flex items-center space-x-1 transition-all shadow-sm active:scale-95 cursor-pointer ${
                     inspectedItem.isSelected
                       ? 'bg-accent text-zinc-950'
-                      : 'bg-panel-recessed text-text-secondary border border-border-subtle hover:bg-zinc-800 hover:text-text-primary'
+                      : 'bg-panel-recessed text-foreground-secondary border border-border-subtle hover:bg-zinc-800 hover:text-foreground'
                   }`}
                 >
                   {inspectedItem.isSelected ? (
@@ -403,7 +403,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                     </>
                   ) : (
                     <>
-                      <Plus className="w-2.5 h-2.5 text-text-muted" />
+                      <Plus className="w-2.5 h-2.5 text-foreground-muted" />
                       <span>Add Note</span>
                     </>
                   )}
@@ -411,7 +411,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center max-w-[130px]">
-                <span className="text-[9px] uppercase font-sans tracking-widest text-text-muted">
+                <span className="text-[9px] uppercase font-sans tracking-widest text-foreground-muted">
                   Category
                 </span>
                 <span
@@ -420,23 +420,23 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                 >
                   {inspectedItem.name}
                 </span>
-                <span className="text-[10px] text-text-secondary font-sans tabular-nums mt-1">
+                <span className="text-[10px] text-foreground-secondary font-sans tabular-nums mt-1">
                   {inspectedItem.selectedCount}/{inspectedItem.totalCount} selected
                 </span>
-                <span className="text-[8px] text-text-muted mt-0.5">
+                <span className="text-[8px] text-foreground-muted mt-0.5">
                   Tap outer ring to pick
                 </span>
               </div>
             )
           ) : (
             <div className="flex flex-col items-center justify-center max-w-[120px]">
-              <span className="text-[9px] uppercase font-sans tracking-widest text-text-muted">
+              <span className="text-[9px] uppercase font-sans tracking-widest text-foreground-muted">
                 SCA
               </span>
               <span className="text-xs font-bold font-sans text-accent mt-0.5">
                 Sensory Wheel
               </span>
-              <div className="flex items-center space-x-1 mt-1 text-[10px] text-text-secondary">
+              <div className="flex items-center space-x-1 mt-1 text-[10px] text-foreground-secondary">
                 <Tag className="w-2.5 h-2.5 text-accent" />
                 <span className="font-sans tabular-nums font-semibold">{selectedTags.length} active</span>
               </div>
@@ -445,7 +445,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
         </div>
       </div>
 
-      <p className="text-[11px] text-text-muted mt-2 text-center max-w-sm font-sans">
+      <p className="text-[11px] text-foreground-muted mt-2 text-center max-w-sm font-sans">
         Use <kbd className="px-1 py-0.5 bg-panel-recessed rounded text-[10px] font-sans text-accent border border-border-subtle">←</kbd> <kbd className="px-1 py-0.5 bg-panel-recessed rounded text-[10px] font-sans text-accent border border-border-subtle">→</kbd> to rotate, <kbd className="px-1.5 py-0.5 bg-panel-recessed rounded text-[10px] font-sans text-accent border border-border-subtle">Space</kbd> to toggle, or tap any sensory note.
       </p>
     </div>

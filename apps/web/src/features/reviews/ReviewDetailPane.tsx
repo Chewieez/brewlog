@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from '@brewlog/ui';
 import { TastingLog, Bean, Equipment, formatDisplayDate } from '@brewlog/core';
 import { useOptionalSettings } from '../settings/SettingsContext';
 import {
@@ -132,7 +133,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
       : '—';
 
   return (
-    <div className="animate-fade-in text-text-primary font-sans pb-8">
+    <div className="animate-fade-in text-foreground font-sans pb-8">
       {/* Header & Action Bar */}
       <div className="sticky top-0 z-20 bg-canvas pb-6">
         <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -144,7 +145,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             >
               {log.brewMethod}
             </span>
-            <span className="text-xs text-text-secondary">
+            <span className="text-xs text-foreground-secondary">
               {formatDate(log.brewDate)}
             </span>
             {log.wouldBrewAgain && (
@@ -153,10 +154,10 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
               </span>
             )}
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-text-primary">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             {beanName}
           </h1>
-          <p className="text-sm font-medium text-text-secondary mt-0.5">
+          <p className="text-sm font-medium text-foreground-secondary mt-0.5">
             {roaster}
           </p>
         </div>
@@ -175,7 +176,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           )}
           <button
             onClick={() => onEdit(log)}
-            className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-lg btn-tactile-secondary text-text-muted hover:text-text-primary cursor-pointer border-0"
+            className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-lg btn-tactile-secondary text-foreground-muted hover:text-foreground cursor-pointer border-0"
           >
             <Edit3 className="w-3.5 h-3.5" />
             Edit
@@ -198,10 +199,10 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           data-testid="hero-score-badge"
           className="whitespace-nowrap flex items-center gap-3"
         >
-          <div className="text-4xl font-light text-text-primary tabular-nums">
+          <div className="text-4xl font-light text-foreground tabular-nums">
             {log.calculatedScaScore.toFixed(1)}
           </div>
-          <div className="text-sm text-text-secondary font-medium">/ 100</div>
+          <div className="text-sm text-foreground-secondary font-medium">/ 100</div>
           <div className="h-6 w-px bg-border-subtle" />
           <span
             className={`px-3 py-1 rounded-full text-xs font-semibold border ${tier.classes}`}
@@ -222,7 +223,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
               }`}
             />
           ))}
-          <span className="text-xs text-text-secondary ml-1 tabular-nums font-medium">
+          <span className="text-xs text-foreground-secondary ml-1 tabular-nums font-medium">
             ({log.rating || 0}/5)
           </span>
         </div>
@@ -231,16 +232,16 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
       {/* Sensory Profile: Segmented Toggle & Content */}
       <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-sm space-y-4">
         <div className="flex items-center justify-between border-b border-border-subtle pb-3">
-          <div className="text-sm font-semibold uppercase tracking-wider text-text-secondary">
+          <div className="text-sm font-semibold uppercase tracking-wider text-foreground-secondary">
             Sensory Profile
           </div>
           <div className="flex items-center p-0.5 rounded-lg segmented-track">
             <button
               onClick={() => setSensoryTab('descriptors')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
+              className={`h-8 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
                 sensoryTab === 'descriptors'
                   ? 'segmented-thumb-active font-semibold'
-                  : 'text-text-muted hover:text-text-primary'
+                  : 'text-foreground-muted hover:text-foreground'
               }`}
             >
               <Tag className="w-3.5 h-3.5" />
@@ -248,10 +249,10 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             </button>
             <button
               onClick={() => setSensoryTab('wheel')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
+              className={`h-8 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
                 sensoryTab === 'wheel'
                   ? 'segmented-thumb-active font-semibold'
-                  : 'text-text-muted hover:text-text-primary'
+                  : 'text-foreground-muted hover:text-foreground'
               }`}
             >
               <PieChart className="w-3.5 h-3.5" />
@@ -274,7 +275,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-text-secondary italic py-2">
+              <p className="text-xs text-foreground-secondary italic py-2">
                 No flavor descriptors recorded for this brew.
               </p>
             )}
@@ -291,7 +292,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
 
       {/* 10-Attribute Score Breakdown Bars */}
       <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-sm space-y-4">
-        <div className="text-sm font-semibold uppercase tracking-wider text-text-secondary border-b border-border-subtle pb-3">
+        <div className="text-sm font-semibold uppercase tracking-wider text-foreground-secondary border-b border-border-subtle pb-3">
           10-Attribute SCA Score Matrix
         </div>
 
@@ -303,10 +304,10 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             return (
               <div key={attr.key} className="space-y-1">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-medium text-text-secondary">
+                  <span className="font-medium text-foreground-secondary">
                     {attr.label}
                   </span>
-                  <span className="tabular-nums font-semibold text-text-primary">
+                  <span className="tabular-nums font-semibold text-foreground">
                     {scoreValue.toFixed(1)}
                   </span>
                 </div>
@@ -324,45 +325,45 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
 
       {/* Brew Parameters & Equipment Specs */}
       <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-sm space-y-4">
-        <div className="text-sm font-semibold uppercase tracking-wider text-text-secondary border-b border-border-subtle pb-3">
+        <div className="text-sm font-semibold uppercase tracking-wider text-foreground-secondary border-b border-border-subtle pb-3">
           Brew Parameters & Equipment
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="bg-panel-recessed p-3 rounded-lg border border-border-subtle">
-            <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
+            <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider block">
               Dose
             </span>
-            <span className="text-sm font-semibold text-text-primary tabular-nums">
+            <span className="text-sm font-semibold text-foreground tabular-nums">
               {log.coffeeDoseGrams}g
             </span>
           </div>
 
           <div className="bg-panel-recessed p-3 rounded-lg border border-border-subtle">
-            <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
+            <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider block">
               Water
             </span>
-            <span className="text-sm font-semibold text-text-primary tabular-nums">
+            <span className="text-sm font-semibold text-foreground tabular-nums">
               {log.waterAmountGrams}g
             </span>
           </div>
 
           <div className="bg-panel-recessed p-3 rounded-lg border border-border-subtle">
-            <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
+            <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider block">
               Ratio
             </span>
-            <span className="text-sm font-semibold text-text-primary tabular-nums">
+            <span className="text-sm font-semibold text-foreground tabular-nums">
               {brewRatio}
             </span>
           </div>
 
           <div className="bg-panel-recessed p-3 rounded-lg border border-border-subtle">
-            <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
+            <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider block">
               Actual Time
             </span>
             <span
               data-testid="brew-time-telemetry"
-              className="text-sm font-semibold text-text-primary tabular-nums"
+              className="text-sm font-semibold text-foreground tabular-nums"
             >
               {formatBrewTime(log.actualTimeSeconds)}
             </span>
@@ -371,13 +372,13 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
           <div className="bg-panel-recessed p-3 rounded-lg border border-border-subtle">
-            <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
+            <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider block">
               Grinder & Setting
             </span>
-            <div className="text-xs font-medium text-text-primary mt-1">
+            <div className="text-xs font-medium text-foreground mt-1">
               <div>{grinderName}</div>
               {log.grindSetting && (
-                <div className="text-text-secondary mt-0.5">
+                <div className="text-foreground-secondary mt-0.5">
                   Setting: {log.grindSetting}
                 </div>
               )}
@@ -385,19 +386,19 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           </div>
 
           <div className="bg-panel-recessed p-3 rounded-lg border border-border-subtle">
-            <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
+            <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider block">
               Brewer
             </span>
-            <div className="text-xs font-medium text-text-primary mt-1">
+            <div className="text-xs font-medium text-foreground mt-1">
               {brewerName}
             </div>
           </div>
 
           <div className="bg-panel-recessed p-3 rounded-lg border border-border-subtle">
-            <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
+            <span className="text-[11px] font-medium text-foreground-secondary uppercase tracking-wider block">
               Water Temperature
             </span>
-            <div className="text-xs font-medium text-text-primary mt-1 tabular-nums">
+            <div className="text-xs font-medium text-foreground mt-1 tabular-nums">
               {log.waterTempCelsius ? `${log.waterTempCelsius}°C` : 'Not recorded'}
             </div>
           </div>
@@ -407,10 +408,10 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
       {/* Cupper's Notes */}
       {log.notes && (
         <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-sm space-y-2">
-          <div className="text-sm font-semibold uppercase tracking-wider text-text-secondary border-b border-border-subtle pb-3">
+          <div className="text-sm font-semibold uppercase tracking-wider text-foreground-secondary border-b border-border-subtle pb-3">
             Cupper's Tasting Notes
           </div>
-          <blockquote className="border-l-2 border-accent pl-4 py-1 text-sm text-text-primary italic font-sans leading-relaxed">
+          <blockquote className="border-l-2 border-accent pl-4 py-1 text-sm text-foreground italic font-sans leading-relaxed">
             "{log.notes}"
           </blockquote>
         </div>
@@ -428,32 +429,32 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           >
             <div className="flex items-center gap-3 text-rose-400">
               <AlertTriangle className="w-6 h-6 shrink-0" />
-              <h2 id="delete-dialog-title" className="text-lg font-bold text-text-primary">
+              <h2 id="delete-dialog-title" className="text-lg font-bold text-foreground">
                 Delete Tasting Log
               </h2>
             </div>
-            <p className="text-sm text-text-secondary">
+            <p className="text-sm text-foreground-secondary">
               Are you sure you want to delete this tasting log for{' '}
-              <strong className="text-text-primary">{beanName}</strong>? This action cannot be undone.
+              <strong className="text-foreground">{beanName}</strong>? This action cannot be undone.
             </p>
             <div className="flex items-center justify-end gap-3 pt-2">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="md"
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-xs font-medium rounded-lg btn-tactile-secondary text-text-muted hover:text-text-primary transition-colors cursor-pointer border-0"
-              >
-                Cancel
-              </button>
-              <button
+                label="Cancel"
+              />
+              <Button
                 type="button"
+                variant="danger"
+                size="md"
                 onClick={() => {
                   setShowDeleteModal(false);
                   onDelete(log);
                 }}
-                className="px-4 py-2 text-xs font-semibold rounded-lg bg-rose-600 text-white hover:bg-rose-500 transition-colors cursor-pointer border-0"
-              >
-                Confirm Delete
-              </button>
+                label="Confirm Delete"
+              />
             </div>
           </div>
         </div>

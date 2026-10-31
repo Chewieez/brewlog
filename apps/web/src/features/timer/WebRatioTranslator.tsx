@@ -144,24 +144,24 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full flex items-center justify-between pt-0 pb-2.5 text-left text-xs font-mono uppercase tracking-wider text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
+        className="w-full flex items-center justify-between pt-0 pb-2.5 text-left text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground transition-colors cursor-pointer"
         aria-expanded={isOpen}
       >
         <div className="flex items-center space-x-2">
           <Scale className="w-3.5 h-3.5 text-accent" />
-          <span className="font-semibold text-text-primary">RATIO CALCULATOR</span>
+          <span className="font-semibold text-foreground">RATIO CALCULATOR</span>
         </div>
         {isOpen ? (
-          <ChevronUp className="w-3.5 h-3.5 text-text-muted" />
+          <ChevronUp className="w-3.5 h-3.5 text-foreground-muted" />
         ) : (
-          <ChevronDown className="w-3.5 h-3.5 text-text-muted" />
+          <ChevronDown className="w-3.5 h-3.5 text-foreground-muted" />
         )}
       </button>
 
       {/* Collapsible Content */}
       {isOpen && (
         <div className="mt-3 p-4 border border-border-subtle rounded bg-panel-recessed space-y-4">
-          <p className="text-xs text-text-muted">
+          <p className="text-xs text-foreground-muted">
             Translate recipe dose & water proportionally to match your target coffee dose.
           </p>
 
@@ -171,7 +171,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
               <div>
                 <label
                   htmlFor="source-coffee"
-                  className="block text-[11px] font-mono uppercase text-text-muted mb-1"
+                  className="block text-[11px] font-mono uppercase text-foreground-muted mb-1"
                 >
                   Source Coffee (g)
                 </label>
@@ -183,13 +183,13 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
                   step="0.1"
                   value={sourceCoffee}
                   onChange={(e) => handleSourceCoffeeChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-text-primary tabular-nums font-sans focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
               <div>
                 <label
                   htmlFor="source-water"
-                  className="block text-[11px] font-mono uppercase text-text-muted mb-1"
+                  className="block text-[11px] font-mono uppercase text-foreground-muted mb-1"
                 >
                   Source Water (g)
                 </label>
@@ -201,7 +201,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
                   step="1"
                   value={sourceWater}
                   onChange={(e) => handleSourceWaterChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-text-primary tabular-nums font-sans focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
             </div>
@@ -213,7 +213,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
               <div>
                 <label
                   htmlFor="target-coffee"
-                  className="block text-[11px] font-mono uppercase text-text-muted mb-1"
+                  className="block text-[11px] font-mono uppercase text-foreground-muted mb-1"
                 >
                   Target Coffee (g)
                 </label>
@@ -225,13 +225,13 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
                   step="0.1"
                   value={targetCoffee}
                   onChange={(e) => handleTargetCoffeeChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-text-primary tabular-nums font-sans focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
               <div>
                 <label
                   htmlFor="target-water"
-                  className="block text-[11px] font-mono uppercase text-text-muted mb-1"
+                  className="block text-[11px] font-mono uppercase text-foreground-muted mb-1"
                 >
                   Target Water (g)
                 </label>
@@ -243,7 +243,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
                   step="1"
                   value={targetWater}
                   onChange={(e) => handleTargetWaterChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-text-primary tabular-nums font-sans focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
             </div>

@@ -19,7 +19,15 @@
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@brewlog/core": ["../../packages/core/src/index.ts"],
+      "@brewlog/core/*": ["../../packages/core/src/*"],
+      "@brewlog/supabase": ["../../packages/supabase/src/index.ts"],
+      "@brewlog/supabase/*": ["../../packages/supabase/src/*"],
+      "@brewlog/ui": ["../../packages/ui/src/index.web.ts"],
+      "@brewlog/ui/*": ["../../packages/ui/src/*"]
+    }
   },
   "include": [
     "src"

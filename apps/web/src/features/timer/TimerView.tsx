@@ -476,11 +476,11 @@ export const TimerView: React.FC<TimerViewProps> = ({
         <div>
           <div className="flex items-center space-x-2.5">
             {renderBrewMethodBadge(currentRecipe.brewMethod)}
-            <h2 className="text-2xl font-bold text-text-primary tracking-tight">
+            <h2 className="text-2xl font-bold text-foreground tracking-tight">
               {mode === 'free_brew' ? 'Free Brew Stopwatch' : currentRecipe.name}
             </h2>
           </div>
-          <p className="text-xs text-text-muted mt-1.5">
+          <p className="text-xs text-foreground-muted mt-1.5">
             {mode === 'free_brew'
               ? 'Precision manual split tracking & custom extraction stopwatch.'
               : currentRecipe.description}
@@ -499,7 +499,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   const b = beans.find((item) => item.id === e.target.value);
                   if (b && onSelectBean) onSelectBean(b);
                 }}
-                className="bg-panel border border-border-subtle rounded px-2.5 py-1 text-xs font-medium text-text-primary focus:outline-none focus:border-accent cursor-pointer"
+                className="bg-panel border border-border-subtle rounded px-2.5 py-1 text-xs font-medium text-foreground focus:outline-none focus:border-accent cursor-pointer"
               >
                 {beans.map((b) => (
                   <option key={b.id} value={b.id}>
@@ -508,7 +508,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 ))}
               </select>
             ) : (
-              <span className="text-text-secondary text-xs">
+              <span className="text-foreground-secondary text-xs">
                 {selectedBean ? `${selectedBean.name} (${selectedBean.roaster})` : "Specialty Blend"}
               </span>
             )}
@@ -547,7 +547,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 <span className="text-accent font-bold tracking-widest uppercase font-mono">
                   {mode === 'free_brew' ? 'MANUAL STOPWATCH' : currentStage.name}
                 </span>
-                <span className="text-text-muted tabular-nums">
+                <span className="text-foreground-muted tabular-nums">
                   {mode === 'free_brew'
                     ? `${splits.length} Splits Recorded`
                     : `${totalProgressPercent}% · Target: ${formatTime(currentRecipe.totalTimeSeconds)}`}
@@ -573,9 +573,9 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
           {/* Oversized Tabular Digital Time Readout */}
           <div className="py-2 select-none flex justify-center sm:justify-start">
-            <div className="text-8xl sm:text-9xl font-light tabular-nums text-text-primary leading-none tracking-tight flex items-center justify-center sm:justify-start">
+            <div className="text-8xl sm:text-9xl font-light tabular-nums text-foreground leading-none tracking-tight flex items-center justify-center sm:justify-start">
               <span>{Math.floor(elapsedSeconds / 60)}</span>
-              <span className="inline-block px-1 text-text-muted/80 select-none" style={{ transform: 'translateY(-0.137em)' }}>:</span>
+              <span className="inline-block px-1 text-foreground-muted/80 select-none" style={{ transform: 'translateY(-0.137em)' }}>:</span>
               <span>{String(elapsedSeconds % 60).padStart(2, '0')}</span>
             </div>
           </div>
@@ -586,7 +586,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
           {/* Primary Hardware Metrics Grid */}
           <div className="grid grid-cols-3 gap-6">
             <div>
-              <div className="text-[11px] font-mono tracking-widest text-text-muted uppercase">
+              <div className="text-[11px] font-mono tracking-widest text-foreground-muted uppercase">
                 COFFEE DOSE
               </div>
               {isMetricEditable ? (
@@ -618,22 +618,22 @@ export const TimerView: React.FC<TimerViewProps> = ({
                       }
                     }}
                     style={{ width: `${Math.max(1, (textDose || '').length)}ch` }}
-                    className="bg-transparent text-2xl sm:text-3xl font-light text-text-primary tabular-nums focus:outline-none p-0 text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text"
+                    className="bg-transparent text-2xl sm:text-3xl font-light text-foreground tabular-nums focus:outline-none p-0 text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text"
                     aria-label={`Timer coffee dose in ${currentWeightUnit === 'imperial' ? 'ounces' : 'grams'}`}
                   />
-                  <span className="text-xl sm:text-2xl font-light text-text-muted select-none ml-1 cursor-text">
+                  <span className="text-xl sm:text-2xl font-light text-foreground-muted select-none ml-1 cursor-text">
                     {currentWeightUnit === 'imperial' ? 'oz' : 'g'}
                   </span>
                 </label>
               ) : (
-                <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
+                <div className="text-2xl sm:text-3xl font-light text-foreground tabular-nums mt-1">
                   {formatWeight(currentDose, currentWeightUnit)}
                 </div>
               )}
             </div>
 
             <div>
-              <div className="text-[11px] font-mono tracking-widest text-text-muted uppercase">
+              <div className="text-[11px] font-mono tracking-widest text-foreground-muted uppercase">
                 WATER TARGET
               </div>
               {isMetricEditable ? (
@@ -665,22 +665,22 @@ export const TimerView: React.FC<TimerViewProps> = ({
                       }
                     }}
                     style={{ width: `${Math.max(1, (textWater || '').length)}ch` }}
-                    className="bg-transparent text-2xl sm:text-3xl font-light text-text-primary tabular-nums focus:outline-none p-0 text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text"
+                    className="bg-transparent text-2xl sm:text-3xl font-light text-foreground tabular-nums focus:outline-none p-0 text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text"
                     aria-label={`Timer water target in ${currentWeightUnit === 'imperial' ? 'ounces' : 'grams'}`}
                   />
-                  <span className="text-xl sm:text-2xl font-light text-text-muted select-none ml-1 cursor-text">
+                  <span className="text-xl sm:text-2xl font-light text-foreground-muted select-none ml-1 cursor-text">
                     {currentWeightUnit === 'imperial' ? 'oz' : 'g'}
                   </span>
                 </label>
               ) : (
-                <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
+                <div className="text-2xl sm:text-3xl font-light text-foreground tabular-nums mt-1">
                   {formatWeight(currentRecipe.waterAmountGrams, currentWeightUnit)}
                 </div>
               )}
             </div>
 
             <div>
-              <div className="text-[11px] font-mono tracking-widest text-text-muted uppercase">
+              <div className="text-[11px] font-mono tracking-widest text-foreground-muted uppercase">
                 {mode === 'free_brew' ? 'RATIO' : 'POUR TO'}
               </div>
               {mode === 'free_brew' ? (
@@ -691,7 +691,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                     className="flex items-baseline border-b border-border-subtle focus-within:border-accent transition-colors mt-1 w-fit cursor-text"
                   >
                     {/* Note: explicit onClick ensures focus delegation in simulated environments like JSDOM / RTL while htmlFor provides native browser label behavior */}
-                    <span className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums select-none cursor-text">
+                    <span className="text-2xl sm:text-3xl font-light text-foreground tabular-nums select-none cursor-text">
                       1:
                     </span>
                     <input
@@ -716,17 +716,17 @@ export const TimerView: React.FC<TimerViewProps> = ({
                         }
                       }}
                       style={{ width: `${Math.max(1, (textRatio || '').length)}ch` }}
-                      className="bg-transparent text-2xl sm:text-3xl font-light text-text-primary tabular-nums focus:outline-none p-0 text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text"
+                      className="bg-transparent text-2xl sm:text-3xl font-light text-foreground tabular-nums focus:outline-none p-0 text-left [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none cursor-text"
                       aria-label="Timer brew ratio"
                     />
                   </label>
                 ) : (
-                  <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
+                  <div className="text-2xl sm:text-3xl font-light text-foreground tabular-nums mt-1">
                     1:{currentRecipe.ratio}
                   </div>
                 )
               ) : (
-                <div className="text-2xl sm:text-3xl font-light text-text-primary tabular-nums mt-1">
+                <div className="text-2xl sm:text-3xl font-light text-foreground tabular-nums mt-1">
                   {formatWeight(currentStage.targetWaterWeightGrams, currentWeightUnit)}
                 </div>
               )}
@@ -743,9 +743,9 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 type="button"
                 onClick={toggleTimer}
                 disabled={isFreeBrewFinished}
-                className={`flex items-center space-x-2 px-8 py-3 rounded-lg font-mono text-xs uppercase tracking-wider font-bold transition-all ${
+                className={`h-12 flex items-center space-x-2 px-8 rounded-lg font-mono text-xs uppercase tracking-wider font-bold transition-all ${
                   isFreeBrewFinished
-                    ? 'bg-panel-recessed text-text-muted cursor-not-allowed opacity-60'
+                    ? 'bg-panel-recessed text-foreground-muted cursor-not-allowed opacity-60'
                     : 'btn-tactile-primary'
                 }`}
               >
@@ -772,7 +772,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 <button
                   type="button"
                   onClick={() => recordSplit()}
-                  className="btn-tactile-secondary flex items-center space-x-1.5 px-4 py-3 rounded-lg text-accent font-mono text-xs uppercase tracking-wider font-bold"
+                  className="btn-tactile-secondary h-12 flex items-center space-x-1.5 px-4 rounded-lg text-accent font-mono text-xs uppercase tracking-wider font-bold"
                   title="Record Split"
                   aria-label="SPLIT"
                 >
@@ -784,7 +784,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               <button
                 type="button"
                 onClick={handleReset}
-                className="btn-tactile-secondary p-3 rounded-lg text-text-secondary hover:text-text-primary"
+                className="btn-tactile-secondary w-12 h-12 flex items-center justify-center rounded-lg text-foreground-secondary hover:text-foreground"
                 title="Reset Timer"
                 aria-label="Reset Timer"
               >
@@ -798,12 +798,12 @@ export const TimerView: React.FC<TimerViewProps> = ({
               <button
                 type="button"
                 onClick={toggleMute}
-                className="btn-tactile-secondary p-3 rounded-lg text-text-secondary hover:text-text-primary"
+                className="btn-tactile-secondary w-12 h-12 flex items-center justify-center rounded-lg text-foreground-secondary hover:text-foreground"
                 title={isMuted ? 'Unmute Audio Chimes' : 'Mute Audio Chimes'}
                 aria-label={isMuted ? 'Unmute Audio Chimes' : 'Mute Audio Chimes'}
               >
                 {isMuted ? (
-                  <VolumeX className="w-4 h-4 text-text-muted" />
+                  <VolumeX className="w-4 h-4 text-foreground-muted" />
                 ) : (
                   <Volume2 className="w-4 h-4 text-accent" />
                 )}
@@ -813,13 +813,13 @@ export const TimerView: React.FC<TimerViewProps> = ({
             {/* Quick Tag Chips (Free Brew Mode) */}
             {mode === 'free_brew' && !isFreeBrewFinished && (
               <div className="flex flex-wrap items-center gap-2 pt-2">
-                <span className="text-[11px] font-mono text-text-muted uppercase tracking-wider mr-1">
+                <span className="text-[11px] font-mono text-foreground-muted uppercase tracking-wider mr-1">
                   TAGS:
                 </span>
                 <button
                   type="button"
                   onClick={() => recordSplit('Bloom', 'bloom')}
-                  className="btn-tactile-secondary px-2.5 py-1 rounded text-xs font-mono uppercase tracking-wider text-text-secondary hover:text-text-primary"
+                  className="btn-tactile-secondary px-2.5 py-1 rounded text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground"
                   aria-label="+ BLOOM"
                 >
                   + BLOOM
@@ -827,7 +827,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 <button
                   type="button"
                   onClick={() => recordSplit('Pour 1', 'pour')}
-                  className="btn-tactile-secondary px-2.5 py-1 rounded text-xs font-mono uppercase tracking-wider text-text-secondary hover:text-text-primary"
+                  className="btn-tactile-secondary px-2.5 py-1 rounded text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground"
                   aria-label="+ POUR 1"
                 >
                   + POUR 1
@@ -835,7 +835,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 <button
                   type="button"
                   onClick={() => recordSplit('Pour 2', 'pour')}
-                  className="btn-tactile-secondary px-2.5 py-1 rounded text-xs font-mono uppercase tracking-wider text-text-secondary hover:text-text-primary"
+                  className="btn-tactile-secondary px-2.5 py-1 rounded text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground"
                   aria-label="+ POUR 2"
                 >
                   + POUR 2
@@ -843,7 +843,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 <button
                   type="button"
                   onClick={() => recordSplit('Drawdown', 'drawdown')}
-                  className="btn-tactile-secondary px-2.5 py-1 rounded text-xs font-mono uppercase tracking-wider text-text-secondary hover:text-text-primary"
+                  className="btn-tactile-secondary px-2.5 py-1 rounded text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground"
                   aria-label="+ DRAWDOWN"
                 >
                   + DRAWDOWN
@@ -925,7 +925,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
           {mode === 'recipe' ? (
             <>
               <div className="flex items-center justify-between pb-3 mb-2 border-b border-border-subtle">
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted font-mono">
+                <h3 className="text-xs font-semibold uppercase tracking-widest text-foreground-muted font-mono">
                   POUR TIMELINE
                 </h3>
                 <span className="text-xs text-accent font-semibold tabular-nums">
@@ -963,7 +963,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                           />
                           <span
                             className={`text-sm font-semibold tracking-tight ${
-                              isCurrent ? 'text-text-primary' : 'text-text-secondary'
+                              isCurrent ? 'text-foreground' : 'text-foreground-secondary'
                             }`}
                           >
                             {stage.name}
@@ -971,16 +971,16 @@ export const TimerView: React.FC<TimerViewProps> = ({
                         </div>
 
                         <div className="flex items-center space-x-3 text-xs">
-                          <span className="text-text-muted tabular-nums">
+                          <span className="text-foreground-muted tabular-nums">
                             {formatTime(stage.startSecond)} ({stage.durationSeconds}s)
                           </span>
-                          <span className="font-light text-sm text-text-primary tabular-nums">
+                          <span className="font-light text-sm text-foreground tabular-nums">
                             {formatWeight(stage.targetWaterWeightGrams, currentWeightUnit)}
                           </span>
                         </div>
                       </div>
 
-                      <p className="text-xs text-text-secondary mt-1.5 pl-4.5 leading-relaxed">
+                      <p className="text-xs text-foreground-secondary mt-1.5 pl-4.5 leading-relaxed">
                         {stage.instruction}
                       </p>
                     </div>
@@ -988,9 +988,9 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 })}
               </div>
 
-              <div className="mt-4 pt-3 border-t border-border-subtle flex items-center justify-between text-xs text-text-muted">
+              <div className="mt-4 pt-3 border-t border-border-subtle flex items-center justify-between text-xs text-foreground-muted">
                 <span className="font-mono text-[11px] uppercase tracking-wider">TOTAL EXTRACTION TARGET</span>
-                <span className="text-text-primary font-light text-sm tabular-nums">
+                <span className="text-foreground font-light text-sm tabular-nums">
                   {formatTime(currentRecipe.totalTimeSeconds)}
                 </span>
               </div>
@@ -999,7 +999,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
             /* Free Brew Split Log Table */
             <>
               <div className="flex items-center justify-between pb-3 mb-2 border-b border-border-subtle">
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted font-mono">
+                <h3 className="text-xs font-semibold uppercase tracking-widest text-foreground-muted font-mono">
                   SPLIT LOG
                 </h3>
                 <span className="text-xs text-accent font-semibold tabular-nums">
@@ -1009,14 +1009,14 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
               {splits.length === 0 ? (
                 <div className="py-16 text-center border border-dashed border-border-subtle rounded-md my-4">
-                  <Flag className="w-8 h-8 text-text-muted mx-auto mb-2 opacity-50" />
-                  <p className="text-xs font-mono text-text-muted max-w-xs mx-auto">
+                  <Flag className="w-8 h-8 text-foreground-muted mx-auto mb-2 opacity-50" />
+                  <p className="text-xs font-mono text-foreground-muted max-w-xs mx-auto">
                     No splits recorded yet. Tap SPLIT or a quick tag while brewing.
                   </p>
                 </div>
               ) : (
                 <div className="divide-y divide-border-subtle/40 overflow-hidden">
-                  <div className="grid grid-cols-12 py-2 text-[10px] font-mono uppercase tracking-wider text-text-muted">
+                  <div className="grid grid-cols-12 py-2 text-[10px] font-mono uppercase tracking-wider text-foreground-muted">
                     <span className="col-span-1">#</span>
                     <span className="col-span-5">TAG / LABEL</span>
                     <span className="col-span-3 text-right">INTERVAL</span>
@@ -1029,16 +1029,16 @@ export const TimerView: React.FC<TimerViewProps> = ({
                       key={s.id}
                       className="grid grid-cols-12 py-3 items-center text-xs font-mono hover:bg-panel/40 transition-colors"
                     >
-                      <span className="col-span-1 text-text-muted tabular-nums">
+                      <span className="col-span-1 text-foreground-muted tabular-nums">
                         {String(idx + 1).padStart(2, '0')}
                       </span>
                       <div className="col-span-5 flex items-center space-x-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                        <span className="font-semibold text-text-primary truncate">
+                        <span className="font-semibold text-foreground truncate">
                           {s.label}
                         </span>
                       </div>
-                      <span className="col-span-3 text-right text-text-secondary tabular-nums">
+                      <span className="col-span-3 text-right text-foreground-secondary tabular-nums">
                         +{s.intervalSeconds}s
                       </span>
                       <span className="col-span-2 text-right text-accent tabular-nums font-semibold">
@@ -1048,7 +1048,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                         <button
                           type="button"
                           onClick={() => removeSplit(s.id)}
-                          className="p-1 rounded text-text-muted hover:text-red-400 hover:bg-panel transition-colors cursor-pointer"
+                          className="p-1 rounded text-foreground-muted hover:text-red-400 hover:bg-panel transition-colors cursor-pointer"
                           aria-label={`Remove split ${s.label}`}
                           title={`Remove split ${s.label}`}
                         >
@@ -1060,9 +1060,9 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 </div>
               )}
 
-              <div className="mt-4 pt-3 border-t border-border-subtle flex items-center justify-between text-xs text-text-muted">
+              <div className="mt-4 pt-3 border-t border-border-subtle flex items-center justify-between text-xs text-foreground-muted">
                 <span className="font-mono text-[11px] uppercase tracking-wider">TOTAL ELAPSED</span>
-                <span className="text-text-primary font-light text-sm tabular-nums">
+                <span className="text-foreground font-light text-sm tabular-nums">
                   {formatTime(elapsedSeconds)}
                 </span>
               </div>

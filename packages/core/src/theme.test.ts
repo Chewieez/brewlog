@@ -5,6 +5,8 @@ import {
   CRISP_STUDIO_LIGHT_THEME,
   THEMES,
   resolveTheme,
+  DEFAULT_THEME,
+  darkTheme,
 } from './theme';
 
 describe('theme tokens', () => {
@@ -41,6 +43,22 @@ describe('theme tokens', () => {
     expect(THEMES['industrial-precision']).toBe(INDUSTRIAL_PRECISION_THEME);
     expect(THEMES['tactile-dark']).toBe(TACTILE_DARK_THEME);
     expect(THEMES['studio-light']).toBe(CRISP_STUDIO_LIGHT_THEME);
+  });
+
+  it('exports semantic foreground tokens on all registered themes with backward-compatible aliases', () => {
+    Object.values(THEMES).forEach((theme) => {
+      expect(theme.colors.foreground).toBeDefined();
+      expect(theme.colors.foregroundSecondary).toBeDefined();
+      expect(theme.colors.foregroundMuted).toBeDefined();
+      expect(theme.colors.textPrimary).toBe(theme.colors.foreground);
+      expect(theme.colors.textSecondary).toBe(theme.colors.foregroundSecondary);
+      expect(theme.colors.textMuted).toBe(theme.colors.foregroundMuted);
+    });
+  });
+
+  it('exports DEFAULT_THEME and darkTheme aliases', () => {
+    expect(DEFAULT_THEME).toBe(TACTILE_DARK_THEME);
+    expect(darkTheme).toBe(TACTILE_DARK_THEME);
   });
 
   describe('resolveTheme', () => {

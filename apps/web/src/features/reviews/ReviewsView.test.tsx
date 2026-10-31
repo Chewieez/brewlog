@@ -182,9 +182,9 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     expect(baselineButton).toBeDefined();
     fireEvent.click(baselineButton);
 
-    // Actual brew time input has text-text-primary and NOT text-accent
+    // Actual brew time input has text-foreground and NOT text-accent
     const brewTimeInput = screen.getByDisplayValue('210');
-    expect(brewTimeInput.className).toContain('text-text-primary');
+    expect(brewTimeInput.className).toContain('text-foreground');
     expect(brewTimeInput.className).not.toContain('text-accent');
   });
 

@@ -13,9 +13,9 @@ export const UiShowcase: React.FC<UiShowcaseProps> = ({ testID }) => {
   const [ratio, setRatio] = useState<'1:15' | '1:16' | '1:17'>('1:16');
 
   return (
-    <div data-testid={testID} className="p-6 space-y-8 bg-canvas text-text-primary max-w-2xl mx-auto">
+    <div data-testid={testID} className="p-6 space-y-8 bg-canvas text-foreground max-w-2xl mx-auto">
       <section className="space-y-3">
-        <h2 className="text-xs font-mono uppercase text-text-muted tracking-wider">SHOWCASE: BUTTONS</h2>
+        <h2 className="text-xs font-mono uppercase text-foreground-muted tracking-wider">SHOWCASE: BUTTONS</h2>
         <div className="flex flex-wrap gap-3">
           <Button label="START BREW" variant="primary" />
           <Button label="SETTINGS" variant="secondary" />
@@ -25,7 +25,7 @@ export const UiShowcase: React.FC<UiShowcaseProps> = ({ testID }) => {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xs font-mono uppercase text-text-muted tracking-wider">SHOWCASE: METRIC TILES</h2>
+        <h2 className="text-xs font-mono uppercase text-foreground-muted tracking-wider">SHOWCASE: METRIC TILES</h2>
         <div className="grid grid-cols-3 gap-4 p-4 rounded-xl bg-panel border border-border-subtle">
           <MetricTile label="COFFEE DOSE" value="15.0" unit="g" />
           <MetricTile label="WATER TARGET" value="250" unit="g" />
@@ -34,7 +34,7 @@ export const UiShowcase: React.FC<UiShowcaseProps> = ({ testID }) => {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xs font-mono uppercase text-text-muted tracking-wider">SHOWCASE: BADGES</h2>
+        <h2 className="text-xs font-mono uppercase text-foreground-muted tracking-wider">SHOWCASE: BADGES</h2>
         <div className="flex flex-wrap gap-2">
           <Badge label="V60" variant="mono" />
           <Badge label="AEROPRESS" variant="mono" />
@@ -45,7 +45,7 @@ export const UiShowcase: React.FC<UiShowcaseProps> = ({ testID }) => {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xs font-mono uppercase text-text-muted tracking-wider">SHOWCASE: INPUTS</h2>
+        <h2 className="text-xs font-mono uppercase text-foreground-muted tracking-wider">SHOWCASE: INPUTS</h2>
         <div className="grid grid-cols-2 gap-4">
           <Input label="COFFEE DOSE" variant="numeric" value={dose} onChangeText={setDose} unit="g" />
           <Input label="RECIPE TITLE" variant="default" value="Morning Kalita" onChangeText={() => {}} />
@@ -53,19 +53,19 @@ export const UiShowcase: React.FC<UiShowcaseProps> = ({ testID }) => {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xs font-mono uppercase text-text-muted tracking-wider">SHOWCASE: CARDS</h2>
+        <h2 className="text-xs font-mono uppercase text-foreground-muted tracking-wider">SHOWCASE: CARDS</h2>
         <div className="grid grid-cols-2 gap-4">
           <Card variant="default"><p className="text-sm">Standard Chassis Card</p></Card>
-          <Card variant="recessed"><p className="text-sm text-text-secondary">Recessed Panel Card</p></Card>
+          <Card variant="recessed"><p className="text-sm text-foreground-secondary">Recessed Panel Card</p></Card>
         </div>
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xs font-mono uppercase text-text-muted tracking-wider">SHOWCASE: SEGMENTED CONTROL</h2>
+        <h2 className="text-xs font-mono uppercase text-foreground-muted tracking-wider">SHOWCASE: SEGMENTED CONTROL</h2>
         <Card variant="default">
           <div className="space-y-4">
             <div>
-              <p className="text-xs font-mono text-text-secondary mb-2">FIXED WIDTH</p>
+              <p className="text-xs font-mono text-foreground-secondary mb-2">FIXED WIDTH</p>
               <SegmentedControl
                 options={[
                   { value: 'recipe', label: 'GUIDED RECIPE' },
@@ -77,7 +77,7 @@ export const UiShowcase: React.FC<UiShowcaseProps> = ({ testID }) => {
               />
             </div>
             <div>
-              <p className="text-xs font-mono text-text-secondary mb-2">FULL WIDTH</p>
+              <p className="text-xs font-mono text-foreground-secondary mb-2">FULL WIDTH</p>
               <SegmentedControl
                 options={[
                   { value: '1:15', label: '1:15' },

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Button } from '@brewlog/ui';
 
 export interface ConfirmationModalProps {
   isOpen: boolean;
@@ -34,11 +35,6 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
   if (!isOpen) return null;
 
-  const confirmButtonClass =
-    variant === 'danger'
-      ? 'bg-red-600 hover:bg-red-500 text-white'
-      : 'bg-accent hover:bg-accent-hover text-zinc-950';
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
@@ -54,28 +50,28 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       <div className="w-full max-w-sm p-6 rounded-xl bg-panel border border-border-subtle shadow-2xl space-y-4">
         <h3
           id="confirmation-modal-title"
-          className="text-base font-bold text-text-primary tracking-tight font-mono"
+          className="text-base font-bold text-foreground tracking-tight font-mono"
         >
           {title}
         </h3>
-        <p className="text-xs text-text-secondary leading-relaxed">
+        <p className="text-xs text-foreground-secondary leading-relaxed">
           {message}
         </p>
         <div className="flex justify-end space-x-3 pt-2">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="md"
             onClick={onClose}
-            className="px-4 py-2 rounded bg-panel-recessed text-text-secondary text-xs font-mono uppercase tracking-wider hover:bg-zinc-800 hover:text-text-primary border border-border-subtle cursor-pointer transition-colors"
-          >
-            {cancelLabel}
-          </button>
-          <button
+            label={cancelLabel}
+          />
+          <Button
             type="button"
+            variant={variant === 'danger' ? 'danger' : 'primary'}
+            size="md"
             onClick={onConfirm}
-            className={`px-4 py-2 rounded text-xs font-mono uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all active:scale-95 ${confirmButtonClass}`}
-          >
-            {confirmLabel}
-          </button>
+            label={confirmLabel}
+          />
         </div>
       </div>
     </div>
