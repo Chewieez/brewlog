@@ -118,6 +118,7 @@ describe('SettingsContext (Web)', () => {
       temperatureUnit: 'fahrenheit',
       defaultTimerMode: 'recipe',
       dateFormat: 'MM/DD/YYYY',
+      theme: 'system',
     };
     localStorage.setItem(WEB_SETTINGS_STORAGE_KEY, JSON.stringify(customSettings));
 
@@ -187,6 +188,7 @@ describe('SettingsContext (Web)', () => {
         temperatureUnit: 'fahrenheit',
         defaultTimerMode: 'recipe',
         dateFormat: 'YYYY-MM-DD',
+        theme: 'system',
       });
     });
 
@@ -196,6 +198,7 @@ describe('SettingsContext (Web)', () => {
       temperatureUnit: 'fahrenheit',
       defaultTimerMode: 'recipe',
       dateFormat: 'YYYY-MM-DD',
+      theme: 'system',
     });
   });
 
@@ -311,6 +314,28 @@ describe('SettingsContext (Web)', () => {
         date_format: 'locale',
       })
     );
+  });
+
+  it('updates theme preference and sets data-theme attribute on documentElement', async () => {
+    const { result } = renderHook(() => useSettings(), {
+      wrapper: ({ children }) => <SettingsProvider>{children}</SettingsProvider>,
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.updateSettings({ theme: 'studio_light' });
+    });
+
+    expect(result.current.settings.theme).toBe('studio_light');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('studio-light');
+
+    await act(async () => {
+      await result.current.updateSettings({ theme: 'tactile_dark' });
+    });
+
+    expect(result.current.settings.theme).toBe('tactile_dark');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('tactile-dark');
   });
 
   it('logs an error when Supabase upsert fails with an error', async () => {

@@ -7,7 +7,7 @@ import { useBeans } from '../features/stash/useBeans';
 import { useReviews } from '../features/reviews/useReviews';
 import { useEquipment } from '../features/equipment/useEquipment';
 import { useRecipes } from '../features/recipes/useRecipes';
-import { Bean, Equipment, BrewRecipe, TastingLog, DEFAULT_PRESET_RECIPES, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { Bean, Equipment, BrewRecipe, TastingLog, DEFAULT_PRESET_RECIPES } from '@brewlog/core';
 import { INITIAL_BEANS } from '../lib/sampleData';
 import { PendingBrewSession } from '../features/reviews/ReviewsView';
 
@@ -86,14 +86,6 @@ export const RootLayout: React.FC = () => {
   const { recipes, addRecipe, updateRecipe, deleteRecipe } = useRecipes();
   const { isPasswordRecovery, authUrlError } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    Object.entries(INDUSTRIAL_PRECISION_THEME.colors).forEach(([key, value]) => {
-      const kebab = key.replace(/([A-Z])/g, '-$1').toLowerCase();
-      root.style.setProperty(`--color-${kebab}`, value);
-    });
-  }, []);
 
   useEffect(() => {
     if (isPasswordRecovery || authUrlError) {

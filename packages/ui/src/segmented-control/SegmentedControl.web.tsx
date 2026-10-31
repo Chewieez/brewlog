@@ -18,7 +18,7 @@ export function SegmentedControl<T extends string = string>({
       role="group"
       aria-label={ariaLabel}
       data-testid={testID}
-      className={`inline-grid grid-flow-col auto-cols-fr p-[3px] bg-panel-recessed border border-border-active rounded-lg select-none ${containerSizeClasses} ${widthClasses}`}
+      className={`inline-grid grid-flow-col auto-cols-fr p-[3px] bg-panel-recessed rounded-lg select-none shadow-xs ${containerSizeClasses} ${widthClasses}`}
     >
       {options.map((option) => {
         const isSelected = option.value === value;

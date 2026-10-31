@@ -18,6 +18,7 @@ describe('conversions', () => {
         temperatureUnit: 'celsius',
         defaultTimerMode: 'free_brew',
         dateFormat: 'locale',
+        theme: 'system',
       });
     });
   });

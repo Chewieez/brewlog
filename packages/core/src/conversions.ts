@@ -10,6 +10,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   temperatureUnit: 'celsius',
   defaultTimerMode: 'free_brew',
   dateFormat: 'locale',
+  theme: 'system',
 };
 
 export function gramsToOz(grams: number): number {

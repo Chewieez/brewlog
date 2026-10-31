@@ -9,6 +9,9 @@ import {
   Thermometer,
   Timer,
   Calendar,
+  Sun,
+  Moon,
+  Monitor,
 } from 'lucide-react';
 import {
   WeightUnit,
@@ -72,7 +75,7 @@ export const SettingsRoute: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {/* Dose Preview */}
           <div className="bg-panel-recessed border border-border-subtle rounded-lg p-3">
             <div className="text-[10px] font-mono uppercase tracking-wider text-text-muted flex items-center space-x-1 mb-1">
@@ -130,7 +133,7 @@ export const SettingsRoute: React.FC = () => {
           </div>
 
           {/* Date Stamp Preview */}
-          <div className="bg-panel-recessed border border-border-subtle rounded-lg p-3 col-span-2 sm:col-span-1">
+          <div className="bg-panel-recessed border border-border-subtle rounded-lg p-3">
             <div className="text-[10px] font-mono uppercase tracking-wider text-text-muted flex items-center space-x-1 mb-1">
               <Calendar className="w-3 h-3 text-text-secondary" />
               <span>DATE STAMP</span>
@@ -142,11 +145,90 @@ export const SettingsRoute: React.FC = () => {
               {formatDisplayDate(sampleDate, settings.dateFormat)}
             </div>
           </div>
+
+          {/* Theme Preview */}
+          <div className="bg-panel-recessed border border-border-subtle rounded-lg p-3">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-text-muted flex items-center space-x-1 mb-1">
+              <Sun className="w-3 h-3 text-text-secondary" />
+              <span>THEME</span>
+            </div>
+            <div
+              data-testid="preview-theme"
+              className="text-lg sm:text-xl font-light text-text-primary truncate"
+            >
+              {settings.theme === 'studio_light'
+                ? 'LIGHT'
+                : settings.theme === 'tactile_dark'
+                  ? 'DARK'
+                  : 'SYSTEM'}
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Preferences Sections */}
       <div className="space-y-6">
+        {/* Section: Appearance / Theme */}
+        <section
+          aria-labelledby="theme-heading"
+          className="bg-panel border border-border-subtle rounded-xl p-5 sm:p-6 shadow-sm"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2
+                id="theme-heading"
+                className="text-sm font-mono font-bold uppercase tracking-wider text-text-primary"
+              >
+                APPEARANCE // THEME
+              </h2>
+              <p className="text-xs text-text-muted mt-1">
+                Visual workspace theme and ambient contrast
+              </p>
+            </div>
+
+            <div className="inline-flex p-1 bg-panel-recessed border border-border-subtle rounded-lg space-x-1 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => updateSettings({ theme: 'system' })}
+                aria-pressed={settings.theme === 'system'}
+                className={`flex items-center space-x-1.5 px-3 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                  settings.theme === 'system'
+                    ? 'bg-accent text-canvas font-bold shadow-sm'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                }`}
+              >
+                <Monitor className="w-3.5 h-3.5" />
+                <span>SYSTEM</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => updateSettings({ theme: 'tactile_dark' })}
+                aria-pressed={settings.theme === 'tactile_dark'}
+                className={`flex items-center space-x-1.5 px-3 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                  settings.theme === 'tactile_dark'
+                    ? 'bg-accent text-canvas font-bold shadow-sm'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                }`}
+              >
+                <Moon className="w-3.5 h-3.5" />
+                <span>DARK</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => updateSettings({ theme: 'studio_light' })}
+                aria-pressed={settings.theme === 'studio_light'}
+                className={`flex items-center space-x-1.5 px-3 py-2 rounded font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                  settings.theme === 'studio_light'
+                    ? 'bg-accent text-canvas font-bold shadow-sm'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-panel'
+                }`}
+              >
+                <Sun className="w-3.5 h-3.5" />
+                <span>LIGHT</span>
+              </button>
+            </div>
+          </div>
+        </section>
         {/* Section 1: Weight Unit */}
         <section
           aria-labelledby="weight-heading"

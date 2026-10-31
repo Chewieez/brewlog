@@ -48,6 +48,7 @@ describe('SettingsRoute', () => {
 
     expect(screen.getByRole('heading', { name: /^SETTINGS$/i })).toBeDefined();
     expect(screen.getByText(/SYSTEM \/\/ CALIBRATION/i)).toBeDefined();
+    expect(screen.getByText(/APPEARANCE \/\/ THEME/i)).toBeDefined();
     expect(screen.getByText(/WEIGHT UNIT/i)).toBeDefined();
     expect(screen.getByText(/TEMPERATURE UNIT/i)).toBeDefined();
     expect(screen.getByText(/DEFAULT TIMER MODE/i)).toBeDefined();
@@ -65,11 +66,51 @@ describe('SettingsRoute', () => {
       </MemoryRouter>
     );
 
-    // Initial default settings: metric (g), celsius (°C), free_brew
+    // Initial default settings: metric (g), celsius (°C), free_brew, system theme
     expect(screen.getByTestId('preview-dose').textContent).toMatch(/18(\.0)?\s*g/);
     expect(screen.getByTestId('preview-water').textContent).toMatch(/300(\.0)?\s*g/);
     expect(screen.getByTestId('preview-temp').textContent).toContain('94°C');
     expect(screen.getByTestId('preview-timer-mode').textContent).toContain('FREE BREW');
+    expect(screen.getByTestId('preview-theme').textContent).toBe('SYSTEM');
+  });
+
+  it('updates theme preference and preview when selecting Dark, Light, or System', async () => {
+    render(
+      <MemoryRouter>
+        <SettingsProvider>
+          <SettingsRoute />
+        </SettingsProvider>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByTestId('preview-theme').textContent).toBe('SYSTEM');
+
+    const darkBtn = screen.getByRole('button', { name: /DARK/i });
+    await act(async () => {
+      fireEvent.click(darkBtn);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('preview-theme').textContent).toBe('DARK');
+    });
+
+    const lightBtn = screen.getByRole('button', { name: /LIGHT/i });
+    await act(async () => {
+      fireEvent.click(lightBtn);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('preview-theme').textContent).toBe('LIGHT');
+    });
+
+    const systemBtn = screen.getByRole('button', { name: /SYSTEM/i });
+    await act(async () => {
+      fireEvent.click(systemBtn);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('preview-theme').textContent).toBe('SYSTEM');
+    });
   });
 
   it('updates weight unit and calibration preview when toggling metric / imperial', async () => {

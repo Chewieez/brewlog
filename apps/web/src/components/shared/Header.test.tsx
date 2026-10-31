@@ -1,8 +1,9 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { Header } from './Header';
+import { SettingsProvider } from '../../features/settings/SettingsContext';
 
 afterEach(cleanup);
 
@@ -16,7 +17,9 @@ describe('Header', () => {
   it('renders navigation links pointing to router paths', () => {
     render(
       <MemoryRouter initialEntries={['/timer']}>
-        <Header beanCount={3} brewCount={5} onOpenAuthModal={vi.fn()} />
+        <SettingsProvider>
+          <Header beanCount={3} brewCount={5} onOpenAuthModal={vi.fn()} />
+        </SettingsProvider>
       </MemoryRouter>
     );
 
@@ -36,7 +39,9 @@ describe('Header', () => {
   it('marks current route as active', () => {
     render(
       <MemoryRouter initialEntries={['/stash']}>
-        <Header beanCount={3} brewCount={5} onOpenAuthModal={vi.fn()} />
+        <SettingsProvider>
+          <Header beanCount={3} brewCount={5} onOpenAuthModal={vi.fn()} />
+        </SettingsProvider>
       </MemoryRouter>
     );
 
@@ -47,11 +52,41 @@ describe('Header', () => {
   it('renders logo link pointing to /timer', () => {
     render(
       <MemoryRouter initialEntries={['/recipes']}>
-        <Header beanCount={3} brewCount={5} onOpenAuthModal={vi.fn()} />
+        <SettingsProvider>
+          <Header beanCount={3} brewCount={5} onOpenAuthModal={vi.fn()} />
+        </SettingsProvider>
       </MemoryRouter>
     );
 
     const logoLink = screen.getByRole('link', { name: /BrewLog Home, switch to Brew Timer/i });
     expect(logoLink.getAttribute('href')).toBe('/timer');
+  });
+
+  it('renders theme toggle button and cycles theme on click', () => {
+    render(
+      <MemoryRouter initialEntries={['/timer']}>
+        <SettingsProvider>
+          <Header beanCount={3} brewCount={5} onOpenAuthModal={vi.fn()} />
+        </SettingsProvider>
+      </MemoryRouter>
+    );
+
+    const toggleBtn = screen.getByTestId('theme-toggle-button');
+    expect(toggleBtn).toBeDefined();
+
+    // Default is system theme
+    expect(toggleBtn.getAttribute('aria-label')).toContain('Theme: System');
+
+    // Click cycles to Dark
+    fireEvent.click(toggleBtn);
+    expect(toggleBtn.getAttribute('aria-label')).toContain('Theme: Dark');
+
+    // Click cycles to Light
+    fireEvent.click(toggleBtn);
+    expect(toggleBtn.getAttribute('aria-label')).toContain('Theme: Light');
+
+    // Click cycles back to System
+    fireEvent.click(toggleBtn);
+    expect(toggleBtn.getAttribute('aria-label')).toContain('Theme: System');
   });
 });

@@ -16,11 +16,11 @@ export const Card: React.FC<CardProps> = ({
     lg: 'p-6',
   }[padding];
 
-  let variantClasses = 'bg-panel border border-border-subtle';
+  let variantClasses = 'bg-panel border border-border-subtle shadow-xs';
   if (variant === 'recessed') {
-    variantClasses = 'bg-panel-recessed border border-border-subtle';
+    variantClasses = 'bg-panel-recessed border border-border-subtle/50';
   } else if (variant === 'interactive') {
-    variantClasses = 'bg-panel border border-border-subtle hover:border-border-active active:border-copper cursor-pointer transition-colors';
+    variantClasses = 'bg-panel border border-border-subtle hover:border-border-active active:border-copper cursor-pointer shadow-xs hover:shadow-md transition-all active:scale-[0.99]';
   }
 
   return (
