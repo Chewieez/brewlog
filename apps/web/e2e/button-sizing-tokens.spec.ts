@@ -50,11 +50,10 @@ test.describe("Design System Button Sizing Tokens", () => {
   test("timer hero controls conform to 48px (h-12)", async ({ page }) => {
     await page.goto("/timer");
     const startBtn = page.getByRole("button", { name: /start/i });
-    if (await startBtn.isVisible()) {
-      const box = await startBtn.boundingBox();
-      expect(box).not.toBeNull();
-      expect(Math.abs(box!.height - 48)).toBeLessThanOrEqual(TOLERANCE);
-    }
+    await expect(startBtn).toBeVisible();
+    const box = await startBtn.boundingBox();
+    expect(box).not.toBeNull();
+    expect(Math.abs(box!.height - 48)).toBeLessThanOrEqual(TOLERANCE);
   });
 
   test("all interactive buttons across primary views conform to [32px, 40px, 48px]", async ({ page }) => {
