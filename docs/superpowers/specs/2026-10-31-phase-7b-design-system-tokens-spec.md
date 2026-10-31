@@ -85,7 +85,7 @@ Implement an end-to-end verification spec:
 
 ---
 
-## 7. Semantic Color Token Renaming (Eliminate `text-text-*` Collision)
+## 6. Semantic Color Token Renaming (Eliminate `text-text-*` Collision)
 
 ### Background & Collision
 In Tailwind CSS v4, any CSS variable named `--color-<name>` automatically exposes a utility color identifier matching `<name>`. Because design tokens currently name typography colors `--color-text-primary`, `--color-text-secondary`, and `--color-text-muted`, Tailwind generates utility classes by prepending property prefixes, resulting in duplicated `text-text-*` classes (e.g., `text-` + `text-primary` = `text-text-primary`, `bg-text-primary`, etc.). Across `apps/web`, there are currently over 550 usages of this duplicated syntax.
@@ -109,7 +109,7 @@ During the Phase 7B token pass, rename typography color tokens to eliminate the 
 
 ---
 
-## 8. Acceptance Criteria
+## 7. Acceptance Criteria
 
 - [ ] All `@brewlog/ui` button size variants compile to `h-8` (32px), `h-10` (40px), and `h-12` (48px).
 - [ ] All modal dialog footers use standardized `h-10` (40px) action buttons.

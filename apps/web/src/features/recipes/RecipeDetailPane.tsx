@@ -81,7 +81,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
     <div className="p-6 rounded-2xl bg-panel border border-border-subtle space-y-6">
       {/* Mobile Back Button */}
       {showMobileBackButton && (
-        <div className="lg:hidden pb-2 border-b border-zinc-800">
+        <div className="lg:hidden pb-2 border-b border-border-subtle">
           <Link
             to="/recipes"
             className="inline-flex items-center space-x-2 text-xs font-semibold text-accent hover:text-accent-hover transition-colors"

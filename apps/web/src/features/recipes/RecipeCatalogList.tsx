@@ -73,8 +73,8 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                 key={r.id}
                 className={`p-4 rounded-2xl border transition-all duration-200 relative group overflow-hidden ${
                   isSelected
-                    ? 'bg-panel-recessed border-zinc-600'
-                    : 'bg-panel border-border-subtle hover:border-zinc-700'
+                    ? 'bg-panel-recessed border-border-active'
+                    : 'bg-panel border-border-subtle hover:border-border-active'
                 }`}
               >
                 {/* Active Copper Indicator */}

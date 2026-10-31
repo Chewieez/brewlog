@@ -33,7 +33,7 @@ export function SegmentedControl<T extends string = string>({
             className={`flex items-center justify-center h-full rounded-md font-mono uppercase tracking-[0.12em] font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent ${
               isSelected
                 ? 'segmented-thumb-active shadow-sm'
-                : 'text-text-muted hover:text-text-primary hover:bg-white/[0.04]'
+                : 'text-text-muted hover:text-text-primary hover:bg-black/[0.04] dark:hover:bg-white/[0.04]'
             }`}
           >
             {option.label}
