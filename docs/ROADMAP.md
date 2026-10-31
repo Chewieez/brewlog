@@ -273,7 +273,9 @@ Once Phase 2 routing is complete and stabilized with passing tests, decompose th
     - `UiShowcase` (cross-platform interactive showcase fixture).
   - **Typography Enforcement**:
     - Purged monospace `JetBrains Mono` from numeric values/inputs/metrics; enforced `Outfit` tabular figures.
-- [ ] **Phase 7B: Design System App Migration & Integration (`apps/web` & `apps/mobile`) (Active / Next 🚀)**:
+- [ ] **Phase 7B: Design System App Migration & Integration (`apps/web` & `apps/mobile`) (Active / Next)** *(Spec: [docs/superpowers/specs/2026-10-31-phase-7b-design-system-tokens-spec.md](docs/superpowers/specs/2026-10-31-phase-7b-design-system-tokens-spec.md))*:
+  - **Sizing Tokens & Heights**: Standardize rem-based sizing tokens across button primitives (`sm`: 32px / `2rem`, `md`: 40px / `2.5rem`, `lg`: 48px / `3rem`) and form inputs (`h-10` / `2.5rem`), eliminating ad-hoc `py-*` padding and intermediate 36px uncanny valley heights.
+  - **Automated Verification**: Implement Playwright automated button height gate (`apps/web/e2e/button-sizing-tokens.spec.ts`) asserting strict 32px / 40px / 48px compliance across all routes and modal dialogs.
   - **Timer Chassis**: Migrate faceplate metrics to `MetricTile` and controls (`START BREW`, `PAUSE`, `RESUME`, `RESET`) to `Button`.
   - **Bean Stash**: Refactor `BeanCard`, shelf switcher pills, and modal inputs to design system `Card`, `Badge`, and `Input`.
   - **Recipes**: Refactor `RecipeCard`, specs grid (`MetricTile`), and builder form controls.
