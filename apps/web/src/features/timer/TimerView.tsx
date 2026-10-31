@@ -61,7 +61,7 @@ function renderBrewMethodBadge(method: string) {
   else if (m.includes('french')) label = 'FRENCH PRESS';
 
   return (
-    <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-[#fbf6f0] dark:bg-[#1e140d] text-[#8c3707] dark:text-[#fed7aa] border border-[#ecdac8] dark:border-[#4a2612] shadow-sm font-mono text-xs font-bold uppercase tracking-wider select-none">
+    <span className="inline-flex items-center px-2.5 py-1 rounded-lg badge-artisan border shadow-sm font-mono text-xs font-bold uppercase tracking-wider select-none">
       {label}
     </span>
   );

@@ -713,7 +713,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     {/* Telemetry Footer */}
                     <div className="flex items-center justify-between text-[11px] text-text-secondary mt-3 pt-2 border-t border-border-subtle/60">
                       <div className="flex items-center gap-2">
-                        <span className="uppercase font-mono text-[10px] font-bold tracking-wider px-2 py-0.5 rounded bg-[#fbf6f0] dark:bg-[#1e140d] text-[#8c3707] dark:text-[#fed7aa] border border-[#ecdac8] dark:border-[#4a2612]">
+                        <span className="uppercase font-mono text-[10px] font-bold tracking-wider px-2 py-0.5 rounded badge-artisan border">
                           {log.brewMethod}
                         </span>
                         <span>•</span>

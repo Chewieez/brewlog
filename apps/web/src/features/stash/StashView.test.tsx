@@ -104,17 +104,24 @@ describe('StashView', () => {
     // Peak badge (Sey)
     const peakBadge = screen.getByText('Peak Flavor Window');
     expect(peakBadge).toBeDefined();
-    expect(peakBadge.className).toContain('emerald');
+    expect(peakBadge.className).toContain('bg-emerald-100');
+    expect(peakBadge.className).toContain('dark:bg-emerald-950/70');
+    expect(peakBadge.className).toContain('text-emerald-900');
+    expect(peakBadge.className).toContain('dark:text-emerald-300');
 
     // Needs rest badge (Manhattan)
     const restBadge = screen.getByText('Needs Rest (De-gassing)');
     expect(restBadge).toBeDefined();
-    expect(restBadge.className).toContain('amber');
+    expect(restBadge.className).toContain('bg-amber-100');
+    expect(restBadge.className).toContain('dark:bg-amber-950/70');
+    expect(restBadge.className).toContain('text-amber-950');
+    expect(restBadge.className).toContain('dark:text-amber-300');
 
     // Past peak badge (Classic House)
     const pastPeakBadge = screen.getByText('Past Peak');
     expect(pastPeakBadge).toBeDefined();
-    expect(pastPeakBadge.className).toContain('slate');
+    expect(pastPeakBadge.className).toContain('bg-slate-100');
+    expect(pastPeakBadge.className).toContain('dark:bg-zinc-800');
   });
 
   it('calls onSelectBeanForBrew when clicking "BREW →"', () => {

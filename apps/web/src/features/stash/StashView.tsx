@@ -294,7 +294,7 @@ export const StashView: React.FC<StashViewProps> = ({
             placeholder="Search by coffee name, roaster, or country..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-panel border border-border-subtle text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent/60 transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-panel border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/60 transition-colors"
           />
         </div>
 

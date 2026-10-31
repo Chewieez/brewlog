@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@custom-variant dark (&:where([data-theme="tactile-dark"], [data-theme="tactile-dark"] *));
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="tactile-dark"], [data-theme="tactile-dark"] *));
 @source "../../../packages/ui/src";
 
 :root {
@@ -194,4 +194,16 @@
   color: var(--seg-active-text);
   box-shadow: var(--seg-active-shadow);
   border: none;
+}
+
+.badge-artisan {
+  background-color: #fbf6f0;
+  color: #8c3707;
+  border-color: #ecdac8;
+}
+
+:where(.dark, .dark *, [data-theme="tactile-dark"], [data-theme="tactile-dark"] *) .badge-artisan {
+  background-color: #1e140d;
+  color: #fed7aa;
+  border-color: #4a2612;
 }

@@ -140,7 +140,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <span
               data-testid="method-badge"
-              className="text-xs font-mono font-bold px-2.5 py-0.5 rounded uppercase tracking-wider bg-[#fbf6f0] dark:bg-[#1e140d] text-[#8c3707] dark:text-[#fed7aa] border border-[#ecdac8] dark:border-[#4a2612]"
+              className="text-xs font-mono font-bold px-2.5 py-0.5 rounded uppercase tracking-wider badge-artisan border"
             >
               {log.brewMethod}
             </span>

@@ -60,7 +60,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
       {/* Recipe Cards List */}
       <div className="space-y-3">
         {filteredRecipes.length === 0 ? (
-          <div className="p-8 rounded-2xl bg-panel border border-dashed border-border-subtle text-center text-xs text-zinc-500">
+          <div className="p-8 rounded-2xl bg-panel border border-dashed border-border-subtle text-center text-xs text-text-muted">
             No recipes found for this brew method.
           </div>
         ) : (
@@ -108,7 +108,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
 
                   <div className="flex items-center space-x-2">
                     {r.author && (
-                      <span className="text-xs text-zinc-400 font-mono truncate max-w-[120px]">
+                      <span className="text-xs text-text-muted font-mono truncate max-w-[120px]">
                         {r.author}
                       </span>
                     )}
@@ -120,7 +120,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                           e.stopPropagation();
                           onEditRecipe(r);
                         }}
-                        className="pointer-events-auto p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors cursor-pointer"
+                        className="pointer-events-auto p-1 rounded text-text-muted hover:text-text-primary hover:bg-panel-recessed transition-colors cursor-pointer"
                         title="Edit Recipe"
                         aria-label={`Edit custom recipe ${r.name}`}
                       >
@@ -135,7 +135,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                           e.stopPropagation();
                           setRecipeToDelete(r);
                         }}
-                        className="pointer-events-auto p-1 rounded text-zinc-500 hover:text-red-400 hover:bg-zinc-800 transition-colors cursor-pointer"
+                        className="pointer-events-auto p-1 rounded text-text-muted hover:text-status-error hover:bg-panel-recessed transition-colors cursor-pointer"
                         title="Delete Recipe"
                         aria-label={`Delete custom recipe ${r.name}`}
                       >

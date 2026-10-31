@@ -158,7 +158,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
       {/* Dose Rescaler Slider */}
       <div className="p-4 rounded-xl bg-panel-recessed border border-border-subtle space-y-3">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-zinc-400 font-medium font-mono uppercase tracking-wider text-[11px]">Coffee Dose</span>
+          <span className="text-text-muted font-medium font-mono uppercase tracking-wider text-[11px]">Coffee Dose</span>
           <div className="flex items-center space-x-2">
             {customDose !== recipe.coffeeDoseGrams && (
               <button

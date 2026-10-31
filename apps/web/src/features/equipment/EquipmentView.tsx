@@ -243,7 +243,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
             placeholder="Search brand, model, features..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-panel border border-border-subtle text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent/60 transition-colors"
+            className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-panel border border-border-subtle text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/60 transition-colors"
             aria-label="Search equipment"
           />
           {searchQuery ? (
