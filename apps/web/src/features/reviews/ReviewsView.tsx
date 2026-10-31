@@ -776,14 +776,14 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 <p className="text-sm text-foreground-secondary max-w-sm mx-auto">
                   Log your first brew review using the official SCA 10-attribute scoring sheet and flavor wheel.
                 </p>
-                <button
+                <Button
                   type="button"
+                  variant="primary"
+                  size="md"
+                  icon={<Plus className="w-4 h-4" />}
                   onClick={handleStartCreate}
-                  className="inline-flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl btn-tactile-primary font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer border-0"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>LOG FIRST REVIEW</span>
-                </button>
+                  label="LOG FIRST REVIEW"
+                />
               </div>
             )
           ) : (

@@ -169,7 +169,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           </div>
           <button
             onClick={handleClose}
-            className="text-foreground-muted hover:text-foreground cursor-pointer text-sm"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-foreground cursor-pointer text-sm"
             aria-label="Close authentication modal"
           >
             ✕
@@ -182,7 +182,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <button
               type="button"
               onClick={() => switchMode("signin")}
-              className={`flex-1 py-1.5 rounded text-xs font-mono uppercase tracking-wider font-semibold cursor-pointer transition-all ${
+              className={`h-8 flex-1 inline-flex items-center justify-center rounded text-xs font-mono uppercase tracking-wider font-semibold cursor-pointer transition-all ${
                 isSignIn
                   ? "bg-accent text-zinc-950 shadow-sm font-bold"
                   : "text-foreground-muted hover:text-foreground"
@@ -193,7 +193,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <button
               type="button"
               onClick={() => switchMode("signup")}
-              className={`flex-1 py-1.5 rounded text-xs font-mono uppercase tracking-wider font-semibold cursor-pointer transition-all ${
+              className={`h-8 flex-1 inline-flex items-center justify-center rounded text-xs font-mono uppercase tracking-wider font-semibold cursor-pointer transition-all ${
                 isSignUp
                   ? "bg-accent text-zinc-950 shadow-sm font-bold"
                   : "text-foreground-muted hover:text-foreground"
@@ -260,7 +260,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={() => switchMode("signin")}
-                className="flex items-center space-x-1.5 px-4 py-2 rounded bg-accent text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold hover:bg-accent-hover cursor-pointer transition-colors"
+                className="h-8 inline-flex items-center space-x-1.5 px-4 rounded-lg bg-accent text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold hover:bg-accent-hover cursor-pointer transition-colors"
               >
                 <span>GO TO SIGN IN</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -269,7 +269,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={handleClose}
-                className="px-3 py-1.5 rounded text-xs font-mono uppercase tracking-wider text-foreground-muted hover:text-foreground cursor-pointer"
+                className="h-8 inline-flex items-center justify-center px-3 rounded-lg text-xs font-mono uppercase tracking-wider text-foreground-muted hover:text-foreground cursor-pointer"
               >
                 CLOSE
               </button>
@@ -392,7 +392,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full flex items-center justify-center space-x-2 py-2.5 rounded bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all active:scale-95 disabled:opacity-50"
+                className="w-full h-10 flex items-center justify-center space-x-2 px-4 rounded-lg bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all active:scale-95 disabled:opacity-50"
               >
                 {isSignIn ? (
                   <>
@@ -421,7 +421,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 <button
                   type="button"
                   onClick={() => switchMode("signin")}
-                  className="w-full flex items-center justify-center space-x-1.5 py-2 text-xs font-mono uppercase tracking-wider text-foreground-muted hover:text-foreground cursor-pointer transition-colors"
+                  className="w-full h-8 flex items-center justify-center space-x-1.5 px-3 rounded-lg text-xs font-mono uppercase tracking-wider text-foreground-muted hover:text-foreground cursor-pointer transition-colors"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>BACK TO SIGN IN</span>

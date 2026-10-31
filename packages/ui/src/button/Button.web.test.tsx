@@ -89,4 +89,12 @@ describe('Button (web)', () => {
     expect(screen.getByText('0')).toBeInTheDocument();
     expect(screen.queryByText('DEFAULT')).not.toBeInTheDocument();
   });
+
+  it('includes cursor-pointer in base button classes across variants', () => {
+    const { rerender } = render(<Button label="DANGER" variant="danger" />);
+    expect(screen.getByRole('button', { name: 'DANGER' }).className).toContain('cursor-pointer');
+
+    rerender(<Button label="GHOST" variant="ghost" />);
+    expect(screen.getByRole('button', { name: 'GHOST' }).className).toContain('cursor-pointer');
+  });
 });

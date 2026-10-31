@@ -46,7 +46,7 @@ export const Button: React.FC<ButtonProps> = ({
       aria-label={accessibilityLabel || (typeof label === 'string' ? label : undefined)}
       disabled={disabled || loading}
       onClick={handleClick}
-      className={`inline-flex items-center justify-center rounded-md transition-colors select-none focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-50 disabled:cursor-not-allowed ${sizeClasses} ${variantClasses} ${className}`}
+      className={`inline-flex items-center justify-center rounded-md transition-colors select-none focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${sizeClasses} ${variantClasses} ${className}`}
     >
       {loading ? (
         <span className="animate-spin" data-testid="button-spinner">⟳</span>

@@ -484,7 +484,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded text-foreground-muted hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -622,7 +622,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                       type="button"
                       onClick={handleAddGrinderSetting}
                       aria-label="Add another grinder"
-                      className="flex items-center space-x-1 px-2.5 py-1 rounded bg-panel-recessed hover:bg-panel text-accent font-mono text-xs uppercase tracking-wider font-semibold border border-accent transition-colors cursor-pointer"
+                      className="h-8 inline-flex items-center space-x-1 px-2.5 rounded-lg bg-panel-recessed hover:bg-panel text-accent font-mono text-xs uppercase tracking-wider font-semibold border border-accent transition-colors cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>ADD</span>
@@ -643,7 +643,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                       <button
                         type="button"
                         onClick={() => setIsAddingInlineGrinder(true)}
-                        className="flex items-center space-x-1 px-3 py-1.5 rounded bg-panel-recessed hover:bg-panel text-accent font-mono text-xs uppercase tracking-wider font-semibold border border-accent transition-colors cursor-pointer self-start sm:self-auto"
+                        className="h-8 inline-flex items-center space-x-1 px-3 rounded-lg bg-panel-recessed hover:bg-panel text-accent font-mono text-xs uppercase tracking-wider font-semibold border border-accent transition-colors cursor-pointer self-start sm:self-auto"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>ADD GRINDER</span>
@@ -722,7 +722,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                             setIsAddingInlineGrinder(false);
                             setInlineError(null);
                           }}
-                          className="px-3 py-1 rounded bg-panel text-foreground-secondary hover:text-foreground text-xs font-mono uppercase transition-colors cursor-pointer"
+                          className="h-8 inline-flex items-center justify-center px-3 rounded-lg bg-panel text-foreground-secondary hover:text-foreground text-xs font-mono uppercase transition-colors cursor-pointer"
                         >
                           Cancel
                         </button>
@@ -730,7 +730,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                           type="button"
                           disabled={isCreatingGrinder}
                           onClick={handleSaveInlineGrinder}
-                          className="px-3 py-1 rounded bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase font-bold transition-all cursor-pointer"
+                          className="h-8 inline-flex items-center justify-center px-3 rounded-lg bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase font-bold transition-all cursor-pointer disabled:opacity-50"
                         >
                           {isCreatingGrinder ? "Saving..." : "Save Grinder"}
                         </button>
@@ -750,7 +750,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                         type="button"
                         onClick={handleAddGrinderSetting}
                         aria-label="Add grinder setting"
-                        className="flex items-center space-x-1 px-2.5 py-1 rounded bg-panel-recessed text-accent border border-accent hover:bg-panel transition-colors font-mono text-xs uppercase"
+                        className="h-8 inline-flex items-center space-x-1 px-2.5 rounded-lg bg-panel-recessed text-accent border border-accent hover:bg-panel transition-colors font-mono text-xs uppercase cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>ADD</span>
@@ -841,7 +841,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                         <button
                           type="button"
                           onClick={() => handleRemoveGrinderSetting(index)}
-                          className="p-1.5 rounded text-red-400 hover:text-red-300 hover:bg-panel transition-colors cursor-pointer self-end sm:self-auto"
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:text-red-300 hover:bg-panel transition-colors cursor-pointer self-end sm:self-auto"
                           aria-label={`Remove grinder ${index + 1}`}
                           title={`Remove grinder ${index + 1}`}
                         >
@@ -966,7 +966,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
               <button
                 type="button"
                 onClick={handleAddStage}
-                className="flex items-center space-x-1 px-3 py-1.5 rounded bg-panel-recessed hover:bg-panel text-accent font-mono text-xs uppercase tracking-wider font-semibold border border-accent transition-colors cursor-pointer"
+                className="h-8 inline-flex items-center space-x-1 px-3 rounded-lg bg-panel-recessed hover:bg-panel text-accent font-mono text-xs uppercase tracking-wider font-semibold border border-accent transition-colors cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>ADD STAGE</span>
@@ -1012,7 +1012,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                         type="button"
                         disabled={index === 0}
                         onClick={() => handleMoveStage(index, "up")}
-                        className="p-1 rounded text-foreground-muted hover:text-foreground disabled:opacity-30 cursor-pointer"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-foreground disabled:opacity-30 cursor-pointer"
                         title="Move Up"
                         aria-label={`Move stage ${index + 1} up`}
                       >
@@ -1022,7 +1022,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                         type="button"
                         disabled={index === stages.length - 1}
                         onClick={() => handleMoveStage(index, "down")}
-                        className="p-1 rounded text-foreground-muted hover:text-foreground disabled:opacity-30 cursor-pointer"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-foreground disabled:opacity-30 cursor-pointer"
                         title="Move Down"
                         aria-label={`Move stage ${index + 1} down`}
                       >
@@ -1032,7 +1032,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                         type="button"
                         disabled={stages.length <= 1}
                         onClick={() => handleRemoveStage(index)}
-                        className="p-1 rounded text-red-400 hover:text-red-300 disabled:opacity-30 cursor-pointer"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:text-red-300 disabled:opacity-30 cursor-pointer"
                         title="Remove Stage"
                         aria-label={`Remove stage ${index + 1}`}
                       >
