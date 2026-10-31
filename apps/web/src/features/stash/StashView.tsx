@@ -392,10 +392,9 @@ export const StashView: React.FC<StashViewProps> = ({
                         {!bean.roastDate ? (
                           <span className="text-text-muted">No roast date</span>
                         ) : bean.isFrozen ? (
-                          <>
-                            <span className="text-text-secondary">Frozen at </span>
-                            <span className="font-bold text-text-primary">Day {restInfo.effectiveDays}</span>
-                          </>
+                          <span className="font-bold text-text-primary">
+                            Frozen at Day {restInfo.effectiveDays}
+                          </span>
                         ) : (
                           <>
                             <span className="font-bold text-text-primary">{restInfo.effectiveDays}</span>

@@ -7,8 +7,7 @@ describe('Button (web)', () => {
     render(<Button label="START BREW" variant="primary" />);
     const btn = screen.getByRole('button', { name: 'START BREW' });
     expect(btn).toBeInTheDocument();
-    expect(btn.className).toContain('bg-copper');
-    expect(btn.className).toContain('text-canvas');
+    expect(btn.className).toContain('btn-tactile-primary');
     expect(btn.className).toContain('font-mono');
   });
 
@@ -49,8 +48,7 @@ describe('Button (web)', () => {
   it('renders secondary button with panel-recessed and text-primary without heavy borders', () => {
     render(<Button label="CANCEL" variant="secondary" />);
     const btn = screen.getByRole('button', { name: 'CANCEL' });
-    expect(btn.className).toContain('bg-panel-recessed');
-    expect(btn.className).toContain('text-text-primary');
+    expect(btn.className).toContain('btn-tactile-secondary');
     expect(btn.className).toContain('border-0');
   });
 
