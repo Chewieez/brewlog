@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import { Button } from '@brewlog/ui';
 import { Outlet, useOutletContext, useParams, useNavigate } from 'react-router';
 import { BrewRecipe, Equipment } from '@brewlog/core';
 import { Plus } from 'lucide-react';
@@ -97,17 +98,16 @@ export const RecipesRoute: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-3">
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="sm"
+            icon={<Plus className="w-4 h-4" />}
             onClick={() => {
               setEditingRecipe(null);
               setIsBuilderModalOpen(true);
             }}
-            className="flex items-center space-x-2 px-4 py-2.5 rounded-xl btn-tactile-primary font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-colors border-0"
-          >
-            <Plus className="w-4 h-4" />
-            <span>NEW RECIPE</span>
-          </button>
+            label="NEW RECIPE"
+          />
         </div>
       </div>
 

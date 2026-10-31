@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from '@brewlog/ui';
 import { Link } from 'react-router';
 import {
   BrewRecipe,
@@ -144,14 +145,13 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
             </button>
           )}
 
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="sm"
+            icon={<Play className="w-4 h-4 fill-current" />}
             onClick={() => onSelectRecipeForTimer(scaledRecipe)}
-            className="flex items-center space-x-2 px-5 py-2.5 rounded-xl btn-tactile-primary font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer border-0"
-          >
-            <Play className="w-4 h-4 fill-current" />
-            <span>BREW WITH THIS RECIPE</span>
-          </button>
+            label="BREW WITH THIS RECIPE"
+          />
         </div>
       </div>
 

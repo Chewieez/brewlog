@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { Button } from '@brewlog/ui';
 import {
   TastingLog,
   CuppingAttributes,
@@ -537,14 +538,13 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
         </div>
 
         {mode === 'view' && (
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="sm"
+            icon={<Plus className="w-4 h-4" />}
             onClick={handleStartCreate}
-            className="self-start sm:self-auto flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl btn-tactile-primary font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer border-0"
-          >
-            <Plus className="w-4 h-4" />
-            <span>LOG REVIEW</span>
-          </button>
+            label="LOG REVIEW"
+          />
         )}
       </div>
 
@@ -804,28 +804,22 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2.5 shrink-0">
-                    <button
+                    <Button
                       type="button"
+                      variant="secondary"
+                      size="sm"
                       onClick={handleCancelEditor}
-                      className="h-8 px-3.5 text-xs font-medium rounded-lg btn-tactile-secondary text-text-muted hover:text-text-primary transition-colors cursor-pointer whitespace-nowrap border-0 inline-flex items-center justify-center"
-                    >
-                      Cancel
-                    </button>
-
-                    <button
+                      label="Cancel"
+                    />
+                    <Button
                       type="submit"
+                      variant="primary"
+                      size="sm"
                       disabled={isSaving}
-                      className="h-8 inline-flex items-center justify-center gap-1.5 px-4 rounded-lg btn-tactile-primary text-xs font-semibold uppercase tracking-wider cursor-pointer transition-all disabled:opacity-50 whitespace-nowrap shrink-0 border-0"
-                    >
-                      <Save className="w-4 h-4 shrink-0" />
-                      <span>
-                        {isSaving
-                          ? 'Saving...'
-                          : mode === 'edit'
-                          ? 'Save Changes'
-                          : 'Save Review'}
-                      </span>
-                    </button>
+                      loading={isSaving}
+                      icon={<Save className="w-4 h-4 shrink-0" />}
+                      label={isSaving ? 'Saving...' : mode === 'edit' ? 'Save Changes' : 'Save Review'}
+                    />
                   </div>
                 </div>
               </div>
@@ -1399,27 +1393,22 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
               {/* Bottom Action Controls */}
               <div className="flex items-center justify-end gap-3 pt-2">
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
+                  size="md"
                   onClick={handleCancelEditor}
-                  className="h-8 px-4 text-xs font-medium rounded-lg btn-tactile-secondary text-text-muted hover:text-text-primary transition-colors cursor-pointer whitespace-nowrap border-0 inline-flex items-center justify-center"
-                >
-                  Cancel
-                </button>
-                <button
+                  label="Cancel"
+                />
+                <Button
                   type="submit"
+                  variant="primary"
+                  size="md"
                   disabled={isSaving}
-                  className="h-8 inline-flex items-center justify-center gap-1.5 px-6 rounded-lg btn-tactile-primary text-xs font-semibold uppercase tracking-wider cursor-pointer transition-all disabled:opacity-50 whitespace-nowrap shrink-0 border-0"
-                >
-                  <Save className="w-4 h-4 shrink-0" />
-                  <span>
-                    {isSaving
-                      ? 'Saving...'
-                      : mode === 'edit'
-                      ? 'Save Changes'
-                      : 'Save Review'}
-                  </span>
-                </button>
+                  loading={isSaving}
+                  icon={<Save className="w-4 h-4 shrink-0" />}
+                  label={isSaving ? 'Saving...' : mode === 'edit' ? 'Save Changes' : 'Save Review'}
+                />
               </div>
               </div>
             </form>

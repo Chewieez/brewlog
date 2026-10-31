@@ -277,13 +277,13 @@ export const StashView: React.FC<StashViewProps> = ({
           </p>
         </div>
 
-        <button
+        <Button
+          variant="primary"
+          size="sm"
+          icon={<Plus className="w-4 h-4" />}
           onClick={handleOpenAddModal}
-          className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl btn-tactile-primary font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer border-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>ADD BEAN</span>
-        </button>
+          label="ADD BEAN"
+        />
       </div>
 
       {/* Search & Filter Bar */}
