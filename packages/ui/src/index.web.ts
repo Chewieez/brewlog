@@ -21,3 +21,14 @@ export { UiShowcase } from './showcase/UiShowcase.web';
 export * from './segmented-control/SegmentedControl.types';
 export { SegmentedControl } from './segmented-control/SegmentedControl.web';
 
+export {
+  THEMES,
+  resolveTheme,
+  DEFAULT_THEME,
+  darkTheme,
+  TACTILE_DARK_THEME,
+  CRISP_STUDIO_LIGHT_THEME,
+  INDUSTRIAL_PRECISION_THEME,
+} from '@brewlog/core';
+export type { ThemeTokens, ThemeColors } from '@brewlog/core';
+

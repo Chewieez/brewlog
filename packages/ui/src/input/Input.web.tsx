@@ -25,12 +25,12 @@ export const Input: React.FC<InputProps> = ({
       {label && (
         <label
           htmlFor={inputId}
-          className="text-[10px] font-mono tracking-widest text-text-muted uppercase cursor-pointer"
+          className="text-[10px] font-mono tracking-widest text-foreground-muted uppercase cursor-pointer"
         >
           {label}
         </label>
       )}
-      <div className={`relative flex items-center bg-panel-recessed border rounded-md px-3 py-2 transition-colors ${borderClasses}`}>
+      <div className={`relative flex items-center bg-panel-recessed border rounded-md px-3 h-10 transition-colors ${borderClasses}`}>
         <input
           id={inputId}
           data-testid={testID}
@@ -41,14 +41,14 @@ export const Input: React.FC<InputProps> = ({
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChangeText(e.target.value)}
-          className={`bg-transparent text-text-primary focus:outline-none w-full ${
+          className={`bg-transparent text-foreground focus:outline-none w-full ${
             isNumeric
               ? "font-['Outfit'] font-light tabular-nums text-lg text-right pr-1"
               : 'font-sans text-sm text-left'
           }`}
         />
         {unit && (
-          <span className="font-['Outfit'] font-light text-text-muted text-sm ml-1 select-none">
+          <span className="font-['Outfit'] font-light text-foreground-muted text-sm ml-1 select-none">
             {unit}
           </span>
         )}

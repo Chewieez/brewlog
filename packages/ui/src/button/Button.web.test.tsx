@@ -52,12 +52,31 @@ describe('Button (web)', () => {
     expect(btn.className).toContain('border-0');
   });
 
-  it('renders ghost button with transparent background and text-secondary', () => {
+  it('renders ghost button with transparent background and text-foreground-secondary', () => {
     render(<Button label="MORE" variant="ghost" />);
     const btn = screen.getByRole('button', { name: 'MORE' });
     expect(btn.className).toContain('bg-transparent');
     expect(btn.className).toContain('hover:bg-panel-recessed');
-    expect(btn.className).toContain('text-text-secondary');
+    expect(btn.className).toContain('text-foreground-secondary');
+  });
+
+  it('renders medium button with h-10 (40px) height by default', () => {
+    render(<Button label="Submit" />);
+    const btn = screen.getByRole('button', { name: 'Submit' });
+    expect(btn.className).toContain('h-10');
+    expect(btn.className).not.toContain('h-11');
+  });
+
+  it('renders button with type="submit" when specified', () => {
+    render(<Button label="Save" type="submit" />);
+    const btn = screen.getByRole('button', { name: 'Save' });
+    expect(btn.getAttribute('type')).toBe('submit');
+  });
+
+  it('applies custom className to button', () => {
+    render(<Button label="Custom" className="shrink-0" />);
+    const btn = screen.getByRole('button', { name: 'Custom' });
+    expect(btn.className).toContain('shrink-0');
   });
 
   it('renders string children correctly', () => {
