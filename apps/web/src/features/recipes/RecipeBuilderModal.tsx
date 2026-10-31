@@ -469,11 +469,11 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
             <div>
               <h2
                 id="recipe-builder-title"
-                className="text-xl font-bold tracking-tight text-text-primary"
+                className="text-xl font-bold tracking-tight text-foreground"
               >
                 {initialRecipe ? "Edit Recipe" : "Create New Custom Recipe"}
               </h2>
-              <p className="text-xs text-text-secondary mt-0.5">
+              <p className="text-xs text-foreground-secondary mt-0.5">
                 {initialRecipe
                   ? "Update brew parameters, ratio, and multi-stage pour timeline."
                   : "Design custom brew profiles with multi-stage pour timelines."}
@@ -484,7 +484,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded text-text-muted hover:text-text-primary hover:bg-panel-recessed transition-colors cursor-pointer"
+            className="p-1.5 rounded text-foreground-muted hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -510,7 +510,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
               <div>
                 <label
                   htmlFor="recipe-name"
-                  className="block text-xs font-medium text-text-secondary mb-1.5"
+                  className="block text-xs font-medium text-foreground-secondary mb-1.5"
                 >
                   Recipe Name *
                 </label>
@@ -521,14 +521,14 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                   placeholder="e.g. Lance Hedrick 1-2-1 V60"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-text-primary text-sm focus:outline-none focus:border-accent transition-colors"
+                  className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-foreground text-sm focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="recipe-author"
-                  className="block text-xs font-medium text-text-secondary mb-1.5"
+                  className="block text-xs font-medium text-foreground-secondary mb-1.5"
                 >
                   Author / Barista Tag
                 </label>
@@ -538,7 +538,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                   placeholder="e.g. James Hoffmann, or your name"
                   value={author}
                   onChange={(e) => setAuthor(e.target.value)}
-                  className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-text-primary text-sm focus:outline-none focus:border-accent transition-colors"
+                  className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-foreground text-sm focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
             </div>
@@ -547,7 +547,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
               <div>
                 <label
                   htmlFor="recipe-brew-method"
-                  className="block text-xs font-medium text-text-secondary mb-1.5"
+                  className="block text-xs font-medium text-foreground-secondary mb-1.5"
                 >
                   Brew Method
                 </label>
@@ -555,7 +555,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                   id="recipe-brew-method"
                   value={brewMethod}
                   onChange={(e) => setBrewMethod(e.target.value as BrewMethodType)}
-                  className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-text-primary text-sm focus:outline-none focus:border-accent transition-colors cursor-pointer"
+                  className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-foreground text-sm focus:outline-none focus:border-accent transition-colors cursor-pointer"
                 >
                   {BREW_METHODS.map((m) => (
                     <option key={m.value} value={m.value}>
@@ -568,7 +568,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
               <div>
                 <label
                   htmlFor="recipe-grind-size"
-                  className="block text-xs font-medium text-text-secondary mb-1.5"
+                  className="block text-xs font-medium text-foreground-secondary mb-1.5"
                 >
                   Grind Setting
                 </label>
@@ -578,14 +578,14 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                   placeholder="e.g. 24 clicks / Ode 4.1"
                   value={grindSize}
                   onChange={(e) => setGrindSize(e.target.value)}
-                  className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-text-primary text-sm focus:outline-none focus:border-accent transition-colors"
+                  className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-foreground text-sm focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="recipe-water-temp"
-                  className="block text-xs font-medium text-text-secondary mb-1.5"
+                  className="block text-xs font-medium text-foreground-secondary mb-1.5"
                 >
                   Water Temp
                 </label>
@@ -598,9 +598,9 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                     step="1"
                     value={waterTempCelsius}
                     onChange={(e) => setWaterTempCelsius(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-transparent text-text-primary text-sm focus:outline-none"
+                    className="w-full px-3 py-2 bg-transparent text-foreground text-sm focus:outline-none"
                   />
-                  <span className="inline-flex items-center px-3 border-l border-border-subtle bg-panel text-xs text-text-muted font-mono select-none">
+                  <span className="inline-flex items-center px-3 border-l border-border-subtle bg-panel text-xs text-foreground-muted font-mono select-none">
                     °C
                   </span>
                 </div>
@@ -611,7 +611,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
             <div className="space-y-3 pt-2 border-t border-border-subtle">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-xs font-bold text-text-primary uppercase tracking-wider">
+                  <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
                     Grinder Dial Settings
                   </h4>
                 </div>
@@ -635,7 +635,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                 <div className="p-4 rounded-lg bg-panel-recessed border border-border-subtle space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                      <p className="text-xs text-text-secondary">
+                      <p className="text-xs text-foreground-secondary">
                         No grinders found in your equipment. Add your grinder to save specific dial settings.
                       </p>
                     </div>
@@ -663,7 +663,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                         <div>
                           <label
                             htmlFor="inline-grinder-brand"
-                            className="block text-[11px] font-medium text-text-secondary mb-1"
+                            className="block text-[11px] font-medium text-foreground-secondary mb-1"
                           >
                             Grinder Brand *
                           </label>
@@ -673,14 +673,14 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                             placeholder="e.g. Comandante, Fellow"
                             value={inlineBrand}
                             onChange={(e) => setInlineBrand(e.target.value)}
-                            className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-xs focus:outline-none focus:border-accent transition-colors"
+                            className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-foreground text-xs focus:outline-none focus:border-accent transition-colors"
                           />
                         </div>
 
                         <div>
                           <label
                             htmlFor="inline-grinder-model"
-                            className="block text-[11px] font-medium text-text-secondary mb-1"
+                            className="block text-[11px] font-medium text-foreground-secondary mb-1"
                           >
                             Grinder Model *
                           </label>
@@ -690,14 +690,14 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                             placeholder="e.g. C40 MK4, Ode Gen 2"
                             value={inlineModel}
                             onChange={(e) => setInlineModel(e.target.value)}
-                            className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-xs focus:outline-none focus:border-accent transition-colors"
+                            className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-foreground text-xs focus:outline-none focus:border-accent transition-colors"
                           />
                         </div>
 
                         <div>
                           <label
                             htmlFor="inline-grinder-scale"
-                            className="block text-[11px] font-medium text-text-secondary mb-1"
+                            className="block text-[11px] font-medium text-foreground-secondary mb-1"
                           >
                             Dial Format / Setting Scale
                           </label>
@@ -705,7 +705,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                             id="inline-grinder-scale"
                             value={inlineScale}
                             onChange={(e) => setInlineScale(e.target.value as GrinderSettingScale)}
-                            className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-xs focus:outline-none focus:border-accent transition-colors cursor-pointer"
+                            className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-foreground text-xs focus:outline-none focus:border-accent transition-colors cursor-pointer"
                           >
                             <option value="stepped-numbers">Stepped Numbers (e.g. 4.1, 5.2)</option>
                             <option value="clicks">Clicks from Zero (e.g. 24 clicks)</option>
@@ -722,7 +722,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                             setIsAddingInlineGrinder(false);
                             setInlineError(null);
                           }}
-                          className="px-3 py-1 rounded bg-panel text-text-secondary hover:text-text-primary text-xs font-mono uppercase transition-colors cursor-pointer"
+                          className="px-3 py-1 rounded bg-panel text-foreground-secondary hover:text-foreground text-xs font-mono uppercase transition-colors cursor-pointer"
                         >
                           Cancel
                         </button>
@@ -744,7 +744,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
               {userGrinders.length > 0 && (
                 <div className="space-y-2">
                   {grinderSettings.length === 0 ? (
-                    <div className="flex items-center justify-between p-3 rounded-lg bg-panel-recessed border border-border-subtle text-xs text-text-secondary">
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-panel-recessed border border-border-subtle text-xs text-foreground-secondary">
                       <span>No grinder settings configured for this recipe.</span>
                       <button
                         type="button"
@@ -771,14 +771,14 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                             <button
                               type="button"
                               onClick={() => handleSetPrimaryGrinder(index)}
-                              className="px-1.5 py-0.5 rounded text-[10px] font-mono uppercase text-text-muted hover:text-accent hover:border-accent/40 border border-border-subtle transition-colors cursor-pointer"
+                              className="px-1.5 py-0.5 rounded text-[10px] font-mono uppercase text-foreground-muted hover:text-accent hover:border-accent/40 border border-border-subtle transition-colors cursor-pointer"
                               title="Set as primary grinder"
                               aria-label={`Set grinder ${index + 1} as primary`}
                             >
                               Set Primary
                             </button>
                           )}
-                          <span className="text-xs text-text-muted font-mono">
+                          <span className="text-xs text-foreground-muted font-mono">
                             #{index + 1}
                           </span>
                         </div>
@@ -797,7 +797,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                             onChange={(e) =>
                               handleUpdateGrinderSetting(index, "grinderId", e.target.value)
                             }
-                            className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-xs focus:outline-none focus:border-accent cursor-pointer"
+                            className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-foreground text-xs focus:outline-none focus:border-accent cursor-pointer"
                           >
                             {userGrinders.map((g) => {
                               const isSelectedElsewhere = grinderSettings.some(
@@ -834,7 +834,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                             onChange={(e) =>
                               handleUpdateGrinderSetting(index, "setting", e.target.value)
                             }
-                            className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-xs focus:outline-none focus:border-accent"
+                            className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-foreground text-xs focus:outline-none focus:border-accent"
                           />
                         </div>
 
@@ -857,7 +857,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
             <div>
               <label
                 htmlFor="recipe-description"
-                className="block text-xs font-medium text-text-secondary mb-1.5"
+                className="block text-xs font-medium text-foreground-secondary mb-1.5"
               >
                 Description / Profile Notes
               </label>
@@ -867,7 +867,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                 placeholder="High clarity technique emphasizing bright floral acidity and clean finish..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-text-primary text-sm focus:outline-none focus:border-accent transition-colors"
+                className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-foreground text-sm focus:outline-none focus:border-accent transition-colors"
               />
             </div>
           </div>
@@ -883,7 +883,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
               <div>
                 <label
                   htmlFor="recipe-dose"
-                  className="block text-xs font-medium text-text-secondary mb-1.5"
+                  className="block text-xs font-medium text-foreground-secondary mb-1.5"
                 >
                   Coffee Dose (g)
                 </label>
@@ -895,19 +895,19 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                   step="1"
                   value={coffeeDoseGrams}
                   onChange={(e) => handleDoseChange(Math.round(Number(e.target.value)))}
-                  className="w-full px-3 py-2 rounded bg-panel border border-border-subtle text-text-primary text-base font-light tabular-nums focus:outline-none focus:border-accent"
+                  className="w-full px-3 py-2 rounded bg-panel border border-border-subtle text-foreground text-base font-light tabular-nums focus:outline-none focus:border-accent"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="recipe-ratio"
-                  className="block text-xs font-medium text-text-secondary mb-1.5"
+                  className="block text-xs font-medium text-foreground-secondary mb-1.5"
                 >
                   Brew Ratio (1 : X)
                 </label>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm font-semibold text-text-muted">1:</span>
+                  <span className="text-sm font-semibold text-foreground-muted">1:</span>
                   <input
                     id="recipe-ratio"
                     type="number"
@@ -916,7 +916,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                     step="any"
                     value={ratio}
                     onChange={(e) => handleRatioChange(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded bg-panel border border-border-subtle text-text-primary text-base font-light tabular-nums focus:outline-none focus:border-accent"
+                    className="w-full px-3 py-2 rounded bg-panel border border-border-subtle text-foreground text-base font-light tabular-nums focus:outline-none focus:border-accent"
                   />
                 </div>
               </div>
@@ -924,7 +924,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
               <div>
                 <label
                   htmlFor="recipe-water-amount"
-                  className="block text-xs font-medium text-text-secondary mb-1.5"
+                  className="block text-xs font-medium text-foreground-secondary mb-1.5"
                 >
                   Target Water (g)
                 </label>
@@ -936,12 +936,12 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                   step="1"
                   value={waterAmountGrams}
                   onChange={(e) => handleWaterChange(Number(e.target.value))}
-                  className="w-full px-3 py-2 rounded bg-panel border border-border-subtle text-text-primary text-base font-light tabular-nums focus:outline-none focus:border-accent"
+                  className="w-full px-3 py-2 rounded bg-panel border border-border-subtle text-foreground text-base font-light tabular-nums focus:outline-none focus:border-accent"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs text-text-secondary pt-1 border-t border-border-subtle">
+            <div className="flex items-center justify-between text-xs text-foreground-secondary pt-1 border-t border-border-subtle">
               <span>
                 Computed Brew Ratio: 1:{ratio} ({coffeeDoseGrams}g : {waterAmountGrams}g)
               </span>
@@ -991,7 +991,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center space-x-2">
-                      <span className="w-6 h-6 rounded bg-panel text-text-primary text-xs font-bold flex items-center justify-center border border-border-subtle">
+                      <span className="w-6 h-6 rounded bg-panel text-foreground text-xs font-bold flex items-center justify-center border border-border-subtle">
                         {index + 1}
                       </span>
                       <input
@@ -1003,7 +1003,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                         onChange={(e) =>
                           handleUpdateStage(index, "name", e.target.value)
                         }
-                        className="font-bold text-sm text-text-primary bg-transparent border-b border-border-subtle focus:border-accent focus:outline-none px-1"
+                        className="font-bold text-sm text-foreground bg-transparent border-b border-border-subtle focus:border-accent focus:outline-none px-1"
                       />
                     </div>
 
@@ -1012,7 +1012,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                         type="button"
                         disabled={index === 0}
                         onClick={() => handleMoveStage(index, "up")}
-                        className="p-1 rounded text-text-muted hover:text-text-primary disabled:opacity-30 cursor-pointer"
+                        className="p-1 rounded text-foreground-muted hover:text-foreground disabled:opacity-30 cursor-pointer"
                         title="Move Up"
                         aria-label={`Move stage ${index + 1} up`}
                       >
@@ -1022,7 +1022,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                         type="button"
                         disabled={index === stages.length - 1}
                         onClick={() => handleMoveStage(index, "down")}
-                        className="p-1 rounded text-text-muted hover:text-text-primary disabled:opacity-30 cursor-pointer"
+                        className="p-1 rounded text-foreground-muted hover:text-foreground disabled:opacity-30 cursor-pointer"
                         title="Move Down"
                         aria-label={`Move stage ${index + 1} down`}
                       >
@@ -1045,7 +1045,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                     <div>
                       <label
                         htmlFor={`stage-type-${index}`}
-                        className="block text-[11px] font-medium text-text-secondary mb-1"
+                        className="block text-[11px] font-medium text-foreground-secondary mb-1"
                       >
                         Stage Type
                       </label>
@@ -1055,7 +1055,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                         onChange={(e) =>
                           handleUpdateStage(index, "stageType", e.target.value)
                         }
-                        className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-xs focus:outline-none focus:border-accent cursor-pointer"
+                        className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-foreground text-xs focus:outline-none focus:border-accent cursor-pointer"
                       >
                         {STAGE_TYPES.map((t) => (
                           <option key={t.value} value={t.value}>
@@ -1068,7 +1068,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                     <div>
                       <label
                         htmlFor={`stage-duration-${index}`}
-                        className="block text-[11px] font-medium text-text-secondary mb-1"
+                        className="block text-[11px] font-medium text-foreground-secondary mb-1"
                       >
                         Duration (seconds)
                       </label>
@@ -1085,14 +1085,14 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                             Number(e.target.value)
                           )
                         }
-                        className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-sm font-light tabular-nums focus:outline-none focus:border-accent"
+                        className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-foreground text-sm font-light tabular-nums focus:outline-none focus:border-accent"
                       />
                     </div>
 
                     <div>
                       <label
                         htmlFor={`stage-water-${index}`}
-                        className="block text-[11px] font-medium text-text-secondary mb-1"
+                        className="block text-[11px] font-medium text-foreground-secondary mb-1"
                       >
                         Cumulative Water Target (g)
                       </label>
@@ -1109,7 +1109,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                             Number(e.target.value)
                           )
                         }
-                        className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-sm font-light tabular-nums focus:outline-none focus:border-accent"
+                        className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-foreground text-sm font-light tabular-nums focus:outline-none focus:border-accent"
                       />
                     </div>
                   </div>
@@ -1117,7 +1117,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                   <div>
                     <label
                       htmlFor={`stage-instruction-${index}`}
-                      className="block text-[11px] font-medium text-text-secondary mb-1"
+                      className="block text-[11px] font-medium text-foreground-secondary mb-1"
                     >
                       Barista Cues / Instructions
                     </label>
@@ -1129,11 +1129,11 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                       onChange={(e) =>
                         handleUpdateStage(index, "instruction", e.target.value)
                       }
-                      className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-text-primary text-xs focus:outline-none focus:border-accent"
+                      className="w-full px-2.5 py-1.5 rounded bg-panel border border-border-subtle text-foreground text-xs focus:outline-none focus:border-accent"
                     />
                   </div>
 
-                  <div className="text-[11px] text-text-muted flex items-center justify-between pt-1">
+                  <div className="text-[11px] text-foreground-muted flex items-center justify-between pt-1">
                     <span>
                       Timeline Window: {Math.floor(stage.startSecond / 60)}:
                       {String(stage.startSecond % 60).padStart(2, "0")} –{" "}

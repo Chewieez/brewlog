@@ -529,10 +529,10 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text-primary">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Reviews & Cupping Journal
           </h1>
-          <p className="text-sm font-medium text-text-secondary mt-0.5">
+          <p className="text-sm font-medium text-foreground-secondary mt-0.5">
             Specialty Coffee Association sensory logbook & cup profiles
           </p>
         </div>
@@ -559,7 +559,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
               <div className="text-xs font-sans font-semibold text-accent uppercase tracking-wider">
                 Completed Brew Loaded
               </div>
-              <div className="text-sm font-bold text-text-primary mt-0.5">
+              <div className="text-sm font-bold text-foreground mt-0.5">
                 {pendingBrewSession.bean?.name || 'Specialty Coffee'} • {pendingBrewSession.recipe.name} (
                 {pendingBrewSession.actualTimeSeconds}s)
               </div>
@@ -575,7 +575,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
             {onClearPendingSession && (
               <button
                 onClick={onClearPendingSession}
-                className="text-xs font-sans uppercase tracking-wider text-text-muted hover:text-text-primary px-3 py-1.5 rounded-lg btn-tactile-secondary cursor-pointer transition-colors border-0"
+                className="text-xs font-sans uppercase tracking-wider text-foreground-muted hover:text-foreground px-3 py-1.5 rounded-lg btn-tactile-secondary cursor-pointer transition-colors border-0"
               >
                 Clear
               </button>
@@ -588,7 +588,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* LEFT PANE: Master Cupping Feed (38% width) */}
         <div data-testid="master-feed" className="w-full lg:w-[38%] shrink-0 space-y-4">
-          <div className="flex items-center justify-between text-xs text-text-secondary">
+          <div className="flex items-center justify-between text-xs text-foreground-secondary">
             <span className="font-medium tabular-nums">
               {logs.length} {logs.length === 1 ? 'logged review' : 'logged reviews'}
             </span>
@@ -596,13 +596,13 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
           {/* Search Bar */}
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary" />
             <input
               type="text"
               placeholder="Search coffee, roaster, tags..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 rounded-xl bg-panel border border-border-subtle text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent"
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-panel border border-border-subtle text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent"
             />
           </div>
 
@@ -618,7 +618,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                   className={`h-8 px-3 rounded-xl text-xs font-medium cursor-pointer transition-all whitespace-nowrap border-0 inline-flex items-center justify-center ${
                     isSelected
                       ? 'btn-tactile-primary'
-                      : 'btn-tactile-secondary text-text-muted hover:text-text-primary'
+                      : 'btn-tactile-secondary text-foreground-muted hover:text-foreground'
                   }`}
                 >
                   {item.label}
@@ -630,7 +630,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
           {/* Feed Cards List */}
           <div className="space-y-3">
             {filteredLogs.length === 0 ? (
-              <div className="p-8 rounded-xl bg-panel border border-border-subtle text-center text-text-secondary text-xs">
+              <div className="p-8 rounded-xl bg-panel border border-border-subtle text-center text-foreground-secondary text-xs">
                 No cupping logs match your search.
               </div>
             ) : (
@@ -666,13 +666,13 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     <div className="flex items-center justify-between gap-2 mb-2">
                       <div className="flex items-center gap-1">
                         <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                        <span className="text-xs font-semibold text-text-secondary tabular-nums">
+                        <span className="text-xs font-semibold text-foreground-secondary tabular-nums">
                           {log.rating || '—'}
                         </span>
                       </div>
 
                       <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-semibold text-text-primary tabular-nums">
+                        <span className="text-sm font-semibold text-foreground tabular-nums">
                           {log.calculatedScaScore.toFixed(1)}
                         </span>
                         <span
@@ -684,10 +684,10 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     </div>
 
                     {/* Coffee Name & Roaster */}
-                    <h2 className="text-sm font-bold text-text-primary leading-snug">
+                    <h2 className="text-sm font-bold text-foreground leading-snug">
                       {log.beanNameSnapshot}
                     </h2>
-                    <p className="text-xs text-text-secondary mt-0.5">
+                    <p className="text-xs text-foreground-secondary mt-0.5">
                       {log.roasterSnapshot}
                     </p>
 
@@ -703,7 +703,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                           </span>
                         ))}
                         {log.flavorTags.length > 3 && (
-                          <span className="px-1.5 py-0.5 rounded text-[10px] text-text-secondary">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] text-foreground-secondary">
                             +{log.flavorTags.length - 3}
                           </span>
                         )}
@@ -711,7 +711,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     )}
 
                     {/* Telemetry Footer */}
-                    <div className="flex items-center justify-between text-[11px] text-text-secondary mt-3 pt-2 border-t border-border-subtle/60">
+                    <div className="flex items-center justify-between text-[11px] text-foreground-secondary mt-3 pt-2 border-t border-border-subtle/60">
                       <div className="flex items-center gap-2">
                         <span className="uppercase font-mono text-[10px] font-bold tracking-wider px-2 py-0.5 rounded badge-artisan border">
                           {log.brewMethod}
@@ -772,8 +772,8 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
             ) : (
               <div className="p-12 rounded-xl bg-panel border border-border-subtle text-center space-y-4">
                 <Coffee className="w-12 h-12 text-accent mx-auto stroke-1" />
-                <h3 className="text-lg font-bold text-text-primary">No Cupping Reviews Yet</h3>
-                <p className="text-sm text-text-secondary max-w-sm mx-auto">
+                <h3 className="text-lg font-bold text-foreground">No Cupping Reviews Yet</h3>
+                <p className="text-sm text-foreground-secondary max-w-sm mx-auto">
                   Log your first brew review using the official SCA 10-attribute scoring sheet and flavor wheel.
                 </p>
                 <button
@@ -793,12 +793,12 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
               <div className="sticky top-0 z-20 bg-canvas pb-6">
                 <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h2 className="text-xl font-bold tracking-tight text-text-primary">
+                    <h2 className="text-xl font-bold tracking-tight text-foreground">
                       {mode === 'edit'
                         ? `Edit Review: ${customBeanName || 'Specialty Coffee'}`
                         : 'Log New Brew Review'}
                     </h2>
-                    <p className="text-xs text-text-secondary mt-0.5">
+                    <p className="text-xs text-foreground-secondary mt-0.5">
                       Official Specialty Coffee Association cupping protocol
                     </p>
                   </div>
@@ -831,10 +831,10 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                   data-testid="hero-score-badge"
                   className="whitespace-nowrap flex items-center gap-3"
                 >
-                  <div className="text-4xl font-light text-text-primary tabular-nums">
+                  <div className="text-4xl font-light text-foreground tabular-nums">
                     {scaScore.toFixed(1)}
                   </div>
-                  <div className="text-sm text-text-secondary font-medium">/ 100</div>
+                  <div className="text-sm text-foreground-secondary font-medium">/ 100</div>
                   <div className="h-6 w-px bg-border-subtle" />
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-semibold border ${getScaTier(scaScore).classes}`}
@@ -863,7 +863,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                       />
                     </button>
                   ))}
-                  <span className="text-xs text-text-secondary ml-1 tabular-nums font-medium">
+                  <span className="text-xs text-foreground-secondary ml-1 tabular-nums font-medium">
                     ({rating.toFixed(1)}/5)
                   </span>
                 </div>
@@ -885,7 +885,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
                 <div className="space-y-4 text-xs">
                   <div>
-                    <label className="block text-text-secondary mb-1 font-medium">
+                    <label className="block text-foreground-secondary mb-1 font-medium">
                       Select Coffee from Stash
                     </label>
                     <select
@@ -898,7 +898,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                           setCustomRoaster(b.roaster);
                         }
                       }}
-                      className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-text-primary font-medium focus:outline-none focus:border-accent cursor-pointer"
+                      className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground font-medium focus:outline-none focus:border-accent cursor-pointer"
                     >
                       {beans.map((b) => (
                         <option key={b.id} value={b.id}>
@@ -912,7 +912,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                   {selectedBeanId === 'custom' && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-text-secondary mb-1 font-medium">
+                        <label className="block text-foreground-secondary mb-1 font-medium">
                           Coffee Name *
                         </label>
                         <input
@@ -921,11 +921,11 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                           placeholder="e.g. Worka Sakaro"
                           value={customBeanName}
                           onChange={(e) => setCustomBeanName(e.target.value)}
-                          className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent"
+                          className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent"
                         />
                       </div>
                       <div>
-                        <label className="block text-text-secondary mb-1 font-medium">
+                        <label className="block text-foreground-secondary mb-1 font-medium">
                           Roaster *
                         </label>
                         <input
@@ -934,7 +934,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                           placeholder="e.g. Sey Coffee"
                           value={customRoaster}
                           onChange={(e) => setCustomRoaster(e.target.value)}
-                          className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent"
+                          className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent"
                         />
                       </div>
                     </div>
@@ -942,12 +942,12 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div>
-                      <label htmlFor="review-brew-method" className="block text-text-secondary mb-1 font-medium">Brew Method</label>
+                      <label htmlFor="review-brew-method" className="block text-foreground-secondary mb-1 font-medium">Brew Method</label>
                       <select
                         id="review-brew-method"
                         value={brewMethod}
                         onChange={(e) => setBrewMethod(e.target.value as BrewMethodType)}
-                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-text-primary font-medium focus:outline-none focus:border-accent cursor-pointer"
+                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-foreground font-medium focus:outline-none focus:border-accent cursor-pointer"
                       >
                         {BREW_METHODS.map((m) => (
                           <option key={m.value} value={m.value}>
@@ -958,7 +958,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     </div>
 
                     <div>
-                      <label htmlFor="review-actual-time" className="block text-text-secondary mb-1 font-medium">
+                      <label htmlFor="review-actual-time" className="block text-foreground-secondary mb-1 font-medium">
                         Actual Brew Time (s)
                       </label>
                       <input
@@ -968,14 +968,14 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                         max="1800"
                         value={actualTimeSeconds}
                         onChange={(e) => setActualTimeSeconds(Number(e.target.value))}
-                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-text-primary font-sans font-medium tabular-nums focus:outline-none focus:border-accent"
+                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-foreground font-sans font-medium tabular-nums focus:outline-none focus:border-accent"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label htmlFor="review-coffee-dose" className="block text-text-secondary mb-1 font-medium">Coffee Dose (g)</label>
+                      <label htmlFor="review-coffee-dose" className="block text-foreground-secondary mb-1 font-medium">Coffee Dose (g)</label>
                       <input
                         id="review-coffee-dose"
                         type="number"
@@ -984,12 +984,12 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                         max="150"
                         value={coffeeDoseGrams}
                         onChange={(e) => setCoffeeDoseGrams(Number(e.target.value))}
-                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-text-primary font-sans font-medium tabular-nums focus:outline-none focus:border-accent"
+                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-foreground font-sans font-medium tabular-nums focus:outline-none focus:border-accent"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="review-water-amount" className="block text-text-secondary mb-1 font-medium">Water Amount (g)</label>
+                      <label htmlFor="review-water-amount" className="block text-foreground-secondary mb-1 font-medium">Water Amount (g)</label>
                       <input
                         id="review-water-amount"
                         type="number"
@@ -997,21 +997,21 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                         max="2000"
                         value={waterAmountGrams}
                         onChange={(e) => setWaterAmountGrams(Number(e.target.value))}
-                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-text-primary font-sans font-medium tabular-nums focus:outline-none focus:border-accent"
+                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-foreground font-sans font-medium tabular-nums focus:outline-none focus:border-accent"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label htmlFor="review-grinder-select" className="block text-text-secondary mb-1 font-medium">
+                      <label htmlFor="review-grinder-select" className="block text-foreground-secondary mb-1 font-medium">
                         Grinder
                       </label>
                       <select
                         id="review-grinder-select"
                         value={grinderId}
                         onChange={(e) => setGrinderId(e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-text-primary font-sans font-medium focus:outline-none focus:border-accent cursor-pointer"
+                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-foreground font-sans font-medium focus:outline-none focus:border-accent cursor-pointer"
                       >
                         <option value="">None / Not Specified</option>
                         {editingLog?.grinderSnapshot?.trim() &&
@@ -1029,7 +1029,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     </div>
 
                     <div>
-                      <label htmlFor="review-grind-setting" className="block text-text-secondary mb-1 font-medium">
+                      <label htmlFor="review-grind-setting" className="block text-foreground-secondary mb-1 font-medium">
                         Grind Setting
                       </label>
                       <input
@@ -1038,21 +1038,21 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                         placeholder="e.g. Medium-Fine, 14 clicks"
                         value={grindSetting}
                         onChange={(e) => setGrindSetting(e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-text-primary placeholder:text-text-muted font-sans focus:outline-none focus:border-accent"
+                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted font-sans focus:outline-none focus:border-accent"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label htmlFor="review-brewer-select" className="block text-text-secondary mb-1 font-medium">
+                      <label htmlFor="review-brewer-select" className="block text-foreground-secondary mb-1 font-medium">
                         Brewer
                       </label>
                       <select
                         id="review-brewer-select"
                         value={brewerId}
                         onChange={(e) => setBrewerId(e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-text-primary font-sans font-medium focus:outline-none focus:border-accent cursor-pointer"
+                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-foreground font-sans font-medium focus:outline-none focus:border-accent cursor-pointer"
                       >
                         <option value="">None / Not Specified</option>
                         {editingLog?.brewerSnapshot?.trim() &&
@@ -1070,7 +1070,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     </div>
 
                     <div>
-                      <label htmlFor="review-water-temp" className="block text-text-secondary mb-1 font-medium">
+                      <label htmlFor="review-water-temp" className="block text-foreground-secondary mb-1 font-medium">
                         Water Temp (°C)
                       </label>
                       <input
@@ -1080,7 +1080,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                         max="100"
                         value={waterTempCelsius}
                         onChange={(e) => setWaterTempCelsius(Number(e.target.value))}
-                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-text-primary font-sans font-medium tabular-nums focus:outline-none focus:border-accent"
+                        className="w-full px-3 py-1.5 rounded-lg bg-panel-recessed border border-border-subtle text-foreground font-sans font-medium tabular-nums focus:outline-none focus:border-accent"
                       />
                     </div>
                   </div>
@@ -1093,7 +1093,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     <span className="text-xs font-bold uppercase tracking-wider text-accent">
                       Sensory Descriptors
                     </span>
-                    <h3 className="text-base font-bold text-text-primary mt-0.5">
+                    <h3 className="text-base font-bold text-foreground mt-0.5">
                       Flavor Wheel & Notes
                     </h3>
                   </div>
@@ -1106,7 +1106,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                       className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs font-medium cursor-pointer transition-all border-0 ${
                         flavorViewMode === 'tags'
                           ? 'segmented-thumb-active font-semibold'
-                          : 'text-text-muted hover:text-text-primary'
+                          : 'text-foreground-muted hover:text-foreground'
                       }`}
                     >
                       <Tag className="w-3.5 h-3.5" />
@@ -1119,7 +1119,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                       className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs font-medium cursor-pointer transition-all border-0 ${
                         flavorViewMode === 'wheel'
                           ? 'segmented-thumb-active font-semibold'
-                          : 'text-text-muted hover:text-text-primary'
+                          : 'text-foreground-muted hover:text-foreground'
                       }`}
                     >
                       <PieChart className="w-3.5 h-3.5" />
@@ -1131,7 +1131,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 {/* Active Selected Tags Bar */}
                 <div className="min-h-11 p-2.5 rounded-xl bg-canvas border border-border-subtle flex flex-wrap gap-1.5 items-center">
                   {selectedTags.length === 0 && (
-                    <span className="text-xs text-text-secondary italic pl-1">
+                    <span className="text-xs text-foreground-secondary italic pl-1">
                       Select notes on the descriptors list or wheel to tag this cup...
                     </span>
                   )}
@@ -1164,7 +1164,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                               >
                                 <CatIcon className="w-3.5 h-3.5" />
                               </div>
-                              <span className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                              <span className="text-xs font-bold uppercase tracking-wider text-foreground">
                                 {cat.name}
                               </span>
                             </div>
@@ -1180,7 +1180,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                                     className={`px-2.5 py-1 rounded-lg text-xs font-medium cursor-pointer transition-all ${
                                       isSelected
                                         ? 'bg-accent/15 border-accent text-accent font-semibold border shadow-xs'
-                                        : 'bg-panel-recessed text-text-secondary border border-border-subtle hover:bg-panel hover:text-text-primary'
+                                        : 'bg-panel-recessed text-foreground-secondary border border-border-subtle hover:bg-panel hover:text-foreground'
                                     }`}
                                   >
                                     {desc}
@@ -1206,7 +1206,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
               {/* Section 3: 10 SCA Attribute Sliders */}
               <div className="p-5 rounded-xl bg-panel border border-border-subtle space-y-5">
                 <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
-                  <div className="text-xs font-bold text-text-secondary uppercase tracking-wider">
+                  <div className="text-xs font-bold text-foreground-secondary uppercase tracking-wider">
                     Official SCA Scoring Matrix (0.0 – 10.0)
                   </div>
                   <div className="flex items-center space-x-2 text-xs">
@@ -1217,11 +1217,11 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     >
                       Baseline (82.5)
                     </button>
-                    <span className="text-text-muted">•</span>
+                    <span className="text-foreground-muted">•</span>
                     <button
                       type="button"
                       onClick={() => setScores(ZERO_SCORES)}
-                      className="text-text-muted hover:text-text-primary transition-colors cursor-pointer"
+                      className="text-foreground-muted hover:text-foreground transition-colors cursor-pointer"
                     >
                       Clear
                     </button>
@@ -1230,7 +1230,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
                 {/* Group 1: Qualitative Sensory Attributes */}
                 <div className="space-y-3">
-                  <span className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider block">
+                  <span className="text-[11px] font-semibold text-foreground-secondary uppercase tracking-wider block">
                     Sensory Profile (Typically 6.00 – 10.00)
                   </span>
 
@@ -1248,8 +1248,8 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     <div key={key} className="space-y-1">
                       <div className="flex justify-between text-xs">
                         <div>
-                          <span className="font-medium text-text-primary">{label}</span>
-                          <span className="text-[10px] text-text-muted ml-1.5 hidden sm:inline">
+                          <span className="font-medium text-foreground">{label}</span>
+                          <span className="text-[10px] text-foreground-muted ml-1.5 hidden sm:inline">
                             ({hint})
                           </span>
                         </div>
@@ -1274,10 +1274,10 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 {/* Group 2: Cup Cleanliness & Uniformity */}
                 <div className="space-y-3 pt-3 border-t border-border-subtle">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">
+                    <span className="text-[11px] font-semibold text-foreground-secondary uppercase tracking-wider">
                       Cup Purity & Consistency (5 Cups, 2 pts / cup)
                     </span>
-                    <span className="text-[10px] text-text-secondary tabular-nums">
+                    <span className="text-[10px] text-foreground-secondary tabular-nums">
                       Standard baseline: 10.0
                     </span>
                   </div>
@@ -1292,8 +1292,8 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     <div key={key} className="space-y-1">
                       <div className="flex justify-between text-xs">
                         <div>
-                          <span className="font-medium text-text-primary">{label}</span>
-                          <span className="text-[10px] text-text-muted ml-1.5 hidden sm:inline">
+                          <span className="font-medium text-foreground">{label}</span>
+                          <span className="text-[10px] text-foreground-muted ml-1.5 hidden sm:inline">
                             ({hint})
                           </span>
                         </div>
@@ -1319,7 +1319,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
               {/* Section 4: Tasting Notes & Quick Rating */}
               <div className="p-5 rounded-xl bg-panel border border-border-subtle space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-foreground-secondary mb-1.5">
                     Tasting Impressions & Cupper's Notes
                   </label>
                   <textarea
@@ -1327,14 +1327,14 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     placeholder="e.g. Vibrant peach and white tea notes, crisp malic acidity, silky finish..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent resize-none font-sans"
+                    className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent resize-none font-sans"
                   />
                 </div>
 
                 <div className="flex items-center justify-between flex-wrap gap-4 pt-1">
                   {/* Star Rating */}
                   <div className="flex items-center space-x-1" role="group" aria-label="Star rating">
-                    <span className="text-xs text-text-secondary mr-1.5 font-medium">Rating:</span>
+                    <span className="text-xs text-foreground-secondary mr-1.5 font-medium">Rating:</span>
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
@@ -1352,13 +1352,13 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                         />
                       </button>
                     ))}
-                    <span className="text-xs font-medium text-text-secondary ml-1 tabular-nums">
+                    <span className="text-xs font-medium text-foreground-secondary ml-1 tabular-nums">
                       {rating.toFixed(1)}
                     </span>
                   </div>
 
                   {/* Would Brew Again */}
-                  <label className="flex items-center space-x-2 text-xs text-text-primary cursor-pointer select-none">
+                  <label className="flex items-center space-x-2 text-xs text-foreground cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={wouldBrewAgain}

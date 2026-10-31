@@ -43,7 +43,7 @@ export const SettingsRoute: React.FC = () => {
     <div className="max-w-4xl mx-auto pb-16 space-y-8 animate-fade-in">
       {/* Page Header */}
       <div className="border-b border-border-subtle pb-6">
-        <div className="text-[11px] font-mono tracking-widest text-text-muted uppercase mb-1.5">
+        <div className="text-[11px] font-mono tracking-widest text-foreground-muted uppercase mb-1.5">
           SYSTEM // CALIBRATION
         </div>
         <div className="flex items-center space-x-3">
@@ -51,7 +51,7 @@ export const SettingsRoute: React.FC = () => {
             <Settings className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
               Settings
             </h1>
           </div>
@@ -78,13 +78,13 @@ export const SettingsRoute: React.FC = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {/* Dose Preview */}
           <div className="bg-panel-recessed border border-border-subtle rounded-lg p-3">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-text-muted flex items-center space-x-1 mb-1">
-              <Scale className="w-3 h-3 text-text-secondary" />
+            <div className="text-[10px] font-mono uppercase tracking-wider text-foreground-muted flex items-center space-x-1 mb-1">
+              <Scale className="w-3 h-3 text-foreground-secondary" />
               <span>SAMPLE DOSE</span>
             </div>
             <div
               data-testid="preview-dose"
-              className="text-lg sm:text-xl font-light tabular-nums text-text-primary"
+              className="text-lg sm:text-xl font-light tabular-nums text-foreground"
             >
               {formatWeight(18, settings.weightUnit)}
             </div>
@@ -92,13 +92,13 @@ export const SettingsRoute: React.FC = () => {
 
           {/* Water Target Preview */}
           <div className="bg-panel-recessed border border-border-subtle rounded-lg p-3">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-text-muted flex items-center space-x-1 mb-1">
-              <Scale className="w-3 h-3 text-text-secondary" />
+            <div className="text-[10px] font-mono uppercase tracking-wider text-foreground-muted flex items-center space-x-1 mb-1">
+              <Scale className="w-3 h-3 text-foreground-secondary" />
               <span>SAMPLE WATER</span>
             </div>
             <div
               data-testid="preview-water"
-              className="text-lg sm:text-xl font-light tabular-nums text-text-primary"
+              className="text-lg sm:text-xl font-light tabular-nums text-foreground"
             >
               {formatWeight(300, settings.weightUnit)}
             </div>
@@ -106,13 +106,13 @@ export const SettingsRoute: React.FC = () => {
 
           {/* Temperature Preview */}
           <div className="bg-panel-recessed border border-border-subtle rounded-lg p-3">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-text-muted flex items-center space-x-1 mb-1">
-              <Thermometer className="w-3 h-3 text-text-secondary" />
+            <div className="text-[10px] font-mono uppercase tracking-wider text-foreground-muted flex items-center space-x-1 mb-1">
+              <Thermometer className="w-3 h-3 text-foreground-secondary" />
               <span>KETTLE TEMP</span>
             </div>
             <div
               data-testid="preview-temp"
-              className="text-lg sm:text-xl font-light tabular-nums text-text-primary"
+              className="text-lg sm:text-xl font-light tabular-nums text-foreground"
             >
               {formatTemperature(94, settings.temperatureUnit)}
             </div>
@@ -120,13 +120,13 @@ export const SettingsRoute: React.FC = () => {
 
           {/* Default Timer Mode Preview */}
           <div className="bg-panel-recessed border border-border-subtle rounded-lg p-3">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-text-muted flex items-center space-x-1 mb-1">
-              <Timer className="w-3 h-3 text-text-secondary" />
+            <div className="text-[10px] font-mono uppercase tracking-wider text-foreground-muted flex items-center space-x-1 mb-1">
+              <Timer className="w-3 h-3 text-foreground-secondary" />
               <span>DEFAULT MODE</span>
             </div>
             <div
               data-testid="preview-timer-mode"
-              className="text-lg sm:text-xl font-light text-text-primary truncate"
+              className="text-lg sm:text-xl font-light text-foreground truncate"
             >
               {settings.defaultTimerMode === 'free_brew' ? 'FREE BREW' : 'GUIDED RECIPE'}
             </div>
@@ -134,13 +134,13 @@ export const SettingsRoute: React.FC = () => {
 
           {/* Date Stamp Preview */}
           <div className="bg-panel-recessed border border-border-subtle rounded-lg p-3">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-text-muted flex items-center space-x-1 mb-1">
-              <Calendar className="w-3 h-3 text-text-secondary" />
+            <div className="text-[10px] font-mono uppercase tracking-wider text-foreground-muted flex items-center space-x-1 mb-1">
+              <Calendar className="w-3 h-3 text-foreground-secondary" />
               <span>DATE STAMP</span>
             </div>
             <div
               data-testid="preview-date"
-              className="text-lg sm:text-xl font-light tabular-nums text-text-primary truncate"
+              className="text-lg sm:text-xl font-light tabular-nums text-foreground truncate"
             >
               {formatDisplayDate(sampleDate, settings.dateFormat)}
             </div>
@@ -148,13 +148,13 @@ export const SettingsRoute: React.FC = () => {
 
           {/* Theme Preview */}
           <div className="bg-panel-recessed border border-border-subtle rounded-lg p-3">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-text-muted flex items-center space-x-1 mb-1">
-              <Sun className="w-3 h-3 text-text-secondary" />
+            <div className="text-[10px] font-mono uppercase tracking-wider text-foreground-muted flex items-center space-x-1 mb-1">
+              <Sun className="w-3 h-3 text-foreground-secondary" />
               <span>THEME</span>
             </div>
             <div
               data-testid="preview-theme"
-              className="text-lg sm:text-xl font-light text-text-primary truncate"
+              className="text-lg sm:text-xl font-light text-foreground truncate"
             >
               {settings.theme === 'studio_light'
                 ? 'LIGHT'
@@ -177,11 +177,11 @@ export const SettingsRoute: React.FC = () => {
             <div>
               <h2
                 id="theme-heading"
-                className="text-sm font-mono font-bold uppercase tracking-wider text-text-primary"
+                className="text-sm font-mono font-bold uppercase tracking-wider text-foreground"
               >
                 APPEARANCE // THEME
               </h2>
-              <p className="text-xs text-text-muted mt-1">
+              <p className="text-xs text-foreground-muted mt-1">
                 Visual workspace theme and ambient contrast
               </p>
             </div>
@@ -194,7 +194,7 @@ export const SettingsRoute: React.FC = () => {
                 className={`flex items-center space-x-1.5 px-3 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.theme === 'system'
                     ? 'segmented-thumb-active shadow-sm'
-                    : 'text-text-muted hover:text-text-primary'
+                    : 'text-foreground-muted hover:text-foreground'
                 }`}
               >
                 <Monitor className="w-3.5 h-3.5" />
@@ -207,7 +207,7 @@ export const SettingsRoute: React.FC = () => {
                 className={`flex items-center space-x-1.5 px-3 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.theme === 'tactile_dark'
                     ? 'segmented-thumb-active shadow-sm'
-                    : 'text-text-muted hover:text-text-primary'
+                    : 'text-foreground-muted hover:text-foreground'
                 }`}
               >
                 <Moon className="w-3.5 h-3.5" />
@@ -220,7 +220,7 @@ export const SettingsRoute: React.FC = () => {
                 className={`flex items-center space-x-1.5 px-3 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.theme === 'studio_light'
                     ? 'segmented-thumb-active shadow-sm'
-                    : 'text-text-muted hover:text-text-primary'
+                    : 'text-foreground-muted hover:text-foreground'
                 }`}
               >
                 <Sun className="w-3.5 h-3.5" />
@@ -239,11 +239,11 @@ export const SettingsRoute: React.FC = () => {
             <div>
               <h2
                 id="weight-heading"
-                className="text-sm font-mono font-bold uppercase tracking-wider text-text-primary"
+                className="text-sm font-mono font-bold uppercase tracking-wider text-foreground"
               >
                 WEIGHT UNIT
               </h2>
-              <p className="text-xs text-text-muted mt-1">
+              <p className="text-xs text-foreground-muted mt-1">
                 Primary mass measurement for coffee doses and extraction water
               </p>
             </div>
@@ -256,7 +256,7 @@ export const SettingsRoute: React.FC = () => {
                 className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.weightUnit === 'metric'
                     ? 'segmented-thumb-active shadow-sm'
-                    : 'text-text-muted hover:text-text-primary'
+                    : 'text-foreground-muted hover:text-foreground'
                 }`}
               >
                 METRIC (g)
@@ -268,7 +268,7 @@ export const SettingsRoute: React.FC = () => {
                 className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.weightUnit === 'imperial'
                     ? 'segmented-thumb-active shadow-sm'
-                    : 'text-text-muted hover:text-text-primary'
+                    : 'text-foreground-muted hover:text-foreground'
                 }`}
               >
                 IMPERIAL (oz)
@@ -286,11 +286,11 @@ export const SettingsRoute: React.FC = () => {
             <div>
               <h2
                 id="temp-heading"
-                className="text-sm font-mono font-bold uppercase tracking-wider text-text-primary"
+                className="text-sm font-mono font-bold uppercase tracking-wider text-foreground"
               >
                 TEMPERATURE UNIT
               </h2>
-              <p className="text-xs text-text-muted mt-1">
+              <p className="text-xs text-foreground-muted mt-1">
                 Water kettle and brew extraction temperature readings
               </p>
             </div>
@@ -303,7 +303,7 @@ export const SettingsRoute: React.FC = () => {
                 className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.temperatureUnit === 'celsius'
                     ? 'segmented-thumb-active shadow-sm'
-                    : 'text-text-muted hover:text-text-primary'
+                    : 'text-foreground-muted hover:text-foreground'
                 }`}
               >
                 CELSIUS (°C)
@@ -315,7 +315,7 @@ export const SettingsRoute: React.FC = () => {
                 className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.temperatureUnit === 'fahrenheit'
                     ? 'segmented-thumb-active shadow-sm'
-                    : 'text-text-muted hover:text-text-primary'
+                    : 'text-foreground-muted hover:text-foreground'
                 }`}
               >
                 FAHRENHEIT (°F)
@@ -333,11 +333,11 @@ export const SettingsRoute: React.FC = () => {
             <div>
               <h2
                 id="timer-mode-heading"
-                className="text-sm font-mono font-bold uppercase tracking-wider text-text-primary"
+                className="text-sm font-mono font-bold uppercase tracking-wider text-foreground"
               >
                 DEFAULT TIMER MODE
               </h2>
-              <p className="text-xs text-text-muted mt-1">
+              <p className="text-xs text-foreground-muted mt-1">
                 Startup workflow preference for the brew timer interface
               </p>
             </div>
@@ -350,7 +350,7 @@ export const SettingsRoute: React.FC = () => {
                 className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.defaultTimerMode === 'free_brew'
                     ? 'segmented-thumb-active shadow-sm'
-                    : 'text-text-muted hover:text-text-primary'
+                    : 'text-foreground-muted hover:text-foreground'
                 }`}
               >
                 FREE BREW
@@ -362,7 +362,7 @@ export const SettingsRoute: React.FC = () => {
                 className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.defaultTimerMode === 'recipe'
                     ? 'segmented-thumb-active shadow-sm'
-                    : 'text-text-muted hover:text-text-primary'
+                    : 'text-foreground-muted hover:text-foreground'
                 }`}
               >
                 GUIDED RECIPE
@@ -380,11 +380,11 @@ export const SettingsRoute: React.FC = () => {
             <div>
               <h2
                 id="date-heading"
-                className="text-sm font-mono font-bold uppercase tracking-wider text-text-primary"
+                className="text-sm font-mono font-bold uppercase tracking-wider text-foreground"
               >
                 DATE FORMAT
               </h2>
-              <p className="text-xs text-text-muted mt-1">
+              <p className="text-xs text-foreground-muted mt-1">
                 Roast and tasting log timestamps display presentation
               </p>
             </div>
@@ -397,7 +397,7 @@ export const SettingsRoute: React.FC = () => {
                 className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'locale'
                     ? 'segmented-thumb-active shadow-sm'
-                    : 'text-text-muted hover:text-text-primary'
+                    : 'text-foreground-muted hover:text-foreground'
                 }`}
               >
                 LOCALE
@@ -409,7 +409,7 @@ export const SettingsRoute: React.FC = () => {
                 className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'YYYY-MM-DD'
                     ? 'segmented-thumb-active shadow-sm'
-                    : 'text-text-muted hover:text-text-primary'
+                    : 'text-foreground-muted hover:text-foreground'
                 }`}
               >
                 YYYY-MM-DD
@@ -421,7 +421,7 @@ export const SettingsRoute: React.FC = () => {
                 className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'MM/DD/YYYY'
                     ? 'segmented-thumb-active shadow-sm'
-                    : 'text-text-muted hover:text-text-primary'
+                    : 'text-foreground-muted hover:text-foreground'
                 }`}
               >
                 MM/DD/YYYY
@@ -433,7 +433,7 @@ export const SettingsRoute: React.FC = () => {
                 className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'DD/MM/YYYY'
                     ? 'segmented-thumb-active shadow-sm'
-                    : 'text-text-muted hover:text-text-primary'
+                    : 'text-foreground-muted hover:text-foreground'
                 }`}
               >
                 DD/MM/YYYY
@@ -465,18 +465,18 @@ export const SettingsRoute: React.FC = () => {
                 <h2
                   id="sync-status-heading"
                   className={`text-xs font-mono font-bold uppercase tracking-wider ${
-                    user ? 'text-status-success' : 'text-text-primary'
+                    user ? 'text-status-success' : 'text-foreground'
                   }`}
                 >
                   {user ? 'CLOUD SYNC ACTIVE' : 'LOCAL STORAGE ONLY'}
                 </h2>
               </div>
               {user?.email && (
-                <div className="text-xs font-mono text-text-muted">
+                <div className="text-xs font-mono text-foreground-muted">
                   {user.email}
                 </div>
               )}
-              <p className="text-xs text-text-secondary">
+              <p className="text-xs text-foreground-secondary">
                 {user
                   ? 'Instrument preferences synced across devices.'
                   : 'Saved to local device. Sign in to sync across platforms.'}
@@ -490,7 +490,7 @@ export const SettingsRoute: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsResetModalOpen(true)}
-            className="w-full sm:w-auto flex items-center justify-center space-x-2 px-5 py-2.5 rounded-lg border border-border-subtle hover:border-status-error/50 hover:bg-status-error/10 text-text-muted hover:text-status-error font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer"
+            className="w-full sm:w-auto flex items-center justify-center space-x-2 px-5 py-2.5 rounded-lg border border-border-subtle hover:border-status-error/50 hover:bg-status-error/10 text-foreground-muted hover:text-status-error font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
             <span>RESET TO DEFAULTS</span>

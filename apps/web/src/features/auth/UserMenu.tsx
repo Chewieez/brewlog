@@ -50,10 +50,10 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
         <div className="w-6 h-6 rounded bg-accent flex items-center justify-center text-zinc-950 font-bold text-xs font-mono">
           {displayName.charAt(0).toUpperCase()}
         </div>
-        <span className="text-xs font-mono text-text-primary hidden sm:inline max-w-[100px] truncate">
+        <span className="text-xs font-mono text-foreground hidden sm:inline max-w-[100px] truncate">
           {displayName}
         </span>
-        <ChevronDown className="w-3 h-3 text-text-muted" />
+        <ChevronDown className="w-3 h-3 text-foreground-muted" />
       </button>
 
       {dropdownOpen && (
@@ -61,16 +61,16 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
           <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
           <div className="absolute right-0 mt-2 w-56 p-2 rounded-xl bg-panel border border-border-subtle shadow-2xl z-50 space-y-1 text-xs font-mono animate-fade-in">
             <div className="px-3 py-2 border-b border-border-subtle">
-              <div className="font-bold text-text-primary truncate">{displayName}</div>
-              <div className="text-[11px] text-text-muted truncate">{user.email}</div>
+              <div className="font-bold text-foreground truncate">{displayName}</div>
+              <div className="text-[11px] text-foreground-muted truncate">{user.email}</div>
             </div>
 
             <Link
               to="/settings"
               onClick={() => setDropdownOpen(false)}
-              className="w-full flex items-center space-x-2 px-3 py-2 rounded text-text-primary hover:bg-panel-recessed font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
+              className="w-full flex items-center space-x-2 px-3 py-2 rounded text-foreground hover:bg-panel-recessed font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
             >
-              <Settings className="w-3.5 h-3.5 text-text-primary" />
+              <Settings className="w-3.5 h-3.5 text-foreground" />
               <span>SETTINGS</span>
             </Link>
 
@@ -79,9 +79,9 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
                 setDropdownOpen(false);
                 signOut();
               }}
-              className="group w-full flex items-center space-x-2 px-3 py-2 rounded text-text-primary hover:bg-panel-recessed font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
+              className="group w-full flex items-center space-x-2 px-3 py-2 rounded text-foreground hover:bg-panel-recessed font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
             >
-              <LogOut className="w-3.5 h-3.5 text-text-primary group-hover:text-red-400 transition-colors" />
+              <LogOut className="w-3.5 h-3.5 text-foreground group-hover:text-red-400 transition-colors" />
               <span>SIGN OUT</span>
             </button>
           </div>
