@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { INDUSTRIAL_PRECISION_THEME, THEMES } from './theme';
+import {
+  INDUSTRIAL_PRECISION_THEME,
+  TACTILE_DARK_THEME,
+  CRISP_STUDIO_LIGHT_THEME,
+  THEMES,
+  resolveTheme,
+} from './theme';
 
 describe('theme tokens', () => {
   it('exports INDUSTRIAL_PRECISION_THEME with all required color keys', () => {
@@ -21,7 +27,35 @@ describe('theme tokens', () => {
     expect(INDUSTRIAL_PRECISION_THEME.colors.statusInfo).toBe('#38bdf8');
   });
 
-  it('includes INDUSTRIAL_PRECISION_THEME in THEMES map', () => {
+  it('exports TACTILE_DARK_THEME and CRISP_STUDIO_LIGHT_THEME', () => {
+    expect(TACTILE_DARK_THEME.id).toBe('tactile-dark');
+    expect(TACTILE_DARK_THEME.isDark).toBe(true);
+    expect(TACTILE_DARK_THEME.colors.canvas).toBe('#0e0d0c');
+
+    expect(CRISP_STUDIO_LIGHT_THEME.id).toBe('studio-light');
+    expect(CRISP_STUDIO_LIGHT_THEME.isDark).toBe(false);
+    expect(CRISP_STUDIO_LIGHT_THEME.colors.canvas).toBe('#f8fafc');
+  });
+
+  it('includes themes in THEMES map', () => {
     expect(THEMES['industrial-precision']).toBe(INDUSTRIAL_PRECISION_THEME);
+    expect(THEMES['tactile-dark']).toBe(TACTILE_DARK_THEME);
+    expect(THEMES['studio-light']).toBe(CRISP_STUDIO_LIGHT_THEME);
+  });
+
+  describe('resolveTheme', () => {
+    it('resolves system preference to dark or light based on system state', () => {
+      expect(resolveTheme('system', true)).toBe(TACTILE_DARK_THEME);
+      expect(resolveTheme('system', false)).toBe(CRISP_STUDIO_LIGHT_THEME);
+      expect(resolveTheme(undefined, true)).toBe(TACTILE_DARK_THEME);
+      expect(resolveTheme(undefined, false)).toBe(CRISP_STUDIO_LIGHT_THEME);
+    });
+
+    it('resolves explicit tactile_dark and studio_light preferences regardless of system state', () => {
+      expect(resolveTheme('tactile_dark', false)).toBe(TACTILE_DARK_THEME);
+      expect(resolveTheme('tactile_dark', true)).toBe(TACTILE_DARK_THEME);
+      expect(resolveTheme('studio_light', true)).toBe(CRISP_STUDIO_LIGHT_THEME);
+      expect(resolveTheme('studio_light', false)).toBe(CRISP_STUDIO_LIGHT_THEME);
+    });
   });
 });

@@ -8,7 +8,7 @@ import React, {
   useRef,
   ReactNode,
 } from 'react';
-import { UserSettings, DEFAULT_USER_SETTINGS } from '@brewlog/core';
+import { UserSettings, DEFAULT_USER_SETTINGS, resolveTheme } from '@brewlog/core';
 import { mapDbToUserSettings, mapUserSettingsToDb } from '@brewlog/supabase';
 import { useAuth } from '../auth/AuthContext';
 import { supabase } from '../../lib/supabase';
@@ -64,6 +64,32 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, [settings]);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const applyCurrentTheme = () => {
+      const isSystemDark =
+        window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const resolved = resolveTheme(settings.theme, isSystemDark);
+
+      document.documentElement.setAttribute('data-theme', resolved.id);
+      document.documentElement.classList.toggle('dark', resolved.isDark);
+      Object.entries(resolved.colors).forEach(([key, value]) => {
+        const kebab = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+        document.documentElement.style.setProperty(`--color-${kebab}`, value);
+      });
+    };
+
+    applyCurrentTheme();
+
+    if ((settings.theme === 'system' || !settings.theme) && window.matchMedia) {
+      const mql = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = () => applyCurrentTheme();
+      mql.addEventListener('change', handleChange);
+      return () => mql.removeEventListener('change', handleChange);
+    }
+  }, [settings.theme]);
+
+  useEffect(() => {
     let isMounted = true;
 
     const initSettings = async () => {
@@ -89,8 +115,13 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
 
         if (!error && data) {
           const remoteSettings = mapDbToUserSettings(data);
-          setSettings(remoteSettings);
-          persistCachedSettings(remoteSettings);
+          const merged: UserSettings = {
+            ...current,
+            ...remoteSettings,
+            theme: current.theme ?? 'system',
+          };
+          setSettings(merged);
+          persistCachedSettings(merged);
         } else if (!error && !data) {
           const payload = mapUserSettingsToDb(current, user.id);
           const { error: upsertError } = await supabase.from('user_settings').upsert(payload);

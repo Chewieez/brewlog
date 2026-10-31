@@ -7,8 +7,7 @@ describe('Button (web)', () => {
     render(<Button label="START BREW" variant="primary" />);
     const btn = screen.getByRole('button', { name: 'START BREW' });
     expect(btn).toBeInTheDocument();
-    expect(btn.className).toContain('bg-copper');
-    expect(btn.className).toContain('text-canvas');
+    expect(btn.className).toContain('btn-tactile-primary');
     expect(btn.className).toContain('font-mono');
   });
 
@@ -46,13 +45,11 @@ describe('Button (web)', () => {
     expect(btn.className).toContain('border-status-error/40');
   });
 
-  it('renders secondary button with panel and text-primary', () => {
+  it('renders secondary button with panel-recessed and text-primary without heavy borders', () => {
     render(<Button label="CANCEL" variant="secondary" />);
     const btn = screen.getByRole('button', { name: 'CANCEL' });
-    expect(btn.className).toContain('bg-panel');
-    expect(btn.className).toContain('hover:bg-panel-recessed');
-    expect(btn.className).toContain('text-text-primary');
-    expect(btn.className).toContain('border-border-active');
+    expect(btn.className).toContain('btn-tactile-secondary');
+    expect(btn.className).toContain('border-0');
   });
 
   it('renders ghost button with transparent background and text-secondary', () => {

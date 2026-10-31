@@ -185,11 +185,13 @@ export type WeightUnit = 'metric' | 'imperial';
 export type TemperatureUnit = 'celsius' | 'fahrenheit';
 export type TimerModePreference = 'recipe' | 'free_brew';
 export type DateFormatPreference = 'locale' | 'YYYY-MM-DD' | 'MM/DD/YYYY' | 'DD/MM/YYYY';
+export type ThemePreference = 'system' | 'tactile_dark' | 'studio_light';
 
 export interface UserSettings {
   weightUnit: WeightUnit;
   temperatureUnit: TemperatureUnit;
   defaultTimerMode: TimerModePreference;
   dateFormat: DateFormatPreference;
+  theme?: ThemePreference;
 }
 

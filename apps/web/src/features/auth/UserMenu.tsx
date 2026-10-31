@@ -23,15 +23,15 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
           to="/settings"
           aria-label="Settings"
           title="Settings"
-          className="p-1.5 rounded bg-panel-recessed text-text-secondary hover:text-text-primary border border-border-subtle hover:border-border-active hover:bg-panel cursor-pointer transition-colors flex items-center justify-center"
+          className="btn-tactile-secondary w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
         >
-          <Settings className="w-3.5 h-3.5" />
+          <Settings className="w-4 h-4" />
         </Link>
         <button
           onClick={onOpenAuthModal}
-          className="flex items-center space-x-1.5 px-3 py-1.5 rounded text-xs font-mono uppercase tracking-wider font-semibold bg-panel-recessed text-text-primary border border-border-subtle hover:border-border-active hover:bg-panel cursor-pointer whitespace-nowrap transition-colors"
+          className="btn-tactile-secondary h-8 flex items-center space-x-1.5 px-3 rounded-lg text-xs font-mono uppercase tracking-wider font-semibold whitespace-nowrap"
         >
-          <LogIn className="w-3.5 h-3.5 text-accent" />
+          <LogIn className="w-4 h-4 text-accent" />
           <span>SIGN IN</span>
         </button>
       </div>
@@ -45,7 +45,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
         aria-label="User account menu"
         aria-haspopup="true"
         aria-expanded={dropdownOpen}
-        className="flex items-center space-x-2 px-2.5 py-1.5 rounded bg-panel border border-border-subtle hover:border-border-active cursor-pointer transition-colors"
+        className="btn-tactile-secondary h-8 flex items-center space-x-2 px-2.5 rounded-lg"
       >
         <div className="w-6 h-6 rounded bg-accent flex items-center justify-center text-zinc-950 font-bold text-xs font-mono">
           {displayName.charAt(0).toUpperCase()}

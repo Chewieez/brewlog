@@ -38,26 +38,29 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
     <div className="space-y-4">
       {/* Method Filter Bar */}
       <div className="flex flex-wrap gap-2">
-        {METHODS.map((method) => (
-          <button
-            key={method}
-            type="button"
-            onClick={() => onSelectMethodFilter(method)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-mono font-semibold uppercase tracking-wider transition-all cursor-pointer ${
-              selectedMethodFilter === method
-                ? 'bg-panel-recessed border border-accent text-accent'
-                : 'bg-zinc-800/90 border border-zinc-700 text-zinc-300 hover:text-zinc-100 hover:border-zinc-600'
-            }`}
-          >
-            {method.replace('-', ' ')}
-          </button>
-        ))}
+        {METHODS.map((method) => {
+          const isSelected = selectedMethodFilter === method;
+          return (
+            <button
+              key={method}
+              type="button"
+              onClick={() => onSelectMethodFilter(method)}
+              className={`h-8 px-3 rounded-xl text-xs font-mono font-semibold uppercase tracking-wider transition-all cursor-pointer border-0 inline-flex items-center justify-center ${
+                isSelected
+                  ? 'btn-tactile-primary'
+                  : 'btn-tactile-secondary text-text-muted hover:text-text-primary'
+              }`}
+            >
+              {method.replace('-', ' ')}
+            </button>
+          );
+        })}
       </div>
 
       {/* Recipe Cards List */}
       <div className="space-y-3">
         {filteredRecipes.length === 0 ? (
-          <div className="p-8 rounded-2xl bg-panel border border-dashed border-border-subtle text-center text-xs text-zinc-500">
+          <div className="p-8 rounded-2xl bg-panel border border-dashed border-border-subtle text-center text-xs text-text-muted">
             No recipes found for this brew method.
           </div>
         ) : (
@@ -70,8 +73,8 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                 key={r.id}
                 className={`p-4 rounded-2xl border transition-all duration-200 relative group overflow-hidden ${
                   isSelected
-                    ? 'bg-panel-recessed border-zinc-600'
-                    : 'bg-panel border-border-subtle hover:border-zinc-700'
+                    ? 'bg-panel-recessed border-border-active'
+                    : 'bg-panel border-border-subtle hover:border-border-active'
                 }`}
               >
                 {/* Active Copper Indicator */}
@@ -89,15 +92,15 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
 
                 <div className="relative z-10 flex items-center justify-between pointer-events-none">
                   <div className="flex items-center space-x-2">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-zinc-800 text-zinc-300 border border-zinc-700">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-panel-recessed text-text-secondary">
                       {r.brewMethod}
                     </span>
                     {isCustom ? (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-accent/10 text-accent border border-accent/30">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-accent/15 text-accent">
                         Custom
                       </span>
                     ) : (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-zinc-800 text-zinc-300 border border-zinc-700">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-panel-recessed text-text-muted">
                         Preset
                       </span>
                     )}
@@ -105,7 +108,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
 
                   <div className="flex items-center space-x-2">
                     {r.author && (
-                      <span className="text-xs text-zinc-400 font-mono truncate max-w-[120px]">
+                      <span className="text-xs text-text-muted font-mono truncate max-w-[120px]">
                         {r.author}
                       </span>
                     )}
@@ -117,7 +120,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                           e.stopPropagation();
                           onEditRecipe(r);
                         }}
-                        className="pointer-events-auto p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors cursor-pointer"
+                        className="pointer-events-auto p-1 rounded text-text-muted hover:text-text-primary hover:bg-panel-recessed transition-colors cursor-pointer"
                         title="Edit Recipe"
                         aria-label={`Edit custom recipe ${r.name}`}
                       >
@@ -132,7 +135,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                           e.stopPropagation();
                           setRecipeToDelete(r);
                         }}
-                        className="pointer-events-auto p-1 rounded text-zinc-500 hover:text-red-400 hover:bg-zinc-800 transition-colors cursor-pointer"
+                        className="pointer-events-auto p-1 rounded text-text-muted hover:text-status-error hover:bg-panel-recessed transition-colors cursor-pointer"
                         title="Delete Recipe"
                         aria-label={`Delete custom recipe ${r.name}`}
                       >
@@ -143,18 +146,18 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                 </div>
 
                 <div className="relative z-10 pointer-events-none">
-                  <h3 className="text-base font-bold text-zinc-100 mt-2">{r.name}</h3>
-                  <p className="text-xs text-zinc-400 mt-1 line-clamp-2">
+                  <h3 className="text-base font-bold text-text-primary mt-2">{r.name}</h3>
+                  <p className="text-xs text-text-secondary mt-1 line-clamp-2">
                     {r.description || 'No description provided.'}
                   </p>
 
-                  <div className="mt-3 flex items-center space-x-3 text-xs font-light text-zinc-300 tabular-nums">
+                  <div className="mt-3 flex items-center space-x-3 text-xs font-light text-text-secondary tabular-nums">
                     <span>1:{r.ratio}</span>
-                    <span className="text-zinc-600">•</span>
+                    <span className="text-text-muted">•</span>
                     <span>
                       {r.coffeeDoseGrams}g : {r.waterAmountGrams}g
                     </span>
-                    <span className="text-zinc-600">•</span>
+                    <span className="text-text-muted">•</span>
                     <span>
                       {`${Math.floor(r.totalTimeSeconds / 60)}m ${(r.totalTimeSeconds % 60).toString().padStart(2, '0')}s`}
                     </span>
@@ -173,7 +176,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
         message={
           <>
             Are you sure you want to delete{' '}
-            <strong className="text-zinc-200">"{recipeToDelete?.name}"</strong>? This
+            <strong className="text-text-primary">"{recipeToDelete?.name}"</strong>? This
             action cannot be undone.
           </>
         }

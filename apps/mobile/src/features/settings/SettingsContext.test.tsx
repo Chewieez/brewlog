@@ -105,6 +105,7 @@ describe('SettingsContext (Mobile)', () => {
       temperatureUnit: 'fahrenheit',
       defaultTimerMode: 'recipe',
       dateFormat: 'MM/DD/YYYY',
+      theme: 'system',
     };
     await AsyncStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(customSettings));
 

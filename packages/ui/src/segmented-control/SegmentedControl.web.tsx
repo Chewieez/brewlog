@@ -18,7 +18,7 @@ export function SegmentedControl<T extends string = string>({
       role="group"
       aria-label={ariaLabel}
       data-testid={testID}
-      className={`inline-grid grid-flow-col auto-cols-fr p-[3px] bg-panel-recessed border border-border-active rounded-lg select-none ${containerSizeClasses} ${widthClasses}`}
+      className={`inline-grid grid-flow-col auto-cols-fr p-[3px] segmented-track rounded-lg select-none ${containerSizeClasses} ${widthClasses}`}
     >
       {options.map((option) => {
         const isSelected = option.value === value;
@@ -32,8 +32,8 @@ export function SegmentedControl<T extends string = string>({
             onClick={() => onChange(option.value)}
             className={`flex items-center justify-center h-full rounded-md font-mono uppercase tracking-[0.12em] font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent ${
               isSelected
-                ? 'bg-accent text-canvas shadow-xs'
-                : 'text-text-muted hover:text-text-primary hover:bg-panel/40'
+                ? 'segmented-thumb-active shadow-sm'
+                : 'text-text-muted hover:text-text-primary hover:bg-black/[0.04] dark:hover:bg-white/[0.04]'
             }`}
           >
             {option.label}

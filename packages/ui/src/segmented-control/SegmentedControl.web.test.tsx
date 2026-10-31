@@ -22,7 +22,7 @@ describe('SegmentedControl (web)', () => {
     const inactiveBtn = screen.getByRole('button', { name: 'FREE BREW' });
 
     expect(activeBtn.getAttribute('aria-pressed')).toBe('true');
-    expect(activeBtn.className).toContain('bg-accent');
+    expect(activeBtn.className).toContain('segmented-thumb-active');
     expect(inactiveBtn.getAttribute('aria-pressed')).toBe('false');
   });
 

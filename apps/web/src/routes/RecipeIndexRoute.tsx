@@ -7,8 +7,8 @@ export const RecipeIndexRoute: React.FC = () => {
       <div className="p-4 rounded-xl bg-panel-recessed border border-border-subtle text-accent mb-4">
         <Coffee className="w-8 h-8" />
       </div>
-      <h3 className="text-lg font-bold text-zinc-100">Select a Recipe</h3>
-      <p className="text-sm text-zinc-400 mt-2 max-w-sm">
+      <h3 className="text-lg font-bold text-text-primary">Select a Recipe</h3>
+      <p className="text-sm text-text-secondary mt-2 max-w-sm">
         Choose a recipe from the catalog to view brew steps and scale doses, or create your own custom recipe.
       </p>
     </div>

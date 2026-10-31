@@ -26,24 +26,24 @@ export const getScaTier = (score: number) => {
   if (score >= 90.0) {
     return {
       label: 'Outstanding',
-      classes: 'text-emerald-300 bg-emerald-950/50 border-emerald-800',
+      classes: 'text-emerald-900 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800',
     };
   }
   if (score >= 85.0) {
     return {
       label: 'Excellent',
-      classes: 'text-accent bg-panel-recessed border-accent/50',
+      classes: 'text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 border-amber-300 dark:border-amber-800',
     };
   }
   if (score >= 80.0) {
     return {
       label: 'Very Good',
-      classes: 'text-zinc-200 bg-panel-recessed border-zinc-700',
+      classes: 'text-blue-900 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/60 border-blue-300 dark:border-blue-800',
     };
   }
   return {
     label: 'Commercial',
-    classes: 'text-zinc-400 bg-zinc-900 border-zinc-800',
+    classes: 'text-stone-800 dark:text-stone-400 bg-stone-100 dark:bg-stone-900/60 border-stone-300 dark:border-stone-800',
   };
 };
 
@@ -132,7 +132,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
       : '—';
 
   return (
-    <div className="animate-fade-in text-zinc-100 font-sans pb-8">
+    <div className="animate-fade-in text-text-primary font-sans pb-8">
       {/* Header & Action Bar */}
       <div className="sticky top-0 z-20 bg-canvas pb-6">
         <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -140,7 +140,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <span
               data-testid="method-badge"
-              className="text-xs font-semibold px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 uppercase tracking-wider"
+              className="text-xs font-mono font-bold px-2.5 py-0.5 rounded uppercase tracking-wider badge-artisan border"
             >
               {log.brewMethod}
             </span>
@@ -148,7 +148,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
               {formatDate(log.brewDate)}
             </span>
             {log.wouldBrewAgain && (
-              <span className="inline-flex items-center gap-1 text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 px-2 py-0.5 rounded-full">
+              <span className="inline-flex items-center gap-1 text-xs text-emerald-900 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 px-2.5 py-0.5 rounded-full font-medium">
                 <CheckCircle2 className="w-3 h-3" /> Would Brew Again
               </span>
             )}
@@ -166,7 +166,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           {onBrewAgain && (
             <button
               onClick={() => onBrewAgain(log)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-panel-recessed text-accent border border-accent/40 hover:border-accent hover:bg-accent/10 transition-colors cursor-pointer shadow-xs"
+              className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold rounded-lg btn-tactile-primary cursor-pointer border-0"
               title="Transfer coffee and specs to Brew Timer"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
@@ -175,14 +175,14 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           )}
           <button
             onClick={() => onEdit(log)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-panel-recessed text-zinc-200 hover:text-zinc-100 border border-border-subtle hover:border-zinc-600 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-lg btn-tactile-secondary text-text-muted hover:text-text-primary cursor-pointer border-0"
           >
             <Edit3 className="w-3.5 h-3.5" />
             Edit
           </button>
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-panel-recessed text-rose-400 hover:text-rose-300 hover:bg-rose-950/20 border border-border-subtle hover:border-rose-900 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-lg btn-tactile-secondary text-rose-400 hover:text-rose-300 cursor-pointer border-0"
           >
             <Trash2 className="w-3.5 h-3.5" />
             Delete
@@ -198,11 +198,11 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           data-testid="hero-score-badge"
           className="whitespace-nowrap flex items-center gap-3"
         >
-          <div className="text-4xl font-light text-zinc-100 tabular-nums">
+          <div className="text-4xl font-light text-text-primary tabular-nums">
             {log.calculatedScaScore.toFixed(1)}
           </div>
           <div className="text-sm text-text-secondary font-medium">/ 100</div>
-          <div className="h-6 w-px bg-zinc-800" />
+          <div className="h-6 w-px bg-border-subtle" />
           <span
             className={`px-3 py-1 rounded-full text-xs font-semibold border ${tier.classes}`}
           >
@@ -218,7 +218,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
               className={`w-4 h-4 ${
                 s <= (log.rating || 0)
                   ? 'fill-amber-400 text-amber-400'
-                  : 'text-zinc-700'
+                  : 'text-border-subtle dark:text-zinc-700'
               }`}
             />
           ))}
@@ -234,13 +234,13 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           <div className="text-sm font-semibold uppercase tracking-wider text-text-secondary">
             Sensory Profile
           </div>
-          <div className="flex items-center space-x-1 p-1 rounded bg-panel-recessed border border-border-subtle">
+          <div className="flex items-center p-0.5 rounded-lg segmented-track">
             <button
               onClick={() => setSensoryTab('descriptors')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
                 sensoryTab === 'descriptors'
-                  ? 'bg-accent text-zinc-950 font-semibold shadow-xs'
-                  : 'text-text-secondary hover:text-zinc-100'
+                  ? 'segmented-thumb-active font-semibold'
+                  : 'text-text-muted hover:text-text-primary'
               }`}
             >
               <Tag className="w-3.5 h-3.5" />
@@ -248,10 +248,10 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             </button>
             <button
               onClick={() => setSensoryTab('wheel')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
                 sensoryTab === 'wheel'
-                  ? 'bg-accent text-zinc-950 font-semibold shadow-xs'
-                  : 'text-text-secondary hover:text-zinc-100'
+                  ? 'segmented-thumb-active font-semibold'
+                  : 'text-text-muted hover:text-text-primary'
               }`}
             >
               <PieChart className="w-3.5 h-3.5" />
@@ -306,11 +306,11 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
                   <span className="font-medium text-text-secondary">
                     {attr.label}
                   </span>
-                  <span className="tabular-nums font-semibold text-zinc-200">
+                  <span className="tabular-nums font-semibold text-text-primary">
                     {scoreValue.toFixed(1)}
                   </span>
                 </div>
-                <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+                <div className="h-1.5 w-full bg-border-subtle rounded-full overflow-hidden">
                   <div
                     className="h-full bg-accent rounded-full transition-all duration-300"
                     style={{ width: `${percentage}%` }}
@@ -333,7 +333,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
               Dose
             </span>
-            <span className="text-sm font-semibold text-zinc-100 tabular-nums">
+            <span className="text-sm font-semibold text-text-primary tabular-nums">
               {log.coffeeDoseGrams}g
             </span>
           </div>
@@ -342,7 +342,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
               Water
             </span>
-            <span className="text-sm font-semibold text-zinc-100 tabular-nums">
+            <span className="text-sm font-semibold text-text-primary tabular-nums">
               {log.waterAmountGrams}g
             </span>
           </div>
@@ -351,7 +351,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
               Ratio
             </span>
-            <span className="text-sm font-semibold text-zinc-100 tabular-nums">
+            <span className="text-sm font-semibold text-text-primary tabular-nums">
               {brewRatio}
             </span>
           </div>
@@ -362,7 +362,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             </span>
             <span
               data-testid="brew-time-telemetry"
-              className="text-sm font-semibold text-zinc-100 tabular-nums"
+              className="text-sm font-semibold text-text-primary tabular-nums"
             >
               {formatBrewTime(log.actualTimeSeconds)}
             </span>
@@ -374,7 +374,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
               Grinder & Setting
             </span>
-            <div className="text-xs font-medium text-zinc-200 mt-1">
+            <div className="text-xs font-medium text-text-primary mt-1">
               <div>{grinderName}</div>
               {log.grindSetting && (
                 <div className="text-text-secondary mt-0.5">
@@ -388,7 +388,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
               Brewer
             </span>
-            <div className="text-xs font-medium text-zinc-200 mt-1">
+            <div className="text-xs font-medium text-text-primary mt-1">
               {brewerName}
             </div>
           </div>
@@ -397,7 +397,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider block">
               Water Temperature
             </span>
-            <div className="text-xs font-medium text-zinc-200 mt-1 tabular-nums">
+            <div className="text-xs font-medium text-text-primary mt-1 tabular-nums">
               {log.waterTempCelsius ? `${log.waterTempCelsius}°C` : 'Not recorded'}
             </div>
           </div>
@@ -410,7 +410,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           <div className="text-sm font-semibold uppercase tracking-wider text-text-secondary border-b border-border-subtle pb-3">
             Cupper's Tasting Notes
           </div>
-          <blockquote className="border-l-2 border-accent pl-4 py-1 text-sm text-zinc-200 italic font-sans leading-relaxed">
+          <blockquote className="border-l-2 border-accent pl-4 py-1 text-sm text-text-primary italic font-sans leading-relaxed">
             "{log.notes}"
           </blockquote>
         </div>
@@ -428,19 +428,19 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           >
             <div className="flex items-center gap-3 text-rose-400">
               <AlertTriangle className="w-6 h-6 shrink-0" />
-              <h2 id="delete-dialog-title" className="text-lg font-bold text-zinc-100">
+              <h2 id="delete-dialog-title" className="text-lg font-bold text-text-primary">
                 Delete Tasting Log
               </h2>
             </div>
             <p className="text-sm text-text-secondary">
               Are you sure you want to delete this tasting log for{' '}
-              <strong className="text-zinc-100">{beanName}</strong>? This action cannot be undone.
+              <strong className="text-text-primary">{beanName}</strong>? This action cannot be undone.
             </p>
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-xs font-medium rounded-lg bg-panel-recessed text-zinc-300 hover:text-zinc-100 border border-border-subtle hover:border-zinc-600 transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-medium rounded-lg btn-tactile-secondary text-text-muted hover:text-text-primary transition-colors cursor-pointer border-0"
               >
                 Cancel
               </button>
@@ -450,7 +450,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
                   setShowDeleteModal(false);
                   onDelete(log);
                 }}
-                className="px-4 py-2 text-xs font-semibold rounded-lg bg-rose-600 text-white hover:bg-rose-500 transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold rounded-lg bg-rose-600 text-white hover:bg-rose-500 transition-colors cursor-pointer border-0"
               >
                 Confirm Delete
               </button>

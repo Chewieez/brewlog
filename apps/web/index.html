@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -9,8 +9,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+      try {
+        const raw = localStorage.getItem('brewlog_settings_cache') || localStorage.getItem('brewlog_settings');
+        const theme = raw ? JSON.parse(raw).theme : 'system';
+        const isDark = theme === 'tactile_dark' || (theme !== 'studio_light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.setAttribute('data-theme', isDark ? 'tactile-dark' : 'studio-light');
+        document.documentElement.classList.toggle('dark', isDark);
+      } catch {}
+    </script>
   </head>
-  <body class="bg-[#121214] text-[#f4f4f5] min-h-screen selection:bg-[#d97736]/30 selection:text-[#f4f4f5]">
+  <body class="bg-canvas text-text-primary min-h-screen selection:bg-accent/30 selection:text-text-primary">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
