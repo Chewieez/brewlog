@@ -1103,7 +1103,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setFlavorViewMode('tags')}
-                      className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs font-medium cursor-pointer transition-all border-0 ${
+                      className={`h-8 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
                         flavorViewMode === 'tags'
                           ? 'segmented-thumb-active font-semibold'
                           : 'text-foreground-muted hover:text-foreground'
@@ -1116,7 +1116,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setFlavorViewMode('wheel')}
-                      className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs font-medium cursor-pointer transition-all border-0 ${
+                      className={`h-8 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
                         flavorViewMode === 'wheel'
                           ? 'segmented-thumb-active font-semibold'
                           : 'text-foreground-muted hover:text-foreground'

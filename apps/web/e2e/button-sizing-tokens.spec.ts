@@ -56,6 +56,25 @@ test.describe("Design System Button Sizing Tokens", () => {
     expect(Math.abs(box!.height - 48)).toBeLessThanOrEqual(TOLERANCE);
   });
 
+  test("review editor sensory toggle conforms to 32px (h-8)", async ({ page }) => {
+    await page.goto("/reviews");
+    const logReviewBtn = page.getByRole("button", { name: /log review/i });
+    await expect(logReviewBtn).toBeVisible();
+    await logReviewBtn.click();
+
+    const descriptorsBtn = page.getByRole("button", { name: /descriptors/i });
+    const wheelBtn = page.getByRole("button", { name: /wheel/i });
+    await expect(descriptorsBtn).toBeVisible();
+    await expect(wheelBtn).toBeVisible();
+
+    const descBox = await descriptorsBtn.boundingBox();
+    const wheelBox = await wheelBtn.boundingBox();
+    expect(descBox).not.toBeNull();
+    expect(wheelBox).not.toBeNull();
+    expect(Math.abs(descBox!.height - 32)).toBeLessThanOrEqual(TOLERANCE);
+    expect(Math.abs(wheelBox!.height - 32)).toBeLessThanOrEqual(TOLERANCE);
+  });
+
   test("all interactive buttons across primary views conform to [32px, 40px, 48px]", async ({ page }) => {
     const routes = ["/timer", "/stash", "/recipes", "/equipment", "/reviews", "/settings"];
     for (const route of routes) {
