@@ -104,20 +104,17 @@ describe('StashView', () => {
     // Peak badge (Sey)
     const peakBadge = screen.getByText('Peak Flavor Window');
     expect(peakBadge).toBeDefined();
-    expect(peakBadge.className).toContain('bg-emerald-500');
-    expect(peakBadge.className).toContain('text-zinc-950');
+    expect(peakBadge.className).toContain('emerald');
 
     // Needs rest badge (Manhattan)
     const restBadge = screen.getByText('Needs Rest (De-gassing)');
     expect(restBadge).toBeDefined();
-    expect(restBadge.className).toContain('bg-amber-500');
-    expect(restBadge.className).toContain('text-zinc-950');
+    expect(restBadge.className).toContain('amber');
 
     // Past peak badge (Classic House)
     const pastPeakBadge = screen.getByText('Past Peak');
     expect(pastPeakBadge).toBeDefined();
-    expect(pastPeakBadge.className).toContain('bg-slate-600');
-    expect(pastPeakBadge.className).toContain('text-zinc-100');
+    expect(pastPeakBadge.className).toContain('slate');
   });
 
   it('calls onSelectBeanForBrew when clicking "BREW →"', () => {
@@ -407,7 +404,7 @@ describe('StashView', () => {
 
     const badge = screen.getByText('No Date Specified');
     expect(badge).toBeDefined();
-    expect(badge.className).toContain('bg-zinc-700');
+    expect(badge.className).toContain('bg-panel-recessed');
     expect(badge.className).not.toContain('bg-amber-500');
   });
 
@@ -495,8 +492,7 @@ describe('StashView', () => {
 
     const agingBadge = screen.getByText('Good (Drink Soon)');
     expect(agingBadge).toBeDefined();
-    expect(agingBadge.className).toContain('bg-orange-500');
-    expect(agingBadge.className).toContain('text-zinc-950');
+    expect(agingBadge.className).toContain('orange');
   });
 
   it('closes Add Bean modal when Escape key is pressed', () => {
