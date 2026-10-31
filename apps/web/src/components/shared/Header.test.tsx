@@ -89,4 +89,17 @@ describe('Header', () => {
     fireEvent.click(toggleBtn);
     expect(toggleBtn.getAttribute('aria-label')).toContain('Theme: System');
   });
+
+  it('does not render "Precision" in the header branding', () => {
+    render(
+      <MemoryRouter initialEntries={['/timer']}>
+        <SettingsProvider>
+          <Header beanCount={0} brewCount={0} onOpenAuthModal={vi.fn()} />
+        </SettingsProvider>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('BrewLog')).toBeDefined();
+    expect(screen.queryByText(/Precision/i)).toBeNull();
+  });
 });

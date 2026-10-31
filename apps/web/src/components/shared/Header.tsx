@@ -36,14 +36,9 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-panel border border-border-subtle group-hover:border-accent/60 transition-colors flex items-center justify-center flex-shrink-0 shadow-sm">
               <Coffee className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
             </div>
-            <div>
-              <span className="text-lg sm:text-xl font-bold tracking-tight text-text-primary">
-                BrewLog
-              </span>
-              <span className="hidden xl:inline-block ml-2 px-2 py-0.5 text-[10px] font-mono font-medium tracking-wider uppercase rounded bg-panel-recessed text-text-muted border border-border-subtle">
-                Precision
-              </span>
-            </div>
+            <span className="text-lg sm:text-xl font-bold tracking-tight text-text-primary">
+              BrewLog
+            </span>
           </Link>
 
           {/* Desktop Navigation Tabs: Responsive, no shrinking, no text wrap */}

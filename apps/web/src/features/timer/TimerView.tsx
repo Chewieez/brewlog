@@ -870,7 +870,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               <button
                 type="button"
                 onClick={() => onLogCompletedBrew(currentRecipe, elapsedSeconds, selectedBean || null)}
-                className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded bg-status-success hover:bg-status-success/90 text-canvas font-mono text-xs uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all border-0"
+                className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-status-success hover:bg-status-success/90 text-canvas font-mono text-xs uppercase tracking-wider font-bold shadow-sm cursor-pointer transition-all border-0"
                 aria-label="ADD REVIEW"
               >
                 <Plus className="w-4 h-4" />
@@ -890,7 +890,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 <button
                   type="button"
                   onClick={handleAddReview}
-                  className="btn-tactile-primary flex items-center justify-center space-x-2 py-2.5 px-3 rounded-lg font-mono text-xs uppercase tracking-wider font-bold"
+                  className="btn-tactile-primary flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl font-mono text-xs uppercase tracking-wider font-bold border-0 cursor-pointer transition-all"
                   aria-label="ADD REVIEW"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -900,7 +900,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   type="button"
                   onClick={handleSaveFreeBrewRecipe}
                   disabled={isRecipeSaved}
-                  className="btn-tactile-secondary flex items-center justify-center space-x-2 py-2.5 px-3 rounded-lg font-mono text-xs uppercase tracking-wider font-bold disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="btn-tactile-secondary flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl font-mono text-xs uppercase tracking-wider font-bold border-0 cursor-pointer transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                   aria-label="SAVE AS CUSTOM RECIPE"
                 >
                   {isRecipeSaved ? (
