@@ -85,11 +85,36 @@ Implement an end-to-end verification spec:
 
 ---
 
-## 6. Acceptance Criteria
+## 7. Semantic Color Token Renaming (Eliminate `text-text-*` Collision)
+
+### Background & Collision
+In Tailwind CSS v4, any CSS variable named `--color-<name>` automatically exposes a utility color identifier matching `<name>`. Because design tokens currently name typography colors `--color-text-primary`, `--color-text-secondary`, and `--color-text-muted`, Tailwind generates utility classes by prepending property prefixes, resulting in duplicated `text-text-*` classes (e.g., `text-` + `text-primary` = `text-text-primary`, `bg-text-primary`, etc.). Across `apps/web`, there are currently over 550 usages of this duplicated syntax.
+
+### Migration Objective
+During the Phase 7B token pass, rename typography color tokens to eliminate the double prefix:
+- **Option A (Standard Design System Convention - Recommended)**:
+  - `--color-foreground` -> generates `text-foreground`
+  - `--color-foreground-muted` -> generates `text-foreground-muted`
+  - `--color-foreground-subtle` -> generates `text-foreground-subtle`
+- **Option B (Content-based Convention)**:
+  - `--color-content-primary` -> generates `text-content-primary`
+  - `--color-content-secondary` -> generates `text-content-secondary`
+  - `--color-content-muted` -> generates `text-content-muted`
+
+### Scope
+- Update `ThemeColors` in `packages/core/src/theme.ts`.
+- Update CSS variable definitions in `apps/web/src/index.css`.
+- Update `SettingsContext.tsx` dynamic theme injector.
+- Run a coordinated monorepo migration to replace all existing `text-text-*` references with the clean token class.
+
+---
+
+## 8. Acceptance Criteria
 
 - [ ] All `@brewlog/ui` button size variants compile to `h-8` (32px), `h-10` (40px), and `h-12` (48px).
 - [ ] All modal dialog footers use standardized `h-10` (40px) action buttons.
 - [ ] All page header utility buttons and filter chips use standardized `h-8` (32px) buttons.
 - [ ] Playwright button sizing test suite passes with zero non-standard height violations.
+- [ ] Semantic typography color tokens are migrated to eliminate duplicated `text-text-*` classes.
 - [ ] Monorepo unit and integration tests maintain 100% pass rate.
 - [ ] Zero emoji present in code, styles, tests, or documentation.
