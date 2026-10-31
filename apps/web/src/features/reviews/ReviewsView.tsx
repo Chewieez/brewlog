@@ -568,14 +568,14 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setMode('create')}
-              className="text-xs font-sans uppercase tracking-wider text-accent px-3 py-1.5 rounded-lg btn-tactile-secondary cursor-pointer transition-colors border-0"
+              className="h-8 inline-flex items-center justify-center text-xs font-sans uppercase tracking-wider text-accent px-3 rounded-lg btn-tactile-secondary cursor-pointer transition-colors border-0"
             >
               Resume Review
             </button>
             {onClearPendingSession && (
               <button
                 onClick={onClearPendingSession}
-                className="text-xs font-sans uppercase tracking-wider text-foreground-muted hover:text-foreground px-3 py-1.5 rounded-lg btn-tactile-secondary cursor-pointer transition-colors border-0"
+                className="h-8 inline-flex items-center justify-center text-xs font-sans uppercase tracking-wider text-foreground-muted hover:text-foreground px-3 rounded-lg btn-tactile-secondary cursor-pointer transition-colors border-0"
               >
                 Clear
               </button>

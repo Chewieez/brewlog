@@ -743,7 +743,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 type="button"
                 onClick={toggleTimer}
                 disabled={isFreeBrewFinished}
-                className={`flex items-center space-x-2 px-8 py-3 rounded-lg font-mono text-xs uppercase tracking-wider font-bold transition-all ${
+                className={`h-12 flex items-center space-x-2 px-8 rounded-lg font-mono text-xs uppercase tracking-wider font-bold transition-all ${
                   isFreeBrewFinished
                     ? 'bg-panel-recessed text-foreground-muted cursor-not-allowed opacity-60'
                     : 'btn-tactile-primary'
@@ -772,7 +772,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 <button
                   type="button"
                   onClick={() => recordSplit()}
-                  className="btn-tactile-secondary flex items-center space-x-1.5 px-4 py-3 rounded-lg text-accent font-mono text-xs uppercase tracking-wider font-bold"
+                  className="btn-tactile-secondary h-12 flex items-center space-x-1.5 px-4 rounded-lg text-accent font-mono text-xs uppercase tracking-wider font-bold"
                   title="Record Split"
                   aria-label="SPLIT"
                 >
@@ -784,7 +784,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               <button
                 type="button"
                 onClick={handleReset}
-                className="btn-tactile-secondary p-3 rounded-lg text-foreground-secondary hover:text-foreground"
+                className="btn-tactile-secondary w-12 h-12 flex items-center justify-center rounded-lg text-foreground-secondary hover:text-foreground"
                 title="Reset Timer"
                 aria-label="Reset Timer"
               >
@@ -798,7 +798,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               <button
                 type="button"
                 onClick={toggleMute}
-                className="btn-tactile-secondary p-3 rounded-lg text-foreground-secondary hover:text-foreground"
+                className="btn-tactile-secondary w-12 h-12 flex items-center justify-center rounded-lg text-foreground-secondary hover:text-foreground"
                 title={isMuted ? 'Unmute Audio Chimes' : 'Mute Audio Chimes'}
                 aria-label={isMuted ? 'Unmute Audio Chimes' : 'Mute Audio Chimes'}
               >

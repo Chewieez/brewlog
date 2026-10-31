@@ -711,7 +711,7 @@ export const StashView: React.FC<StashViewProps> = ({
                         key={preset.grams}
                         type="button"
                         onClick={() => handleSelectPreset(preset.grams)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium transition-colors cursor-pointer ${
+                        className={`h-8 px-3 rounded-lg text-xs font-mono font-medium inline-flex items-center justify-center transition-colors cursor-pointer ${
                           bagWeightGrams === preset.grams
                             ? 'btn-tactile-primary font-bold'
                             : 'btn-tactile-secondary text-foreground-secondary'

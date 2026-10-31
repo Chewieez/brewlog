@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { Button } from '@brewlog/ui';
 import {
   Settings,
   RotateCcw,
@@ -191,7 +192,7 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ theme: 'system' })}
                 aria-pressed={settings.theme === 'system'}
-                className={`flex items-center space-x-1.5 px-3 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`h-8 inline-flex items-center space-x-1.5 px-3 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.theme === 'system'
                     ? 'segmented-thumb-active shadow-sm'
                     : 'text-foreground-muted hover:text-foreground'
@@ -204,7 +205,7 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ theme: 'tactile_dark' })}
                 aria-pressed={settings.theme === 'tactile_dark'}
-                className={`flex items-center space-x-1.5 px-3 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`h-8 inline-flex items-center space-x-1.5 px-3 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.theme === 'tactile_dark'
                     ? 'segmented-thumb-active shadow-sm'
                     : 'text-foreground-muted hover:text-foreground'
@@ -217,7 +218,7 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ theme: 'studio_light' })}
                 aria-pressed={settings.theme === 'studio_light'}
-                className={`flex items-center space-x-1.5 px-3 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`h-8 inline-flex items-center space-x-1.5 px-3 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.theme === 'studio_light'
                     ? 'segmented-thumb-active shadow-sm'
                     : 'text-foreground-muted hover:text-foreground'
@@ -253,7 +254,7 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ weightUnit: 'metric' })}
                 aria-pressed={settings.weightUnit === 'metric'}
-                className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`h-8 inline-flex items-center justify-center px-4 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.weightUnit === 'metric'
                     ? 'segmented-thumb-active shadow-sm'
                     : 'text-foreground-muted hover:text-foreground'
@@ -265,7 +266,7 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ weightUnit: 'imperial' })}
                 aria-pressed={settings.weightUnit === 'imperial'}
-                className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`h-8 inline-flex items-center justify-center px-4 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.weightUnit === 'imperial'
                     ? 'segmented-thumb-active shadow-sm'
                     : 'text-foreground-muted hover:text-foreground'
@@ -300,7 +301,7 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ temperatureUnit: 'celsius' })}
                 aria-pressed={settings.temperatureUnit === 'celsius'}
-                className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`h-8 inline-flex items-center justify-center px-4 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.temperatureUnit === 'celsius'
                     ? 'segmented-thumb-active shadow-sm'
                     : 'text-foreground-muted hover:text-foreground'
@@ -312,7 +313,7 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ temperatureUnit: 'fahrenheit' })}
                 aria-pressed={settings.temperatureUnit === 'fahrenheit'}
-                className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`h-8 inline-flex items-center justify-center px-4 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.temperatureUnit === 'fahrenheit'
                     ? 'segmented-thumb-active shadow-sm'
                     : 'text-foreground-muted hover:text-foreground'
@@ -347,7 +348,7 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ defaultTimerMode: 'free_brew' })}
                 aria-pressed={settings.defaultTimerMode === 'free_brew'}
-                className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`h-8 inline-flex items-center justify-center px-4 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.defaultTimerMode === 'free_brew'
                     ? 'segmented-thumb-active shadow-sm'
                     : 'text-foreground-muted hover:text-foreground'
@@ -359,7 +360,7 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ defaultTimerMode: 'recipe' })}
                 aria-pressed={settings.defaultTimerMode === 'recipe'}
-                className={`px-4 py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`h-8 inline-flex items-center justify-center px-4 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.defaultTimerMode === 'recipe'
                     ? 'segmented-thumb-active shadow-sm'
                     : 'text-foreground-muted hover:text-foreground'
@@ -394,7 +395,7 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ dateFormat: 'locale' })}
                 aria-pressed={settings.dateFormat === 'locale'}
-                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`h-8 inline-flex items-center justify-center px-3 sm:px-4 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'locale'
                     ? 'segmented-thumb-active shadow-sm'
                     : 'text-foreground-muted hover:text-foreground'
@@ -406,7 +407,7 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ dateFormat: 'YYYY-MM-DD' })}
                 aria-pressed={settings.dateFormat === 'YYYY-MM-DD'}
-                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`h-8 inline-flex items-center justify-center px-3 sm:px-4 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'YYYY-MM-DD'
                     ? 'segmented-thumb-active shadow-sm'
                     : 'text-foreground-muted hover:text-foreground'
@@ -418,7 +419,7 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ dateFormat: 'MM/DD/YYYY' })}
                 aria-pressed={settings.dateFormat === 'MM/DD/YYYY'}
-                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`h-8 inline-flex items-center justify-center px-3 sm:px-4 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'MM/DD/YYYY'
                     ? 'segmented-thumb-active shadow-sm'
                     : 'text-foreground-muted hover:text-foreground'
@@ -430,7 +431,7 @@ export const SettingsRoute: React.FC = () => {
                 type="button"
                 onClick={() => updateSettings({ dateFormat: 'DD/MM/YYYY' })}
                 aria-pressed={settings.dateFormat === 'DD/MM/YYYY'}
-                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
+                className={`h-8 inline-flex items-center justify-center px-3 sm:px-4 rounded-md font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer ${
                   settings.dateFormat === 'DD/MM/YYYY'
                     ? 'segmented-thumb-active shadow-sm'
                     : 'text-foreground-muted hover:text-foreground'
@@ -487,14 +488,15 @@ export const SettingsRoute: React.FC = () => {
 
         {/* Reset to Factory Defaults */}
         <div className="pt-2">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="md"
+            icon={<RotateCcw className="w-4 h-4" />}
             onClick={() => setIsResetModalOpen(true)}
-            className="w-full sm:w-auto flex items-center justify-center space-x-2 px-5 py-2.5 rounded-lg border border-border-subtle hover:border-status-error/50 hover:bg-status-error/10 text-foreground-muted hover:text-status-error font-mono text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer"
-          >
-            <RotateCcw className="w-4 h-4" />
-            <span>RESET TO DEFAULTS</span>
-          </button>
+            label="RESET TO DEFAULTS"
+            className="w-full sm:w-auto hover:border-status-error/50 hover:bg-status-error/10 hover:text-status-error"
+          />
         </div>
       </div>
 

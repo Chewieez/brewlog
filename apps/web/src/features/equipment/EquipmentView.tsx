@@ -184,7 +184,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                 e.stopPropagation();
                 onToggleFavorite(item.id);
               }}
-              className={`p-1 cursor-pointer transition-colors ${
+              className={`w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-colors ${
                 item.isFavorite
                   ? "text-accent"
                   : "text-foreground-muted hover:text-foreground"
@@ -201,7 +201,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                 e.stopPropagation();
                 onDeleteEquipment(item.id);
               }}
-              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-foreground-muted hover:text-red-500 cursor-pointer"
+              className="w-8 h-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-foreground-muted hover:text-red-500 cursor-pointer"
               title={`Delete ${item.model}`}
               aria-label={`Delete ${item.model}`}
             >

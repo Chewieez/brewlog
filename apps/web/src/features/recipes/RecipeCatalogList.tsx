@@ -120,7 +120,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                           e.stopPropagation();
                           onEditRecipe(r);
                         }}
-                        className="pointer-events-auto p-1 rounded text-foreground-muted hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer"
+                        className="pointer-events-auto w-8 h-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer"
                         title="Edit Recipe"
                         aria-label={`Edit custom recipe ${r.name}`}
                       >
@@ -135,7 +135,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                           e.stopPropagation();
                           setRecipeToDelete(r);
                         }}
-                        className="pointer-events-auto p-1 rounded text-foreground-muted hover:text-status-error hover:bg-panel-recessed transition-colors cursor-pointer"
+                        className="pointer-events-auto w-8 h-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-status-error hover:bg-panel-recessed transition-colors cursor-pointer"
                         title="Delete Recipe"
                         aria-label={`Delete custom recipe ${r.name}`}
                       >

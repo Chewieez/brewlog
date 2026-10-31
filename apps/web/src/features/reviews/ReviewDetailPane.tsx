@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from '@brewlog/ui';
 import { TastingLog, Bean, Equipment, formatDisplayDate } from '@brewlog/core';
 import { useOptionalSettings } from '../settings/SettingsContext';
 import {
@@ -237,7 +238,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           <div className="flex items-center p-0.5 rounded-lg segmented-track">
             <button
               onClick={() => setSensoryTab('descriptors')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
+              className={`h-8 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
                 sensoryTab === 'descriptors'
                   ? 'segmented-thumb-active font-semibold'
                   : 'text-foreground-muted hover:text-foreground'
@@ -248,7 +249,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             </button>
             <button
               onClick={() => setSensoryTab('wheel')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
+              className={`h-8 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
                 sensoryTab === 'wheel'
                   ? 'segmented-thumb-active font-semibold'
                   : 'text-foreground-muted hover:text-foreground'
@@ -437,23 +438,23 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
               <strong className="text-foreground">{beanName}</strong>? This action cannot be undone.
             </p>
             <div className="flex items-center justify-end gap-3 pt-2">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="md"
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-xs font-medium rounded-lg btn-tactile-secondary text-foreground-muted hover:text-foreground transition-colors cursor-pointer border-0"
-              >
-                Cancel
-              </button>
-              <button
+                label="Cancel"
+              />
+              <Button
                 type="button"
+                variant="danger"
+                size="md"
                 onClick={() => {
                   setShowDeleteModal(false);
                   onDelete(log);
                 }}
-                className="px-4 py-2 text-xs font-semibold rounded-lg bg-rose-600 text-white hover:bg-rose-500 transition-colors cursor-pointer border-0"
-              >
-                Confirm Delete
-              </button>
+                label="Confirm Delete"
+              />
             </div>
           </div>
         </div>
