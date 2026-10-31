@@ -807,7 +807,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     <button
                       type="button"
                       onClick={handleCancelEditor}
-                      className="px-3.5 py-1.5 text-xs font-medium rounded-lg btn-tactile-secondary text-text-muted hover:text-text-primary transition-colors cursor-pointer whitespace-nowrap border-0"
+                      className="h-8 px-3.5 text-xs font-medium rounded-lg btn-tactile-secondary text-text-muted hover:text-text-primary transition-colors cursor-pointer whitespace-nowrap border-0 inline-flex items-center justify-center"
                     >
                       Cancel
                     </button>
@@ -815,9 +815,9 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     <button
                       type="submit"
                       disabled={isSaving}
-                      className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg btn-tactile-primary text-xs font-semibold uppercase tracking-wider cursor-pointer transition-all disabled:opacity-50 whitespace-nowrap shrink-0 border-0"
+                      className="h-8 inline-flex items-center justify-center gap-1.5 px-4 rounded-lg btn-tactile-primary text-xs font-semibold uppercase tracking-wider cursor-pointer transition-all disabled:opacity-50 whitespace-nowrap shrink-0 border-0"
                     >
-                      <Save className="w-4.5 h-4.5 shrink-0" />
+                      <Save className="w-4 h-4 shrink-0" />
                       <span>
                         {isSaving
                           ? 'Saving...'
@@ -1402,16 +1402,16 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 <button
                   type="button"
                   onClick={handleCancelEditor}
-                  className="px-4 py-2.5 text-xs font-medium rounded-xl btn-tactile-secondary text-text-muted hover:text-text-primary transition-colors cursor-pointer whitespace-nowrap border-0"
+                  className="h-8 px-4 text-xs font-medium rounded-lg btn-tactile-secondary text-text-muted hover:text-text-primary transition-colors cursor-pointer whitespace-nowrap border-0 inline-flex items-center justify-center"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl btn-tactile-primary text-xs font-semibold uppercase tracking-wider cursor-pointer transition-all disabled:opacity-50 whitespace-nowrap shrink-0 border-0"
+                  className="h-8 inline-flex items-center justify-center gap-1.5 px-6 rounded-lg btn-tactile-primary text-xs font-semibold uppercase tracking-wider cursor-pointer transition-all disabled:opacity-50 whitespace-nowrap shrink-0 border-0"
                 >
-                  <Save className="w-4.5 h-4.5 shrink-0" />
+                  <Save className="w-4 h-4 shrink-0" />
                   <span>
                     {isSaving
                       ? 'Saving...'
