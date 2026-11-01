@@ -21,6 +21,7 @@ export const Badge: React.FC<BadgeProps> = ({
     variant === 'success' && styles.successContainer,
     variant === 'warning' && styles.warningContainer,
     variant === 'error' && styles.errorContainer,
+    variant === 'info' && styles.infoContainer,
   ];
 
   const textStyles = [
@@ -31,6 +32,7 @@ export const Badge: React.FC<BadgeProps> = ({
     variant === 'success' && styles.successText,
     variant === 'warning' && styles.warningText,
     variant === 'error' && styles.errorText,
+    variant === 'info' && styles.infoText,
   ];
 
   return (
@@ -56,6 +58,7 @@ const styles = StyleSheet.create({
   successContainer: { backgroundColor: `${colors.statusSuccess}15`, borderColor: `${colors.statusSuccess}60` },
   warningContainer: { backgroundColor: `${colors.statusWarning}15`, borderColor: `${colors.statusWarning}60` },
   errorContainer: { backgroundColor: `${colors.statusError}15`, borderColor: `${colors.statusError}60` },
+  infoContainer: { backgroundColor: `${colors.statusInfo}15`, borderColor: `${colors.statusInfo}60` },
   baseText: { color: colors.textSecondary },
   smText: { fontSize: 9 },
   mdText: { fontSize: 10 },
@@ -65,4 +68,5 @@ const styles = StyleSheet.create({
   successText: { color: colors.statusSuccess },
   warningText: { color: colors.statusWarning },
   errorText: { color: colors.statusError },
+  infoText: { color: colors.statusInfo },
 });

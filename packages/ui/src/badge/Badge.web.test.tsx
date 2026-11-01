@@ -25,4 +25,11 @@ describe('Badge (web)', () => {
     expect(badge.className).toContain('text-accent');
     expect(badge.className).toContain('border-accent');
   });
+
+  it('renders info badge with sky styling', () => {
+    render(<Badge label="Frozen" variant="info" />);
+    const badge = screen.getByText('Frozen');
+    expect(badge).toBeInTheDocument();
+    expect(badge.className).toContain('text-status-info');
+  });
 });
