@@ -1,9 +1,9 @@
 /** @vitest-environment jsdom */
 import React from 'react';
-import { render, fireEvent as rtlFireEvent, cleanup } from '@testing-library/react';
+import { render, renderHook, fireEvent as rtlFireEvent, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { BrewSplit } from '@brewlog/core';
-import { FreeBrewSplitTimeline, styles } from './FreeBrewSplitTimeline';
+import { FreeBrewSplitTimeline, useStyles } from './FreeBrewSplitTimeline';
 
 vi.mock('react-native', () => ({
   View: ({
@@ -118,10 +118,11 @@ describe('FreeBrewSplitTimeline', () => {
   });
 
   it('enforces Apple HIG 44x44pt minimum touch target on delete button', () => {
-    expect(styles.deleteButton.minHeight).toBeGreaterThanOrEqual(44);
-    expect(styles.deleteButton.minWidth).toBeGreaterThanOrEqual(44);
-    expect(styles.deleteButton.justifyContent).toBe('center');
-    expect(styles.deleteButton.alignItems).toBe('center');
+    const { result } = renderHook(() => useStyles());
+    expect(result.current.deleteButton.minHeight).toBeGreaterThanOrEqual(44);
+    expect(result.current.deleteButton.minWidth).toBeGreaterThanOrEqual(44);
+    expect(result.current.deleteButton.justifyContent).toBe('center');
+    expect(result.current.deleteButton.alignItems).toBe('center');
   });
 
   it('renders tag badges for drawdown and custom tags correctly', () => {

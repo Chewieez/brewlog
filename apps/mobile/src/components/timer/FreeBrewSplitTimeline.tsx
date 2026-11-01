@@ -232,6 +232,4 @@ export const useStyles = makeStyles((colors) => ({
   },
 }));
 
-export const styles = useStyles();
-
 export default FreeBrewSplitTimeline;
