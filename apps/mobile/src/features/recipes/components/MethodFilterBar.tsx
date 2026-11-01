@@ -1,10 +1,8 @@
 import React, { useMemo } from 'react';
 import { ScrollView, Pressable, Text, StyleSheet } from 'react-native';
 import { BrewRecipe } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface MethodFilterBarProps {
   recipes: BrewRecipe[];
@@ -17,6 +15,7 @@ export const MethodFilterBar: React.FC<MethodFilterBarProps> = ({
   selectedMethod,
   onSelectMethod,
 }) => {
+  const styles = useStyles();
   const pills = useMemo(() => {
     const methods = Array.from(new Set(recipes.map((r) => r.brewMethod.toLowerCase())));
     return ['all', 'custom', ...methods.filter((m) => m !== 'custom')];
@@ -54,7 +53,7 @@ export const MethodFilterBar: React.FC<MethodFilterBarProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -87,4 +86,4 @@ const styles = StyleSheet.create({
   pillTextInactive: {
     color: colors.textMuted,
   },
-});
+}));

@@ -1,16 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { BrewStage } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface StagesTimelineProps {
   stages: BrewStage[];
 }
 
 export const StagesTimeline: React.FC<StagesTimelineProps> = ({ stages }) => {
+  const styles = useStyles();
   return (
     <View style={styles.container}>
       <Text style={styles.sectionTitle}>BREW STEPS TIMELINE</Text>
@@ -45,7 +44,7 @@ export const StagesTimeline: React.FC<StagesTimelineProps> = ({ stages }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     gap: 12,
   },
@@ -121,4 +120,4 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     lineHeight: 16,
   },
-});
+}));

@@ -7,7 +7,7 @@ import {
   Equipment,
   DEFAULT_USER_SETTINGS,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { useRecipes } from '../RecipeContext';
 import { EquipmentContext, useOptionalEquipment } from '../../equipment/EquipmentContext';
 import { useOptionalSettings } from '../../settings/SettingsContext';
@@ -15,8 +15,6 @@ import { SpecsGrid } from '../components/SpecsGrid';
 import { DoseRescaler } from '../components/DoseRescaler';
 import { StagesTimeline } from '../components/StagesTimeline';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface RecipeDetailScreenProps {
   recipeId: string;
@@ -27,6 +25,8 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
   recipeId,
   equipment: propEquipment,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const { recipes, deleteRecipe, setActiveTimerRecipe } = useRecipes();
   const equipmentContext = useOptionalEquipment?.() ?? useContext(EquipmentContext);
@@ -223,7 +223,7 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -447,4 +447,4 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textPrimary,
   },
-});
+}));

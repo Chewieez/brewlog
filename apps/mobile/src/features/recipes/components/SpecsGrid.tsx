@@ -7,10 +7,8 @@ import {
   formatWeight,
   formatTemperature,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface SpecsGridProps {
   totalWater: number;
@@ -29,6 +27,8 @@ export const SpecsGrid: React.FC<SpecsGridProps> = ({
   weightUnit,
   temperatureUnit,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const mins = Math.floor(totalTimeSeconds / 60);
   const secs = totalTimeSeconds % 60;
   const timeFormatted = `${mins}m ${String(secs).padStart(2, '0')}s`;
@@ -84,7 +84,7 @@ export const SpecsGrid: React.FC<SpecsGridProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -129,4 +129,4 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontVariant: ['tabular-nums'],
   },
-});
+}));

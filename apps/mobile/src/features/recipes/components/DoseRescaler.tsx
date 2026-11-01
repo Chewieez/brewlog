@@ -1,10 +1,8 @@
 import React from 'react';
 import { View, Text, Pressable, TextInput, StyleSheet } from 'react-native';
 import { Minus, Plus } from 'lucide-react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface DoseRescalerProps {
   currentDose: number;
@@ -24,6 +22,8 @@ export const DoseRescaler: React.FC<DoseRescalerProps> = ({
   baseDose,
   onDoseChange,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const handleStep = (delta: number) => {
     const next = Math.max(1, Math.min(100, Math.round((currentDose + delta) * 10) / 10));
     onDoseChange(next);
@@ -122,7 +122,7 @@ export const DoseRescaler: React.FC<DoseRescalerProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     backgroundColor: colors.panel,
     borderWidth: 1,
@@ -240,4 +240,4 @@ const styles = StyleSheet.create({
   presetDoseInactive: {
     color: colors.textMuted,
   },
-});
+}));

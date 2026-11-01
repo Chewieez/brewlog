@@ -32,13 +32,11 @@ import {
   RecipeGrinderSetting,
   GrinderSettingScale,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { useRecipes } from '../RecipeContext';
 import { EquipmentContext, useOptionalEquipment } from '../../equipment/EquipmentContext';
 import { recalculateTiming, calculateTotalBrewTime } from '../utils/timingUtils';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 const SCALE_TYPE_OPTIONS: { label: string; value: GrinderSettingScale }[] = [
   { label: 'Stepped Numbers', value: 'stepped-numbers' },
@@ -99,6 +97,8 @@ const DEFAULT_STAGES: BrewStage[] = [
 ];
 
 export const RecipeBuilderScreen: React.FC = () => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const {
     editId,
@@ -1115,7 +1115,7 @@ export const RecipeBuilderScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   safeArea: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -1730,4 +1730,4 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textSecondary,
   },
-});
+}));
