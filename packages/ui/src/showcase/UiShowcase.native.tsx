@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { Button } from '../button/Button.native';
 import { Card } from '../card/Card.native';
 import { Badge } from '../badge/Badge.native';
 import { Input } from '../input/Input.native';
 import { MetricTile } from '../metric-tile/MetricTile.native';
 import { SegmentedControl } from '../segmented-control/SegmentedControl.native';
-import { INDUSTRIAL_PRECISION_THEME } from '../theme';
+import { makeStyles } from '../theme';
 import type { UiShowcaseProps } from './UiShowcase.types';
 
-const colors = INDUSTRIAL_PRECISION_THEME.colors;
-
 export const UiShowcase: React.FC<UiShowcaseProps> = ({ testID }) => {
+  const styles = useStyles();
   const [dose, setDose] = useState('18.5');
   const [segmentMode, setSegmentMode] = useState<'recipe' | 'free'>('recipe');
   const [ratio, setRatio] = useState<'1:15' | '1:16' | '1:17'>('1:16');
@@ -77,12 +76,12 @@ export const UiShowcase: React.FC<UiShowcaseProps> = ({ testID }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: { padding: 16, gap: 16, backgroundColor: colors.canvas },
   sectionHeader: {
     fontFamily: 'JetBrainsMono_700Bold',
     fontSize: 11,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
     letterSpacing: 1.2,
     marginTop: 8,
   },
@@ -97,13 +96,13 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  cardText: { color: colors.textPrimary, fontFamily: 'Outfit_400Regular', fontSize: 14 },
+  cardText: { color: colors.foreground, fontFamily: 'Outfit_400Regular', fontSize: 14 },
   segmentedControlSection: { gap: 8 },
   sublabel: {
     fontFamily: 'JetBrainsMono_700Bold',
     fontSize: 10,
-    color: colors.textSecondary,
+    color: colors.foregroundSecondary,
     letterSpacing: 1,
     marginBottom: 4,
   },
-});
+}));

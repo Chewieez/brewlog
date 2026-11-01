@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Pressable, Text, StyleSheet } from 'react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '../theme';
+import { View, Pressable, Text } from 'react-native';
+import { makeStyles } from '../theme';
 import type { SegmentedControlProps } from './SegmentedControl.types';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export function SegmentedControl<T extends string = string>({
   options,
@@ -14,6 +12,7 @@ export function SegmentedControl<T extends string = string>({
   testID,
   ariaLabel,
 }: SegmentedControlProps<T>) {
+  const styles = useStyles();
   const isSm = size === 'sm';
 
   return (
@@ -61,7 +60,7 @@ export function SegmentedControl<T extends string = string>({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     flexDirection: 'row',
     backgroundColor: colors.panelRecessed,
@@ -98,7 +97,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accent,
   },
   text: {
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
     fontSize: 11,
     fontFamily: 'JetBrainsMono_700Bold',
     textTransform: 'uppercase',
@@ -111,4 +110,4 @@ const styles = StyleSheet.create({
   textActive: {
     color: colors.canvas,
   },
-});
+}));
