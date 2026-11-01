@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import type { StyleSheet } from 'react-native';
 import { useTheme } from './ThemeContext';
 import { ThemeColors, ThemeTokens } from './theme';
 
@@ -21,12 +21,7 @@ export function makeStyles<T extends NamedStyles<T> | NamedStyles<any>>(
       return cachedStyles;
     }
 
-    const createFn =
-      typeof StyleSheet !== 'undefined' && typeof StyleSheet.create === 'function'
-        ? StyleSheet.create
-        : (s: any) => s;
-
-    cachedStyles = createFn(styleFactory(colors, theme));
+    cachedStyles = styleFactory(colors, theme);
     cachedThemeId = theme.id;
     return cachedStyles;
   };

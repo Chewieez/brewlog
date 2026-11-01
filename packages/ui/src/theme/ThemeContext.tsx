@@ -35,14 +35,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 
 export function useTheme(): ThemeContextValue {
   try {
-    const dispatcher =
-      (React as any)?.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED?.ReactCurrentDispatcher
-        ?.current;
-    if (dispatcher) {
-      const context = useContext(ThemeContext);
-      return context ?? defaultContextValue;
-    }
-    return defaultContextValue;
+    const context = useContext(ThemeContext);
+    return context ?? defaultContextValue;
   } catch {
     return defaultContextValue;
   }
