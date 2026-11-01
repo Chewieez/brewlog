@@ -19,6 +19,7 @@ export function resolveFreshnessColor(
     case 'resting': return colors.statusWarning;
     case 'aging': return colors.accent;
     case 'past-peak': return colors.textMuted;
+    default: return colors.textMuted;
   }
 }
 
@@ -32,5 +33,6 @@ export function resolveFreshnessBadgeVariant(
     case 'resting': return 'warning';
     case 'aging': return 'accent';
     case 'past-peak': return 'default';
+    default: return 'default';
   }
 }

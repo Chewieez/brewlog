@@ -19,6 +19,7 @@
   --color-status-success: #22c55e;
   --color-status-warning: #f59e0b;
   --color-status-error: #ef4444;
+  --color-status-info: #38bdf8;
 
   --btn-primary-bg: linear-gradient(180deg, #e08242 0%, #cb6a28 100%);
   --btn-primary-text: #0e0d0c;
@@ -57,6 +58,7 @@
   --color-status-success: #16a34a;
   --color-status-warning: #d97706;
   --color-status-error: #dc2626;
+  --color-status-info: #0284c7;
 
   --btn-primary-bg: linear-gradient(180deg, #c25412 0%, #a34208 100%);
   --btn-primary-text: #ffffff;
@@ -95,6 +97,7 @@
   --color-status-success: #22c55e;
   --color-status-warning: #f59e0b;
   --color-status-error: #ef4444;
+  --color-status-info: #38bdf8;
 
   --btn-primary-bg: linear-gradient(180deg, #e08242 0%, #cb6a28 100%);
   --btn-primary-text: #0e0d0c;
@@ -136,6 +139,7 @@
   --color-status-success: var(--color-status-success);
   --color-status-warning: var(--color-status-warning);
   --color-status-error: var(--color-status-error);
+  --color-status-info: var(--color-status-info);
 
   --color-surface-panel: var(--color-panel);
   --color-surface-recessed: var(--color-panel-recessed);

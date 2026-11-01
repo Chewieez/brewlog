@@ -97,6 +97,13 @@ describe('theme tokens in @brewlog/ui', () => {
       expect(resolveFreshnessColor({ status: 'resting', hasRoastDate: false }, colors)).toBe(colors.textMuted);
     });
 
+    it('falls back defensively to neutral defaults for unrecognized statuses', () => {
+      // @ts-expect-error test malformed runtime status
+      expect(resolveFreshnessColor({ status: 'unknown' }, colors)).toBe(colors.textMuted);
+      // @ts-expect-error test malformed runtime status
+      expect(resolveFreshnessBadgeVariant({ status: 'unknown' })).toBe('default');
+    });
+
     it('resolves badge variants accurately', () => {
       expect(resolveFreshnessBadgeVariant({ status: 'peak' })).toBe('success');
       expect(resolveFreshnessBadgeVariant({ status: 'resting' })).toBe('warning');
