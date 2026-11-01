@@ -25,14 +25,19 @@ import {
   TemperatureUnit,
   TimerModePreference,
   DateFormatPreference,
+  ThemePreference,
   formatDisplayDate,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { useSettings } from '../../src/features/settings/SettingsContext';
 import { useAuth } from '../../src/features/auth/AuthContext';
 import { FONTS } from '../../src/theme/fonts';
 
-const { colors } = INDUSTRIAL_PRECISION_THEME;
+const THEME_OPTIONS: { id: ThemePreference; label: string; accessibilityLabel: string }[] = [
+  { id: 'system', label: 'SYSTEM', accessibilityLabel: 'System theme' },
+  { id: 'tactile_dark', label: 'TACTILE DARK', accessibilityLabel: 'Tactile Dark theme' },
+  { id: 'studio_light', label: 'STUDIO LIGHT', accessibilityLabel: 'Crisp Studio Light theme' },
+];
 
 const DATE_FORMAT_OPTIONS: { id: DateFormatPreference; label: string }[] = [
   { id: 'locale', label: 'LOCALE' },
@@ -43,10 +48,18 @@ const DATE_FORMAT_OPTIONS: { id: DateFormatPreference; label: string }[] = [
 
 export default function SettingsModalScreen() {
   const router = useRouter();
+  const styles = useStyles();
+  const { colors } = useTheme();
   const { settings, updateSettings, resetToDefaults } = useSettings();
   const { user } = useAuth();
   const [dateFormatOpen, setDateFormatOpen] = useState(false);
   const sampleDate = useMemo(() => new Date(), []);
+
+  const handleSelectTheme = async (theme: ThemePreference) => {
+    if (settings.theme === theme) return;
+    Haptics.selectionAsync().catch(() => {});
+    await updateSettings({ theme });
+  };
 
   const handleSelectWeight = async (unit: WeightUnit) => {
     if (settings.weightUnit === unit) return;
@@ -122,6 +135,42 @@ export default function SettingsModalScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* Section 0: Appearance / Theme */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionLabel}>APPEARANCE</Text>
+            <Text style={styles.sectionSublabel}>Visual theme preference</Text>
+          </View>
+          <View style={styles.segmentedContainer}>
+            {THEME_OPTIONS.map((opt) => {
+              const isSelected = (settings.theme ?? 'system') === opt.id;
+              return (
+                <TouchableOpacity
+                  key={opt.id}
+                  onPress={() => handleSelectTheme(opt.id)}
+                  activeOpacity={0.8}
+                  style={[
+                    styles.segmentTab,
+                    isSelected && styles.segmentTabActive,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel={opt.accessibilityLabel}
+                  accessibilityState={{ selected: isSelected }}
+                >
+                  <Text
+                    style={[
+                      styles.segmentText,
+                      isSelected && styles.segmentTextActive,
+                    ]}
+                  >
+                    {opt.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
         {/* Section 1: Weight Unit */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeaderRow}>
@@ -430,7 +479,7 @@ export default function SettingsModalScreen() {
 
 export { SettingsModalScreen };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   safeArea: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -463,7 +512,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoRegular,
     fontSize: 10,
     letterSpacing: 1.2,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   titleRow: {
     flexDirection: 'row',
@@ -474,7 +523,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 16,
     letterSpacing: 0.5,
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   closeButton: {
     minWidth: 44,
@@ -507,13 +556,13 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 12,
     letterSpacing: 0.8,
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   sectionSublabel: {
     fontFamily: FONTS.monoRegular,
     fontSize: 10,
     letterSpacing: 0.5,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   segmentedContainer: {
     flexDirection: 'row',
@@ -544,7 +593,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoMedium,
     fontSize: 12,
     letterSpacing: 0.5,
-    color: colors.textSecondary,
+    color: colors.foregroundSecondary,
   },
   segmentTextActive: {
     fontFamily: FONTS.monoBold,
@@ -579,12 +628,12 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 13,
     letterSpacing: 0.5,
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   dropdownActivePreview: {
     fontFamily: FONTS.monoRegular,
     fontSize: 12,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   dropdownMenu: {
     backgroundColor: colors.panelRecessed,
@@ -618,7 +667,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoRegular,
     fontSize: 12,
     letterSpacing: 0.5,
-    color: colors.textSecondary,
+    color: colors.foregroundSecondary,
   },
   dropdownOptionLabelSelected: {
     fontFamily: FONTS.monoBold,
@@ -627,10 +676,10 @@ const styles = StyleSheet.create({
   dropdownOptionPreview: {
     fontFamily: FONTS.monoRegular,
     fontSize: 11,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   dropdownOptionPreviewSelected: {
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   statusCard: {
     backgroundColor: colors.panelRecessed,
@@ -666,12 +715,12 @@ const styles = StyleSheet.create({
   statusUserEmail: {
     fontFamily: FONTS.monoMedium,
     fontSize: 12,
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   statusDescription: {
     fontFamily: FONTS.monoRegular,
     fontSize: 11,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
     lineHeight: 16,
   },
   resetButton: {
@@ -692,4 +741,4 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     color: colors.statusError,
   },
-});
+}));
