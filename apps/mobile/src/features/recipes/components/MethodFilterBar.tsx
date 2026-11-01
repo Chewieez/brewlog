@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { ScrollView, Pressable, Text, StyleSheet } from 'react-native';
-import { BrewRecipe, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { BrewRecipe } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView, useWindowDimensions } from 'react-native';
 import { X } from 'lucide-react-native';
-import { SCA_FLAVOR_WHEEL, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { SCA_FLAVOR_WHEEL } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { ScaFlavorWheelSvg } from './ScaFlavorWheelSvg';
 

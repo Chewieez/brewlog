@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Star } from 'lucide-react-native';
-import { Bean, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { Bean } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME, resolveFreshnessColor } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { calculateBeanRestingInfo } from '../utils/restingUtils';
 
@@ -21,6 +22,14 @@ export const BeanCard: React.FC<BeanCardProps> = ({
   onToggleFavorite,
 }) => {
   const restingInfo = calculateBeanRestingInfo(bean);
+  const badgeColor = resolveFreshnessColor(
+    {
+      status: restingInfo.status,
+      isFrozen: bean.isFrozen,
+      hasRoastDate: Boolean(bean.roastDate),
+    },
+    colors
+  );
   const remaining = bean.remainingGrams ?? bean.bagWeightGrams ?? 0;
   const totalBag = bean.bagWeightGrams ?? remaining;
   const isLowWeight = bean.remainingGrams !== undefined && bean.remainingGrams < 40;
@@ -82,9 +91,9 @@ export const BeanCard: React.FC<BeanCardProps> = ({
 
       {/* Badges Row: Resting Status, Origin Country, Process, Roast Level */}
       <View style={styles.badgeGroup}>
-        <View style={[styles.badge, { borderColor: restingInfo.badgeColor }]}>
+        <View style={[styles.badge, { borderColor: badgeColor }]}>
           <Text
-            style={[styles.restingBadgeText, { color: restingInfo.badgeColor }]}
+            style={[styles.restingBadgeText, { color: badgeColor }]}
           >
             {restingInfo.badgeLabel}
           </Text>

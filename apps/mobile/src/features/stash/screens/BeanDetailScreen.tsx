@@ -21,7 +21,8 @@ import {
   Scale,
   Check,
 } from 'lucide-react-native';
-import { Bean, INDUSTRIAL_PRECISION_THEME, formatDisplayDate } from '@brewlog/core';
+import { Bean, formatDisplayDate } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME, resolveFreshnessColor } from '@brewlog/ui';
 import { useStash } from '../StashContext';
 import { useOptionalSettings } from '../../settings/SettingsContext';
 import { calculateBeanRestingInfo, BeanRestingInfo } from '../utils/restingUtils';
@@ -69,6 +70,17 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
   const [customWeightText, setCustomWeightText] = useState<string>('');
 
   const restingInfo = bean ? calculateBeanRestingInfo(bean) : null;
+  const badgeColor =
+    restingInfo && bean
+      ? resolveFreshnessColor(
+          {
+            status: restingInfo.status,
+            isFrozen: bean.isFrozen,
+            hasRoastDate: Boolean(bean.roastDate),
+          },
+          colors
+        )
+      : colors.textMuted;
 
   const currentRemaining = bean?.remainingGrams ?? bean?.bagWeightGrams ?? 0;
   const bagTotal = bean?.bagWeightGrams ?? currentRemaining;
@@ -308,13 +320,13 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
           <View
             style={[
               styles.restingBadge,
-              { borderColor: restingInfo.badgeColor },
+              { borderColor: badgeColor },
             ]}
           >
             <Text
               style={[
                 styles.restingBadgeText,
-                { color: restingInfo.badgeColor },
+                { color: badgeColor },
               ]}
             >
               {restingInfo.badgeLabel}
@@ -333,7 +345,7 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
                   style={[
                     styles.timelineSegmentBar,
                     isHighlighted
-                      ? { backgroundColor: restingInfo.badgeColor }
+                      ? { backgroundColor: badgeColor }
                       : styles.timelineSegmentBarInactive,
                   ]}
                 />
@@ -341,7 +353,7 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
                   style={[
                     styles.timelineStageLabel,
                     isCurrent && {
-                      color: restingInfo.badgeColor,
+                      color: badgeColor,
                       fontFamily: FONTS.monoBold,
                     },
                   ]}
@@ -359,7 +371,7 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
             Current Age:{' '}
             <Text style={styles.restingDetailValue}>
               {bean.isFrozen
-                ? `❄️ Day ${restingInfo.effectiveDays} (Frozen)`
+                ? `Day ${restingInfo.effectiveDays} (Frozen)`
                 : `Day ${restingInfo.effectiveDays}`}
             </Text>
           </Text>

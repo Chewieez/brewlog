@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus, Search, X } from 'lucide-react-native';
-import { TastingLog, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { TastingLog } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { useReviews } from '../ReviewsContext';
 import { ReviewsSummaryBar } from '../components/ReviewsSummaryBar';

@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Trash2 } from 'lucide-react-native';
-import { INDUSTRIAL_PRECISION_THEME, BrewSplit, SplitTag } from '@brewlog/core';
+import { BrewSplit, SplitTag } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { FONTS } from '../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;

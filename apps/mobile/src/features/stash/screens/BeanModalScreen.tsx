@@ -16,8 +16,8 @@ import {
   Bean,
   ProcessMethod,
   RoastLevel,
-  INDUSTRIAL_PRECISION_THEME,
 } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { useStash, AddBeanInput } from '../StashContext';
 import { FONTS } from '../../../theme/fonts';
 

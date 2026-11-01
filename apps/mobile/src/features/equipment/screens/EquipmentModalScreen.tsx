@@ -16,8 +16,8 @@ import {
   Equipment,
   EquipmentType,
   GrinderSettingScale,
-  INDUSTRIAL_PRECISION_THEME,
 } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { useEquipment } from '../EquipmentContext';
 import { FONTS } from '../../../theme/fonts';
 

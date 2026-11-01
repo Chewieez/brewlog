@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Star, Edit3, Trash2, Check } from 'lucide-react-native';
-import { TastingLog, INDUSTRIAL_PRECISION_THEME, formatDisplayDate } from '@brewlog/core';
+import { TastingLog, formatDisplayDate } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { useOptionalSettings } from '../../settings/SettingsContext';
 import { FONTS } from '../../../theme/fonts';
 import { useReviews } from '../ReviewsContext';

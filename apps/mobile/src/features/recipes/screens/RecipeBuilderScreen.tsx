@@ -23,7 +23,6 @@ import {
   ChevronDown,
 } from 'lucide-react-native';
 import {
-  INDUSTRIAL_PRECISION_THEME,
   BrewMethodType,
   StageType,
   BrewStage,
@@ -33,6 +32,7 @@ import {
   RecipeGrinderSetting,
   GrinderSettingScale,
 } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { useRecipes } from '../RecipeContext';
 import { EquipmentContext, useOptionalEquipment } from '../../equipment/EquipmentContext';
 import { recalculateTiming, calculateTotalBrewTime } from '../utils/timingUtils';
