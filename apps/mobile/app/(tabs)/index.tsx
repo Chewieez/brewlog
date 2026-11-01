@@ -3,7 +3,6 @@ import { View, ScrollView, StyleSheet, Text, Pressable, Alert } from 'react-nati
 import { useRouter, useLocalSearchParams, useScrollToTop } from 'expo-router';
 import { Plus, Check } from 'lucide-react-native';
 import {
-  INDUSTRIAL_PRECISION_THEME,
   DEFAULT_USER_SETTINGS,
   DEFAULT_FREE_BREW_RECIPE,
   DEFAULT_FREE_BREW_DOSE,
@@ -15,6 +14,7 @@ import {
   splitsToRecipeStages,
   BrewRecipe,
 } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { useRecipes } from '../../src/features/recipes/RecipeContext';
 import { useOptionalSettings } from '../../src/features/settings/SettingsContext';
 import { useOptionalStash } from '../../src/features/stash/StashContext';

@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { CheckCircle2, CircleDot, Circle } from 'lucide-react-native';
-import { INDUSTRIAL_PRECISION_THEME, BrewStage } from '@brewlog/core';
+import { BrewStage } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { FONTS } from '../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;

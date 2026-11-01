@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Pressable, Text, StyleSheet } from 'react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '../theme';
 import type { SegmentedControlProps } from './SegmentedControl.types';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;

@@ -3,11 +3,11 @@ import { View, Text, ScrollView, Pressable, Alert, StyleSheet } from 'react-nati
 import { useRouter } from 'expo-router';
 import { Play, Copy, Edit2, Trash2 } from 'lucide-react-native';
 import {
-  INDUSTRIAL_PRECISION_THEME,
   rescaleRecipeDose,
   Equipment,
   DEFAULT_USER_SETTINGS,
 } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { useRecipes } from '../RecipeContext';
 import { EquipmentContext, useOptionalEquipment } from '../../equipment/EquipmentContext';
 import { useOptionalSettings } from '../../settings/SettingsContext';

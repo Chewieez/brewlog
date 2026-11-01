@@ -28,7 +28,7 @@ import {
   User as UserIcon,
   Settings,
 } from "lucide-react-native";
-import { INDUSTRIAL_PRECISION_THEME } from "@brewlog/core";
+import { INDUSTRIAL_PRECISION_THEME } from "@brewlog/ui";
 import { FONTS } from "../../theme/fonts";
 import { useAuth } from "./AuthContext";
 

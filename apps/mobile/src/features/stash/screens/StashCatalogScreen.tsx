@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus, Search, X, Bean as BeanIcon, Archive, Snowflake } from 'lucide-react-native';
-import { Bean, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { Bean } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { useStash } from '../StashContext';
 import { BeanCard } from '../components/BeanCard';

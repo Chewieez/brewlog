@@ -1,8 +1,5 @@
 import { Bean } from "./types";
 import { calculateDaysOffRoast } from "./calculator";
-import { INDUSTRIAL_PRECISION_THEME } from "./theme";
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface BeanRestingInfo {
   effectiveDays: number;
@@ -11,7 +8,6 @@ export interface BeanRestingInfo {
   stageLabel: string;
   isFrozen: boolean;
   badgeLabel: string;
-  badgeColor: string;
   progressPercent: number;
   recommendedRestDays: number;
 }
@@ -90,7 +86,6 @@ export function calculateBeanRestingInfo(
       stageLabel: "No Date Specified",
       isFrozen,
       badgeLabel: "Unspecified Roast Date",
-      badgeColor: colors.textMuted,
       progressPercent: 0,
       recommendedRestDays: restDays,
     };
@@ -113,32 +108,26 @@ export function calculateBeanRestingInfo(
 
   let status: "resting" | "peak" | "aging" | "past-peak";
   let stageLabel: string;
-  let badgeColor: string;
 
   if (effectiveDays < restDays) {
     status = "resting";
     stageLabel = "Needs Rest (De-gassing)";
-    badgeColor = colors.statusWarning;
   } else if (effectiveDays <= restDays + 25) {
     status = "peak";
     stageLabel = "Peak Flavor Window";
-    badgeColor = colors.statusSuccess;
   } else if (effectiveDays <= restDays + 55) {
     status = "aging";
     stageLabel = "Good (Drink Soon)";
-    badgeColor = colors.accent;
   } else {
     status = "past-peak";
     stageLabel = "Past Peak";
-    badgeColor = colors.textMuted;
   }
 
   let badgeLabel = "";
   if (isFrozen) {
-    badgeLabel = `❄️ Frozen at Day ${effectiveDays} (${
+    badgeLabel = `Frozen at Day ${effectiveDays} (${
       status === "peak" ? "Peak Window" : stageLabel
     })`;
-    badgeColor = colors.statusInfo;
   } else {
     if (status === "resting") {
       badgeLabel = `Needs Rest • Day ${effectiveDays} of ${restDays}`;
@@ -164,7 +153,6 @@ export function calculateBeanRestingInfo(
     stageLabel,
     isFrozen,
     badgeLabel,
-    badgeColor,
     progressPercent,
     recommendedRestDays: restDays,
   };

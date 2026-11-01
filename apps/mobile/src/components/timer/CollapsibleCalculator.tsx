@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { ChevronDown, ChevronUp, Scale, Check } from 'lucide-react-native';
 import {
-  INDUSTRIAL_PRECISION_THEME,
   calculateWaterAmount,
   calculateRatio,
   solveProportionalScale,
 } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { mobileFeedback } from '../../lib/mobileFeedback';
 import { FONTS } from '../../theme/fonts';
 

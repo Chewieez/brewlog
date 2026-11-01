@@ -20,6 +20,8 @@ export const Badge: React.FC<BadgeProps> = ({
     variantClasses = 'bg-status-warning/10 border border-status-warning/40 text-status-warning font-sans font-medium';
   } else if (variant === 'error') {
     variantClasses = 'bg-status-error/10 border border-status-error/40 text-status-error font-sans font-medium';
+  } else if (variant === 'info') {
+    variantClasses = 'bg-status-info/10 border border-status-info/40 text-status-info font-sans font-medium';
   }
 
   return (

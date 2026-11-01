@@ -1,8 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { calculateBeanRestingInfo, offsetRoastDateForThaw } from './restingUtils';
-import { Bean, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { Bean } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME, resolveFreshnessColor } from '@brewlog/ui';
 
-describe('calculateBeanRestingInfo', () => {
+describe('calculateBeanRestingInfo (mobile stash)', () => {
+  const colors = INDUSTRIAL_PRECISION_THEME.colors;
   const baseBean: Bean = {
     id: 'b-1',
     name: 'Worka',
@@ -23,7 +25,8 @@ describe('calculateBeanRestingInfo', () => {
     expect(info1.label).toBe('Needs Rest (De-gassing)');
     expect(info1.badgeLabel).toBe('Needs Rest • Day 3 of 5');
     expect(info1.isFrozen).toBe(false);
-    expect(info1.badgeColor).toBe(INDUSTRIAL_PRECISION_THEME.colors.statusWarning);
+    expect('badgeColor' in info1).toBe(false);
+    expect(resolveFreshnessColor({ status: info1.status, isFrozen: info1.isFrozen, hasRoastDate: true }, colors)).toBe(colors.statusWarning);
     expect(info1.progressPercent).toBe(10); // 3 / (5 + 25) * 100 = 10%
     expect(info1.recommendedRestDays).toBe(5);
 
@@ -34,7 +37,7 @@ describe('calculateBeanRestingInfo', () => {
     expect(info2.status).toBe('peak');
     expect(info2.stageLabel).toBe('Peak Flavor Window');
     expect(info2.badgeLabel).toBe('Peak Window • Day 10');
-    expect(info2.badgeColor).toBe(INDUSTRIAL_PRECISION_THEME.colors.statusSuccess);
+    expect(resolveFreshnessColor({ status: info2.status, isFrozen: info2.isFrozen, hasRoastDate: true }, colors)).toBe(colors.statusSuccess);
     expect(info2.progressPercent).toBe(33); // 10 / 30 * 100 = 33%
   });
 
@@ -79,7 +82,7 @@ describe('calculateBeanRestingInfo', () => {
     expect(info.status).toBe('aging');
     expect(info.stageLabel).toBe('Good (Drink Soon)');
     expect(info.badgeLabel).toBe('Good (Drink Soon) • Day 40');
-    expect(info.badgeColor).toBe(INDUSTRIAL_PRECISION_THEME.colors.accent);
+    expect(resolveFreshnessColor({ status: info.status, isFrozen: info.isFrozen, hasRoastDate: true }, colors)).toBe(colors.accent);
     expect(info.progressPercent).toBe(100); // capped at 100% (40 / 30 > 1)
   });
 
@@ -94,7 +97,7 @@ describe('calculateBeanRestingInfo', () => {
     expect(info.status).toBe('past-peak');
     expect(info.stageLabel).toBe('Past Peak');
     expect(info.badgeLabel).toBe('Past Peak • Day 70');
-    expect(info.badgeColor).toBe(INDUSTRIAL_PRECISION_THEME.colors.textMuted);
+    expect(resolveFreshnessColor({ status: info.status, isFrozen: info.isFrozen, hasRoastDate: true }, colors)).toBe(colors.textMuted);
     expect(info.progressPercent).toBe(100);
   });
 
@@ -112,8 +115,8 @@ describe('calculateBeanRestingInfo', () => {
     expect(info.isFrozen).toBe(true);
     expect(info.effectiveDays).toBe(12);
     expect(info.status).toBe('peak');
-    expect(info.badgeLabel).toBe('❄️ Frozen at Day 12 (Peak Window)');
-    expect(info.badgeColor).toBe(INDUSTRIAL_PRECISION_THEME.colors.statusInfo);
+    expect(info.badgeLabel).toBe('Frozen at Day 12 (Peak Window)');
+    expect(resolveFreshnessColor({ status: info.status, isFrozen: info.isFrozen, hasRoastDate: true }, colors)).toBe(colors.statusInfo);
   });
 
   it('handles frozen beans frozen at non-peak stages', () => {
@@ -130,8 +133,8 @@ describe('calculateBeanRestingInfo', () => {
     expect(restingInfo.isFrozen).toBe(true);
     expect(restingInfo.effectiveDays).toBe(2);
     expect(restingInfo.status).toBe('resting');
-    expect(restingInfo.badgeLabel).toBe('❄️ Frozen at Day 2 (Needs Rest (De-gassing))');
-    expect(restingInfo.badgeColor).toBe(INDUSTRIAL_PRECISION_THEME.colors.statusInfo);
+    expect(restingInfo.badgeLabel).toBe('Frozen at Day 2 (Needs Rest (De-gassing))');
+    expect(resolveFreshnessColor({ status: restingInfo.status, isFrozen: restingInfo.isFrozen, hasRoastDate: true }, colors)).toBe(colors.statusInfo);
 
     // Frozen during aging stage
     const frozenAgingBean: Bean = {
@@ -145,7 +148,7 @@ describe('calculateBeanRestingInfo', () => {
     expect(agingInfo.isFrozen).toBe(true);
     expect(agingInfo.effectiveDays).toBe(40);
     expect(agingInfo.status).toBe('aging');
-    expect(agingInfo.badgeLabel).toBe('❄️ Frozen at Day 40 (Good (Drink Soon))');
+    expect(agingInfo.badgeLabel).toBe('Frozen at Day 40 (Good (Drink Soon))');
 
     // Frozen during past-peak stage
     const frozenPastPeakBean: Bean = {
@@ -157,7 +160,7 @@ describe('calculateBeanRestingInfo', () => {
     const pastPeakInfo = calculateBeanRestingInfo(frozenPastPeakBean, today);
     expect(pastPeakInfo.isFrozen).toBe(true);
     expect(pastPeakInfo.status).toBe('past-peak');
-    expect(pastPeakInfo.badgeLabel).toBe('❄️ Frozen at Day 75 (Past Peak)');
+    expect(pastPeakInfo.badgeLabel).toBe('Frozen at Day 75 (Past Peak)');
 
     // Frozen without frozenDate falls back to referenceDate
     const frozenNoDateField: Bean = {
@@ -169,7 +172,7 @@ describe('calculateBeanRestingInfo', () => {
     const fallbackInfo = calculateBeanRestingInfo(frozenNoDateField, today);
     expect(fallbackInfo.isFrozen).toBe(true);
     expect(fallbackInfo.effectiveDays).toBe(10);
-    expect(fallbackInfo.badgeLabel).toBe('❄️ Frozen at Day 10 (Peak Window)');
+    expect(fallbackInfo.badgeLabel).toBe('Frozen at Day 10 (Peak Window)');
 
     // Non-standard date string format in frozenDate
     const nonStandardDateBean: Bean = {
@@ -191,7 +194,7 @@ describe('calculateBeanRestingInfo', () => {
     expect(info.stageLabel).toBe('No Date Specified');
     expect(info.isFrozen).toBe(false);
     expect(info.badgeLabel).toBe('Unspecified Roast Date');
-    expect(info.badgeColor).toBe(INDUSTRIAL_PRECISION_THEME.colors.textMuted);
+    expect(resolveFreshnessColor({ status: info.status, isFrozen: info.isFrozen, hasRoastDate: false }, colors)).toBe(colors.textMuted);
     expect(info.progressPercent).toBe(0);
     expect(info.recommendedRestDays).toBe(5);
 

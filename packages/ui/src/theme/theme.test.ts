@@ -8,8 +8,9 @@ import {
   DEFAULT_THEME,
   darkTheme,
 } from './theme';
+import { resolveFreshnessColor, resolveFreshnessBadgeVariant } from './freshness';
 
-describe('theme tokens', () => {
+describe('theme tokens in @brewlog/ui', () => {
   it('exports INDUSTRIAL_PRECISION_THEME with all required color keys', () => {
     expect(INDUSTRIAL_PRECISION_THEME.id).toBe('industrial-precision');
     expect(INDUSTRIAL_PRECISION_THEME.isDark).toBe(true);
@@ -74,6 +75,42 @@ describe('theme tokens', () => {
       expect(resolveTheme('tactile_dark', true)).toBe(TACTILE_DARK_THEME);
       expect(resolveTheme('studio_light', true)).toBe(CRISP_STUDIO_LIGHT_THEME);
       expect(resolveTheme('studio_light', false)).toBe(CRISP_STUDIO_LIGHT_THEME);
+    });
+  });
+
+  describe('freshness presentation resolvers', () => {
+    const colors = INDUSTRIAL_PRECISION_THEME.colors;
+
+    it('resolves colors for standard resting stages', () => {
+      expect(resolveFreshnessColor({ status: 'peak' }, colors)).toBe(colors.statusSuccess);
+      expect(resolveFreshnessColor({ status: 'resting' }, colors)).toBe(colors.statusWarning);
+      expect(resolveFreshnessColor({ status: 'aging' }, colors)).toBe(colors.accent);
+      expect(resolveFreshnessColor({ status: 'past-peak' }, colors)).toBe(colors.textMuted);
+    });
+
+    it('resolves frozen status to statusInfo color regardless of stage', () => {
+      expect(resolveFreshnessColor({ status: 'peak', isFrozen: true }, colors)).toBe(colors.statusInfo);
+      expect(resolveFreshnessColor({ status: 'resting', isFrozen: true }, colors)).toBe(colors.statusInfo);
+    });
+
+    it('resolves unspecified roast date to textMuted color', () => {
+      expect(resolveFreshnessColor({ status: 'resting', hasRoastDate: false }, colors)).toBe(colors.textMuted);
+    });
+
+    it('falls back defensively to neutral defaults for unrecognized statuses', () => {
+      // @ts-expect-error test malformed runtime status
+      expect(resolveFreshnessColor({ status: 'unknown' }, colors)).toBe(colors.textMuted);
+      // @ts-expect-error test malformed runtime status
+      expect(resolveFreshnessBadgeVariant({ status: 'unknown' })).toBe('default');
+    });
+
+    it('resolves badge variants accurately', () => {
+      expect(resolveFreshnessBadgeVariant({ status: 'peak' })).toBe('success');
+      expect(resolveFreshnessBadgeVariant({ status: 'resting' })).toBe('warning');
+      expect(resolveFreshnessBadgeVariant({ status: 'aging' })).toBe('accent');
+      expect(resolveFreshnessBadgeVariant({ status: 'past-peak' })).toBe('default');
+      expect(resolveFreshnessBadgeVariant({ status: 'peak', isFrozen: true })).toBe('info');
+      expect(resolveFreshnessBadgeVariant({ status: 'resting', hasRoastDate: false })).toBe('default');
     });
   });
 });

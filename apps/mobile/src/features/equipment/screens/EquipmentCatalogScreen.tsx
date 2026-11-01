@@ -18,7 +18,8 @@ import {
   Flame,
   Layers,
 } from 'lucide-react-native';
-import { Equipment, EquipmentType, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { Equipment, EquipmentType } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { useEquipment } from '../EquipmentContext';
 import { EquipmentCard } from '../components/EquipmentCard';

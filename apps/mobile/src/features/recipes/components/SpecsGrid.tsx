@@ -2,12 +2,12 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Droplets, BookOpen, Clock, Thermometer } from 'lucide-react-native';
 import {
-  INDUSTRIAL_PRECISION_THEME,
   WeightUnit,
   TemperatureUnit,
   formatWeight,
   formatTemperature,
 } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;

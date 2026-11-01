@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Bean, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { Bean } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { useOptionalStash } from '../StashContext';
 import { FONTS } from '../../../theme/fonts';
 
@@ -39,7 +40,7 @@ export const ActiveBeanPill: React.FC<ActiveBeanPillProps> = ({
         <View style={styles.textContainer}>
           <Text style={styles.pillText} numberOfLines={1}>
             <Text style={styles.roasterAndName}>
-              🫘 {bean.roaster.toUpperCase()} • {bean.name}
+              {bean.roaster.toUpperCase()} • {bean.name}
             </Text>
             <Text style={styles.weight}> ({remainingGrams}g left)</Text>
           </Text>

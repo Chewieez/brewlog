@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Keyboard } from 'react-native';
 import { NativeTabs } from 'expo-router/native-tabs';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { AuthSheet } from '../../src/features/auth/AuthSheet';
 import { AuthModalContext } from '../../src/features/auth/AuthModalContext';
 

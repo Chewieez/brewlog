@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Svg, { Path, G, Circle } from 'react-native-svg';
-import { SCA_FLAVOR_WHEEL, INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { SCA_FLAVOR_WHEEL } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;

@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, View, Text, StyleSheet } from "react-native";
 import { User as UserIcon } from "lucide-react-native";
-import { INDUSTRIAL_PRECISION_THEME } from "@brewlog/core";
+import { INDUSTRIAL_PRECISION_THEME } from "@brewlog/ui";
 import { FONTS } from "../../theme/fonts";
 import { useOptionalAuth } from "./AuthContext";
 

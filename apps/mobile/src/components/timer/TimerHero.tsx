@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Pressable, TextInput, StyleSheet } from 'react-native';
 import { Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react-native';
 import {
-  INDUSTRIAL_PRECISION_THEME,
   BrewRecipe,
   TimerMode,
   SplitTag,
@@ -11,6 +10,7 @@ import {
   gramsToOz,
   ozToGrams,
 } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { FONTS } from '../../theme/fonts';
 
 const { colors } = INDUSTRIAL_PRECISION_THEME;

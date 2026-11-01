@@ -19,7 +19,7 @@ import {
   JetBrainsMono_700Bold,
 } from '@expo-google-fonts/jetbrains-mono';
 import { NavigationBar } from 'expo-navigation-bar';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { AuthProvider } from '../src/features/auth/AuthContext';
 import { SettingsProvider } from '../src/features/settings/SettingsContext';
 import { RecipeProvider } from '../src/features/recipes/RecipeContext';

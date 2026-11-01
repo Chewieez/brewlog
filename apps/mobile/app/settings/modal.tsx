@@ -21,13 +21,13 @@ import {
   Check,
 } from 'lucide-react-native';
 import {
-  INDUSTRIAL_PRECISION_THEME,
   WeightUnit,
   TemperatureUnit,
   TimerModePreference,
   DateFormatPreference,
   formatDisplayDate,
 } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { useSettings } from '../../src/features/settings/SettingsContext';
 import { useAuth } from '../../src/features/auth/AuthContext';
 import { FONTS } from '../../src/theme/fonts';

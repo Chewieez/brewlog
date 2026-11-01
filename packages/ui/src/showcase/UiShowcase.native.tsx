@@ -6,7 +6,7 @@ import { Badge } from '../badge/Badge.native';
 import { Input } from '../input/Input.native';
 import { MetricTile } from '../metric-tile/MetricTile.native';
 import { SegmentedControl } from '../segmented-control/SegmentedControl.native';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '../theme';
 import type { UiShowcaseProps } from './UiShowcase.types';
 
 const colors = INDUSTRIAL_PRECISION_THEME.colors;

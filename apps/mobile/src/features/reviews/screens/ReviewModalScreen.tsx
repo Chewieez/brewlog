@@ -18,8 +18,8 @@ import {
   BrewMethodType,
   CuppingAttributes,
   calculateScaScore,
-  INDUSTRIAL_PRECISION_THEME,
 } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { useReviews } from '../ReviewsContext';
 import { useStash } from '../../stash/StashContext';
