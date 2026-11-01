@@ -5,10 +5,8 @@ import {
   CuppingAttributes,
   calculateScaScore,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme, ThemeTokens } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface ScaAttributeScoringProps {
   scores: CuppingAttributes;
@@ -61,7 +59,7 @@ export const CLEAR_SCORES: CuppingAttributes = {
   overall: 0,
 };
 
-function getClassification(score: number): { label: string; color: string } {
+function getClassification(score: number, colors: ThemeTokens['colors']): { label: string; color: string } {
   if (score >= 90) return { label: 'Outstanding (Specialty)', color: colors.accent };
   if (score >= 85) return { label: 'Excellent (Specialty)', color: colors.statusSuccess };
   if (score >= 80) return { label: 'Very Good (Specialty)', color: colors.accentHover };
@@ -73,8 +71,10 @@ export const ScaAttributeScoring: React.FC<ScaAttributeScoringProps> = ({
   onChange,
   readOnly = false,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const totalScore = calculateScaScore(scores);
-  const classification = getClassification(totalScore);
+  const classification = getClassification(totalScore, colors);
 
   const updateAttribute = (key: keyof CuppingAttributes, delta: number) => {
     if (readOnly) return;
@@ -176,7 +176,7 @@ export const ScaAttributeScoring: React.FC<ScaAttributeScoringProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     gap: 12,
   },
@@ -285,4 +285,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontVariant: ['tabular-nums'],
   },
-});
+}));

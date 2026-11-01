@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Svg, { Path, G, Circle } from 'react-native-svg';
 import { SCA_FLAVOR_WHEEL } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface ScaFlavorWheelSvgProps {
   selectedTags: string[];
@@ -61,6 +59,8 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
   onToggleTag,
   size = 320,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const [inspectedDescriptor, setInspectedDescriptor] = useState<DescriptorSlice | null>(null);
 
   const cx = size / 2;
@@ -201,7 +201,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   wrapper: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -262,4 +262,4 @@ const styles = StyleSheet.create({
     color: colors.accent,
     marginTop: 2,
   },
-});
+}));

@@ -2,10 +2,8 @@ import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Star } from 'lucide-react-native';
 import { Equipment } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface EquipmentCardProps {
   equipment: Equipment;
@@ -18,6 +16,8 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({
   onPress,
   onToggleFavorite,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   return (
     <Pressable
       style={styles.card}
@@ -70,7 +70,7 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   card: {
     backgroundColor: colors.panel,
     borderWidth: 1,
@@ -124,4 +124,4 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     marginTop: 2,
   },
-});
+}));

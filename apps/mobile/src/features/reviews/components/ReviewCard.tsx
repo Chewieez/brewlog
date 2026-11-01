@@ -2,11 +2,9 @@ import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Star } from 'lucide-react-native';
 import { TastingLog, formatDisplayDate } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { useOptionalSettings } from '../../settings/SettingsContext';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface ReviewCardProps {
   review: TastingLog;
@@ -14,6 +12,8 @@ export interface ReviewCardProps {
 }
 
 export const ReviewCard: React.FC<ReviewCardProps> = ({ review, onPress }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const settingsContext = useOptionalSettings();
   const dateFormat = settingsContext?.settings.dateFormat ?? 'locale';
   const formattedDate = review.brewDate
@@ -122,7 +122,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, onPress }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   card: {
     backgroundColor: colors.panel,
     borderWidth: 1,
@@ -264,4 +264,4 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontStyle: 'italic',
   },
-});
+}));

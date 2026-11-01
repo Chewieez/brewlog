@@ -19,15 +19,13 @@ import {
   CuppingAttributes,
   calculateScaScore,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { useReviews } from '../ReviewsContext';
 import { useStash } from '../../stash/StashContext';
 import { useEquipment } from '../../equipment/EquipmentContext';
 import { FlavorTagSelector } from '../components/FlavorTagSelector';
 import { ScaAttributeScoring, BASELINE_SCORES } from '../components/ScaAttributeScoring';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 const BREW_METHODS: { id: BrewMethodType; label: string }[] = [
   { id: 'v60', label: 'V60' },
@@ -50,6 +48,8 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
   sourceItem,
   initialParams = {},
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const { addReview, updateReview, deleteReview, setPendingBrewSession } = useReviews();
   const { beans } = useStash();
@@ -662,6 +662,8 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
 };
 
 export const ReviewModalScreen: React.FC = () => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const params = useLocalSearchParams();
   const rawId = params?.id;
   const id = typeof rawId === 'string' ? rawId : Array.isArray(rawId) ? rawId[0] : undefined;
@@ -697,7 +699,7 @@ export const ReviewModalScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   safeArea: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -973,4 +975,4 @@ const styles = StyleSheet.create({
     color: colors.statusError,
     letterSpacing: 1,
   },
-});
+}));

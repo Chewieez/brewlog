@@ -17,11 +17,9 @@ import {
   EquipmentType,
   GrinderSettingScale,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { useEquipment } from '../EquipmentContext';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface EquipmentModalScreenProps {
   equipmentId?: string;
@@ -58,6 +56,8 @@ interface EquipmentModalFormProps {
 }
 
 const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const { addEquipment, updateEquipment, deleteEquipment } = useEquipment();
   const isEditMode = Boolean(sourceItem);
@@ -474,6 +474,8 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
 export const EquipmentModalScreen: React.FC<EquipmentModalScreenProps> = ({
   equipmentId,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const id =
     equipmentId ??
@@ -501,7 +503,7 @@ export const EquipmentModalScreen: React.FC<EquipmentModalScreenProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   safeArea: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -756,4 +758,4 @@ const styles = StyleSheet.create({
     color: colors.statusError,
     letterSpacing: 1,
   },
-});
+}));
