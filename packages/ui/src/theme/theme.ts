@@ -80,35 +80,9 @@ export const CRISP_STUDIO_LIGHT_THEME: ThemeTokens = {
   },
 };
 
-export const INDUSTRIAL_PRECISION_THEME: ThemeTokens = {
-  id: 'industrial-precision',
-  name: 'Industrial Precision',
-  isDark: true,
-  colors: {
-    canvas: '#121214',
-    panel: '#18181b',
-    panelRecessed: '#202024',
-    borderSubtle: '#3f3f46',
-    borderActive: '#52525b',
-    accent: '#d97736',
-    accentHover: '#e88344',
-    foreground: '#f4f4f5',
-    foregroundSecondary: '#a1a1aa',
-    foregroundMuted: '#71717a',
-    get textPrimary() { return this.foreground; },
-    get textSecondary() { return this.foregroundSecondary; },
-    get textMuted() { return this.foregroundMuted; },
-    statusSuccess: '#22c55e',
-    statusWarning: '#f59e0b',
-    statusError: '#ef4444',
-    statusInfo: '#38bdf8',
-  },
-};
-
 export const THEMES: Record<string, ThemeTokens> = {
   [TACTILE_DARK_THEME.id]: TACTILE_DARK_THEME,
   [CRISP_STUDIO_LIGHT_THEME.id]: CRISP_STUDIO_LIGHT_THEME,
-  [INDUSTRIAL_PRECISION_THEME.id]: INDUSTRIAL_PRECISION_THEME,
 };
 
 export const DEFAULT_THEME = TACTILE_DARK_THEME;
