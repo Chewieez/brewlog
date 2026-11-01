@@ -1,5 +1,6 @@
 import "react-native-get-random-values";
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { useColorScheme } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -19,9 +20,9 @@ import {
   JetBrainsMono_700Bold,
 } from '@expo-google-fonts/jetbrains-mono';
 import { NavigationBar } from 'expo-navigation-bar';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { ThemeProvider, useTheme, resolveTheme } from '@brewlog/ui';
 import { AuthProvider } from '../src/features/auth/AuthContext';
-import { SettingsProvider } from '../src/features/settings/SettingsContext';
+import { SettingsProvider, useSettings } from '../src/features/settings/SettingsContext';
 import { RecipeProvider } from '../src/features/recipes/RecipeContext';
 import { StashProvider } from '../src/features/stash/StashContext';
 import { EquipmentProvider } from '../src/features/equipment/EquipmentContext';
@@ -30,8 +31,6 @@ import { ReviewsProvider } from '../src/features/reviews/ReviewsContext';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const { colors } = INDUSTRIAL_PRECISION_THEME;
-
   const [fontsLoaded, fontError] = useFonts({
     Outfit_300Light,
     Outfit_400Regular,
@@ -59,96 +58,122 @@ export default function RootLayout() {
         <AuthProvider>
           <SettingsProvider>
             <RecipeProvider>
-            <StashProvider>
-              <EquipmentProvider>
-                <ReviewsProvider>
-                <StatusBar style="light" />
-                <NavigationBar style="light" />
-                <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: {
-                    backgroundColor: colors.canvas,
-                  },
-                }}
-              >
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="recipe/[id]"
-                  options={{
-                    headerShown: true,
-                    title: 'Recipe Details',
-                    headerBackTitle: 'Back',
-                    headerStyle: { backgroundColor: colors.panel },
-                    headerTintColor: colors.textPrimary,
-                    headerTitleStyle: { fontWeight: '700' },
-                  }}
-                />
-                <Stack.Screen
-                  name="recipe/builder"
-                  options={{
-                    headerShown: false,
-                    presentation: 'modal',
-                  }}
-                />
-                <Stack.Screen
-                  name="stash/[id]"
-                  options={{
-                    headerShown: true,
-                    title: 'Coffee Details',
-                    headerBackTitle: 'Back',
-                    headerStyle: { backgroundColor: colors.canvas },
-                    headerTintColor: colors.textPrimary,
-                    headerTitleStyle: { fontWeight: '700' },
-                  }}
-                />
-                <Stack.Screen
-                  name="stash/modal"
-                  options={{
-                    presentation: 'modal',
-                    headerShown: false,
-                  }}
-                />
-                <Stack.Screen
-                  name="equipment/modal"
-                  options={{
-                    presentation: 'modal',
-                    headerShown: false,
-                  }}
-                />
-                <Stack.Screen
-                  name="reviews/modal"
-                  options={{
-                    presentation: 'modal',
-                    headerShown: false,
-                  }}
-                />
-                <Stack.Screen
-                  name="reviews/[id]"
-                  options={{
-                    headerShown: true,
-                    title: 'Review Details',
-                    headerBackTitle: 'Back',
-                    headerStyle: { backgroundColor: colors.canvas },
-                    headerTintColor: colors.textPrimary,
-                    headerTitleStyle: { fontWeight: '700' },
-                  }}
-                />
-                <Stack.Screen
-                  name="settings/modal"
-                  options={{
-                    presentation: 'modal',
-                    headerShown: false,
-                  }}
-                />
-                </Stack>
-                </ReviewsProvider>
-              </EquipmentProvider>
-            </StashProvider>
+              <StashProvider>
+                <EquipmentProvider>
+                  <ReviewsProvider>
+                    <ThemedAppNavigator />
+                  </ReviewsProvider>
+                </EquipmentProvider>
+              </StashProvider>
             </RecipeProvider>
           </SettingsProvider>
         </AuthProvider>
       </KeyboardProvider>
     </SafeAreaProvider>
+  );
+}
+
+function ThemedAppNavigator() {
+  const { settings } = useSettings();
+  const colorScheme = useColorScheme();
+
+  const activeTheme = useMemo(
+    () => resolveTheme(settings.theme, colorScheme === 'dark'),
+    [settings.theme, colorScheme]
+  );
+
+  return (
+    <ThemeProvider theme={activeTheme}>
+      <NavigationRoot />
+    </ThemeProvider>
+  );
+}
+
+function NavigationRoot() {
+  const { colors, isDark } = useTheme();
+
+  return (
+    <>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <NavigationBar style={isDark ? 'light' : 'dark'} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: {
+            backgroundColor: colors.canvas,
+          },
+        }}
+      >
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="recipe/[id]"
+          options={{
+            headerShown: true,
+            title: 'Recipe Details',
+            headerBackTitle: 'Back',
+            headerStyle: { backgroundColor: colors.panel },
+            headerTintColor: colors.foreground,
+            headerTitleStyle: { fontWeight: '700' },
+          }}
+        />
+        <Stack.Screen
+          name="recipe/builder"
+          options={{
+            headerShown: false,
+            presentation: 'modal',
+          }}
+        />
+        <Stack.Screen
+          name="stash/[id]"
+          options={{
+            headerShown: true,
+            title: 'Bean Details',
+            headerBackTitle: 'Back',
+            headerStyle: { backgroundColor: colors.canvas },
+            headerTintColor: colors.foreground,
+            headerTitleStyle: { fontWeight: '700' },
+          }}
+        />
+        <Stack.Screen
+          name="stash/modal"
+          options={{
+            presentation: 'modal',
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="equipment/modal"
+          options={{
+            presentation: 'modal',
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="reviews/modal"
+          options={{
+            presentation: 'modal',
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="reviews/[id]"
+          options={{
+            headerShown: true,
+            title: 'Review Details',
+            headerBackTitle: 'Back',
+            headerStyle: { backgroundColor: colors.canvas },
+            headerTintColor: colors.foreground,
+            headerTitleStyle: { fontWeight: '700' },
+          }}
+        />
+        <Stack.Screen
+          name="settings/modal"
+          options={{
+            presentation: 'modal',
+            headerShown: false,
+          }}
+        />
+      </Stack>
+    </>
   );
 }

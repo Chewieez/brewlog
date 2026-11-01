@@ -28,11 +28,9 @@ import {
   User as UserIcon,
   Settings,
 } from "lucide-react-native";
-import { INDUSTRIAL_PRECISION_THEME } from "@brewlog/ui";
+import { makeStyles, useTheme } from "@brewlog/ui";
 import { FONTS } from "../../theme/fonts";
 import { useAuth } from "./AuthContext";
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface AuthSheetProps {
   visible: boolean;
@@ -42,6 +40,8 @@ export interface AuthSheetProps {
 type AuthMode = "signin" | "signup" | "forgot";
 
 export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const {
     user,
     isConfigured,
@@ -570,7 +570,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   modalOverlay: {
     position: "absolute",
     top: 0,
@@ -626,7 +626,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 14,
     letterSpacing: 0.5,
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   closeButton: {
     minWidth: 44,
@@ -637,7 +637,7 @@ const styles = StyleSheet.create({
   closeText: {
     fontSize: 18,
     paddingHorizontal: 4,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   profileSection: {
     gap: 16,
@@ -670,17 +670,17 @@ const styles = StyleSheet.create({
   profileName: {
     fontFamily: FONTS.sansBold,
     fontSize: 20,
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   profileEmail: {
     fontFamily: FONTS.monoRegular,
     fontSize: 12,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   profileId: {
     fontFamily: FONTS.monoRegular,
     fontSize: 10,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   signOutButton: {
     flexDirection: "row",
@@ -746,7 +746,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 11,
     letterSpacing: 0.5,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   activeToggleTabText: {
     color: colors.canvas,
@@ -795,7 +795,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 10,
     letterSpacing: 0.5,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   forgotButton: {
     minHeight: 44,
@@ -822,7 +822,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoRegular,
     fontSize: 13,
     height: "100%",
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   submitButton: {
     height: 44,
@@ -850,7 +850,7 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontFamily: FONTS.monoRegular,
     fontSize: 11,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   preferencesSection: {
     marginTop: 16,
@@ -892,16 +892,16 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 12,
     letterSpacing: 0.8,
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   preferencesSubtitle: {
     fontFamily: FONTS.monoRegular,
     fontSize: 10,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   preferencesChevron: {
     fontFamily: FONTS.monoBold,
     fontSize: 16,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
-});
+}));

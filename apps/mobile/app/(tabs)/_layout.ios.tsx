@@ -1,12 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { Keyboard } from 'react-native';
 import { NativeTabs } from 'expo-router/native-tabs';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { useTheme } from '@brewlog/ui';
 import { AuthSheet } from '../../src/features/auth/AuthSheet';
 import { AuthModalContext } from '../../src/features/auth/AuthModalContext';
 
 export default function TabLayoutIOS() {
-  const { colors } = INDUSTRIAL_PRECISION_THEME;
+  const { colors, isDark } = useTheme();
   const [authSheetVisible, setAuthSheetVisible] = useState(false);
 
   const openAuthSheet = useCallback(() => {
@@ -28,11 +28,11 @@ export default function TabLayoutIOS() {
       }}
     >
       <NativeTabs
-        blurEffect="dark"
+        blurEffect={isDark ? 'dark' : 'systemMaterialLight'}
         tintColor={colors.accent}
         labelStyle={{
           default: {
-            color: colors.textSecondary,
+            color: colors.foregroundSecondary,
           },
           selected: {
             color: colors.accent,
