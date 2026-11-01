@@ -7,7 +7,7 @@ import {
   calculateBeanRestingInfo,
   offsetRoastDateForThaw,
 } from '@brewlog/core';
-import { Plus, Search, Star, Calendar, MapPin, Snowflake } from 'lucide-react';
+import { Plus, Search, Star, Calendar, MapPin, Snowflake, X } from 'lucide-react';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 
 interface StashViewProps {
@@ -486,10 +486,10 @@ export const StashView: React.FC<StashViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="text-foreground-secondary hover:text-foreground text-sm p-1.5 rounded-lg hover:bg-panel-recessed transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground-secondary hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer"
                 aria-label="Close dialog"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 

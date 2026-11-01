@@ -206,7 +206,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
                 key={dose}
                 type="button"
                 onClick={() => setCustomDose(dose)}
-                className={`px-2.5 py-1 rounded-md text-[11px] tabular-nums font-medium transition-all cursor-pointer ${
+                className={`h-8 inline-flex items-center px-2.5 rounded-md text-xs tabular-nums font-medium transition-all cursor-pointer ${
                   isActive
                     ? 'border border-accent text-accent shadow-xs'
                     : 'bg-panel-recessed text-foreground-secondary border border-border-subtle hover:text-foreground'

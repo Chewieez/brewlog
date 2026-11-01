@@ -23,15 +23,21 @@ test.describe("Design System Button Sizing Tokens", () => {
     await page.getByRole("button", { name: /add bean/i }).click();
     const cancelBtn = page.getByRole("button", { name: /cancel/i });
     const saveBtn = page.getByRole("button", { name: /save bean/i });
+    const closeBtn = page.getByRole("button", { name: /close dialog/i });
     await expect(cancelBtn).toBeVisible();
     await expect(saveBtn).toBeVisible();
+    await expect(closeBtn).toBeVisible();
 
     const cancelBox = await cancelBtn.boundingBox();
     const saveBox = await saveBtn.boundingBox();
+    const closeBox = await closeBtn.boundingBox();
     expect(isValidHeight(cancelBox!.height)).toBe(true);
     expect(isValidHeight(saveBox!.height)).toBe(true);
+    expect(isValidHeight(closeBox!.height)).toBe(true);
     expect(Math.abs(cancelBox!.height - 40)).toBeLessThanOrEqual(TOLERANCE);
     expect(Math.abs(saveBox!.height - 40)).toBeLessThanOrEqual(TOLERANCE);
+    expect(Math.abs(closeBox!.height - 32)).toBeLessThanOrEqual(TOLERANCE);
+    expect(Math.abs(closeBox!.width - 32)).toBeLessThanOrEqual(TOLERANCE);
   });
 
   test("recipe detail pane action cluster aligns uniformly to 32px (h-8)", async ({ page }) => {
@@ -45,6 +51,12 @@ test.describe("Design System Button Sizing Tokens", () => {
     const box = await brewBtn.boundingBox();
     expect(box).not.toBeNull();
     expect(Math.abs(box!.height - 32)).toBeLessThanOrEqual(TOLERANCE);
+
+    const presetBtn = page.getByRole("button", { name: /single \(15g\)/i });
+    await expect(presetBtn).toBeVisible();
+    const presetBox = await presetBtn.boundingBox();
+    expect(presetBox).not.toBeNull();
+    expect(Math.abs(presetBox!.height - 32)).toBeLessThanOrEqual(TOLERANCE);
   });
 
   test("timer hero controls conform to 48px (h-12)", async ({ page }) => {

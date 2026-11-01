@@ -1049,7 +1049,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                         <button
                           type="button"
                           onClick={() => removeSplit(s.id)}
-                          className="p-1 rounded text-foreground-muted hover:text-red-400 hover:bg-panel transition-colors cursor-pointer"
+                          className="w-8 h-8 rounded-lg inline-flex items-center justify-center text-foreground-muted hover:text-red-400 hover:bg-panel transition-colors cursor-pointer"
                           aria-label={`Remove split ${s.label}`}
                           title={`Remove split ${s.label}`}
                         >
