@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, Text, ActivityIndicator, View, StyleSheet } from 'react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '../theme';
 import type { ButtonProps } from './Button.types';
 
 const colors = INDUSTRIAL_PRECISION_THEME.colors;

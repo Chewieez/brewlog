@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '../theme';
 import type { InputProps } from './Input.types';
 
 const colors = INDUSTRIAL_PRECISION_THEME.colors;

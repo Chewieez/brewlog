@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '../theme';
 import type { BadgeProps } from './Badge.types';
 
 const colors = INDUSTRIAL_PRECISION_THEME.colors;

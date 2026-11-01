@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/core';
+import { INDUSTRIAL_PRECISION_THEME } from '../theme';
 import type { MetricTileProps } from './MetricTile.types';
 
 const colors = INDUSTRIAL_PRECISION_THEME.colors;
