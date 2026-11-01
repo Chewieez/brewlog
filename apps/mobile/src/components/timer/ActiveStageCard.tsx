@@ -1,10 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { BrewStage } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles } from '@brewlog/ui';
 import { FONTS } from '../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface ActiveStageCardProps {
   stage: BrewStage;
@@ -19,6 +17,7 @@ export const ActiveStageCard: React.FC<ActiveStageCardProps> = ({
   totalStages,
   elapsedSeconds,
 }) => {
+  const styles = useStyles();
   const stageEndSecond = stage.startSecond + stage.durationSeconds;
   const secondsLeftInStage = Math.max(0, stageEndSecond - elapsedSeconds);
 
@@ -47,7 +46,7 @@ export const ActiveStageCard: React.FC<ActiveStageCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   card: {
     marginHorizontal: 16,
     backgroundColor: colors.panel,
@@ -106,6 +105,6 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansRegular,
     lineHeight: 19,
   },
-});
+}));
 
 export default ActiveStageCard;

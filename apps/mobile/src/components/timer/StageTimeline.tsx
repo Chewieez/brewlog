@@ -2,10 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { CheckCircle2, CircleDot, Circle } from 'lucide-react-native';
 import { BrewStage } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { FONTS } from '../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface StageTimelineProps {
   stages: BrewStage[];
@@ -16,6 +14,8 @@ export const StageTimeline: React.FC<StageTimelineProps> = ({
   stages,
   currentStageIndex,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   return (
     <View style={styles.container}>
       <Text style={styles.title}>BREW TIMELINE</Text>
@@ -61,7 +61,7 @@ export const StageTimeline: React.FC<StageTimelineProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -109,6 +109,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontFamily: FONTS.monoRegular,
   },
-});
+}));
 
 export default StageTimeline;

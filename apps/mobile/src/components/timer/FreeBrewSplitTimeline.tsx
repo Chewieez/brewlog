@@ -2,10 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Trash2 } from 'lucide-react-native';
 import { BrewSplit, SplitTag } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme, ThemeColors } from '@brewlog/ui';
 import { FONTS } from '../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface FreeBrewSplitTimelineProps {
   splits: BrewSplit[];
@@ -19,7 +17,7 @@ const formatSplitTime = (second: number): string => {
   return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 };
 
-const getTagColor = (tag?: SplitTag): string => {
+const getTagColor = (tag: SplitTag | undefined, colors: ThemeColors): string => {
   switch (tag) {
     case 'bloom':
       return colors.accent;
@@ -37,6 +35,8 @@ export const FreeBrewSplitTimeline: React.FC<FreeBrewSplitTimelineProps> = ({
   onRemoveSplit,
   readOnly = false,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
@@ -56,7 +56,7 @@ export const FreeBrewSplitTimeline: React.FC<FreeBrewSplitTimelineProps> = ({
       ) : (
         <View style={styles.timelineList}>
           {splits.map((split, idx) => {
-            const tagColor = getTagColor(split.tag);
+            const tagColor = getTagColor(split.tag, colors);
             const tagLabel = (split.tag || 'custom').toUpperCase();
 
             return (
@@ -107,7 +107,7 @@ export const FreeBrewSplitTimeline: React.FC<FreeBrewSplitTimelineProps> = ({
   );
 };
 
-export const styles = StyleSheet.create({
+export const useStyles = makeStyles((colors) => ({
   container: {
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -230,6 +230,8 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-});
+}));
+
+export const styles = useStyles();
 
 export default FreeBrewSplitTimeline;

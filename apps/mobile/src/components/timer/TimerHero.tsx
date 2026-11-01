@@ -10,10 +10,9 @@ import {
   gramsToOz,
   ozToGrams,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { FONTS } from '../../theme/fonts';
 
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface TimerHeroProps {
   recipe: BrewRecipe;
@@ -66,6 +65,8 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
   onFinish,
   weightUnit = 'metric',
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const mins = Math.floor(elapsedSeconds / 60);
   const secs = elapsedSeconds % 60;
 
@@ -471,7 +472,7 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   chassis: {
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -687,6 +688,6 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     letterSpacing: 1.5,
   },
-});
+}));
 
 export default TimerHero;

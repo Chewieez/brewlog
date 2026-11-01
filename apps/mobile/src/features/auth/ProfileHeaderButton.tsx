@@ -1,11 +1,9 @@
 import React from "react";
-import { Pressable, View, Text, StyleSheet } from "react-native";
+import { Pressable, View, Text } from "react-native";
 import { User as UserIcon } from "lucide-react-native";
-import { INDUSTRIAL_PRECISION_THEME } from "@brewlog/ui";
+import { makeStyles, useTheme } from "@brewlog/ui";
 import { FONTS } from "../../theme/fonts";
 import { useOptionalAuth } from "./AuthContext";
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface ProfileHeaderButtonProps {
   onPress: () => void;
@@ -24,6 +22,8 @@ function getInitials(nameOrEmail: string): string {
 }
 
 export const ProfileHeaderButton: React.FC<ProfileHeaderButtonProps> = ({ onPress }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const auth = useOptionalAuth();
   const user = auth?.user ?? null;
 
@@ -47,14 +47,14 @@ export const ProfileHeaderButton: React.FC<ProfileHeaderButtonProps> = ({ onPres
         </View>
       ) : (
         <View style={styles.iconWrapper}>
-          <UserIcon size={20} color={colors.textMuted} />
+          <UserIcon size={20} color={colors.foregroundMuted} />
         </View>
       )}
     </Pressable>
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     minWidth: 44,
     minHeight: 44,
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 11,
     fontWeight: "700",
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   connectionDot: {
     position: "absolute",
@@ -100,4 +100,4 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: colors.panel,
   },
-});
+}));
