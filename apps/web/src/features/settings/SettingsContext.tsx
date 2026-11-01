@@ -8,7 +8,8 @@ import React, {
   useRef,
   ReactNode,
 } from 'react';
-import { UserSettings, DEFAULT_USER_SETTINGS, resolveTheme } from '@brewlog/core';
+import { UserSettings, DEFAULT_USER_SETTINGS } from '@brewlog/core';
+import { resolveTheme } from '@brewlog/ui';
 import { mapDbToUserSettings, mapUserSettingsToDb } from '@brewlog/supabase';
 import { useAuth } from '../auth/AuthContext';
 import { supabase } from '../../lib/supabase';
