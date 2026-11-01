@@ -1,9 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface CellarSummaryBarProps {
   totalBags: number;
@@ -16,6 +14,7 @@ export const CellarSummaryBar: React.FC<CellarSummaryBarProps> = ({
   peakBags,
   totalRemainingGrams,
 }) => {
+  const styles = useStyles();
   return (
     <View
       style={styles.chassis}
@@ -49,7 +48,7 @@ export const CellarSummaryBar: React.FC<CellarSummaryBarProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   chassis: {
     backgroundColor: colors.panel,
     borderColor: colors.borderSubtle,
@@ -88,4 +87,4 @@ const styles = StyleSheet.create({
   metricValuePeak: {
     color: colors.statusSuccess,
   },
-});
+}));

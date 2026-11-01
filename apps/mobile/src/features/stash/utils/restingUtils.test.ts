@@ -1,10 +1,14 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { calculateBeanRestingInfo, offsetRoastDateForThaw } from './restingUtils';
 import { Bean } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME, resolveFreshnessColor } from '@brewlog/ui';
+import { TACTILE_DARK_THEME, resolveFreshnessColor } from '@brewlog/ui';
+
+vi.mock('react-native', () => ({
+  StyleSheet: { create: (s: any) => s },
+}));
 
 describe('calculateBeanRestingInfo (mobile stash)', () => {
-  const colors = INDUSTRIAL_PRECISION_THEME.colors;
+  const colors = TACTILE_DARK_THEME.colors;
   const baseBean: Bean = {
     id: 'b-1',
     name: 'Worka',

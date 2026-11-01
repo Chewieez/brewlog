@@ -12,7 +12,7 @@ import {
 import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus, Search, X, Bean as BeanIcon, Archive, Snowflake } from 'lucide-react-native';
 import { Bean } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { useStash } from '../StashContext';
 import { BeanCard } from '../components/BeanCard';
@@ -22,8 +22,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthModal } from '../../auth/AuthModalContext';
 import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
 import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export type ShelfType = 'active' | 'frozen' | 'archived';
 export type ProcessFilter = 'all' | 'washed' | 'natural' | 'honey' | 'anaerobic';
@@ -53,6 +51,8 @@ const PROCESS_OPTIONS: ProcessOption[] = [
 ];
 
 export const StashCatalogScreen: React.FC = () => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { openAuthSheet } = useAuthModal();
@@ -418,7 +418,7 @@ export const StashCatalogScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -632,4 +632,4 @@ const styles = StyleSheet.create({
     color: colors.canvas,
     letterSpacing: 1,
   },
-});
+}));
