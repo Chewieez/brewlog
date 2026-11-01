@@ -241,7 +241,7 @@ function NavigationRoot() {
           name="stash/[id]"
           options={{
             headerShown: true,
-            title: 'Coffee Details',
+            title: 'Bean Details',
             headerBackTitle: 'Back',
             headerStyle: { backgroundColor: colors.canvas },
             headerTintColor: colors.foreground,
