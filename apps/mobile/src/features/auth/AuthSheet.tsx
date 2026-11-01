@@ -27,6 +27,7 @@ import {
   Mail,
   User as UserIcon,
   Settings,
+  X,
 } from "lucide-react-native";
 import { makeStyles, useTheme } from "@brewlog/ui";
 import { FONTS } from "../../theme/fonts";
@@ -319,7 +320,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                     accessibilityLabel="Close sheet"
                     style={styles.closeButton}
                   >
-                    <Text style={styles.closeText}>✕</Text>
+                    <X size={16} color={colors.textMuted} />
                   </TouchableOpacity>
                 </View>
 

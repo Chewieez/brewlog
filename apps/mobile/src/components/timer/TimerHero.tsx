@@ -231,7 +231,7 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
         <View style={[styles.progressFill, { width: `${totalProgress}%` }]} />
       </View>
 
-      {/* Oversized Tabular Digital Clock — Appliance Light with optically centered colon */}
+      {/* Oversized Tabular Digital Clock - Appliance Light with optically centered colon */}
       <View style={styles.clockContainer}>
         <Text style={styles.clockDigit}>{mins}</Text>
         <Text style={styles.clockColon}>:</Text>

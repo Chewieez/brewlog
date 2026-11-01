@@ -186,6 +186,7 @@ vi.mock("lucide-react-native", () => ({
   User: () => <span data-testid="user-icon" />,
   Sliders: () => <span data-testid="sliders-icon" />,
   Settings: () => <span data-testid="settings-icon" />,
+  X: () => <span data-testid="x-icon" />,
 }));
 
 describe("AuthSheet", () => {
