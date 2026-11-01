@@ -48,7 +48,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
               className={`h-8 px-3 rounded-xl text-xs font-mono font-semibold uppercase tracking-wider transition-all cursor-pointer border-0 inline-flex items-center justify-center ${
                 isSelected
                   ? 'btn-tactile-primary'
-                  : 'btn-tactile-secondary text-text-muted hover:text-text-primary'
+                  : 'btn-tactile-secondary text-foreground-muted hover:text-foreground'
               }`}
             >
               {method.replace('-', ' ')}
@@ -60,7 +60,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
       {/* Recipe Cards List */}
       <div className="space-y-3">
         {filteredRecipes.length === 0 ? (
-          <div className="p-8 rounded-2xl bg-panel border border-dashed border-border-subtle text-center text-xs text-text-muted">
+          <div className="p-8 rounded-2xl bg-panel border border-dashed border-border-subtle text-center text-xs text-foreground-muted">
             No recipes found for this brew method.
           </div>
         ) : (
@@ -92,7 +92,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
 
                 <div className="relative z-10 flex items-center justify-between pointer-events-none">
                   <div className="flex items-center space-x-2">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-panel-recessed text-text-secondary">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-panel-recessed text-foreground-secondary">
                       {r.brewMethod}
                     </span>
                     {isCustom ? (
@@ -100,7 +100,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                         Custom
                       </span>
                     ) : (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-panel-recessed text-text-muted">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-panel-recessed text-foreground-muted">
                         Preset
                       </span>
                     )}
@@ -108,7 +108,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
 
                   <div className="flex items-center space-x-2">
                     {r.author && (
-                      <span className="text-xs text-text-muted font-mono truncate max-w-[120px]">
+                      <span className="text-xs text-foreground-muted font-mono truncate max-w-[120px]">
                         {r.author}
                       </span>
                     )}
@@ -120,7 +120,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                           e.stopPropagation();
                           onEditRecipe(r);
                         }}
-                        className="pointer-events-auto p-1 rounded text-text-muted hover:text-text-primary hover:bg-panel-recessed transition-colors cursor-pointer"
+                        className="pointer-events-auto w-8 h-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer"
                         title="Edit Recipe"
                         aria-label={`Edit custom recipe ${r.name}`}
                       >
@@ -135,7 +135,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                           e.stopPropagation();
                           setRecipeToDelete(r);
                         }}
-                        className="pointer-events-auto p-1 rounded text-text-muted hover:text-status-error hover:bg-panel-recessed transition-colors cursor-pointer"
+                        className="pointer-events-auto w-8 h-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-status-error hover:bg-panel-recessed transition-colors cursor-pointer"
                         title="Delete Recipe"
                         aria-label={`Delete custom recipe ${r.name}`}
                       >
@@ -146,18 +146,18 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                 </div>
 
                 <div className="relative z-10 pointer-events-none">
-                  <h3 className="text-base font-bold text-text-primary mt-2">{r.name}</h3>
-                  <p className="text-xs text-text-secondary mt-1 line-clamp-2">
+                  <h3 className="text-base font-bold text-foreground mt-2">{r.name}</h3>
+                  <p className="text-xs text-foreground-secondary mt-1 line-clamp-2">
                     {r.description || 'No description provided.'}
                   </p>
 
-                  <div className="mt-3 flex items-center space-x-3 text-xs font-light text-text-secondary tabular-nums">
+                  <div className="mt-3 flex items-center space-x-3 text-xs font-light text-foreground-secondary tabular-nums">
                     <span>1:{r.ratio}</span>
-                    <span className="text-text-muted">•</span>
+                    <span className="text-foreground-muted">•</span>
                     <span>
                       {r.coffeeDoseGrams}g : {r.waterAmountGrams}g
                     </span>
-                    <span className="text-text-muted">•</span>
+                    <span className="text-foreground-muted">•</span>
                     <span>
                       {`${Math.floor(r.totalTimeSeconds / 60)}m ${(r.totalTimeSeconds % 60).toString().padStart(2, '0')}s`}
                     </span>
@@ -176,7 +176,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
         message={
           <>
             Are you sure you want to delete{' '}
-            <strong className="text-text-primary">"{recipeToDelete?.name}"</strong>? This
+            <strong className="text-foreground">"{recipeToDelete?.name}"</strong>? This
             action cannot be undone.
           </>
         }

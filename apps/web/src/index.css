@@ -10,9 +10,12 @@
   --color-border-active: rgba(255, 255, 255, 0.12);
   --color-accent: #d97736;
   --color-accent-hover: #e88344;
-  --color-text-primary: #f5f0eb;
-  --color-text-secondary: #a8a29e;
-  --color-text-muted: #78716c;
+  --color-foreground: #f5f0eb;
+  --color-foreground-secondary: #a8a29e;
+  --color-foreground-muted: #78716c;
+  --color-text-primary: var(--color-foreground);
+  --color-text-secondary: var(--color-foreground-secondary);
+  --color-text-muted: var(--color-foreground-muted);
   --color-status-success: #22c55e;
   --color-status-warning: #f59e0b;
   --color-status-error: #ef4444;
@@ -45,9 +48,12 @@
   --color-border-active: #cbd5e1;
   --color-accent: #c25412;
   --color-accent-hover: #9a3412;
-  --color-text-primary: #0f172a;
-  --color-text-secondary: #475569;
-  --color-text-muted: #64748b;
+  --color-foreground: #0f172a;
+  --color-foreground-secondary: #475569;
+  --color-foreground-muted: #64748b;
+  --color-text-primary: var(--color-foreground);
+  --color-text-secondary: var(--color-foreground-secondary);
+  --color-text-muted: var(--color-foreground-muted);
   --color-status-success: #16a34a;
   --color-status-warning: #d97706;
   --color-status-error: #dc2626;
@@ -80,9 +86,12 @@
   --color-border-active: rgba(255, 255, 255, 0.12);
   --color-accent: #d97736;
   --color-accent-hover: #e88344;
-  --color-text-primary: #f5f0eb;
-  --color-text-secondary: #a8a29e;
-  --color-text-muted: #78716c;
+  --color-foreground: #f5f0eb;
+  --color-foreground-secondary: #a8a29e;
+  --color-foreground-muted: #78716c;
+  --color-text-primary: var(--color-foreground);
+  --color-text-secondary: var(--color-foreground-secondary);
+  --color-text-muted: var(--color-foreground-muted);
   --color-status-success: #22c55e;
   --color-status-warning: #f59e0b;
   --color-status-error: #ef4444;
@@ -118,6 +127,9 @@
   --color-border-active: var(--color-border-active);
   --color-accent: var(--color-accent);
   --color-accent-hover: var(--color-accent-hover);
+  --color-foreground: var(--color-foreground);
+  --color-foreground-secondary: var(--color-foreground-secondary);
+  --color-foreground-muted: var(--color-foreground-muted);
   --color-text-primary: var(--color-text-primary);
   --color-text-secondary: var(--color-text-secondary);
   --color-text-muted: var(--color-text-muted);
@@ -129,8 +141,8 @@
   --color-surface-recessed: var(--color-panel-recessed);
   --color-copper: var(--color-accent);
   --color-copper-hover: var(--color-accent-hover);
-  --color-bone: var(--color-text-primary);
-  --color-bone-muted: var(--color-text-secondary);
+  --color-bone: var(--color-foreground);
+  --color-bone-muted: var(--color-foreground-secondary);
 }
 
 @layer base {

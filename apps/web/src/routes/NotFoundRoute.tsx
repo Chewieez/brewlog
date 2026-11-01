@@ -11,10 +11,10 @@ export const NotFoundRoute: React.FC = () => {
       <span className="text-xs font-mono uppercase tracking-widest text-accent mb-2">
         Error 404
       </span>
-      <h1 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight mb-3">
+      <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight mb-3">
         Brew Spilled — Page Not Found
       </h1>
-      <p className="text-text-secondary max-w-md mb-8 text-sm sm:text-base leading-relaxed">
+      <p className="text-foreground-secondary max-w-md mb-8 text-sm sm:text-base leading-relaxed">
         Looks like this grind setting went a bit too fine or the link expired. Let's get you back to brewing.
       </p>
       <Link

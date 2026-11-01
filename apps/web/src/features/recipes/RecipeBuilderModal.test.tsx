@@ -726,10 +726,10 @@ describe('RecipeBuilderModal', () => {
     const doseInput = screen.getByLabelText(/coffee dose \(g\)/i);
     const waterInput = screen.getByLabelText(/target water \(g\)/i);
 
-    expect(doseInput.className).toContain('text-text-primary');
+    expect(doseInput.className).toContain('text-foreground');
     expect(doseInput.className).not.toContain('text-accent');
 
-    expect(waterInput.className).toContain('text-text-primary');
+    expect(waterInput.className).toContain('text-foreground');
     expect(waterInput.className).not.toContain('text-accent');
 
     // Verify all step water inputs use neutral styling
@@ -741,7 +741,7 @@ describe('RecipeBuilderModal', () => {
 
     stageWaterInputs.forEach((input) => {
       expect(input).not.toBeNull();
-      expect(input!.className).toContain('text-text-primary');
+      expect(input!.className).toContain('text-foreground');
       expect(input!.className).not.toContain('text-accent');
     });
 
@@ -749,7 +749,7 @@ describe('RecipeBuilderModal', () => {
     const stepBadges = container.querySelectorAll('.p-4 span.w-6.h-6');
     expect(stepBadges.length).toBe(3);
     stepBadges.forEach((badge) => {
-      expect(badge.className).toContain('text-text-primary');
+      expect(badge.className).toContain('text-foreground');
       expect(badge.className).not.toContain('text-accent');
     });
   });

@@ -8,6 +8,7 @@ export default defineConfig({
     alias: {
       "@brewlog/core": path.resolve(__dirname, "../../packages/core/src"),
       "@brewlog/supabase": path.resolve(__dirname, "../../packages/supabase/src"),
+      "@brewlog/ui": path.resolve(__dirname, "../../packages/ui/src/index.web.ts"),
     },
   },
   test: {

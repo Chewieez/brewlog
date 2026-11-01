@@ -6,9 +6,17 @@ export interface ThemeColors {
   borderActive: string;
   accent: string;
   accentHover: string;
+
+  // Semantic foreground tokens
+  foreground: string;
+  foregroundSecondary: string;
+  foregroundMuted: string;
+
+  // Backward compatibility for existing mobile consumers
   textPrimary: string;
   textSecondary: string;
   textMuted: string;
+
   statusSuccess: string;
   statusWarning: string;
   statusError: string;
@@ -34,9 +42,12 @@ export const TACTILE_DARK_THEME: ThemeTokens = {
     borderActive: 'rgba(255, 255, 255, 0.12)',
     accent: '#d97736',
     accentHover: '#e88344',
-    textPrimary: '#f5f0eb',
-    textSecondary: '#a8a29e',
-    textMuted: '#78716c',
+    foreground: '#f5f0eb',
+    foregroundSecondary: '#a8a29e',
+    foregroundMuted: '#78716c',
+    get textPrimary() { return this.foreground; },
+    get textSecondary() { return this.foregroundSecondary; },
+    get textMuted() { return this.foregroundMuted; },
     statusSuccess: '#22c55e',
     statusWarning: '#f59e0b',
     statusError: '#ef4444',
@@ -56,9 +67,12 @@ export const CRISP_STUDIO_LIGHT_THEME: ThemeTokens = {
     borderActive: '#cbd5e1',
     accent: '#c25412',
     accentHover: '#9a3412',
-    textPrimary: '#0f172a',
-    textSecondary: '#475569',
-    textMuted: '#64748b',
+    foreground: '#0f172a',
+    foregroundSecondary: '#475569',
+    foregroundMuted: '#64748b',
+    get textPrimary() { return this.foreground; },
+    get textSecondary() { return this.foregroundSecondary; },
+    get textMuted() { return this.foregroundMuted; },
     statusSuccess: '#16a34a',
     statusWarning: '#d97706',
     statusError: '#dc2626',
@@ -78,9 +92,12 @@ export const INDUSTRIAL_PRECISION_THEME: ThemeTokens = {
     borderActive: '#52525b',
     accent: '#d97736',
     accentHover: '#e88344',
-    textPrimary: '#f4f4f5',
-    textSecondary: '#a1a1aa',
-    textMuted: '#71717a',
+    foreground: '#f4f4f5',
+    foregroundSecondary: '#a1a1aa',
+    foregroundMuted: '#71717a',
+    get textPrimary() { return this.foreground; },
+    get textSecondary() { return this.foregroundSecondary; },
+    get textMuted() { return this.foregroundMuted; },
     statusSuccess: '#22c55e',
     statusWarning: '#f59e0b',
     statusError: '#ef4444',
@@ -93,6 +110,9 @@ export const THEMES: Record<string, ThemeTokens> = {
   [CRISP_STUDIO_LIGHT_THEME.id]: CRISP_STUDIO_LIGHT_THEME,
   [INDUSTRIAL_PRECISION_THEME.id]: INDUSTRIAL_PRECISION_THEME,
 };
+
+export const DEFAULT_THEME = TACTILE_DARK_THEME;
+export const darkTheme = TACTILE_DARK_THEME;
 
 export function resolveTheme(
   preference: 'system' | 'tactile_dark' | 'studio_light' = 'system',

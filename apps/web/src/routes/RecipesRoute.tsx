@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import { Button } from '@brewlog/ui';
 import { Outlet, useOutletContext, useParams, useNavigate } from 'react-router';
 import { BrewRecipe, Equipment } from '@brewlog/core';
 import { Plus } from 'lucide-react';
@@ -88,26 +89,25 @@ export const RecipesRoute: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-text-primary">
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">
             Recipe Studio
           </h2>
-          <p className="text-sm text-text-secondary mt-1">
+          <p className="text-sm text-foreground-secondary mt-1">
             World Champion & Expert brew profiles alongside your custom dialed-in recipes.
           </p>
         </div>
 
         <div className="flex items-center space-x-3">
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="sm"
+            icon={<Plus className="w-4 h-4" />}
             onClick={() => {
               setEditingRecipe(null);
               setIsBuilderModalOpen(true);
             }}
-            className="flex items-center space-x-2 px-4 py-2.5 rounded-xl btn-tactile-primary font-mono text-xs uppercase tracking-wider font-bold cursor-pointer transition-colors border-0"
-          >
-            <Plus className="w-4 h-4" />
-            <span>NEW RECIPE</span>
-          </button>
+            label="NEW RECIPE"
+          />
         </div>
       </div>
 

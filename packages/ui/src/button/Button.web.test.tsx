@@ -52,12 +52,31 @@ describe('Button (web)', () => {
     expect(btn.className).toContain('border-0');
   });
 
-  it('renders ghost button with transparent background and text-secondary', () => {
+  it('renders ghost button with transparent background and text-foreground-secondary', () => {
     render(<Button label="MORE" variant="ghost" />);
     const btn = screen.getByRole('button', { name: 'MORE' });
     expect(btn.className).toContain('bg-transparent');
     expect(btn.className).toContain('hover:bg-panel-recessed');
-    expect(btn.className).toContain('text-text-secondary');
+    expect(btn.className).toContain('text-foreground-secondary');
+  });
+
+  it('renders medium button with h-10 (40px) height by default', () => {
+    render(<Button label="Submit" />);
+    const btn = screen.getByRole('button', { name: 'Submit' });
+    expect(btn.className).toContain('h-10');
+    expect(btn.className).not.toContain('h-11');
+  });
+
+  it('renders button with type="submit" when specified', () => {
+    render(<Button label="Save" type="submit" />);
+    const btn = screen.getByRole('button', { name: 'Save' });
+    expect(btn.getAttribute('type')).toBe('submit');
+  });
+
+  it('applies custom className to button', () => {
+    render(<Button label="Custom" className="shrink-0" />);
+    const btn = screen.getByRole('button', { name: 'Custom' });
+    expect(btn.className).toContain('shrink-0');
   });
 
   it('renders string children correctly', () => {
@@ -69,5 +88,25 @@ describe('Button (web)', () => {
     render(<Button label="DEFAULT">{0}</Button>);
     expect(screen.getByText('0')).toBeInTheDocument();
     expect(screen.queryByText('DEFAULT')).not.toBeInTheDocument();
+  });
+
+  it('includes cursor-pointer in base button classes across variants', () => {
+    const { rerender } = render(<Button label="DANGER" variant="danger" />);
+    expect(screen.getByRole('button', { name: 'DANGER' }).className).toContain('cursor-pointer');
+
+    rerender(<Button label="GHOST" variant="ghost" />);
+    expect(screen.getByRole('button', { name: 'GHOST' }).className).toContain('cursor-pointer');
+  });
+
+  it('does not render an empty span element when no label or children are provided for icon-only buttons', () => {
+    const { container } = render(
+      <Button
+        accessibilityLabel="Close"
+        icon={<span data-testid="test-icon">X</span>}
+      />
+    );
+    const spans = container.querySelectorAll('button > span');
+    expect(spans).toHaveLength(1);
+    expect(screen.getByTestId('test-icon')).toBeInTheDocument();
   });
 });

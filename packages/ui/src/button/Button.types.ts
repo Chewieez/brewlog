@@ -5,6 +5,9 @@ export interface ButtonProps {
   children?: React.ReactNode;
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
+  type?: 'button' | 'submit' | 'reset';
+  className?: string;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   onPress?: () => void;
   disabled?: boolean;
   loading?: boolean;

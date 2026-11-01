@@ -295,7 +295,7 @@ export const RootLayout: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-canvas text-text-primary flex flex-col font-sans selection:bg-accent/30 selection:text-text-primary">
+    <div className="min-h-screen bg-canvas text-foreground flex flex-col font-sans selection:bg-accent/30 selection:text-foreground">
       <Header
         beanCount={beans.length}
         brewCount={tastingLogs.length}
