@@ -603,10 +603,10 @@ const useStyles = makeStyles((colors) => ({
     gap: 8,
   },
   primaryButtonIdle: {
-    backgroundColor: colors.textPrimary,
+    backgroundColor: colors.accent,
   },
   primaryButtonRunning: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.accentHover,
   },
   primaryButtonText: {
     color: colors.canvas,
