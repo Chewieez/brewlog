@@ -153,6 +153,7 @@ describe('SettingsContext (Mobile)', () => {
         temperatureUnit: 'fahrenheit',
         defaultTimerMode: 'recipe',
         dateFormat: 'YYYY-MM-DD',
+        theme: 'system',
       });
     });
 
