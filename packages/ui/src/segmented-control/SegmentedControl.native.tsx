@@ -94,7 +94,9 @@ const useStyles = makeStyles((colors) => ({
     paddingHorizontal: 6,
   },
   buttonActive: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.panel,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
   },
   text: {
     color: colors.foregroundMuted,
@@ -108,6 +110,6 @@ const useStyles = makeStyles((colors) => ({
     letterSpacing: 1,
   },
   textActive: {
-    color: colors.canvas,
+    color: colors.foreground,
   },
 }));

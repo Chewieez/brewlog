@@ -71,8 +71,8 @@ describe('SegmentedControl (native)', () => {
     const guidedButton = screen.getByText('GUIDED RECIPE').closest('button');
     const freeBrewButton = screen.getByText('FREE BREW').closest('button');
 
-    expect(guidedButton?.getAttribute('data-style')).toContain('#d97736');
-    expect(freeBrewButton?.getAttribute('data-style')).not.toContain('#d97736');
+    expect(guidedButton?.getAttribute('data-style')).toContain('#171513');
+    expect(freeBrewButton?.getAttribute('data-style')).not.toContain('#171513');
   });
 
   it('supports fullWidth prop styling', () => {
