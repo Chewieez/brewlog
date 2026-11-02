@@ -35,8 +35,8 @@ import { FONTS } from '../../src/theme/fonts';
 
 const THEME_OPTIONS: { id: ThemePreference; label: string; accessibilityLabel: string }[] = [
   { id: 'system', label: 'SYSTEM', accessibilityLabel: 'System theme' },
-  { id: 'tactile_dark', label: 'TACTILE DARK', accessibilityLabel: 'Tactile Dark theme' },
-  { id: 'studio_light', label: 'STUDIO LIGHT', accessibilityLabel: 'Crisp Studio Light theme' },
+  { id: 'tactile_dark', label: 'DARK', accessibilityLabel: 'Dark theme' },
+  { id: 'studio_light', label: 'LIGHT', accessibilityLabel: 'Light theme' },
 ];
 
 const DATE_FORMAT_OPTIONS: { id: DateFormatPreference; label: string }[] = [
@@ -112,12 +112,9 @@ export default function SettingsModalScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.headerTitleGroup}>
-          <Text style={styles.eyebrow}>SYSTEM // CALIBRATION</Text>
-          <View style={styles.titleRow}>
-            <Settings size={20} color={colors.accent} />
-            <Text style={styles.headerTitle}>Settings</Text>
-          </View>
+        <View style={styles.titleRow}>
+          <Settings size={20} color={colors.foreground} />
+          <Text style={styles.headerTitle}>Settings</Text>
         </View>
 
         <TouchableOpacity
@@ -498,25 +495,17 @@ const useStyles = makeStyles((colors) => ({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 8,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: colors.borderSubtle,
   },
-  headerTitleGroup: {
-    gap: 4,
-  },
-  eyebrow: {
-    fontFamily: FONTS.monoRegular,
-    fontSize: 10,
-    letterSpacing: 1.2,
-    color: colors.foregroundMuted,
-  },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: 44,
     gap: 8,
   },
   headerTitle: {
@@ -530,10 +519,6 @@ const useStyles = makeStyles((colors) => ({
     minHeight: 44,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
-    backgroundColor: colors.panelRecessed,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
   },
   scrollContent: {
     paddingHorizontal: 20,

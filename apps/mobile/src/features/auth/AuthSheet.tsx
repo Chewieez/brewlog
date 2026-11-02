@@ -19,7 +19,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import {
-  Sparkles,
   LogOut,
   AlertCircle,
   CheckCircle2,
@@ -308,9 +307,8 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                 {/* Header */}
                 <View style={styles.header}>
                   <View style={styles.headerLeft}>
-                    <Sparkles size={18} color={colors.accent} />
                     <Text style={styles.headerTitle}>
-                      {user ? "BARISTA PROFILE" : mode === "forgot" ? "RESET PASSWORD" : "BREWLOG CLOUD"}
+                      {user ? "Profile" : mode === "forgot" ? "RESET PASSWORD" : "BREWLOG CLOUD"}
                     </Text>
                   </View>
                   <TouchableOpacity
@@ -328,11 +326,23 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                 {user ? (
                   <View style={styles.profileSection}>
                     <View style={styles.statusCard}>
-                      <View style={styles.statusRow}>
-                        <View style={styles.statusDot} />
-                        <Text style={styles.statusText}>
-                          CLOUD CONNECTED
-                        </Text>
+                      <View style={styles.statusCardHeader}>
+                        <View style={styles.statusRow}>
+                          <View style={styles.statusDot} />
+                          <Text style={styles.statusText}>
+                            CLOUD CONNECTED
+                          </Text>
+                        </View>
+                        <TouchableOpacity
+                          onPress={handleSignOut}
+                          activeOpacity={0.7}
+                          style={styles.cardSignOutCompact}
+                          accessibilityRole="button"
+                          accessibilityLabel="Sign out"
+                        >
+                          <LogOut size={12} color={colors.statusError} />
+                          <Text style={styles.cardSignOutCompactText}>SIGN OUT</Text>
+                        </TouchableOpacity>
                       </View>
                       <Text style={styles.profileName}>
                         {user.user_metadata?.display_name || "Barista"}
@@ -344,15 +354,6 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                         ID: {user.id.length > 18 ? `${user.id.substring(0, 18)}...` : user.id}
                       </Text>
                     </View>
-
-                    <TouchableOpacity
-                      onPress={handleSignOut}
-                      activeOpacity={0.8}
-                      style={styles.signOutButton}
-                    >
-                      <LogOut size={16} color={colors.statusError} />
-                      <Text style={styles.signOutText}>SIGN OUT</Text>
-                    </TouchableOpacity>
                   </View>
                 ) : (
                   /* Logged Out View */
@@ -540,19 +541,17 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                   </View>
                 )}
 
-                {/* Settings Entry Card */}
+                {/* Settings Entry */}
                 <View style={styles.preferencesSection}>
                   <TouchableOpacity
                     onPress={handleOpenPreferences}
-                    activeOpacity={0.8}
-                    style={styles.preferencesCard}
+                    activeOpacity={0.7}
+                    style={styles.preferencesRow}
                     accessibilityRole="button"
                     accessibilityLabel="Settings"
                   >
                     <View style={styles.preferencesLeft}>
-                      <View style={styles.preferencesIconWrapper}>
-                        <Settings size={18} color={colors.accent} />
-                      </View>
+                      <Settings size={18} color={colors.foregroundSecondary} />
                       <View style={styles.preferencesTextGroup}>
                         <Text style={styles.preferencesTitle}>Settings</Text>
                         <Text style={styles.preferencesSubtitle}>Units, timer mode & calibration</Text>
@@ -651,6 +650,28 @@ const useStyles = makeStyles((colors) => ({
     padding: 16,
     gap: 8,
   },
+  statusCardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  cardSignOutCompact: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    backgroundColor: colors.statusError + "14",
+    borderWidth: 1,
+    borderColor: colors.statusError + "33",
+  },
+  cardSignOutCompactText: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 10,
+    letterSpacing: 0.5,
+    color: colors.statusError,
+  },
   statusRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -682,23 +703,6 @@ const useStyles = makeStyles((colors) => ({
     fontFamily: FONTS.monoRegular,
     fontSize: 10,
     color: colors.foregroundMuted,
-  },
-  signOutButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    height: 44,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.statusError + "66",
-    backgroundColor: colors.statusError + "1a",
-  },
-  signOutText: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 12,
-    letterSpacing: 0.5,
-    color: colors.statusError,
   },
   formSection: {
     gap: 14,
@@ -859,32 +863,18 @@ const useStyles = makeStyles((colors) => ({
     borderTopWidth: 1,
     borderTopColor: colors.borderSubtle,
   },
-  preferencesCard: {
+  preferencesRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: colors.panelRecessed,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 4,
     minHeight: 44,
   },
   preferencesLeft: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-  },
-  preferencesIconWrapper: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: colors.canvas,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
   },
   preferencesTextGroup: {
     gap: 2,

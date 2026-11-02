@@ -71,11 +71,11 @@ const useStyles = makeStyles((colors) => ({
     borderWidth: 1,
   },
   pillActive: {
-    backgroundColor: colors.panel,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   pillInactive: {
-    backgroundColor: colors.canvas,
+    backgroundColor: colors.panel,
     borderColor: colors.borderSubtle,
   },
   pillText: {
@@ -84,7 +84,7 @@ const useStyles = makeStyles((colors) => ({
     letterSpacing: 1.2,
   },
   pillTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
   },
   pillTextInactive: {
     color: colors.textMuted,

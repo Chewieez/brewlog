@@ -572,7 +572,7 @@ const useStyles = makeStyles((colors) => ({
     letterSpacing: 1,
   },
   errorBanner: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    backgroundColor: `${colors.statusError}1a`,
     borderWidth: 1,
     borderColor: colors.statusError,
     borderRadius: 8,
@@ -611,7 +611,7 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: 'center',
   },
   categoryPillActive: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   categoryPillInactive: {
@@ -625,7 +625,7 @@ const useStyles = makeStyles((colors) => ({
   },
   categoryPillTextActive: {
     fontFamily: FONTS.monoBold,
-    color: colors.accent,
+    color: colors.canvas,
   },
   categoryPillTextInactive: {
     color: colors.textSecondary,
@@ -670,7 +670,7 @@ const useStyles = makeStyles((colors) => ({
     paddingHorizontal: 4,
   },
   scaleTypePillActive: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   scaleTypePillInactive: {
@@ -684,7 +684,7 @@ const useStyles = makeStyles((colors) => ({
   },
   scaleTypePillTextActive: {
     fontFamily: FONTS.monoBold,
-    color: colors.accent,
+    color: colors.canvas,
   },
   scaleTypePillTextInactive: {
     color: colors.textSecondary,
@@ -718,7 +718,7 @@ const useStyles = makeStyles((colors) => ({
     borderWidth: 1,
   },
   togglePillActive: {
-    backgroundColor: 'rgba(217, 119, 6, 0.15)',
+    backgroundColor: `${colors.accent}26`,
     borderColor: colors.accent,
   },
   togglePillInactive: {

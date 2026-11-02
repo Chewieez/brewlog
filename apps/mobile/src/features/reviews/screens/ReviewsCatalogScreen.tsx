@@ -431,7 +431,7 @@ const useStyles = makeStyles((colors) => ({
     alignItems: 'center',
   },
   filterChipActive: {
-    backgroundColor: colors.panel,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   filterChipText: {
@@ -441,7 +441,7 @@ const useStyles = makeStyles((colors) => ({
     textTransform: 'uppercase',
   },
   filterChipTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
     fontFamily: FONTS.monoBold,
   },
   cardWrapper: {

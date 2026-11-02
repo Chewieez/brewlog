@@ -773,7 +773,7 @@ const useStyles = makeStyles((colors) => ({
     letterSpacing: 1,
   },
   errorBanner: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    backgroundColor: `${colors.statusError}1f`,
     borderWidth: 1,
     borderColor: colors.statusError,
     padding: 12,
@@ -897,7 +897,7 @@ const useStyles = makeStyles((colors) => ({
   },
   toggleRowActive: {
     backgroundColor: colors.panelRecessed,
-    borderColor: colors.accent,
+    borderColor: colors.borderActive,
   },
   toggleRowInactive: {
     backgroundColor: colors.panelRecessed,

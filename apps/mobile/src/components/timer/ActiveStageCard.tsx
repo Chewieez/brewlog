@@ -50,7 +50,7 @@ const useStyles = makeStyles((colors) => ({
   card: {
     marginHorizontal: 16,
     backgroundColor: colors.panel,
-    borderColor: colors.accent,
+    borderColor: colors.borderActive,
     borderWidth: 1,
     borderRadius: 8,
     padding: 14,

@@ -1261,7 +1261,7 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: 'center',
   },
   methodPillActive: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   methodPillInactive: {
@@ -1273,7 +1273,7 @@ const useStyles = makeStyles((colors) => ({
     fontSize: 11,
   },
   methodPillTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
   },
   methodPillTextInactive: {
     color: colors.textMuted,
@@ -1293,7 +1293,7 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: 'center',
   },
   ratioPillActive: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   ratioPillInactive: {
@@ -1306,7 +1306,7 @@ const useStyles = makeStyles((colors) => ({
     fontVariant: ['tabular-nums'],
   },
   ratioPillTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
   },
   ratioPillTextInactive: {
     color: colors.textSecondary,
@@ -1380,7 +1380,7 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: 'center',
   },
   stageTypePillActive: {
-    backgroundColor: colors.panel,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   stageTypePillInactive: {
@@ -1392,7 +1392,7 @@ const useStyles = makeStyles((colors) => ({
     fontSize: 10,
   },
   stageTypePillTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
   },
   stageTypePillTextInactive: {
     color: colors.textSecondary,
@@ -1507,7 +1507,7 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: 'center',
   },
   scaleTypePillActive: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   scaleTypePillInactive: {
@@ -1521,7 +1521,7 @@ const useStyles = makeStyles((colors) => ({
   },
   scaleTypePillTextActive: {
     fontFamily: FONTS.monoBold,
-    color: colors.accent,
+    color: colors.canvas,
   },
   scaleTypePillTextInactive: {
     color: colors.textSecondary,
@@ -1595,9 +1595,7 @@ const useStyles = makeStyles((colors) => ({
     gap: 8,
   },
   primaryBadge: {
-    backgroundColor: 'rgba(212, 163, 89, 0.2)',
-    borderWidth: 1,
-    borderColor: 'rgba(212, 163, 89, 0.4)',
+    backgroundColor: `${colors.accent}26`,
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -1700,6 +1698,7 @@ const useStyles = makeStyles((colors) => ({
     borderColor: colors.borderSubtle,
   },
   pickerOptionCurrent: {
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   pickerOptionDisabled: {
@@ -1712,7 +1711,7 @@ const useStyles = makeStyles((colors) => ({
   },
   pickerOptionTextCurrent: {
     fontFamily: FONTS.sansBold,
-    color: colors.accent,
+    color: colors.canvas,
   },
   pickerOptionTextDisabled: {
     color: colors.textMuted,

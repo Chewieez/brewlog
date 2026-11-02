@@ -175,9 +175,9 @@ const useStyles = makeStyles((colors) => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: `${colors.accent}1a`,
     borderWidth: 1,
-    borderColor: colors.accent,
+    borderColor: `${colors.accent}4d`,
     borderRadius: 6,
     paddingVertical: 4,
     paddingHorizontal: 8,
@@ -185,7 +185,7 @@ const useStyles = makeStyles((colors) => ({
   selectedChipText: {
     fontFamily: FONTS.monoMedium,
     fontSize: 11,
-    color: colors.textPrimary,
+    color: colors.accent,
   },
   tagCategoriesContainer: {
     gap: 12,

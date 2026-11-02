@@ -112,9 +112,7 @@ const useStyles = makeStyles((colors) => ({
     letterSpacing: 0.8,
   },
   customBadge: {
-    backgroundColor: colors.panelRecessed,
-    borderColor: colors.accent,
-    borderWidth: 1,
+    backgroundColor: `${colors.accent}26`,
     borderRadius: 4,
     paddingHorizontal: 8,
     paddingVertical: 3,

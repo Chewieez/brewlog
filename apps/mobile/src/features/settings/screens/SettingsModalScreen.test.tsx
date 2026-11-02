@@ -172,7 +172,6 @@ describe('SettingsModalScreen', () => {
     );
 
     expect(getByText(/^SETTINGS$/i)).toBeTruthy();
-    expect(getByText(/SYSTEM \/\/ CALIBRATION/i)).toBeTruthy();
     expect(getByText(/WEIGHT UNIT/i)).toBeTruthy();
     expect(getByText(/TEMPERATURE UNIT/i)).toBeTruthy();
     expect(getByText(/DEFAULT TIMER MODE/i)).toBeTruthy();
@@ -355,14 +354,14 @@ describe('SettingsModalScreen', () => {
     );
 
     const systemBtn = getByLabelText('System theme');
-    const tactileDarkBtn = getByLabelText('Tactile Dark theme');
-    const studioLightBtn = getByLabelText('Crisp Studio Light theme');
+    const darkBtn = getByLabelText('Dark theme');
+    const lightBtn = getByLabelText('Light theme');
 
     expect(systemBtn.getAttribute('aria-selected')).toBe('true');
-    expect(tactileDarkBtn.getAttribute('aria-selected')).toBe('false');
-    expect(studioLightBtn.getAttribute('aria-selected')).toBe('false');
+    expect(darkBtn.getAttribute('aria-selected')).toBe('false');
+    expect(lightBtn.getAttribute('aria-selected')).toBe('false');
 
-    fireEvent.press(tactileDarkBtn);
+    fireEvent.press(darkBtn);
     expect(Haptics.selectionAsync).toHaveBeenCalled();
     expect(updateSettingsMock).toHaveBeenCalledWith({ theme: 'tactile_dark' });
   });

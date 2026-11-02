@@ -266,6 +266,7 @@ describe("AuthSheet", () => {
       <AuthSheet visible={true} onClose={vi.fn()} />
     );
 
+    expect(getByText("Profile")).toBeDefined();
     expect(getByText("CLOUD CONNECTED")).toBeDefined();
     expect(getByText("Greg")).toBeDefined();
     expect(getByText("barista@brewlog.dev")).toBeDefined();

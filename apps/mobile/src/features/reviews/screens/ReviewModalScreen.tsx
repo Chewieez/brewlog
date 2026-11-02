@@ -770,7 +770,7 @@ const useStyles = makeStyles((colors) => ({
   timerBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(217, 119, 6, 0.1)',
+    backgroundColor: `${colors.accent}1a`,
     borderWidth: 1,
     borderColor: colors.accent,
     borderRadius: 8,
@@ -843,7 +843,7 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: 'center',
   },
   beanChipSelected: {
-    backgroundColor: colors.panel,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   beanChipText: {
@@ -852,7 +852,7 @@ const useStyles = makeStyles((colors) => ({
     color: colors.textSecondary,
   },
   beanChipTextSelected: {
-    color: colors.accent,
+    color: colors.canvas,
     fontFamily: FONTS.bodyBold,
   },
   inputGroup: {
@@ -892,7 +892,7 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: 'center',
   },
   chipActive: {
-    backgroundColor: colors.panel,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   chipText: {
@@ -901,7 +901,7 @@ const useStyles = makeStyles((colors) => ({
     color: colors.textMuted,
   },
   chipTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
     fontFamily: FONTS.monoBold,
   },
   specsGrid: {

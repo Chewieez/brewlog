@@ -210,7 +210,7 @@ const useStyles = makeStyles((colors) => ({
     gap: 2,
   },
   presetPillActive: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   presetPillInactive: {
@@ -228,14 +228,14 @@ const useStyles = makeStyles((colors) => ({
     fontVariant: ['tabular-nums'],
   },
   presetTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
     fontFamily: FONTS.sansBold,
   },
   presetTextInactive: {
     color: colors.textSecondary,
   },
   presetDoseActive: {
-    color: colors.accent,
+    color: colors.canvas,
   },
   presetDoseInactive: {
     color: colors.textMuted,

@@ -522,7 +522,7 @@ const useStyles = makeStyles((colors) => ({
   },
   shelfPillActive: {
     backgroundColor: colors.panel,
-    borderColor: colors.accent,
+    borderColor: colors.borderSubtle,
     borderWidth: 1,
   },
   shelfPillInactive: {
@@ -536,7 +536,7 @@ const useStyles = makeStyles((colors) => ({
     letterSpacing: 0.8,
   },
   shelfPillTextActive: {
-    color: colors.accent,
+    color: colors.foreground,
   },
   shelfPillTextInactive: {
     color: colors.textMuted,
@@ -554,7 +554,7 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: 'center',
   },
   processChipActive: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   processChipInactive: {
@@ -568,7 +568,7 @@ const useStyles = makeStyles((colors) => ({
   },
   processChipTextActive: {
     fontFamily: FONTS.monoBold,
-    color: colors.accent,
+    color: colors.canvas,
   },
   processChipTextInactive: {
     color: colors.textSecondary,

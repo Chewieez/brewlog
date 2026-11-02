@@ -447,7 +447,7 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: 'center',
   },
   categoryChipActive: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   categoryChipInactive: {
@@ -461,7 +461,7 @@ const useStyles = makeStyles((colors) => ({
   },
   categoryChipTextActive: {
     fontFamily: FONTS.monoBold,
-    color: colors.accent,
+    color: colors.canvas,
   },
   categoryChipTextInactive: {
     color: colors.textSecondary,

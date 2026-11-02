@@ -68,7 +68,7 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: 'center',
   },
   pillActive: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   pillInactive: {
@@ -81,7 +81,7 @@ const useStyles = makeStyles((colors) => ({
     letterSpacing: 1,
   },
   pillTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
   },
   pillTextInactive: {
     color: colors.textMuted,

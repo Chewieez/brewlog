@@ -1,14 +1,14 @@
-import type { StyleSheet } from 'react-native';
+import type { ViewStyle, TextStyle, ImageStyle } from 'react-native';
 import { useTheme } from './ThemeContext';
 import { ThemeColors, ThemeTokens } from './theme';
 
-type NamedStyles<T> = StyleSheet.NamedStyles<T>;
-type StyleFactory<T extends NamedStyles<T> | NamedStyles<any>> = (
+type NamedStyles<T> = { [P in keyof T]: ViewStyle | TextStyle | ImageStyle };
+type StyleFactory<T extends NamedStyles<T>> = (
   colors: ThemeColors,
   theme: ThemeTokens
 ) => T;
 
-export function makeStyles<T extends NamedStyles<T> | NamedStyles<any>>(
+export function makeStyles<T extends NamedStyles<T>>(
   styleFactory: StyleFactory<T>
 ) {
   let cachedThemeId: string | null = null;
@@ -21,8 +21,9 @@ export function makeStyles<T extends NamedStyles<T> | NamedStyles<any>>(
       return cachedStyles;
     }
 
-    cachedStyles = styleFactory(colors, theme);
+    const computed = styleFactory(colors, theme);
+    cachedStyles = computed;
     cachedThemeId = theme.id;
-    return cachedStyles;
+    return computed;
   };
 }

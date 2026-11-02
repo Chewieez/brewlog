@@ -838,6 +838,7 @@ const useStyles = makeStyles((colors) => ({
     paddingHorizontal: 8,
   },
   stepperButtonActive: {
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   stepperButtonText: {
@@ -847,7 +848,7 @@ const useStyles = makeStyles((colors) => ({
     fontVariant: ['tabular-nums'],
   },
   stepperButtonTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
   },
   manualWeightInputRow: {
     flexDirection: 'row',

@@ -450,7 +450,7 @@ const useStyles = makeStyles((colors) => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(217, 119, 6, 0.1)',
+    backgroundColor: `${colors.accent}1a`,
     borderWidth: 1,
     borderColor: colors.accent,
     borderRadius: 8,
