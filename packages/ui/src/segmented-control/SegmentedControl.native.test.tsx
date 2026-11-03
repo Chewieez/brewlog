@@ -3,8 +3,14 @@ import React from 'react';
 
 vi.mock('react-native', () => {
   return {
-    View: ({ children, testID, style, accessibilityLabel, ...props }: any) => (
-      <div data-testid={testID} aria-label={accessibilityLabel} data-style={JSON.stringify(style)} {...props}>
+    View: ({ children, testID, style, accessibilityLabel, accessibilityRole, ...props }: any) => (
+      <div
+        data-testid={testID}
+        data-accessibility-role={accessibilityRole}
+        aria-label={accessibilityLabel}
+        data-style={JSON.stringify(style)}
+        {...props}
+      >
         {children}
       </div>
     ),
@@ -94,5 +100,26 @@ describe('SegmentedControl (native)', () => {
     const style = container.getAttribute('data-style');
     expect(style).toContain('320');
     expect(style).toContain('"maxWidth":"100%"');
+  });
+
+  it('maps native accessibility roles correctly without passing invalid "group" role', () => {
+    const { rerender } = render(
+      <SegmentedControl testID="segmented-group" options={options} value="recipe" onChange={() => {}} />
+    );
+    // group should not set native accessibilityRole to "group"
+    const groupContainer = screen.getByTestId('segmented-group');
+    expect(groupContainer.getAttribute('data-accessibility-role')).toBeNull();
+
+    rerender(
+      <SegmentedControl testID="segmented-tablist" role="tablist" options={options} value="recipe" onChange={() => {}} />
+    );
+    const tablistContainer = screen.getByTestId('segmented-tablist');
+    expect(tablistContainer.getAttribute('data-accessibility-role')).toBe('tablist');
+
+    rerender(
+      <SegmentedControl testID="segmented-radiogroup" role="radiogroup" options={options} value="recipe" onChange={() => {}} />
+    );
+    const radiogroupContainer = screen.getByTestId('segmented-radiogroup');
+    expect(radiogroupContainer.getAttribute('data-accessibility-role')).toBe('radiogroup');
   });
 });

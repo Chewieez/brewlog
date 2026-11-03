@@ -15,12 +15,16 @@ export function SegmentedControl<T extends string = string>({
 }: SegmentedControlProps<T>) {
   const styles = useStyles();
   const isSm = size === 'sm';
+  const nativeAccessibilityRole =
+    role === 'tablist' ? 'tablist' :
+    role === 'radiogroup' ? 'radiogroup' :
+    undefined;
 
   return (
     <View
       testID={testID}
       role={role}
-      accessibilityRole={role as any}
+      accessibilityRole={nativeAccessibilityRole}
       accessibilityLabel={ariaLabel}
       style={[
         styles.container,
@@ -34,7 +38,11 @@ export function SegmentedControl<T extends string = string>({
           <Pressable
             key={option.value}
             testID={option.testID}
-            accessibilityRole={role === 'tablist' ? 'tab' : 'button'}
+            accessibilityRole={
+              role === 'tablist' ? 'tab' :
+              role === 'radiogroup' ? 'radio' :
+              'button'
+            }
             accessibilityState={{ selected: isSelected }}
             aria-pressed={isSelected}
             aria-selected={isSelected}
