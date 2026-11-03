@@ -730,7 +730,7 @@ const useStyles = makeStyles((colors) => ({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.segTrackBg,
     padding: 3,
   },
   toggleTab: {
@@ -742,21 +742,23 @@ const useStyles = makeStyles((colors) => ({
     borderRadius: 6,
   },
   activeTab: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.segActiveBg,
+    borderColor: colors.borderActive,
+    borderWidth: 1,
     shadowColor: colors.canvas,
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.5,
+    shadowOpacity: 0.25,
+    shadowRadius: 2,
     elevation: 2,
   },
   toggleTabText: {
     fontFamily: FONTS.monoBold,
     fontSize: 11,
     letterSpacing: 0.5,
-    color: colors.foregroundMuted,
+    color: colors.segInactiveText,
   },
   activeToggleTabText: {
-    color: colors.canvas,
+    color: colors.segActiveText,
   },
   errorBanner: {
     flexDirection: "row",

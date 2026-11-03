@@ -504,11 +504,11 @@ const useStyles = makeStyles((colors) => ({
   },
   shelfSelectorContainer: {
     flexDirection: 'row',
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.segTrackBg,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
-    padding: 4,
+    padding: 3,
     gap: 4,
   },
   shelfPill: {
@@ -520,9 +520,14 @@ const useStyles = makeStyles((colors) => ({
     paddingHorizontal: 6,
   },
   shelfPillActive: {
-    backgroundColor: colors.panel,
-    borderColor: colors.borderSubtle,
+    backgroundColor: colors.segActiveBg,
+    borderColor: colors.borderActive,
     borderWidth: 1,
+    elevation: 2,
+    shadowColor: colors.canvas,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.25,
+    shadowRadius: 2,
   },
   shelfPillInactive: {
     backgroundColor: 'transparent',
@@ -535,10 +540,10 @@ const useStyles = makeStyles((colors) => ({
     letterSpacing: 0.8,
   },
   shelfPillTextActive: {
-    color: colors.foreground,
+    color: colors.segActiveText,
   },
   shelfPillTextInactive: {
-    color: colors.textMuted,
+    color: colors.segInactiveText,
   },
   processFilterScroll: {
     gap: 8,

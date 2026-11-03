@@ -17,6 +17,12 @@ export interface ThemeColors {
   textSecondary: string;
   textMuted: string;
 
+  // Segmented control / elevated toggle tokens
+  segTrackBg: string;
+  segActiveBg: string;
+  segActiveText: string;
+  segInactiveText: string;
+
   statusSuccess: string;
   statusWarning: string;
   statusError: string;
@@ -48,6 +54,10 @@ export const TACTILE_DARK_THEME: ThemeTokens = {
     get textPrimary() { return this.foreground; },
     get textSecondary() { return this.foregroundSecondary; },
     get textMuted() { return this.foregroundMuted; },
+    segTrackBg: '#12100f',
+    segActiveBg: '#24201c',
+    segActiveText: '#f5f0eb',
+    segInactiveText: '#78716c',
     statusSuccess: '#22c55e',
     statusWarning: '#f59e0b',
     statusError: '#ef4444',
@@ -73,6 +83,10 @@ export const CRISP_STUDIO_LIGHT_THEME: ThemeTokens = {
     get textPrimary() { return this.foreground; },
     get textSecondary() { return this.foregroundSecondary; },
     get textMuted() { return this.foregroundMuted; },
+    segTrackBg: '#f1f5f9',
+    segActiveBg: '#ffffff',
+    segActiveText: '#0f172a',
+    segInactiveText: '#64748b',
     statusSuccess: '#16a34a',
     statusWarning: '#d97706',
     statusError: '#dc2626',

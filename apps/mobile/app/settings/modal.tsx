@@ -550,7 +550,7 @@ const useStyles = makeStyles((colors) => ({
   },
   segmentedContainer: {
     flexDirection: 'row',
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.segTrackBg,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
@@ -566,22 +566,24 @@ const useStyles = makeStyles((colors) => ({
     paddingHorizontal: 8,
   },
   segmentTabActive: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.segActiveBg,
+    borderColor: colors.borderActive,
+    borderWidth: 1,
     shadowColor: colors.canvas,
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.5,
+    shadowOpacity: 0.25,
+    shadowRadius: 2,
     elevation: 2,
   },
   segmentText: {
     fontFamily: FONTS.monoMedium,
     fontSize: 12,
     letterSpacing: 0.5,
-    color: colors.foregroundSecondary,
+    color: colors.segInactiveText,
   },
   segmentTextActive: {
     fontFamily: FONTS.monoBold,
-    color: colors.canvas,
+    color: colors.segActiveText,
   },
   dropdownContainer: {
     borderRadius: 8,
