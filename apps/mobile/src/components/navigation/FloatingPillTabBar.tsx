@@ -375,7 +375,7 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: 'space-around',
     paddingHorizontal: HORIZONTAL_PADDING,
     elevation: 8,
-    shadowColor: '#000000',
+    shadowColor: colors.canvas,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 8,
