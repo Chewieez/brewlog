@@ -23,6 +23,9 @@ export interface ThemeColors {
   segActiveText: string;
   segInactiveText: string;
 
+  // Shadow tokens for iOS elevation & drop shadows
+  shadow: string;
+
   statusSuccess: string;
   statusWarning: string;
   statusError: string;
@@ -58,6 +61,7 @@ export const TACTILE_DARK_THEME: ThemeTokens = {
     segActiveBg: '#24201c',
     segActiveText: '#f5f0eb',
     segInactiveText: '#78716c',
+    shadow: '#000000',
     statusSuccess: '#22c55e',
     statusWarning: '#f59e0b',
     statusError: '#ef4444',
@@ -87,6 +91,7 @@ export const CRISP_STUDIO_LIGHT_THEME: ThemeTokens = {
     segActiveBg: '#ffffff',
     segActiveText: '#0f172a',
     segInactiveText: '#64748b',
+    shadow: '#000000',
     statusSuccess: '#16a34a',
     statusWarning: '#d97706',
     statusError: '#dc2626',

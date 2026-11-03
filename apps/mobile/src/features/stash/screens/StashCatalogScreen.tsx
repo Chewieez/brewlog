@@ -11,7 +11,7 @@ import {
 import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus, Search, X, Bean as BeanIcon, Archive, Snowflake } from 'lucide-react-native';
 import { Bean } from '@brewlog/core';
-import { makeStyles, useTheme } from '@brewlog/ui';
+import { makeStyles, useTheme, SegmentedControl } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { useStash } from '../StashContext';
 import { BeanCard } from '../components/BeanCard';
@@ -327,36 +327,20 @@ export const StashCatalogScreen: React.FC = () => {
         ) : null}
       </View>
 
-      {/* Shelf Selector Segmented Pills */}
-      <View style={styles.shelfSelectorContainer} accessibilityRole="tablist">
-        {SHELVES.map((shelf) => {
-          const isSelected = activeShelf === shelf.id;
-          return (
-            <Pressable
-              key={shelf.id}
-              onPress={() => setActiveShelf(shelf.id)}
-              style={[
-                styles.shelfPill,
-                isSelected ? styles.shelfPillActive : styles.shelfPillInactive,
-              ]}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: isSelected }}
-              accessibilityLabel={`View ${shelf.label}`}
-            >
-              <Text
-                style={[
-                  styles.shelfPillText,
-                  isSelected
-                    ? styles.shelfPillTextActive
-                    : styles.shelfPillTextInactive,
-                ]}
-              >
-                {shelf.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      {/* Shelf Selector Segmented Control */}
+      <SegmentedControl
+        fullWidth
+        size="sm"
+        role="tablist"
+        value={activeShelf}
+        onChange={(val) => setActiveShelf(val as ShelfType)}
+        options={SHELVES.map((shelf) => ({
+          value: shelf.id,
+          label: shelf.label,
+          accessibilityLabel: `View ${shelf.label}`,
+        }))}
+        ariaLabel="Shelf selector"
+      />
 
       {/* Process Filter Horizontal Chips */}
       <ScrollView
@@ -501,49 +485,6 @@ const useStyles = makeStyles((colors) => ({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: -8,
-  },
-  shelfSelectorContainer: {
-    flexDirection: 'row',
-    backgroundColor: colors.segTrackBg,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    padding: 3,
-    gap: 4,
-  },
-  shelfPill: {
-    flex: 1,
-    minHeight: 44,
-    borderRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 6,
-  },
-  shelfPillActive: {
-    backgroundColor: colors.segActiveBg,
-    borderColor: colors.borderActive,
-    borderWidth: 1,
-    elevation: 2,
-    shadowColor: colors.canvas,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.25,
-    shadowRadius: 2,
-  },
-  shelfPillInactive: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  shelfPillText: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 11,
-    letterSpacing: 0.8,
-  },
-  shelfPillTextActive: {
-    color: colors.segActiveText,
-  },
-  shelfPillTextInactive: {
-    color: colors.segInactiveText,
   },
   processFilterScroll: {
     gap: 8,

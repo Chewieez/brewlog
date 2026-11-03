@@ -29,7 +29,7 @@ import {
   ArrowLeft,
   ChevronRight,
 } from "lucide-react-native";
-import { makeStyles, useTheme } from "@brewlog/ui";
+import { makeStyles, useTheme, SegmentedControl } from "@brewlog/ui";
 import { FONTS } from "../../theme/fonts";
 import { useAuth } from "./AuthContext";
 
@@ -371,41 +371,16 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
 
                     {/* Mode Toggle */}
                     {mode !== "forgot" && (
-                      <View style={styles.modeToggleContainer}>
-                        <TouchableOpacity
-                          onPress={() => switchMode("signin")}
-                          style={[
-                            styles.toggleTab,
-                            mode === "signin" && styles.activeTab,
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.toggleTabText,
-                              mode === "signin" && styles.activeToggleTabText,
-                            ]}
-                          >
-                            SIGN IN
-                          </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          onPress={() => switchMode("signup")}
-                          style={[
-                            styles.toggleTab,
-                            mode === "signup" && styles.activeTab,
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.toggleTabText,
-                              mode === "signup" && styles.activeToggleTabText,
-                            ]}
-                          >
-                            CREATE ACCOUNT
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
+                      <SegmentedControl
+                        fullWidth
+                        value={mode}
+                        onChange={(val) => switchMode(val as "signin" | "signup")}
+                        options={[
+                          { value: "signin", label: "SIGN IN" },
+                          { value: "signup", label: "CREATE ACCOUNT" },
+                        ]}
+                        ariaLabel="Authentication mode"
+                      />
                     )}
 
                     {/* Error / Success Feedback */}
@@ -724,41 +699,6 @@ const useStyles = makeStyles((colors) => ({
     fontFamily: FONTS.monoRegular,
     fontSize: 11,
     color: colors.statusWarning,
-  },
-  modeToggleContainer: {
-    flexDirection: "row",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    backgroundColor: colors.segTrackBg,
-    padding: 3,
-  },
-  toggleTab: {
-    flex: 1,
-    minHeight: 44,
-    justifyContent: "center",
-    paddingVertical: 8,
-    alignItems: "center",
-    borderRadius: 6,
-  },
-  activeTab: {
-    backgroundColor: colors.segActiveBg,
-    borderColor: colors.borderActive,
-    borderWidth: 1,
-    shadowColor: colors.canvas,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.25,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  toggleTabText: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 11,
-    letterSpacing: 0.5,
-    color: colors.segInactiveText,
-  },
-  activeToggleTabText: {
-    color: colors.segActiveText,
   },
   errorBanner: {
     flexDirection: "row",

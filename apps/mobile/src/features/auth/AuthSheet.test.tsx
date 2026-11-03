@@ -88,6 +88,28 @@ vi.mock("react-native", () => ({
       {children}
     </button>
   ),
+  Pressable: ({
+    children,
+    onPress,
+    accessibilityLabel,
+    accessibilityRole,
+    accessibilityState,
+    disabled,
+    style: _style,
+    ...props
+  }: any) => (
+    <button
+      type="button"
+      onClick={disabled ? undefined : onPress}
+      aria-label={accessibilityLabel}
+      role={accessibilityRole}
+      aria-selected={accessibilityState?.selected}
+      disabled={disabled}
+      {...props}
+    >
+      {typeof children === "function" ? children({ pressed: false }) : children}
+    </button>
+  ),
   TouchableWithoutFeedback: ({ children, onPress }: any) => (
     <div
       onClick={(e) => {

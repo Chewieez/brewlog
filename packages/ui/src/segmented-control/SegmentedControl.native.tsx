@@ -11,6 +11,7 @@ export function SegmentedControl<T extends string = string>({
   fullWidth = false,
   testID,
   ariaLabel,
+  role = 'group',
 }: SegmentedControlProps<T>) {
   const styles = useStyles();
   const isSm = size === 'sm';
@@ -18,7 +19,8 @@ export function SegmentedControl<T extends string = string>({
   return (
     <View
       testID={testID}
-      role="group"
+      role={role}
+      accessibilityRole={role as any}
       accessibilityLabel={ariaLabel}
       style={[
         styles.container,
@@ -32,9 +34,10 @@ export function SegmentedControl<T extends string = string>({
           <Pressable
             key={option.value}
             testID={option.testID}
-            accessibilityRole="button"
+            accessibilityRole={role === 'tablist' ? 'tab' : 'button'}
             accessibilityState={{ selected: isSelected }}
             aria-pressed={isSelected}
+            aria-selected={isSelected}
             accessibilityLabel={option.accessibilityLabel || option.label}
             onPress={() => onChange(option.value)}
             style={[
@@ -98,7 +101,7 @@ const useStyles = makeStyles((colors) => ({
     borderWidth: 1,
     borderColor: colors.borderActive,
     elevation: 2,
-    shadowColor: colors.canvas,
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.25,
     shadowRadius: 2,

@@ -27,7 +27,7 @@ import {
   ThemePreference,
   formatDisplayDate,
 } from '@brewlog/core';
-import { makeStyles, useTheme } from '@brewlog/ui';
+import { makeStyles, useTheme, SegmentedControl } from '@brewlog/ui';
 import { useSettings } from '../../src/features/settings/SettingsContext';
 import { useAuth } from '../../src/features/auth/AuthContext';
 import { FONTS } from '../../src/theme/fonts';
@@ -137,34 +137,17 @@ export default function SettingsModalScreen() {
             <Text style={styles.sectionLabel}>APPEARANCE</Text>
             <Text style={styles.sectionSublabel}>Visual theme preference</Text>
           </View>
-          <View style={styles.segmentedContainer}>
-            {THEME_OPTIONS.map((opt) => {
-              const isSelected = (settings.theme ?? 'system') === opt.id;
-              return (
-                <TouchableOpacity
-                  key={opt.id}
-                  onPress={() => handleSelectTheme(opt.id)}
-                  activeOpacity={0.8}
-                  style={[
-                    styles.segmentTab,
-                    isSelected && styles.segmentTabActive,
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityLabel={opt.accessibilityLabel}
-                  accessibilityState={{ selected: isSelected }}
-                >
-                  <Text
-                    style={[
-                      styles.segmentText,
-                      isSelected && styles.segmentTextActive,
-                    ]}
-                  >
-                    {opt.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+          <SegmentedControl
+            fullWidth
+            value={settings.theme ?? 'system'}
+            onChange={(val) => handleSelectTheme(val as ThemePreference)}
+            options={THEME_OPTIONS.map((opt) => ({
+              value: opt.id,
+              label: opt.label,
+              accessibilityLabel: opt.accessibilityLabel,
+            }))}
+            ariaLabel="Appearance"
+          />
         </View>
 
         {/* Section 1: Weight Unit */}
@@ -173,49 +156,16 @@ export default function SettingsModalScreen() {
             <Text style={styles.sectionLabel}>WEIGHT UNIT</Text>
             <Text style={styles.sectionSublabel}>Primary mass measurement</Text>
           </View>
-          <View style={styles.segmentedContainer}>
-            <TouchableOpacity
-              onPress={() => handleSelectWeight('metric')}
-              activeOpacity={0.8}
-              style={[
-                styles.segmentTab,
-                settings.weightUnit === 'metric' && styles.segmentTabActive,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Metric grams"
-              accessibilityState={{ selected: settings.weightUnit === 'metric' }}
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.weightUnit === 'metric' && styles.segmentTextActive,
-                ]}
-              >
-                METRIC (g)
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => handleSelectWeight('imperial')}
-              activeOpacity={0.8}
-              style={[
-                styles.segmentTab,
-                settings.weightUnit === 'imperial' && styles.segmentTabActive,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Imperial ounces"
-              accessibilityState={{ selected: settings.weightUnit === 'imperial' }}
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.weightUnit === 'imperial' && styles.segmentTextActive,
-                ]}
-              >
-                IMPERIAL (oz)
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <SegmentedControl
+            fullWidth
+            value={settings.weightUnit}
+            onChange={(val) => handleSelectWeight(val as WeightUnit)}
+            options={[
+              { value: 'metric', label: 'METRIC (g)', accessibilityLabel: 'Metric grams' },
+              { value: 'imperial', label: 'IMPERIAL (oz)', accessibilityLabel: 'Imperial ounces' },
+            ]}
+            ariaLabel="Weight unit"
+          />
         </View>
 
         {/* Section 2: Temperature Unit */}
@@ -224,49 +174,16 @@ export default function SettingsModalScreen() {
             <Text style={styles.sectionLabel}>TEMPERATURE UNIT</Text>
             <Text style={styles.sectionSublabel}>Water kettle & brew extraction</Text>
           </View>
-          <View style={styles.segmentedContainer}>
-            <TouchableOpacity
-              onPress={() => handleSelectTemp('celsius')}
-              activeOpacity={0.8}
-              style={[
-                styles.segmentTab,
-                settings.temperatureUnit === 'celsius' && styles.segmentTabActive,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Celsius degrees"
-              accessibilityState={{ selected: settings.temperatureUnit === 'celsius' }}
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.temperatureUnit === 'celsius' && styles.segmentTextActive,
-                ]}
-              >
-                CELSIUS (°C)
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => handleSelectTemp('fahrenheit')}
-              activeOpacity={0.8}
-              style={[
-                styles.segmentTab,
-                settings.temperatureUnit === 'fahrenheit' && styles.segmentTabActive,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Fahrenheit degrees"
-              accessibilityState={{ selected: settings.temperatureUnit === 'fahrenheit' }}
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.temperatureUnit === 'fahrenheit' && styles.segmentTextActive,
-                ]}
-              >
-                FAHRENHEIT (°F)
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <SegmentedControl
+            fullWidth
+            value={settings.temperatureUnit}
+            onChange={(val) => handleSelectTemp(val as TemperatureUnit)}
+            options={[
+              { value: 'celsius', label: 'CELSIUS (°C)', accessibilityLabel: 'Celsius degrees' },
+              { value: 'fahrenheit', label: 'FAHRENHEIT (°F)', accessibilityLabel: 'Fahrenheit degrees' },
+            ]}
+            ariaLabel="Temperature unit"
+          />
         </View>
 
         {/* Section 3: Default Timer Mode */}
@@ -275,49 +192,16 @@ export default function SettingsModalScreen() {
             <Text style={styles.sectionLabel}>DEFAULT TIMER MODE</Text>
             <Text style={styles.sectionSublabel}>Startup workflow preference</Text>
           </View>
-          <View style={styles.segmentedContainer}>
-            <TouchableOpacity
-              onPress={() => handleSelectTimerMode('free_brew')}
-              activeOpacity={0.8}
-              style={[
-                styles.segmentTab,
-                settings.defaultTimerMode === 'free_brew' && styles.segmentTabActive,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Free brew mode"
-              accessibilityState={{ selected: settings.defaultTimerMode === 'free_brew' }}
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.defaultTimerMode === 'free_brew' && styles.segmentTextActive,
-                ]}
-              >
-                FREE BREW
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => handleSelectTimerMode('recipe')}
-              activeOpacity={0.8}
-              style={[
-                styles.segmentTab,
-                settings.defaultTimerMode === 'recipe' && styles.segmentTabActive,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Guided recipe mode"
-              accessibilityState={{ selected: settings.defaultTimerMode === 'recipe' }}
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.defaultTimerMode === 'recipe' && styles.segmentTextActive,
-                ]}
-              >
-                GUIDED RECIPE
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <SegmentedControl
+            fullWidth
+            value={settings.defaultTimerMode}
+            onChange={(val) => handleSelectTimerMode(val as TimerModePreference)}
+            options={[
+              { value: 'free_brew', label: 'FREE BREW', accessibilityLabel: 'Free brew mode' },
+              { value: 'recipe', label: 'GUIDED RECIPE', accessibilityLabel: 'Guided recipe mode' },
+            ]}
+            ariaLabel="Default timer mode"
+          />
         </View>
 
         {/* Section 4: Date Format */}
@@ -547,43 +431,6 @@ const useStyles = makeStyles((colors) => ({
     fontSize: 10,
     letterSpacing: 0.5,
     color: colors.foregroundMuted,
-  },
-  segmentedContainer: {
-    flexDirection: 'row',
-    backgroundColor: colors.segTrackBg,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    padding: 3,
-    gap: 4,
-  },
-  segmentTab: {
-    flex: 1,
-    minHeight: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-  },
-  segmentTabActive: {
-    backgroundColor: colors.segActiveBg,
-    borderColor: colors.borderActive,
-    borderWidth: 1,
-    shadowColor: colors.canvas,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.25,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  segmentText: {
-    fontFamily: FONTS.monoMedium,
-    fontSize: 12,
-    letterSpacing: 0.5,
-    color: colors.segInactiveText,
-  },
-  segmentTextActive: {
-    fontFamily: FONTS.monoBold,
-    color: colors.segActiveText,
   },
   dropdownContainer: {
     borderRadius: 8,
