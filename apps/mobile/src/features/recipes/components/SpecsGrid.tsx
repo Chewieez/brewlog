@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { Droplets, BookOpen, Clock, Thermometer } from 'lucide-react-native';
 import {
   WeightUnit,

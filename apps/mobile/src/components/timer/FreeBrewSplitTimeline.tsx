@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { Trash2 } from 'lucide-react-native';
 import { BrewSplit, SplitTag } from '@brewlog/core';
 import { makeStyles, useTheme, ThemeColors } from '@brewlog/ui';

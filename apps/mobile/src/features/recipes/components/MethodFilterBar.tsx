@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ScrollView, Pressable, Text, StyleSheet } from 'react-native';
+import { ScrollView, Pressable, Text } from 'react-native';
 import { BrewRecipe } from '@brewlog/core';
 import { makeStyles } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, TextInput, StyleSheet } from 'react-native';
+import { View, Text, Pressable, TextInput } from 'react-native';
 import { Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react-native';
 import {
   BrewRecipe,

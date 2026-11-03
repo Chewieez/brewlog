@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Pressable } from 'react-native';
 import { ChevronDown, ChevronUp, Scale, Check } from 'lucide-react-native';
 import {
   calculateWaterAmount,

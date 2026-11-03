@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, ScrollView, StyleSheet, Text, Pressable, Alert } from 'react-native';
+import { View, ScrollView, Text, Pressable, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams, useScrollToTop } from 'expo-router';
 import { Plus, Check } from 'lucide-react-native';
 import {

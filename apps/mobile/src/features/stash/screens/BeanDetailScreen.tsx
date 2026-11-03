@@ -6,7 +6,6 @@ import {
   Pressable,
   TextInput,
   Alert,
-  StyleSheet,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import {

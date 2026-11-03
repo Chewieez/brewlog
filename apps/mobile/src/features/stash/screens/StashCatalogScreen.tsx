@@ -6,7 +6,6 @@ import {
   Pressable,
   FlatList,
   ScrollView,
-  StyleSheet,
   ListRenderItemInfo,
 } from 'react-native';
 import { useRouter, useScrollToTop } from 'expo-router';

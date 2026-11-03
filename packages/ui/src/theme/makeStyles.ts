@@ -11,19 +11,18 @@ type StyleFactory<T extends NamedStyles<T>> = (
 export function makeStyles<T extends NamedStyles<T>>(
   styleFactory: StyleFactory<T>
 ) {
-  let cachedThemeId: string | null = null;
-  let cachedStyles: T | null = null;
+  const cache = new Map<string, T>();
 
   return function useStyles(): T {
     const { colors, theme } = useTheme();
 
-    if (cachedStyles !== null && cachedThemeId === theme.id) {
-      return cachedStyles;
+    const existing = cache.get(theme.id);
+    if (existing !== undefined) {
+      return existing;
     }
 
     const computed = styleFactory(colors, theme);
-    cachedStyles = computed;
-    cachedThemeId = theme.id;
+    cache.set(theme.id, computed);
     return computed;
   };
 }

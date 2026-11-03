@@ -5,7 +5,6 @@ import {
   TextInput,
   Pressable,
   ScrollView,
-  StyleSheet,
 } from 'react-native';
 import { useRouter, useScrollToTop } from 'expo-router';
 import {

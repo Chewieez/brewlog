@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { CheckCircle2, CircleDot, Circle } from 'lucide-react-native';
 import { BrewStage } from '@brewlog/core';
 import { makeStyles, useTheme } from '@brewlog/ui';

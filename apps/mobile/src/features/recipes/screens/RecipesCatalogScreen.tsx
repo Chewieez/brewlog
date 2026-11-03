@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { BrewRecipe } from '@brewlog/core';

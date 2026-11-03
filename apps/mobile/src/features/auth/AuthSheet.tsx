@@ -8,7 +8,6 @@ import {
   ScrollView,
   Platform,
   ActivityIndicator,
-  StyleSheet,
   Alert,
   Animated,
   Keyboard,
@@ -27,6 +26,8 @@ import {
   User as UserIcon,
   Settings,
   X,
+  ArrowLeft,
+  ChevronRight,
 } from "lucide-react-native";
 import { makeStyles, useTheme } from "@brewlog/ui";
 import { FONTS } from "../../theme/fonts";
@@ -533,8 +534,9 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                         onPress={() => switchMode("signin")}
                         style={styles.backButton}
                       >
+                        <ArrowLeft size={14} color={colors.accent} />
                         <Text style={styles.backButtonText}>
-                          ← Back to Sign In
+                          Back to Sign In
                         </Text>
                       </TouchableOpacity>
                     )}
@@ -557,7 +559,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                         <Text style={styles.preferencesSubtitle}>Units, timer mode & calibration</Text>
                       </View>
                     </View>
-                    <Text style={styles.preferencesChevron}>›</Text>
+                    <ChevronRight size={16} color={colors.foregroundMuted} />
                   </TouchableOpacity>
                 </View>
               </ScrollView>
@@ -848,8 +850,10 @@ const useStyles = makeStyles((colors) => ({
   },
   backButton: {
     minHeight: 44,
-    justifyContent: "center",
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
     paddingVertical: 6,
   },
   backButtonText: {
@@ -888,11 +892,6 @@ const useStyles = makeStyles((colors) => ({
   preferencesSubtitle: {
     fontFamily: FONTS.monoRegular,
     fontSize: 10,
-    color: colors.foregroundMuted,
-  },
-  preferencesChevron: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 16,
     color: colors.foregroundMuted,
   },
 }));

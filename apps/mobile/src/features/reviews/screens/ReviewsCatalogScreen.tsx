@@ -6,7 +6,6 @@ import {
   Pressable,
   FlatList,
   ScrollView,
-  StyleSheet,
 } from 'react-native';
 import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus, Search, X } from 'lucide-react-native';

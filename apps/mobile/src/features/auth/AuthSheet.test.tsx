@@ -187,6 +187,8 @@ vi.mock("lucide-react-native", () => ({
   Sliders: () => <span data-testid="sliders-icon" />,
   Settings: () => <span data-testid="settings-icon" />,
   X: () => <span data-testid="x-icon" />,
+  ArrowLeft: () => <span data-testid="arrow-left-icon" />,
+  ChevronRight: () => <span data-testid="chevron-right-icon" />,
 }));
 
 describe("AuthSheet", () => {
@@ -319,7 +321,7 @@ describe("AuthSheet", () => {
     expect(queryByPlaceholderText("••••••••")).toBeNull();
 
     // Switch back to Sign In
-    fireEvent.click(getByText("← Back to Sign In"));
+    fireEvent.click(getByText("Back to Sign In"));
     expect(getByText("BREWLOG CLOUD")).toBeDefined();
     expect(getByPlaceholderText("••••••••")).toBeDefined();
   });

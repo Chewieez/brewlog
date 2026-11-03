@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { BrewRecipe } from '@brewlog/core';
 import { makeStyles } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';

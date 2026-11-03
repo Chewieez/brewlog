@@ -74,4 +74,39 @@ describe('makeStyles', () => {
 
     expect(result.current.box.backgroundColor).toBe(CRISP_STUDIO_LIGHT_THEME.colors.canvas);
   });
+
+  it('retains cached styles across multiple themes when toggling back and forth', () => {
+    let callCount = 0;
+    const useStyles = makeStyles((colors) => {
+      callCount += 1;
+      return {
+        box: {
+          backgroundColor: colors.canvas,
+        },
+      };
+    });
+
+    let currentTheme = TACTILE_DARK_THEME;
+    const { result, rerender } = renderHook(() => useStyles(), {
+      wrapper: ({ children }: { children: React.ReactNode }) => (
+        <ThemeProvider theme={currentTheme}>{children}</ThemeProvider>
+      ),
+    });
+
+    const darkStyles = result.current;
+    expect(callCount).toBe(1);
+
+    // Switch to Light
+    currentTheme = CRISP_STUDIO_LIGHT_THEME;
+    rerender();
+    const lightStyles = result.current;
+    expect(callCount).toBe(2);
+    expect(lightStyles).not.toBe(darkStyles);
+
+    // Switch back to Dark - should hit cache
+    currentTheme = TACTILE_DARK_THEME;
+    rerender();
+    expect(callCount).toBe(2);
+    expect(result.current).toBe(darkStyles);
+  });
 });

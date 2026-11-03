@@ -6,7 +6,6 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
-  StyleSheet,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Star, Edit3, Trash2, Check } from 'lucide-react-native';

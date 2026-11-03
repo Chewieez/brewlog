@@ -6,7 +6,6 @@ import {
   ScrollView,
   Pressable,
   Alert,
-  StyleSheet,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';

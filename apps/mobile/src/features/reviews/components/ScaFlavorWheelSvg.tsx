@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import Svg, { Path, G, Circle } from 'react-native-svg';
 import { SCA_FLAVOR_WHEEL } from '@brewlog/core';
 import { makeStyles, useTheme } from '@brewlog/ui';

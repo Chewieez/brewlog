@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { Minus, Plus } from 'lucide-react-native';
 import {
   CuppingAttributes,
