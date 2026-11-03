@@ -285,10 +285,12 @@ export default function TimerScreen() {
             { paddingTop: Math.max(insets.top, 16) },
           ]}
         >
-          <View style={styles.headerTitleContainer}>
-            <Text style={styles.title}>Timer</Text>
+          <View style={styles.titleRow}>
+            <View style={styles.headerTitleContainer}>
+              <Text style={styles.title}>Timer</Text>
+            </View>
+            <ProfileHeaderButton onPress={openAuthSheet} />
           </View>
-          <ProfileHeaderButton onPress={openAuthSheet} />
         </View>
 
       {/* Top Segmented Mode Switcher */}
@@ -452,12 +454,15 @@ const useStyles = makeStyles((colors) => ({
   headerContainer: {
     paddingHorizontal: 16,
     paddingBottom: 8,
+  },
+  titleRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
   },
   headerTitleContainer: {
     flex: 1,
+    marginRight: 12,
   },
   title: {
     fontFamily: FONTS.displaySemiBold,
