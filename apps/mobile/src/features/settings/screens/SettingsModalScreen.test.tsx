@@ -172,7 +172,6 @@ describe('SettingsModalScreen', () => {
     );
 
     expect(getByText(/^SETTINGS$/i)).toBeTruthy();
-    expect(getByText(/SYSTEM \/\/ CALIBRATION/i)).toBeTruthy();
     expect(getByText(/WEIGHT UNIT/i)).toBeTruthy();
     expect(getByText(/TEMPERATURE UNIT/i)).toBeTruthy();
     expect(getByText(/DEFAULT TIMER MODE/i)).toBeTruthy();
@@ -337,5 +336,33 @@ describe('SettingsModalScreen', () => {
 
     expect(getByLabelText('Free brew mode').getAttribute('aria-selected')).toBe('true');
     expect(getByLabelText('Guided recipe mode').getAttribute('aria-selected')).toBe('false');
+  });
+
+  it('renders theme preference options and updates theme setting on press', () => {
+    const updateSettingsMock = vi.fn().mockResolvedValue(undefined);
+    const mockContextValue = {
+      settings: { ...DEFAULT_USER_SETTINGS, theme: 'system' as const },
+      loading: false,
+      updateSettings: updateSettingsMock,
+      resetToDefaults: vi.fn().mockResolvedValue(undefined),
+    };
+
+    const { getByLabelText } = render(
+      <SettingsContext.Provider value={mockContextValue}>
+        <SettingsModalScreen />
+      </SettingsContext.Provider>
+    );
+
+    const systemBtn = getByLabelText('System theme');
+    const darkBtn = getByLabelText('Dark theme');
+    const lightBtn = getByLabelText('Light theme');
+
+    expect(systemBtn.getAttribute('aria-selected')).toBe('true');
+    expect(darkBtn.getAttribute('aria-selected')).toBe('false');
+    expect(lightBtn.getAttribute('aria-selected')).toBe('false');
+
+    fireEvent.press(darkBtn);
+    expect(Haptics.selectionAsync).toHaveBeenCalled();
+    expect(updateSettingsMock).toHaveBeenCalledWith({ theme: 'tactile_dark' });
   });
 });

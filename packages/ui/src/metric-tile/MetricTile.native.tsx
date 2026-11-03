@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '../theme';
+import { View, Text } from 'react-native';
+import { makeStyles } from '../theme';
 import type { MetricTileProps } from './MetricTile.types';
-
-const colors = INDUSTRIAL_PRECISION_THEME.colors;
 
 export const MetricTile: React.FC<MetricTileProps> = ({
   label,
@@ -13,6 +11,7 @@ export const MetricTile: React.FC<MetricTileProps> = ({
   size = 'md',
   testID,
 }) => {
+  const styles = useStyles();
   const isSm = size === 'sm';
   const isLg = size === 'lg';
 
@@ -34,14 +33,14 @@ export const MetricTile: React.FC<MetricTileProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     flex: 1,
   },
   label: {
     fontFamily: 'JetBrainsMono_700Bold',
     fontSize: 10,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
@@ -52,18 +51,18 @@ const styles = StyleSheet.create({
   },
   value: {
     fontFamily: 'Outfit_300Light',
-    color: colors.textPrimary,
+    color: colors.foreground,
     fontVariant: ['tabular-nums'],
   },
   smValue: { fontSize: 20 },
   mdValue: { fontSize: 26 },
   lgValue: { fontSize: 32 },
   accentValue: { color: colors.accent },
-  mutedValue: { color: colors.textMuted },
+  mutedValue: { color: colors.foregroundMuted },
   unit: {
     fontFamily: 'Outfit_300Light',
     fontSize: 14,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
     marginLeft: 2,
   },
-});
+}));

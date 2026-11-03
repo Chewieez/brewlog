@@ -6,7 +6,6 @@ import {
   Pressable,
   TextInput,
   Alert,
-  StyleSheet,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import {
@@ -22,13 +21,11 @@ import {
   Check,
 } from 'lucide-react-native';
 import { Bean, formatDisplayDate } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME, resolveFreshnessColor } from '@brewlog/ui';
+import { makeStyles, useTheme, resolveFreshnessColor } from '@brewlog/ui';
 import { useStash } from '../StashContext';
 import { useOptionalSettings } from '../../settings/SettingsContext';
 import { calculateBeanRestingInfo, BeanRestingInfo } from '../utils/restingUtils';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface BeanDetailScreenProps {
   beanId?: string;
@@ -45,6 +42,8 @@ const RESTING_STAGES: Array<{
 ];
 
 export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const id =
@@ -585,7 +584,7 @@ export const BeanDetailScreen: React.FC<BeanDetailScreenProps> = ({ beanId }) =>
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -838,6 +837,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   stepperButtonActive: {
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   stepperButtonText: {
@@ -847,7 +847,7 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
   },
   stepperButtonTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
   },
   manualWeightInputRow: {
     flexDirection: 'row',
@@ -958,4 +958,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.statusError,
   },
-});
+}));

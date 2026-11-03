@@ -1,9 +1,9 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { BrewRecipe } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { useRecipes } from '../RecipeContext';
 import { MethodFilterBar } from '../components/MethodFilterBar';
 import { RecipeCard } from '../components/RecipeCard';
@@ -13,9 +13,9 @@ import { useAuthModal } from '../../auth/AuthModalContext';
 import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
 import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
 
-const { colors } = INDUSTRIAL_PRECISION_THEME;
-
 export const RecipesCatalogScreen: React.FC = () => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { openAuthSheet } = useAuthModal();
@@ -104,7 +104,7 @@ export const RecipesCatalogScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -182,4 +182,4 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: 'center',
   },
-});
+}));

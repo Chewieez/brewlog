@@ -8,7 +8,6 @@ import {
   ScrollView,
   Platform,
   ActivityIndicator,
-  StyleSheet,
   Alert,
   Animated,
   Keyboard,
@@ -19,7 +18,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import {
-  Sparkles,
   LogOut,
   AlertCircle,
   CheckCircle2,
@@ -27,12 +25,13 @@ import {
   Mail,
   User as UserIcon,
   Settings,
+  X,
+  ArrowLeft,
+  ChevronRight,
 } from "lucide-react-native";
-import { INDUSTRIAL_PRECISION_THEME } from "@brewlog/ui";
+import { makeStyles, useTheme, SegmentedControl } from "@brewlog/ui";
 import { FONTS } from "../../theme/fonts";
 import { useAuth } from "./AuthContext";
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface AuthSheetProps {
   visible: boolean;
@@ -42,6 +41,8 @@ export interface AuthSheetProps {
 type AuthMode = "signin" | "signup" | "forgot";
 
 export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const {
     user,
     isConfigured,
@@ -307,9 +308,8 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                 {/* Header */}
                 <View style={styles.header}>
                   <View style={styles.headerLeft}>
-                    <Sparkles size={18} color={colors.accent} />
                     <Text style={styles.headerTitle}>
-                      {user ? "BARISTA PROFILE" : mode === "forgot" ? "RESET PASSWORD" : "BREWLOG CLOUD"}
+                      {user ? "Profile" : mode === "forgot" ? "RESET PASSWORD" : "BREWLOG CLOUD"}
                     </Text>
                   </View>
                   <TouchableOpacity
@@ -319,7 +319,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                     accessibilityLabel="Close sheet"
                     style={styles.closeButton}
                   >
-                    <Text style={styles.closeText}>✕</Text>
+                    <X size={16} color={colors.textMuted} />
                   </TouchableOpacity>
                 </View>
 
@@ -327,11 +327,23 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                 {user ? (
                   <View style={styles.profileSection}>
                     <View style={styles.statusCard}>
-                      <View style={styles.statusRow}>
-                        <View style={styles.statusDot} />
-                        <Text style={styles.statusText}>
-                          CLOUD CONNECTED
-                        </Text>
+                      <View style={styles.statusCardHeader}>
+                        <View style={styles.statusRow}>
+                          <View style={styles.statusDot} />
+                          <Text style={styles.statusText}>
+                            CLOUD CONNECTED
+                          </Text>
+                        </View>
+                        <TouchableOpacity
+                          onPress={handleSignOut}
+                          activeOpacity={0.7}
+                          style={styles.cardSignOutCompact}
+                          accessibilityRole="button"
+                          accessibilityLabel="Sign out"
+                        >
+                          <LogOut size={12} color={colors.statusError} />
+                          <Text style={styles.cardSignOutCompactText}>SIGN OUT</Text>
+                        </TouchableOpacity>
                       </View>
                       <Text style={styles.profileName}>
                         {user.user_metadata?.display_name || "Barista"}
@@ -343,15 +355,6 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                         ID: {user.id.length > 18 ? `${user.id.substring(0, 18)}...` : user.id}
                       </Text>
                     </View>
-
-                    <TouchableOpacity
-                      onPress={handleSignOut}
-                      activeOpacity={0.8}
-                      style={styles.signOutButton}
-                    >
-                      <LogOut size={16} color={colors.statusError} />
-                      <Text style={styles.signOutText}>SIGN OUT</Text>
-                    </TouchableOpacity>
                   </View>
                 ) : (
                   /* Logged Out View */
@@ -368,41 +371,16 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
 
                     {/* Mode Toggle */}
                     {mode !== "forgot" && (
-                      <View style={styles.modeToggleContainer}>
-                        <TouchableOpacity
-                          onPress={() => switchMode("signin")}
-                          style={[
-                            styles.toggleTab,
-                            mode === "signin" && styles.activeTab,
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.toggleTabText,
-                              mode === "signin" && styles.activeToggleTabText,
-                            ]}
-                          >
-                            SIGN IN
-                          </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          onPress={() => switchMode("signup")}
-                          style={[
-                            styles.toggleTab,
-                            mode === "signup" && styles.activeTab,
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.toggleTabText,
-                              mode === "signup" && styles.activeToggleTabText,
-                            ]}
-                          >
-                            CREATE ACCOUNT
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
+                      <SegmentedControl
+                        fullWidth
+                        value={mode}
+                        onChange={(val) => switchMode(val as "signin" | "signup")}
+                        options={[
+                          { value: "signin", label: "SIGN IN" },
+                          { value: "signup", label: "CREATE ACCOUNT" },
+                        ]}
+                        ariaLabel="Authentication mode"
+                      />
                     )}
 
                     {/* Error / Success Feedback */}
@@ -531,33 +509,32 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
                         onPress={() => switchMode("signin")}
                         style={styles.backButton}
                       >
+                        <ArrowLeft size={14} color={colors.accent} />
                         <Text style={styles.backButtonText}>
-                          ← Back to Sign In
+                          Back to Sign In
                         </Text>
                       </TouchableOpacity>
                     )}
                   </View>
                 )}
 
-                {/* Settings Entry Card */}
+                {/* Settings Entry */}
                 <View style={styles.preferencesSection}>
                   <TouchableOpacity
                     onPress={handleOpenPreferences}
-                    activeOpacity={0.8}
-                    style={styles.preferencesCard}
+                    activeOpacity={0.7}
+                    style={styles.preferencesRow}
                     accessibilityRole="button"
                     accessibilityLabel="Settings"
                   >
                     <View style={styles.preferencesLeft}>
-                      <View style={styles.preferencesIconWrapper}>
-                        <Settings size={18} color={colors.accent} />
-                      </View>
+                      <Settings size={18} color={colors.foregroundSecondary} />
                       <View style={styles.preferencesTextGroup}>
                         <Text style={styles.preferencesTitle}>Settings</Text>
                         <Text style={styles.preferencesSubtitle}>Units, timer mode & calibration</Text>
                       </View>
                     </View>
-                    <Text style={styles.preferencesChevron}>›</Text>
+                    <ChevronRight size={16} color={colors.foregroundMuted} />
                   </TouchableOpacity>
                 </View>
               </ScrollView>
@@ -570,7 +547,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   modalOverlay: {
     position: "absolute",
     top: 0,
@@ -626,7 +603,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 14,
     letterSpacing: 0.5,
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   closeButton: {
     minWidth: 44,
@@ -637,7 +614,7 @@ const styles = StyleSheet.create({
   closeText: {
     fontSize: 18,
     paddingHorizontal: 4,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   profileSection: {
     gap: 16,
@@ -649,6 +626,28 @@ const styles = StyleSheet.create({
     backgroundColor: colors.panelRecessed,
     padding: 16,
     gap: 8,
+  },
+  statusCardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  cardSignOutCompact: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    backgroundColor: colors.statusError + "14",
+    borderWidth: 1,
+    borderColor: colors.statusError + "33",
+  },
+  cardSignOutCompactText: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 10,
+    letterSpacing: 0.5,
+    color: colors.statusError,
   },
   statusRow: {
     flexDirection: "row",
@@ -670,34 +669,17 @@ const styles = StyleSheet.create({
   profileName: {
     fontFamily: FONTS.sansBold,
     fontSize: 20,
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   profileEmail: {
     fontFamily: FONTS.monoRegular,
     fontSize: 12,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   profileId: {
     fontFamily: FONTS.monoRegular,
     fontSize: 10,
-    color: colors.textMuted,
-  },
-  signOutButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    height: 44,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.statusError + "66",
-    backgroundColor: colors.statusError + "1a",
-  },
-  signOutText: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 12,
-    letterSpacing: 0.5,
-    color: colors.statusError,
+    color: colors.foregroundMuted,
   },
   formSection: {
     gap: 14,
@@ -717,39 +699,6 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoRegular,
     fontSize: 11,
     color: colors.statusWarning,
-  },
-  modeToggleContainer: {
-    flexDirection: "row",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    backgroundColor: colors.panelRecessed,
-    padding: 3,
-  },
-  toggleTab: {
-    flex: 1,
-    minHeight: 44,
-    justifyContent: "center",
-    paddingVertical: 8,
-    alignItems: "center",
-    borderRadius: 6,
-  },
-  activeTab: {
-    backgroundColor: colors.accent,
-    shadowColor: colors.canvas,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.5,
-    elevation: 2,
-  },
-  toggleTabText: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 11,
-    letterSpacing: 0.5,
-    color: colors.textMuted,
-  },
-  activeToggleTabText: {
-    color: colors.canvas,
   },
   errorBanner: {
     flexDirection: "row",
@@ -795,7 +744,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 10,
     letterSpacing: 0.5,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   forgotButton: {
     minHeight: 44,
@@ -822,7 +771,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoRegular,
     fontSize: 13,
     height: "100%",
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   submitButton: {
     height: 44,
@@ -843,14 +792,16 @@ const styles = StyleSheet.create({
   },
   backButton: {
     minHeight: 44,
-    justifyContent: "center",
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
     paddingVertical: 6,
   },
   backButtonText: {
     fontFamily: FONTS.monoRegular,
     fontSize: 11,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   preferencesSection: {
     marginTop: 16,
@@ -858,32 +809,18 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.borderSubtle,
   },
-  preferencesCard: {
+  preferencesRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: colors.panelRecessed,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 4,
     minHeight: 44,
   },
   preferencesLeft: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-  },
-  preferencesIconWrapper: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: colors.canvas,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
   },
   preferencesTextGroup: {
     gap: 2,
@@ -892,16 +829,11 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 12,
     letterSpacing: 0.8,
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   preferencesSubtitle: {
     fontFamily: FONTS.monoRegular,
     fontSize: 10,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
-  preferencesChevron: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 16,
-    color: colors.textMuted,
-  },
-});
+}));

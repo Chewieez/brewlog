@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { View, Text, ScrollView, Pressable } from 'react-native';
+import { makeStyles } from '@brewlog/ui';
 import { FONTS } from '../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface MethodPillsProps {
   selectedMethod: string;
@@ -16,6 +14,7 @@ export const MethodPills: React.FC<MethodPillsProps> = ({
   onSelectMethod,
   methods,
 }) => {
+  const styles = useStyles();
   return (
     <View style={styles.container}>
       <ScrollView
@@ -55,7 +54,7 @@ export const MethodPills: React.FC<MethodPillsProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     paddingVertical: 10,
   },
@@ -72,11 +71,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   pillActive: {
-    backgroundColor: colors.panel,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   pillInactive: {
-    backgroundColor: colors.canvas,
+    backgroundColor: colors.panel,
     borderColor: colors.borderSubtle,
   },
   pillText: {
@@ -85,11 +84,11 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   pillTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
   },
   pillTextInactive: {
     color: colors.textMuted,
   },
-});
+}));
 
 export default MethodPills;

@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Pressable } from 'react-native';
 import { ChevronDown, ChevronUp, Scale, Check } from 'lucide-react-native';
 import {
   calculateWaterAmount,
   calculateRatio,
   solveProportionalScale,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { mobileFeedback } from '../../lib/mobileFeedback';
 import { FONTS } from '../../theme/fonts';
 
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface CollapsibleCalculatorProps {
   currentDose?: number;
@@ -39,6 +38,8 @@ export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
   defaultWater,
   onApplyDose,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const effectiveBaseCoffee = baseCoffee ?? defaultDose ?? initialDose ?? currentDose ?? 20;
   const effectiveRatio = defaultRatio ?? initialRatio;
   const effectiveBaseWater =
@@ -303,7 +304,7 @@ export const CollapsibleCalculator: React.FC<CollapsibleCalculatorProps> = ({
 export const RatioTranslator = CollapsibleCalculator;
 export default CollapsibleCalculator;
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     paddingHorizontal: 16,
     marginTop: 8,
@@ -406,4 +407,4 @@ const styles = StyleSheet.create({
   applyButtonTextDisabled: {
     color: colors.textMuted,
   },
-});
+}));

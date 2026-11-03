@@ -1,9 +1,7 @@
 import React from 'react';
-import { Pressable, Text, ActivityIndicator, View, StyleSheet } from 'react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '../theme';
+import { Pressable, Text, ActivityIndicator, View } from 'react-native';
+import { makeStyles, useTheme } from '../theme';
 import type { ButtonProps } from './Button.types';
-
-const colors = INDUSTRIAL_PRECISION_THEME.colors;
 
 export const Button: React.FC<ButtonProps> = ({
   label,
@@ -18,6 +16,9 @@ export const Button: React.FC<ButtonProps> = ({
   testID,
   accessibilityLabel,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
+
   const isSm = size === 'sm';
   const isLg = size === 'lg';
 
@@ -76,7 +77,7 @@ export const Button: React.FC<ButtonProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   base: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -110,9 +111,9 @@ const styles = StyleSheet.create({
   mdText: { fontSize: 12 },
   lgText: { fontSize: 14 },
   primaryText: { color: colors.canvas },
-  secondaryText: { color: colors.textPrimary },
-  ghostText: { color: colors.textSecondary },
+  secondaryText: { color: colors.foreground },
+  ghostText: { color: colors.foregroundSecondary },
   dangerText: { color: colors.statusError },
-  disabledText: { color: colors.textMuted },
+  disabledText: { color: colors.foregroundMuted },
   iconSlot: { alignItems: 'center', justifyContent: 'center' },
-});
+}));

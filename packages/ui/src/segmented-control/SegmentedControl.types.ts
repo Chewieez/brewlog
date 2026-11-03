@@ -13,4 +13,5 @@ export interface SegmentedControlProps<T extends string = string> {
   fullWidth?: boolean;
   testID?: string;
   ariaLabel?: string;
+  role?: 'group' | 'tablist' | 'radiogroup';
 }

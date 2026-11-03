@@ -95,8 +95,13 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
 
         if (!error && data) {
           const remoteSettings = mapDbToUserSettings(data);
-          setSettings(remoteSettings);
-          await persistCachedSettings(remoteSettings);
+          const merged: UserSettings = {
+            ...current,
+            ...remoteSettings,
+            theme: current.theme ?? 'system',
+          };
+          setSettings(merged);
+          await persistCachedSettings(merged);
         } else if (!error && !data) {
           const payload = mapUserSettingsToDb(current, user.id);
           const { error: upsertError } = await supabase.from('user_settings').upsert(payload);

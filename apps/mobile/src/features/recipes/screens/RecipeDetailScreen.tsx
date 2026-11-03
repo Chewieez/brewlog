@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, ScrollView, Pressable, Alert, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Play, Copy, Edit2, Trash2 } from 'lucide-react-native';
 import {
@@ -7,7 +7,7 @@ import {
   Equipment,
   DEFAULT_USER_SETTINGS,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { useRecipes } from '../RecipeContext';
 import { EquipmentContext, useOptionalEquipment } from '../../equipment/EquipmentContext';
 import { useOptionalSettings } from '../../settings/SettingsContext';
@@ -15,8 +15,6 @@ import { SpecsGrid } from '../components/SpecsGrid';
 import { DoseRescaler } from '../components/DoseRescaler';
 import { StagesTimeline } from '../components/StagesTimeline';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface RecipeDetailScreenProps {
   recipeId: string;
@@ -27,6 +25,8 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
   recipeId,
   equipment: propEquipment,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const { recipes, deleteRecipe, setActiveTimerRecipe } = useRecipes();
   const equipmentContext = useOptionalEquipment?.() ?? useContext(EquipmentContext);
@@ -164,7 +164,7 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
               <View key={setting.grinderId} style={styles.grinderRow}>
                 <View style={styles.grinderInfo}>
                   <Text style={styles.grinderText}>
-                    {grinder.brand} {grinder.model} — {setting.setting || recipe.grindSize}
+                    {grinder.brand} {grinder.model} - {setting.setting || recipe.grindSize}
                   </Text>
                   {index === 0 && (
                     <View style={styles.primaryBadge}>
@@ -223,7 +223,7 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -284,9 +284,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   customBadge: {
-    backgroundColor: colors.panelRecessed,
-    borderColor: colors.accent,
-    borderWidth: 1,
+    backgroundColor: `${colors.accent}26`,
     borderRadius: 4,
     paddingHorizontal: 8,
     paddingVertical: 3,
@@ -420,9 +418,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   primaryBadge: {
-    backgroundColor: 'rgba(212, 163, 89, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(212, 163, 89, 0.3)',
+    backgroundColor: `${colors.accent}26`,
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -447,4 +443,4 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textPrimary,
   },
-});
+}));

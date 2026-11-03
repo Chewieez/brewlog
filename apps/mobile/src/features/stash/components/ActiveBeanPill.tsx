@@ -1,11 +1,9 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { Bean } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles } from '@brewlog/ui';
 import { useOptionalStash } from '../StashContext';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface ActiveBeanPillProps {
   bean?: Bean | null;
@@ -16,6 +14,7 @@ export const ActiveBeanPill: React.FC<ActiveBeanPillProps> = ({
   bean: propBean,
   onDetach: propOnDetach,
 }) => {
+  const styles = useStyles();
   const stash = useOptionalStash();
   const bean = propBean !== undefined ? propBean : stash?.activeBrewBean ?? null;
   const handleDetach =
@@ -63,7 +62,7 @@ export const ActiveBeanPill: React.FC<ActiveBeanPillProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   chassis: {
     marginHorizontal: 16,
     marginBottom: 10,
@@ -117,4 +116,4 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     lineHeight: 22,
   },
-});
+}));

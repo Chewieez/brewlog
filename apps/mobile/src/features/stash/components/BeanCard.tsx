@@ -1,12 +1,10 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { Star } from 'lucide-react-native';
 import { Bean } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME, resolveFreshnessColor } from '@brewlog/ui';
+import { makeStyles, useTheme, resolveFreshnessColor } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { calculateBeanRestingInfo } from '../utils/restingUtils';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface BeanCardProps {
   bean: Bean;
@@ -21,6 +19,8 @@ export const BeanCard: React.FC<BeanCardProps> = ({
   onBrew,
   onToggleFavorite,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const restingInfo = calculateBeanRestingInfo(bean);
   const badgeColor = resolveFreshnessColor(
     {
@@ -169,7 +169,7 @@ export const BeanCard: React.FC<BeanCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   card: {
     backgroundColor: colors.panel,
     borderColor: colors.borderSubtle,
@@ -302,4 +302,4 @@ const styles = StyleSheet.create({
     color: colors.canvas,
     letterSpacing: 1,
   },
-});
+}));

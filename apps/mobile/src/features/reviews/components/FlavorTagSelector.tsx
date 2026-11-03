@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, ScrollView, useWindowDimensions } from 'react-native';
+import { View, Text, Pressable, ScrollView, useWindowDimensions } from 'react-native';
 import { X } from 'lucide-react-native';
 import { SCA_FLAVOR_WHEEL } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { ScaFlavorWheelSvg } from './ScaFlavorWheelSvg';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface FlavorTagSelectorProps {
   selectedTags: string[];
@@ -17,6 +15,8 @@ export const FlavorTagSelector: React.FC<FlavorTagSelectorProps> = ({
   selectedTags,
   onToggleTag,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const [mode, setMode] = useState<'tags' | 'wheel'>(() => (width >= 600 ? 'wheel' : 'tags'));
 
@@ -120,7 +120,7 @@ export const FlavorTagSelector: React.FC<FlavorTagSelectorProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     gap: 12,
   },
@@ -175,9 +175,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: `${colors.accent}1a`,
     borderWidth: 1,
-    borderColor: colors.accent,
+    borderColor: `${colors.accent}4d`,
     borderRadius: 6,
     paddingVertical: 4,
     paddingHorizontal: 8,
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   selectedChipText: {
     fontFamily: FONTS.monoMedium,
     fontSize: 11,
-    color: colors.textPrimary,
+    color: colors.accent,
   },
   tagCategoriesContainer: {
     gap: 12,
@@ -240,4 +240,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textPrimary,
   },
-});
+}));

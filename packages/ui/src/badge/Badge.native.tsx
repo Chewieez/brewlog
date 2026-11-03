@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '../theme';
+import { View, Text } from 'react-native';
+import { makeStyles } from '../theme';
 import type { BadgeProps } from './Badge.types';
-
-const colors = INDUSTRIAL_PRECISION_THEME.colors;
 
 export const Badge: React.FC<BadgeProps> = ({
   label,
@@ -11,6 +9,7 @@ export const Badge: React.FC<BadgeProps> = ({
   size = 'md',
   testID,
 }) => {
+  const styles = useStyles();
   const isMono = variant === 'mono' || variant === 'accent';
   const isSm = size === 'sm';
 
@@ -42,7 +41,7 @@ export const Badge: React.FC<BadgeProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   base: {
     backgroundColor: colors.panelRecessed,
     borderWidth: 1,
@@ -59,7 +58,7 @@ const styles = StyleSheet.create({
   warningContainer: { backgroundColor: `${colors.statusWarning}15`, borderColor: `${colors.statusWarning}60` },
   errorContainer: { backgroundColor: `${colors.statusError}15`, borderColor: `${colors.statusError}60` },
   infoContainer: { backgroundColor: `${colors.statusInfo}15`, borderColor: `${colors.statusInfo}60` },
-  baseText: { color: colors.textSecondary },
+  baseText: { color: colors.foregroundSecondary },
   smText: { fontSize: 9 },
   mdText: { fontSize: 10 },
   monoText: { fontFamily: 'JetBrainsMono_700Bold', letterSpacing: 0.8, textTransform: 'uppercase' },
@@ -69,4 +68,4 @@ const styles = StyleSheet.create({
   warningText: { color: colors.statusWarning },
   errorText: { color: colors.statusError },
   infoText: { color: colors.statusInfo },
-});
+}));

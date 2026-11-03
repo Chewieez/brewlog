@@ -5,7 +5,6 @@ import {
   TextInput,
   Pressable,
   ScrollView,
-  StyleSheet,
 } from 'react-native';
 import { useRouter, useScrollToTop } from 'expo-router';
 import {
@@ -19,7 +18,7 @@ import {
   Layers,
 } from 'lucide-react-native';
 import { Equipment, EquipmentType } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { useEquipment } from '../EquipmentContext';
 import { EquipmentCard } from '../components/EquipmentCard';
@@ -27,8 +26,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthModal } from '../../auth/AuthModalContext';
 import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
 import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export type CategoryFilter = 'all' | 'grinder' | 'brewer' | 'scale' | 'kettle' | 'other';
 
@@ -47,6 +44,8 @@ const CATEGORIES: CategoryOption[] = [
 ];
 
 export const EquipmentCatalogScreen: React.FC = () => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { openAuthSheet } = useAuthModal();
@@ -354,7 +353,7 @@ export const EquipmentCatalogScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -447,7 +446,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   categoryChipActive: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   categoryChipInactive: {
@@ -461,7 +460,7 @@ const styles = StyleSheet.create({
   },
   categoryChipTextActive: {
     fontFamily: FONTS.monoBold,
-    color: colors.accent,
+    color: colors.canvas,
   },
   categoryChipTextInactive: {
     color: colors.textSecondary,
@@ -555,4 +554,4 @@ const styles = StyleSheet.create({
     color: colors.canvas,
     letterSpacing: 1,
   },
-});
+}));

@@ -5,7 +5,6 @@ import {
   TextInput,
   Pressable,
   Alert,
-  StyleSheet,
   ActivityIndicator,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -17,11 +16,9 @@ import {
   EquipmentType,
   GrinderSettingScale,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { useEquipment } from '../EquipmentContext';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface EquipmentModalScreenProps {
   equipmentId?: string;
@@ -58,6 +55,8 @@ interface EquipmentModalFormProps {
 }
 
 const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const { addEquipment, updateEquipment, deleteEquipment } = useEquipment();
   const isEditMode = Boolean(sourceItem);
@@ -474,6 +473,8 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
 export const EquipmentModalScreen: React.FC<EquipmentModalScreenProps> = ({
   equipmentId,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const id =
     equipmentId ??
@@ -501,7 +502,7 @@ export const EquipmentModalScreen: React.FC<EquipmentModalScreenProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   safeArea: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -570,7 +571,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   errorBanner: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    backgroundColor: `${colors.statusError}1a`,
     borderWidth: 1,
     borderColor: colors.statusError,
     borderRadius: 8,
@@ -609,7 +610,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   categoryPillActive: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   categoryPillInactive: {
@@ -623,7 +624,7 @@ const styles = StyleSheet.create({
   },
   categoryPillTextActive: {
     fontFamily: FONTS.monoBold,
-    color: colors.accent,
+    color: colors.canvas,
   },
   categoryPillTextInactive: {
     color: colors.textSecondary,
@@ -668,7 +669,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   scaleTypePillActive: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   scaleTypePillInactive: {
@@ -682,7 +683,7 @@ const styles = StyleSheet.create({
   },
   scaleTypePillTextActive: {
     fontFamily: FONTS.monoBold,
-    color: colors.accent,
+    color: colors.canvas,
   },
   scaleTypePillTextInactive: {
     color: colors.textSecondary,
@@ -716,7 +717,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   togglePillActive: {
-    backgroundColor: 'rgba(217, 119, 6, 0.15)',
+    backgroundColor: `${colors.accent}26`,
     borderColor: colors.accent,
   },
   togglePillInactive: {
@@ -756,4 +757,4 @@ const styles = StyleSheet.create({
     color: colors.statusError,
     letterSpacing: 1,
   },
-});
+}));

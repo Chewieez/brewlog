@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Pressable, Text, StyleSheet } from 'react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '../theme';
+import { View, Pressable, Text } from 'react-native';
+import { makeStyles } from '../theme';
 import type { SegmentedControlProps } from './SegmentedControl.types';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export function SegmentedControl<T extends string = string>({
   options,
@@ -13,13 +11,16 @@ export function SegmentedControl<T extends string = string>({
   fullWidth = false,
   testID,
   ariaLabel,
+  role = 'group',
 }: SegmentedControlProps<T>) {
+  const styles = useStyles();
   const isSm = size === 'sm';
 
   return (
     <View
       testID={testID}
-      role="group"
+      role={role}
+      accessibilityRole={role as any}
       accessibilityLabel={ariaLabel}
       style={[
         styles.container,
@@ -33,9 +34,10 @@ export function SegmentedControl<T extends string = string>({
           <Pressable
             key={option.value}
             testID={option.testID}
-            accessibilityRole="button"
+            accessibilityRole={role === 'tablist' ? 'tab' : 'button'}
             accessibilityState={{ selected: isSelected }}
             aria-pressed={isSelected}
+            aria-selected={isSelected}
             accessibilityLabel={option.accessibilityLabel || option.label}
             onPress={() => onChange(option.value)}
             style={[
@@ -61,14 +63,14 @@ export function SegmentedControl<T extends string = string>({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     flexDirection: 'row',
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.segTrackBg,
     borderRadius: 8,
     padding: 3,
     borderWidth: 1,
-    borderColor: colors.borderActive,
+    borderColor: colors.borderSubtle,
   },
   fullWidth: {
     width: '100%',
@@ -95,10 +97,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
   },
   buttonActive: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.segActiveBg,
+    borderWidth: 1,
+    borderColor: colors.borderActive,
+    elevation: 2,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.25,
+    shadowRadius: 2,
   },
   text: {
-    color: colors.textMuted,
+    color: colors.segInactiveText,
     fontSize: 11,
     fontFamily: 'JetBrainsMono_700Bold',
     textTransform: 'uppercase',
@@ -109,6 +118,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   textActive: {
-    color: colors.canvas,
+    color: colors.segActiveText,
   },
-});
+}));

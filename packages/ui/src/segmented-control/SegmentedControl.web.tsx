@@ -9,13 +9,14 @@ export function SegmentedControl<T extends string = string>({
   fullWidth = false,
   testID,
   ariaLabel,
+  role = 'group',
 }: SegmentedControlProps<T>) {
   const buttonSizeClasses = size === 'sm' ? 'h-8 text-xs' : 'h-10 text-xs';
   const widthClasses = fullWidth ? 'w-full' : 'w-80 max-w-full';
 
   return (
     <div
-      role="group"
+      role={role}
       aria-label={ariaLabel}
       data-testid={testID}
       className={`inline-grid grid-flow-col auto-cols-fr p-1 segmented-track rounded-lg select-none ${widthClasses}`}
@@ -26,7 +27,9 @@ export function SegmentedControl<T extends string = string>({
           <button
             key={option.value}
             type="button"
+            role={role === 'tablist' ? 'tab' : undefined}
             aria-pressed={isSelected}
+            aria-selected={isSelected}
             aria-label={option.accessibilityLabel || option.label}
             data-testid={option.testID}
             onClick={() => onChange(option.value)}

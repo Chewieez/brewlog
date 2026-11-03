@@ -7,6 +7,7 @@ import RootLayout from '../app/_layout';
 vi.mock('react-native-get-random-values', () => ({}));
 vi.mock('react-native', () => ({
   Platform: { OS: 'ios' },
+  useColorScheme: () => 'dark',
 }));
 
 vi.mock('react-native-safe-area-context', () => ({

@@ -6,7 +6,6 @@ import {
   ScrollView,
   Pressable,
   Alert,
-  StyleSheet,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,11 +16,9 @@ import {
   ProcessMethod,
   RoastLevel,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { useStash, AddBeanInput } from '../StashContext';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export function normalizeRoastDate(raw: string): string | undefined {
   const trimmed = raw.trim();
@@ -94,6 +91,8 @@ const BAG_PRESETS: BagPreset[] = [
 ];
 
 export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const params = useLocalSearchParams<{ id?: string | string[]; editId?: string | string[] }>();
   const id =
@@ -709,7 +708,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   safeArea: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -773,7 +772,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   errorBanner: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    backgroundColor: `${colors.statusError}1f`,
     borderWidth: 1,
     borderColor: colors.statusError,
     padding: 12,
@@ -897,7 +896,7 @@ const styles = StyleSheet.create({
   },
   toggleRowActive: {
     backgroundColor: colors.panelRecessed,
-    borderColor: colors.accent,
+    borderColor: colors.borderActive,
   },
   toggleRowInactive: {
     backgroundColor: colors.panelRecessed,
@@ -977,4 +976,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.accent,
   },
-});
+}));

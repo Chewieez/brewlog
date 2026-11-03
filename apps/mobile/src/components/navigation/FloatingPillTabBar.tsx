@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Pressable,
-  StyleSheet,
   Keyboard,
   Animated,
 } from 'react-native';
@@ -15,11 +14,9 @@ import {
   Scale,
   Award,
 } from 'lucide-react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { FONTS } from '../../theme/fonts';
 import { mobileFeedback } from '../../lib/mobileFeedback';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export {
   FLOATING_TAB_BAR_HEIGHT,
@@ -115,6 +112,8 @@ const TabButton: React.FC<TabButtonProps> = ({
   accessibilityLabel,
   renderIcon,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const scaleAnim = useRef(new Animated.Value(isFocused ? 1.08 : 1)).current;
 
   useEffect(() => {
@@ -152,7 +151,7 @@ const TabButton: React.FC<TabButtonProps> = ({
             },
           ]}
         >
-          {renderIcon(isFocused ? colors.accent : colors.textMuted)}
+          {renderIcon(isFocused ? colors.accent : colors.foregroundMuted)}
         </Animated.View>
         {typeof label === 'string' ? (
           <Text
@@ -181,6 +180,8 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
   emitter,
   insets: propInsets,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const contextInsets = useSafeAreaInsets();
   const insets = propInsets ?? contextInsets;
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -287,10 +288,11 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
       ]}
       accessibilityRole="tablist"
       testID="floating-pill-tab-bar"
+      pointerEvents="box-none"
     >
-      {/* Sliding animated indicator pill */}
       <Animated.View
         testID="sliding-pill-indicator"
+        pointerEvents="none"
         style={[
           styles.slidingIndicator,
           {
@@ -298,15 +300,12 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
             transform: [{ translateX: animX }],
           },
         ]}
-        pointerEvents="none"
       />
 
       {state.routes.map((route, index) => {
         const isFocused = state.index === index;
-        const descriptor = descriptors?.[route.key] as { options?: any } | undefined;
-        const options = descriptor?.options;
-
-        const defaultItem = TAB_CONFIG[route.name] ?? {
+        const options = (descriptors?.[route.key] as any)?.options;
+        const defaultItem = TAB_CONFIG[route.name] || {
           label: route.name,
           Icon: Timer,
         };
@@ -315,7 +314,7 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
           typeof options?.tabBarLabel === 'function'
             ? options.tabBarLabel({
                 focused: isFocused,
-                color: isFocused ? colors.accent : colors.textMuted,
+                color: isFocused ? colors.accent : colors.foregroundMuted,
                 position: 'below-icon',
                 children: defaultItem.label,
               })
@@ -329,6 +328,8 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
           options?.tabBarAccessibilityLabel ??
           (typeof label === 'string' ? `${label} tab` : `${route.name} tab`);
 
+        const IconComponent = defaultItem.Icon;
+
         const renderIcon = (iconColor: string) => {
           if (typeof options?.tabBarIcon === 'function') {
             return options.tabBarIcon({
@@ -337,8 +338,7 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
               size: 19,
             });
           }
-          const DefaultIcon = defaultItem.Icon;
-          return <DefaultIcon size={19} color={iconColor} />;
+          return <IconComponent size={19} color={iconColor} />;
         };
 
         return (
@@ -349,10 +349,10 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
             isFocused={isFocused}
             label={label}
             accessibilityLabel={accessibilityLabel}
-            renderIcon={renderIcon}
             onPress={() => handlePress(route.key, route.name, isFocused, route.params)}
             onLongPress={() => handleLongPress(route.key)}
             onLayout={(layout) => handleTabLayout(index, layout)}
+            renderIcon={renderIcon}
           />
         );
       })}
@@ -360,7 +360,7 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     position: 'absolute',
     left: 16,
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingHorizontal: HORIZONTAL_PADDING,
     elevation: 8,
-    shadowColor: '#000000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 8,
@@ -418,12 +418,12 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansMedium,
     fontSize: 10,
     marginTop: 2,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
     letterSpacing: 0.2,
   },
   labelActive: {
     fontFamily: FONTS.sansBold,
-    color: colors.textPrimary,
+    color: colors.foreground,
     fontWeight: '700',
   },
-});
+}));

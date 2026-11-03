@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  StyleSheet,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,14 +24,19 @@ import {
   TemperatureUnit,
   TimerModePreference,
   DateFormatPreference,
+  ThemePreference,
   formatDisplayDate,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme, SegmentedControl } from '@brewlog/ui';
 import { useSettings } from '../../src/features/settings/SettingsContext';
 import { useAuth } from '../../src/features/auth/AuthContext';
 import { FONTS } from '../../src/theme/fonts';
 
-const { colors } = INDUSTRIAL_PRECISION_THEME;
+const THEME_OPTIONS: { id: ThemePreference; label: string; accessibilityLabel: string }[] = [
+  { id: 'system', label: 'SYSTEM', accessibilityLabel: 'System theme' },
+  { id: 'tactile_dark', label: 'DARK', accessibilityLabel: 'Dark theme' },
+  { id: 'studio_light', label: 'LIGHT', accessibilityLabel: 'Light theme' },
+];
 
 const DATE_FORMAT_OPTIONS: { id: DateFormatPreference; label: string }[] = [
   { id: 'locale', label: 'LOCALE' },
@@ -43,10 +47,18 @@ const DATE_FORMAT_OPTIONS: { id: DateFormatPreference; label: string }[] = [
 
 export default function SettingsModalScreen() {
   const router = useRouter();
+  const styles = useStyles();
+  const { colors } = useTheme();
   const { settings, updateSettings, resetToDefaults } = useSettings();
   const { user } = useAuth();
   const [dateFormatOpen, setDateFormatOpen] = useState(false);
   const sampleDate = useMemo(() => new Date(), []);
+
+  const handleSelectTheme = async (theme: ThemePreference) => {
+    if (settings.theme === theme) return;
+    Haptics.selectionAsync().catch(() => {});
+    await updateSettings({ theme });
+  };
 
   const handleSelectWeight = async (unit: WeightUnit) => {
     if (settings.weightUnit === unit) return;
@@ -99,12 +111,9 @@ export default function SettingsModalScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.headerTitleGroup}>
-          <Text style={styles.eyebrow}>SYSTEM // CALIBRATION</Text>
-          <View style={styles.titleRow}>
-            <Settings size={20} color={colors.accent} />
-            <Text style={styles.headerTitle}>Settings</Text>
-          </View>
+        <View style={styles.titleRow}>
+          <Settings size={20} color={colors.foreground} />
+          <Text style={styles.headerTitle}>Settings</Text>
         </View>
 
         <TouchableOpacity
@@ -122,55 +131,41 @@ export default function SettingsModalScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* Section 0: Appearance / Theme */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionLabel}>APPEARANCE</Text>
+            <Text style={styles.sectionSublabel}>Visual theme preference</Text>
+          </View>
+          <SegmentedControl
+            fullWidth
+            value={settings.theme ?? 'system'}
+            onChange={(val) => handleSelectTheme(val as ThemePreference)}
+            options={THEME_OPTIONS.map((opt) => ({
+              value: opt.id,
+              label: opt.label,
+              accessibilityLabel: opt.accessibilityLabel,
+            }))}
+            ariaLabel="Appearance"
+          />
+        </View>
+
         {/* Section 1: Weight Unit */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionLabel}>WEIGHT UNIT</Text>
             <Text style={styles.sectionSublabel}>Primary mass measurement</Text>
           </View>
-          <View style={styles.segmentedContainer}>
-            <TouchableOpacity
-              onPress={() => handleSelectWeight('metric')}
-              activeOpacity={0.8}
-              style={[
-                styles.segmentTab,
-                settings.weightUnit === 'metric' && styles.segmentTabActive,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Metric grams"
-              accessibilityState={{ selected: settings.weightUnit === 'metric' }}
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.weightUnit === 'metric' && styles.segmentTextActive,
-                ]}
-              >
-                METRIC (g)
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => handleSelectWeight('imperial')}
-              activeOpacity={0.8}
-              style={[
-                styles.segmentTab,
-                settings.weightUnit === 'imperial' && styles.segmentTabActive,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Imperial ounces"
-              accessibilityState={{ selected: settings.weightUnit === 'imperial' }}
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.weightUnit === 'imperial' && styles.segmentTextActive,
-                ]}
-              >
-                IMPERIAL (oz)
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <SegmentedControl
+            fullWidth
+            value={settings.weightUnit}
+            onChange={(val) => handleSelectWeight(val as WeightUnit)}
+            options={[
+              { value: 'metric', label: 'METRIC (g)', accessibilityLabel: 'Metric grams' },
+              { value: 'imperial', label: 'IMPERIAL (oz)', accessibilityLabel: 'Imperial ounces' },
+            ]}
+            ariaLabel="Weight unit"
+          />
         </View>
 
         {/* Section 2: Temperature Unit */}
@@ -179,49 +174,16 @@ export default function SettingsModalScreen() {
             <Text style={styles.sectionLabel}>TEMPERATURE UNIT</Text>
             <Text style={styles.sectionSublabel}>Water kettle & brew extraction</Text>
           </View>
-          <View style={styles.segmentedContainer}>
-            <TouchableOpacity
-              onPress={() => handleSelectTemp('celsius')}
-              activeOpacity={0.8}
-              style={[
-                styles.segmentTab,
-                settings.temperatureUnit === 'celsius' && styles.segmentTabActive,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Celsius degrees"
-              accessibilityState={{ selected: settings.temperatureUnit === 'celsius' }}
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.temperatureUnit === 'celsius' && styles.segmentTextActive,
-                ]}
-              >
-                CELSIUS (°C)
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => handleSelectTemp('fahrenheit')}
-              activeOpacity={0.8}
-              style={[
-                styles.segmentTab,
-                settings.temperatureUnit === 'fahrenheit' && styles.segmentTabActive,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Fahrenheit degrees"
-              accessibilityState={{ selected: settings.temperatureUnit === 'fahrenheit' }}
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.temperatureUnit === 'fahrenheit' && styles.segmentTextActive,
-                ]}
-              >
-                FAHRENHEIT (°F)
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <SegmentedControl
+            fullWidth
+            value={settings.temperatureUnit}
+            onChange={(val) => handleSelectTemp(val as TemperatureUnit)}
+            options={[
+              { value: 'celsius', label: 'CELSIUS (°C)', accessibilityLabel: 'Celsius degrees' },
+              { value: 'fahrenheit', label: 'FAHRENHEIT (°F)', accessibilityLabel: 'Fahrenheit degrees' },
+            ]}
+            ariaLabel="Temperature unit"
+          />
         </View>
 
         {/* Section 3: Default Timer Mode */}
@@ -230,49 +192,16 @@ export default function SettingsModalScreen() {
             <Text style={styles.sectionLabel}>DEFAULT TIMER MODE</Text>
             <Text style={styles.sectionSublabel}>Startup workflow preference</Text>
           </View>
-          <View style={styles.segmentedContainer}>
-            <TouchableOpacity
-              onPress={() => handleSelectTimerMode('free_brew')}
-              activeOpacity={0.8}
-              style={[
-                styles.segmentTab,
-                settings.defaultTimerMode === 'free_brew' && styles.segmentTabActive,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Free brew mode"
-              accessibilityState={{ selected: settings.defaultTimerMode === 'free_brew' }}
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.defaultTimerMode === 'free_brew' && styles.segmentTextActive,
-                ]}
-              >
-                FREE BREW
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => handleSelectTimerMode('recipe')}
-              activeOpacity={0.8}
-              style={[
-                styles.segmentTab,
-                settings.defaultTimerMode === 'recipe' && styles.segmentTabActive,
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Guided recipe mode"
-              accessibilityState={{ selected: settings.defaultTimerMode === 'recipe' }}
-            >
-              <Text
-                style={[
-                  styles.segmentText,
-                  settings.defaultTimerMode === 'recipe' && styles.segmentTextActive,
-                ]}
-              >
-                GUIDED RECIPE
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <SegmentedControl
+            fullWidth
+            value={settings.defaultTimerMode}
+            onChange={(val) => handleSelectTimerMode(val as TimerModePreference)}
+            options={[
+              { value: 'free_brew', label: 'FREE BREW', accessibilityLabel: 'Free brew mode' },
+              { value: 'recipe', label: 'GUIDED RECIPE', accessibilityLabel: 'Guided recipe mode' },
+            ]}
+            ariaLabel="Default timer mode"
+          />
         </View>
 
         {/* Section 4: Date Format */}
@@ -430,7 +359,7 @@ export default function SettingsModalScreen() {
 
 export { SettingsModalScreen };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   safeArea: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -449,42 +378,30 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 8,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: colors.borderSubtle,
   },
-  headerTitleGroup: {
-    gap: 4,
-  },
-  eyebrow: {
-    fontFamily: FONTS.monoRegular,
-    fontSize: 10,
-    letterSpacing: 1.2,
-    color: colors.textMuted,
-  },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: 44,
     gap: 8,
   },
   headerTitle: {
     fontFamily: FONTS.monoBold,
     fontSize: 16,
     letterSpacing: 0.5,
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   closeButton: {
     minWidth: 44,
     minHeight: 44,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
-    backgroundColor: colors.panelRecessed,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -507,48 +424,13 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 12,
     letterSpacing: 0.8,
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   sectionSublabel: {
     fontFamily: FONTS.monoRegular,
     fontSize: 10,
     letterSpacing: 0.5,
-    color: colors.textMuted,
-  },
-  segmentedContainer: {
-    flexDirection: 'row',
-    backgroundColor: colors.panelRecessed,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    padding: 3,
-    gap: 4,
-  },
-  segmentTab: {
-    flex: 1,
-    minHeight: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-  },
-  segmentTabActive: {
-    backgroundColor: colors.accent,
-    shadowColor: colors.canvas,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.5,
-    elevation: 2,
-  },
-  segmentText: {
-    fontFamily: FONTS.monoMedium,
-    fontSize: 12,
-    letterSpacing: 0.5,
-    color: colors.textSecondary,
-  },
-  segmentTextActive: {
-    fontFamily: FONTS.monoBold,
-    color: colors.canvas,
+    color: colors.foregroundMuted,
   },
   dropdownContainer: {
     borderRadius: 8,
@@ -579,12 +461,12 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     fontSize: 13,
     letterSpacing: 0.5,
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   dropdownActivePreview: {
     fontFamily: FONTS.monoRegular,
     fontSize: 12,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   dropdownMenu: {
     backgroundColor: colors.panelRecessed,
@@ -618,7 +500,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoRegular,
     fontSize: 12,
     letterSpacing: 0.5,
-    color: colors.textSecondary,
+    color: colors.foregroundSecondary,
   },
   dropdownOptionLabelSelected: {
     fontFamily: FONTS.monoBold,
@@ -627,10 +509,10 @@ const styles = StyleSheet.create({
   dropdownOptionPreview: {
     fontFamily: FONTS.monoRegular,
     fontSize: 11,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
   },
   dropdownOptionPreviewSelected: {
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   statusCard: {
     backgroundColor: colors.panelRecessed,
@@ -666,12 +548,12 @@ const styles = StyleSheet.create({
   statusUserEmail: {
     fontFamily: FONTS.monoMedium,
     fontSize: 12,
-    color: colors.textPrimary,
+    color: colors.foreground,
   },
   statusDescription: {
     fontFamily: FONTS.monoRegular,
     fontSize: 11,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
     lineHeight: 16,
   },
   resetButton: {
@@ -692,4 +574,4 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     color: colors.statusError,
   },
-});
+}));

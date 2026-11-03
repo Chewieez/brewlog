@@ -6,7 +6,6 @@ import {
   ScrollView,
   Pressable,
   Alert,
-  StyleSheet,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -32,13 +31,11 @@ import {
   RecipeGrinderSetting,
   GrinderSettingScale,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { useRecipes } from '../RecipeContext';
 import { EquipmentContext, useOptionalEquipment } from '../../equipment/EquipmentContext';
 import { recalculateTiming, calculateTotalBrewTime } from '../utils/timingUtils';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 const SCALE_TYPE_OPTIONS: { label: string; value: GrinderSettingScale }[] = [
   { label: 'Stepped Numbers', value: 'stepped-numbers' },
@@ -99,6 +96,8 @@ const DEFAULT_STAGES: BrewStage[] = [
 ];
 
 export const RecipeBuilderScreen: React.FC = () => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const {
     editId,
@@ -1115,7 +1114,7 @@ export const RecipeBuilderScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   safeArea: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -1261,7 +1260,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   methodPillActive: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   methodPillInactive: {
@@ -1273,7 +1272,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   methodPillTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
   },
   methodPillTextInactive: {
     color: colors.textMuted,
@@ -1293,7 +1292,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   ratioPillActive: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   ratioPillInactive: {
@@ -1306,7 +1305,7 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
   },
   ratioPillTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
   },
   ratioPillTextInactive: {
     color: colors.textSecondary,
@@ -1380,7 +1379,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   stageTypePillActive: {
-    backgroundColor: colors.panel,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   stageTypePillInactive: {
@@ -1392,7 +1391,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
   stageTypePillTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
   },
   stageTypePillTextInactive: {
     color: colors.textSecondary,
@@ -1507,7 +1506,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   scaleTypePillActive: {
-    backgroundColor: colors.panelRecessed,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   scaleTypePillInactive: {
@@ -1521,7 +1520,7 @@ const styles = StyleSheet.create({
   },
   scaleTypePillTextActive: {
     fontFamily: FONTS.monoBold,
-    color: colors.accent,
+    color: colors.canvas,
   },
   scaleTypePillTextInactive: {
     color: colors.textSecondary,
@@ -1595,9 +1594,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   primaryBadge: {
-    backgroundColor: 'rgba(212, 163, 89, 0.2)',
-    borderWidth: 1,
-    borderColor: 'rgba(212, 163, 89, 0.4)',
+    backgroundColor: `${colors.accent}26`,
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -1700,6 +1697,7 @@ const styles = StyleSheet.create({
     borderColor: colors.borderSubtle,
   },
   pickerOptionCurrent: {
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   pickerOptionDisabled: {
@@ -1712,7 +1710,7 @@ const styles = StyleSheet.create({
   },
   pickerOptionTextCurrent: {
     fontFamily: FONTS.sansBold,
-    color: colors.accent,
+    color: colors.canvas,
   },
   pickerOptionTextDisabled: {
     color: colors.textMuted,
@@ -1730,4 +1728,4 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textSecondary,
   },
-});
+}));

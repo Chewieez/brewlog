@@ -1,10 +1,8 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { BrewRecipe } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface RecipeCardProps {
   recipe: BrewRecipe;
@@ -12,6 +10,7 @@ export interface RecipeCardProps {
 }
 
 export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onPress }) => {
+  const styles = useStyles();
   const isCustom = !recipe.isPreset && !recipe.id.startsWith('preset-');
   const minutes = Math.floor(recipe.totalTimeSeconds / 60);
   const seconds = recipe.totalTimeSeconds % 60;
@@ -75,7 +74,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onPress }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   card: {
     backgroundColor: colors.panel,
     borderColor: colors.borderSubtle,
@@ -113,9 +112,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   customBadge: {
-    backgroundColor: colors.panelRecessed,
-    borderColor: colors.accent,
-    borderWidth: 1,
+    backgroundColor: `${colors.accent}26`,
     borderRadius: 4,
     paddingHorizontal: 8,
     paddingVertical: 3,
@@ -179,4 +176,4 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontVariant: ['tabular-nums'],
   },
-});
+}));

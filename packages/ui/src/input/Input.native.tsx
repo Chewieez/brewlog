@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '../theme';
+import { View, Text, TextInput } from 'react-native';
+import { makeStyles, useTheme } from '../theme';
 import type { InputProps } from './Input.types';
-
-const colors = INDUSTRIAL_PRECISION_THEME.colors;
 
 export const Input: React.FC<InputProps> = ({
   value,
@@ -17,6 +15,8 @@ export const Input: React.FC<InputProps> = ({
   testID,
   accessibilityLabel,
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const isNumeric = variant === 'numeric';
   const [isFocused, setIsFocused] = React.useState(false);
 
@@ -36,7 +36,7 @@ export const Input: React.FC<InputProps> = ({
           editable={!disabled}
           value={value != null ? String(value) : ''}
           placeholder={placeholder}
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={colors.foregroundMuted}
           keyboardType={isNumeric ? 'decimal-pad' : 'default'}
           onChangeText={onChangeText}
           onFocus={() => setIsFocused(true)}
@@ -53,14 +53,14 @@ export const Input: React.FC<InputProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     gap: 4,
   },
   label: {
     fontFamily: 'JetBrainsMono_700Bold',
     fontSize: 10,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    color: colors.textPrimary,
+    color: colors.foreground,
     paddingVertical: 0,
   },
   numericInput: {
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   unit: {
     fontFamily: 'Outfit_300Light',
     fontSize: 14,
-    color: colors.textMuted,
+    color: colors.foregroundMuted,
     marginLeft: 4,
   },
   errorText: {
@@ -108,4 +108,4 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.statusError,
   },
-});
+}));

@@ -6,12 +6,11 @@ import {
   Pressable,
   FlatList,
   ScrollView,
-  StyleSheet,
 } from 'react-native';
 import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus, Search, X } from 'lucide-react-native';
 import { TastingLog } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { useReviews } from '../ReviewsContext';
 import { ReviewsSummaryBar } from '../components/ReviewsSummaryBar';
@@ -20,8 +19,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthModal } from '../../auth/AuthModalContext';
 import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
 import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export type MethodFilter = 'all' | 'v60' | 'espresso' | 'aeropress' | 'french-press' | 'chemex' | 'pour-over' | 'cold-brew';
 export type RatingFilter = 'all' | '5' | '4+';
@@ -49,6 +46,8 @@ const RATING_OPTIONS: FilterOption<RatingFilter>[] = [
 ];
 
 export const ReviewsCatalogScreen: React.FC = () => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { openAuthSheet } = useAuthModal();
@@ -332,7 +331,7 @@ export const ReviewsCatalogScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -431,7 +430,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   filterChipActive: {
-    backgroundColor: colors.panel,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   filterChipText: {
@@ -441,7 +440,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   filterChipTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
     fontFamily: FONTS.monoBold,
   },
   cardWrapper: {
@@ -507,4 +506,4 @@ const styles = StyleSheet.create({
     color: colors.accent,
     letterSpacing: 1,
   },
-});
+}));

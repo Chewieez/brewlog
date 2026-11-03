@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, TextInput, StyleSheet } from 'react-native';
+import { View, Text, Pressable, TextInput } from 'react-native';
 import { Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react-native';
 import {
   BrewRecipe,
@@ -10,10 +10,9 @@ import {
   gramsToOz,
   ozToGrams,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { FONTS } from '../../theme/fonts';
 
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 export interface TimerHeroProps {
   recipe: BrewRecipe;
@@ -66,6 +65,8 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
   onFinish,
   weightUnit = 'metric',
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const mins = Math.floor(elapsedSeconds / 60);
   const secs = elapsedSeconds % 60;
 
@@ -230,7 +231,7 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
         <View style={[styles.progressFill, { width: `${totalProgress}%` }]} />
       </View>
 
-      {/* Oversized Tabular Digital Clock — Appliance Light with optically centered colon */}
+      {/* Oversized Tabular Digital Clock - Appliance Light with optically centered colon */}
       <View style={styles.clockContainer}>
         <Text style={styles.clockDigit}>{mins}</Text>
         <Text style={styles.clockColon}>:</Text>
@@ -471,7 +472,7 @@ export const TimerHero: React.FC<TimerHeroProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   chassis: {
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -602,10 +603,10 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   primaryButtonIdle: {
-    backgroundColor: colors.textPrimary,
+    backgroundColor: colors.accent,
   },
   primaryButtonRunning: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.accentHover,
   },
   primaryButtonText: {
     color: colors.canvas,
@@ -619,8 +620,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: colors.accent,
-    backgroundColor: colors.panelRecessed,
+    borderColor: colors.borderSubtle,
+    backgroundColor: colors.panel,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -675,18 +676,18 @@ const styles = StyleSheet.create({
     minHeight: 44,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: colors.accent,
+    borderColor: colors.borderSubtle,
     backgroundColor: colors.panel,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 16,
   },
   finishBrewButtonText: {
-    color: colors.accent,
+    color: colors.statusSuccess,
     fontSize: 12,
     fontFamily: FONTS.monoBold,
     letterSpacing: 1.5,
   },
-});
+}));
 
 export default TimerHero;

@@ -88,6 +88,28 @@ vi.mock("react-native", () => ({
       {children}
     </button>
   ),
+  Pressable: ({
+    children,
+    onPress,
+    accessibilityLabel,
+    accessibilityRole,
+    accessibilityState,
+    disabled,
+    style: _style,
+    ...props
+  }: any) => (
+    <button
+      type="button"
+      onClick={disabled ? undefined : onPress}
+      aria-label={accessibilityLabel}
+      role={accessibilityRole}
+      aria-selected={accessibilityState?.selected}
+      disabled={disabled}
+      {...props}
+    >
+      {typeof children === "function" ? children({ pressed: false }) : children}
+    </button>
+  ),
   TouchableWithoutFeedback: ({ children, onPress }: any) => (
     <div
       onClick={(e) => {
@@ -186,6 +208,9 @@ vi.mock("lucide-react-native", () => ({
   User: () => <span data-testid="user-icon" />,
   Sliders: () => <span data-testid="sliders-icon" />,
   Settings: () => <span data-testid="settings-icon" />,
+  X: () => <span data-testid="x-icon" />,
+  ArrowLeft: () => <span data-testid="arrow-left-icon" />,
+  ChevronRight: () => <span data-testid="chevron-right-icon" />,
 }));
 
 describe("AuthSheet", () => {
@@ -265,6 +290,7 @@ describe("AuthSheet", () => {
       <AuthSheet visible={true} onClose={vi.fn()} />
     );
 
+    expect(getByText("Profile")).toBeDefined();
     expect(getByText("CLOUD CONNECTED")).toBeDefined();
     expect(getByText("Greg")).toBeDefined();
     expect(getByText("barista@brewlog.dev")).toBeDefined();
@@ -317,7 +343,7 @@ describe("AuthSheet", () => {
     expect(queryByPlaceholderText("••••••••")).toBeNull();
 
     // Switch back to Sign In
-    fireEvent.click(getByText("← Back to Sign In"));
+    fireEvent.click(getByText("Back to Sign In"));
     expect(getByText("BREWLOG CLOUD")).toBeDefined();
     expect(getByPlaceholderText("••••••••")).toBeDefined();
   });

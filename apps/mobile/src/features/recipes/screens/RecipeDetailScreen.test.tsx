@@ -268,8 +268,8 @@ describe('RecipeDetailScreen', () => {
     );
 
     expect(getByText('GRINDER SETTINGS')).toBeDefined();
-    expect(getByText(/Fellow Ode Gen 2 — 5\.1/)).toBeDefined();
-    expect(getByText(/Comandante C40 MK4 — 18 clicks/)).toBeDefined();
+    expect(getByText(/Fellow Ode Gen 2 - 5\.1/)).toBeDefined();
+    expect(getByText(/Comandante C40 MK4 - 18 clicks/)).toBeDefined();
     expect(getByText('PRIMARY')).toBeDefined();
   });
 
@@ -303,7 +303,7 @@ describe('RecipeDetailScreen', () => {
       />
     );
 
-    expect(getByText(/Fellow Ode Gen 2 — 5\.1/)).toBeDefined();
+    expect(getByText(/Fellow Ode Gen 2 - 5\.1/)).toBeDefined();
     expect(queryByText(/2\.5/)).toBeNull();
     expect(queryByText(/erased-grinder-999/)).toBeNull();
   });

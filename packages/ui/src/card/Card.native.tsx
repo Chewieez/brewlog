@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Pressable, StyleSheet } from 'react-native';
-import { INDUSTRIAL_PRECISION_THEME } from '../theme';
+import { View, Pressable } from 'react-native';
+import { makeStyles } from '../theme';
 import type { CardProps } from './Card.types';
-
-const colors = INDUSTRIAL_PRECISION_THEME.colors;
 
 export const Card: React.FC<CardProps> = ({
   children,
@@ -13,6 +11,8 @@ export const Card: React.FC<CardProps> = ({
   testID,
   accessibilityLabel,
 }) => {
+  const styles = useStyles();
+
   const paddingStyles = {
     none: styles.padNone,
     sm: styles.padSm,
@@ -50,7 +50,7 @@ export const Card: React.FC<CardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   base: {
     borderRadius: 12,
     borderWidth: 1,
@@ -67,4 +67,4 @@ const styles = StyleSheet.create({
     borderColor: colors.borderActive,
     opacity: 0.85,
   },
-});
+}));

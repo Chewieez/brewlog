@@ -6,20 +6,19 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
-  StyleSheet,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Star, Edit3, Trash2, Check } from 'lucide-react-native';
 import { TastingLog, formatDisplayDate } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { useOptionalSettings } from '../../settings/SettingsContext';
 import { FONTS } from '../../../theme/fonts';
 import { useReviews } from '../ReviewsContext';
 import { ScaAttributeScoring } from '../components/ScaAttributeScoring';
 
-const { colors } = INDUSTRIAL_PRECISION_THEME;
-
 export const ReviewDetailScreen: React.FC = () => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const params = useLocalSearchParams<{ id?: string }>();
   const id = params?.id;
@@ -269,7 +268,7 @@ export const ReviewDetailScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   loadingContainer: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -450,7 +449,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(217, 119, 6, 0.1)',
+    backgroundColor: `${colors.accent}1a`,
     borderWidth: 1,
     borderColor: colors.accent,
     borderRadius: 8,
@@ -501,4 +500,4 @@ const styles = StyleSheet.create({
     color: colors.statusError,
     letterSpacing: 1,
   },
-});
+}));

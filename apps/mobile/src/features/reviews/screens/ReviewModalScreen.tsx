@@ -6,7 +6,6 @@ import {
   Pressable,
   Alert,
   ActivityIndicator,
-  StyleSheet,
   ScrollView,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -19,15 +18,13 @@ import {
   CuppingAttributes,
   calculateScaScore,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { useReviews } from '../ReviewsContext';
 import { useStash } from '../../stash/StashContext';
 import { useEquipment } from '../../equipment/EquipmentContext';
 import { FlavorTagSelector } from '../components/FlavorTagSelector';
 import { ScaAttributeScoring, BASELINE_SCORES } from '../components/ScaAttributeScoring';
-
-const { colors } = INDUSTRIAL_PRECISION_THEME;
 
 const BREW_METHODS: { id: BrewMethodType; label: string }[] = [
   { id: 'v60', label: 'V60' },
@@ -50,6 +47,8 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
   sourceItem,
   initialParams = {},
 }) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const { addReview, updateReview, deleteReview, setPendingBrewSession } = useReviews();
   const { beans } = useStash();
@@ -662,6 +661,8 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
 };
 
 export const ReviewModalScreen: React.FC = () => {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const params = useLocalSearchParams();
   const rawId = params?.id;
   const id = typeof rawId === 'string' ? rawId : Array.isArray(rawId) ? rawId[0] : undefined;
@@ -697,7 +698,7 @@ export const ReviewModalScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   safeArea: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -768,7 +769,7 @@ const styles = StyleSheet.create({
   timerBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(217, 119, 6, 0.1)',
+    backgroundColor: `${colors.accent}1a`,
     borderWidth: 1,
     borderColor: colors.accent,
     borderRadius: 8,
@@ -841,7 +842,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   beanChipSelected: {
-    backgroundColor: colors.panel,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   beanChipText: {
@@ -850,7 +851,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   beanChipTextSelected: {
-    color: colors.accent,
+    color: colors.canvas,
     fontFamily: FONTS.bodyBold,
   },
   inputGroup: {
@@ -890,7 +891,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   chipActive: {
-    backgroundColor: colors.panel,
+    backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
   chipText: {
@@ -899,7 +900,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   chipTextActive: {
-    color: colors.accent,
+    color: colors.canvas,
     fontFamily: FONTS.monoBold,
   },
   specsGrid: {
@@ -973,4 +974,4 @@ const styles = StyleSheet.create({
     color: colors.statusError,
     letterSpacing: 1,
   },
-});
+}));

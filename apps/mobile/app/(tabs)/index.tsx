@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, ScrollView, StyleSheet, Text, Pressable, Alert } from 'react-native';
+import { View, ScrollView, Text, Pressable, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams, useScrollToTop } from 'expo-router';
 import { Plus, Check } from 'lucide-react-native';
 import {
@@ -14,7 +14,7 @@ import {
   splitsToRecipeStages,
   BrewRecipe,
 } from '@brewlog/core';
-import { INDUSTRIAL_PRECISION_THEME } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { useRecipes } from '../../src/features/recipes/RecipeContext';
 import { useOptionalSettings } from '../../src/features/settings/SettingsContext';
 import { useOptionalStash } from '../../src/features/stash/StashContext';
@@ -35,9 +35,9 @@ import { useAuthModal } from '../../src/features/auth/AuthModalContext';
 import { ProfileHeaderButton } from '../../src/features/auth/ProfileHeaderButton';
 import { getTabScreenBottomPadding } from '../../src/components/navigation/tabBarConstants';
 
-const { colors } = INDUSTRIAL_PRECISION_THEME;
-
 export default function TimerScreen() {
+  const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { openAuthSheet } = useAuthModal();
@@ -443,7 +443,7 @@ export default function TimerScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((colors) => ({
   container: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -568,4 +568,4 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.monoBold,
     letterSpacing: 0.8,
   },
-});
+}));
