@@ -41,8 +41,10 @@ export const ProfileHeaderButton: React.FC<ProfileHeaderButtonProps> = ({ onPres
       style={({ pressed }) => [styles.container, pressed && styles.pressed]}
     >
       {initials ? (
-        <View style={styles.avatarBadge}>
-          <Text style={styles.initialsText}>{initials}</Text>
+        <View style={styles.avatarWrapper}>
+          <View style={styles.avatarBadge}>
+            <Text style={styles.initialsText}>{initials}</Text>
+          </View>
           <View testID="connection-dot" style={styles.connectionDot} />
         </View>
       ) : (
@@ -72,6 +74,11 @@ const useStyles = makeStyles((colors) => ({
     justifyContent: "center",
     alignItems: "center",
   },
+  avatarWrapper: {
+    width: 32,
+    height: 32,
+    position: "relative",
+  },
   avatarBadge: {
     width: 32,
     height: 32,
@@ -81,7 +88,7 @@ const useStyles = makeStyles((colors) => ({
     backgroundColor: colors.panelRecessed,
     justifyContent: "center",
     alignItems: "center",
-    position: "relative",
+    overflow: "hidden",
   },
   initialsText: {
     fontFamily: FONTS.monoBold,
