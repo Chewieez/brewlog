@@ -36,27 +36,13 @@ brewlog/
 * **Centralized Cross-Platform Design System (`@brewlog/ui`) & Dynamic Theming**: Shared monorepo component package with platform-split rendering layers (`.web.tsx` with Tailwind v4, `.native.tsx` with React Native StyleSheet), unified TypeScript contracts (`Button`, `Card`, `Badge`, `Input`, `MetricTile`, `SegmentedControl`), dynamic multi-theme architecture (**Tactile Dark Craft** and **Crisp Studio Light** via `ThemeProvider`, `useTheme`, and memoized `makeStyles`), semantic foreground tokens (`text-foreground`, `text-foreground-secondary`, `text-foreground-muted`), and standardized 3-tier rem-based control sizing (`sm`: 32px, `md`: 40px, `lg`: 48px) verified by automated Playwright E2E gates.
 * **Cloud Sync, Multi-User & Secure Storage**: Supabase PostgreSQL backend with Row Level Security (RLS), cross-platform authentication (`AuthSheet` in-tree modal overlay with Android autofill support, sign-in/up/reset, `ProfileHeaderButton` avatar indicator), and hardware-secured session storage (`LargeSecureStore` AES-256 CTR hybrid encryption backed by `expo-secure-store` with `WHEN_UNLOCKED_THIS_DEVICE_ONLY` keychain accessibility).
 * **User Preferences & Instrument Calibration**: Pure domain conversion engines (`gramsToOz`, `celsiusToFahrenheit`) and presentation formatters (`formatWeight`, `formatTemperature`, `formatDisplayDate`) supporting dynamic unit localization (grams / ounces, Celsius / Fahrenheit), customizable date formats, default brew timer mode selection (`free_brew` stopwatch vs `recipe` stage engine), and dynamic theme selection (`system`, `tactile_dark`, `studio_light`). Delivers offline-first local hydration with automated Supabase cloud sync, dedicated mobile settings modal (`app/settings/modal.tsx`), and web settings chassis route (`/settings`).
-* **Active Project Milestones & Roadmap**:
-  - **Phase 1 (Web App Core Routing)**: Complete (Declarative client routing, 404 handler, persistent shell).
-  - **Phase 2 (Dynamic Recipe Routing)**: Complete (Master-detail layout, `/recipes/:id`, URL synchronization).
-  - **Phase 3 (Mobile App Foundation & Shell)**: Complete (Upgraded to Expo SDK 58 & React Native 0.88, 5-tab shell, drift-free timer).
-  - **Phase 3C (Supabase Auth & Secure Storage)**: Complete (Hardware-backed `LargeSecureStore`, `AuthContext` / `useAuth`, `ProfileHeaderButton`, and in-tree `AuthSheet` overlay).
-  - **Phase 4 (Mobile Recipe Studio & Catalog)**: Complete (Native stack/modal navigation, recipe builder lifecycle, multi-grinder dial settings, bidirectional timer handoff).
-  - **Phase 5 (Stash Manager & Cellar Inventory)**: Complete (Native bean cellar, roast resting status indicators, dose deduction handoff to timer, pure resting engine, and offline-first cache).
-  - **Phase 6 (Free Brew Timer & Ratio Translator)**: Complete (Stopwatch mode, manual split tags, nested ratio translator, review/recipe export, mobile & web parity).
-  - **Phase 7A (Design System Primitives & Foundation)**: Complete (`@brewlog/ui` shared monorepo package with platform-split primitives [`.web` / `.native`], unified TypeScript contracts, Outfit tabular figure enforcement, and showcase fixture).
-  - **Phase 7B (Design System Tokens, Sizing Standardization & Dynamic Theming)**: Complete / Active (Standardized 32px/40px/48px button & input sizing tokens, Playwright E2E sizing gate, semantic `foreground` token migration, domain freshness decoupling from `@brewlog/core` to `@brewlog/ui`, `SegmentedControl` primitive, dynamic `ThemeProvider` / `makeStyles` across all 39 mobile screens & native primitives, retirement of `INDUSTRIAL_PRECISION_THEME`, and web Timer header/faceplate alignment).
-  - **Phase 7C (Web Stash Persistence & Recipe Flow Alignment)**: Complete (Supabase migrations 002/003, core resting engine promotion, Web Stash modal parity & offline sync resilience, Web Recipe Studio custom recipe editing flow).
-  - **Phase 7D (Mobile Equipment & Web Parity)**: Complete (Mobile `EquipmentContext` with offline resilience and optimistic updates, `EquipmentCatalogScreen` with category chips and search filtering, `EquipmentModalScreen` add/edit flows, microns scale type support across `@brewlog/core`, web parity with 'Other' equipment section, and offline sync resilience).
-  - **Phase 8 (User Preferences, Dynamic Themes & Settings Subsystem)**: Complete (Cross-platform Supabase `user_settings`, theme preference selector, default timer mode, unit conversions, offline-first state, telemetry integration).
-  - **Phase 9 (Mobile & Web Reviews / Tasting Journal & Multi-Grinder Settings)**: Complete (Offline-first mobile `ReviewsContext`, `ReviewsCatalogScreen`, `ReviewDetailScreen`, `ReviewModalScreen`, 10-attribute SCA scoring sliders, 3-tier SVG flavor wheel, web Master-Detail Tasting Journal redesign at `/reviews`, equipment snapshot tracking, and multi-grinder recipe settings via migration `004`).
-  - **Phase 10 (Platform-Adaptive Navigation)**: In Progress (iOS `NativeTabs` translucent blur tab bar in `_layout.ios.tsx` and custom animated `FloatingPillTabBar` implemented; Android Material 3 / Jetpack Compose integration upcoming).
-  - **Phase 11 (Responsive Adaptive Layouts)**: Upcoming (Landscape brew station, foldables, tablets).
-* **Companion Platforms & Wearables**:
-  - **WearOS Companion**: Android Wear OS wrist timer with haptic pour alerts via Wearable DataLayer.
-  - **watchOS Companion**: Apple Watch companion app built with SwiftUI & WatchConnectivity.
+* **Platform-Adaptive Mobile Navigation**: iOS `NativeTabs` (`_layout.ios.tsx`) with translucent blur materials and a custom spring-animated `FloatingPillTabBar` (`_layout.tsx`) with haptic feedback and keyboard auto-hide.
+* **Upcoming Roadmap & Wearables**:
+  - **Design System Surface Adoption**: Expanding `@brewlog/ui` primitive adoption across remaining bespoke cards and inputs.
+  - **Responsive & Adaptive Layouts**: Landscape brew station dual-column timer, foldable/tablet two-pane master-detail grids, and Android Material Design 3 chrome.
+  - **WearOS & watchOS Companions**: Standalone wrist timers and watch tiles/complications built with Jetpack Compose (Wearable DataLayer) and SwiftUI (WatchConnectivity).
 
-> See [docs/ROADMAP.md](docs/ROADMAP.md) for detailed technical deliverables, component refactoring tasks, and architecture decision records.
+> See [`docs/ROADMAP.md`](docs/ROADMAP.md) for the active roadmap, technical debt backlog, and completed milestone history.
 
 ---
 
