@@ -184,7 +184,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               onClick={() => switchMode("signin")}
               className={`h-8 flex-1 inline-flex items-center justify-center rounded text-xs font-mono uppercase tracking-wider font-semibold cursor-pointer transition-all ${
                 isSignIn
-                  ? "bg-accent text-zinc-950 shadow-sm font-bold"
+                  ? "bg-accent text-canvas shadow-sm font-bold"
                   : "text-foreground-muted hover:text-foreground"
               }`}
             >
@@ -195,7 +195,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               onClick={() => switchMode("signup")}
               className={`h-8 flex-1 inline-flex items-center justify-center rounded text-xs font-mono uppercase tracking-wider font-semibold cursor-pointer transition-all ${
                 isSignUp
-                  ? "bg-accent text-zinc-950 shadow-sm font-bold"
+                  ? "bg-accent text-canvas shadow-sm font-bold"
                   : "text-foreground-muted hover:text-foreground"
               }`}
             >
@@ -260,7 +260,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={() => switchMode("signin")}
-                className="h-8 inline-flex items-center space-x-1.5 px-4 rounded-lg bg-accent text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold hover:bg-accent-hover cursor-pointer transition-colors"
+                className="h-8 inline-flex items-center space-x-1.5 px-4 rounded-lg bg-accent text-canvas font-mono text-xs uppercase tracking-wider font-bold hover:bg-accent-hover cursor-pointer transition-colors"
               >
                 <span>GO TO SIGN IN</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -392,7 +392,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full h-10 flex items-center justify-center space-x-2 px-4 rounded-lg bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all active:scale-95 disabled:opacity-50"
+                className="w-full h-10 flex items-center justify-center space-x-2 px-4 rounded-lg bg-accent hover:bg-accent-hover text-canvas font-mono text-xs uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all active:scale-95 disabled:opacity-50"
               >
                 {isSignIn ? (
                   <>

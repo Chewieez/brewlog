@@ -392,13 +392,13 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                   aria-label={`${inspectedItem.isSelected ? 'Remove' : 'Add'} ${inspectedItem.name}`}
                   className={`pointer-events-auto mt-1 px-2.5 py-0.5 rounded text-[10px] font-sans uppercase tracking-wider font-bold flex items-center space-x-1 transition-all shadow-sm active:scale-95 cursor-pointer ${
                     inspectedItem.isSelected
-                      ? 'bg-accent text-zinc-950'
+                      ? 'bg-accent text-canvas'
                       : 'bg-panel-recessed text-foreground-secondary border border-border-subtle hover:bg-zinc-800 hover:text-foreground'
                   }`}
                 >
                   {inspectedItem.isSelected ? (
                     <>
-                      <Check className="w-2.5 h-2.5 text-zinc-950 stroke-[3]" />
+                      <Check className="w-2.5 h-2.5 text-canvas stroke-[3]" />
                       <span>Selected</span>
                     </>
                   ) : (
