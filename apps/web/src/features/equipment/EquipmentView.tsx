@@ -220,7 +220,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">Equipment</h2>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Equipment</h1>
           <p className="text-sm text-foreground-secondary mt-1">
             Manage your grinders, brewers, scales, and kettles to pair with dial-in recipes and tasting logs.
           </p>

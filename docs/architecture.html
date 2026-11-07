@@ -229,7 +229,11 @@
       { id: 118, label: 'Equipment Tab\n(EquipmentCatalogScreen.tsx)', group: 'feature', shape: 'box', level: 3, info: { title: 'EquipmentCatalogScreen', type: 'Equipment Catalog Screen', desc: 'Browses grinders, brewers, scales, kettles, and accessories with category filter chips and favorite toggles.', file: 'apps/mobile/src/features/equipment/screens/EquipmentCatalogScreen.tsx' } },
       { id: 119, label: 'Reviews Tab\n(ReviewsCatalogScreen.tsx)', group: 'feature', shape: 'box', level: 3, info: { title: 'ReviewsCatalogScreen', type: 'Reviews & Tasting Journal Screen', desc: 'Browses tasting logs with ReviewsSummaryBar, equipment snapshots, SCA scores, and navigation to detail/modal screens.', file: 'apps/mobile/src/features/reviews/screens/ReviewsCatalogScreen.tsx' } },
       { id: 108, label: 'BeanDetailScreen.tsx\n(app/stash/[id].tsx)', group: 'feature', shape: 'box', level: 3, info: { title: 'BeanDetailScreen', type: 'Dynamic Detail Route', desc: 'Displays origin info, roast date, remaining weight, resting timeline, dose steppers, and Brew with this Bean handoff.', file: 'apps/mobile/src/features/stash/screens/BeanDetailScreen.tsx' } },
-      { id: 109, label: 'SettingsModalScreen\n(app/settings/modal.tsx)', group: 'modal', shape: 'box', level: 3, info: { title: 'SettingsModalScreen', type: 'Modal Preferences Screen', desc: 'Native preferences modal for theme selection (System/Dark/Light), weight/temp units, default timer mode, and date format.', file: 'apps/mobile/app/settings/modal.tsx' } },
+      { id: 109, label: 'BeanModalScreen.tsx\n(app/stash/modal.tsx)', group: 'modal', shape: 'box', level: 3, info: { title: 'BeanModalScreen', type: 'Modal Bag Creator / Editor', desc: 'Full-featured modal with weight presets, custom rest days, roast date input, freezer toggle, and safe area handling.', file: 'apps/mobile/src/features/stash/screens/BeanModalScreen.tsx' } },
+      { id: 120, label: 'RecipeBuilderScreen.tsx\n(app/recipe/builder.tsx)', group: 'modal', shape: 'box', level: 3, info: { title: 'RecipeBuilderScreen', type: 'Modal Recipe Studio', desc: 'Full CRUD modal for custom brew recipes, stage timeline editing, and multi-grinder dial settings.', file: 'apps/mobile/src/features/recipes/screens/RecipeBuilderScreen.tsx' } },
+      { id: 121, label: 'EquipmentModalScreen.tsx\n(app/equipment/modal.tsx)', group: 'modal', shape: 'box', level: 3, info: { title: 'EquipmentModalScreen', type: 'Modal Equipment Editor', desc: 'Add/edit modal for grinders, brewers, scales, kettles, and dial setting formats with dirty-form guards.', file: 'apps/mobile/src/features/equipment/screens/EquipmentModalScreen.tsx' } },
+      { id: 122, label: 'ReviewModalScreen.tsx\n(app/reviews/modal.tsx)', group: 'modal', shape: 'box', level: 3, info: { title: 'ReviewModalScreen', type: 'Modal Review Editor', desc: 'Full CRUD tasting review modal with 10-attribute SCA sliders, 3-tier SVG flavor wheel, and equipment snapshot tracking.', file: 'apps/mobile/src/features/reviews/screens/ReviewModalScreen.tsx' } },
+      { id: 123, label: 'SettingsModalScreen\n(app/settings/modal.tsx)', group: 'modal', shape: 'box', level: 3, info: { title: 'SettingsModalScreen', type: 'Modal Preferences Screen', desc: 'Native preferences modal for theme selection (System/Dark/Light), weight/temp units, default timer mode, and date format.', file: 'apps/mobile/app/settings/modal.tsx' } },
 
       // Design System (@brewlog/ui) & Sub-Components
       { id: 20, label: 'ScaFlavorWheelSvg.tsx\n(Pure Polar SVG Wheel)', group: 'subcomp', shape: 'ellipse', level: 4, info: { title: 'ScaFlavorWheelSvg.tsx', type: 'Interactive Vector Graphic', desc: 'Pure React + SVG polar trigonometry rendering 3 concentric tiers of SCA flavor descriptors across web and mobile.', file: 'apps/web/src/features/reviews/ScaFlavorWheelSvg.tsx' } },
@@ -304,7 +308,11 @@
       { from: 100, to: 22, arrows: 'to', label: '<ThemeProvider>' },
       { from: 100, to: 104, arrows: 'to', label: '<Tabs />' },
       { from: 100, to: 108, arrows: 'to', label: 'app/stash/[id]' },
-      { from: 100, to: 109, arrows: 'to', label: 'app/settings/modal' },
+      { from: 100, to: 109, arrows: 'to', label: 'app/stash/modal' },
+      { from: 100, to: 120, arrows: 'to', label: 'app/recipe/builder' },
+      { from: 100, to: 121, arrows: 'to', label: 'app/equipment/modal' },
+      { from: 100, to: 122, arrows: 'to', label: 'app/reviews/modal' },
+      { from: 100, to: 123, arrows: 'to', label: 'app/settings/modal' },
 
       // Mobile Tabs to Screens
       { from: 104, to: 105, arrows: 'to', label: 'tab: timer' },
@@ -319,6 +327,11 @@
       { from: 105, to: 112, arrows: 'to' },
       { from: 105, to: 103, arrows: 'to', label: 'Deduct Dose' },
       { from: 108, to: 103, arrows: 'to', label: 'Archive/Freeze/Brew' },
+      { from: 109, to: 103, arrows: 'to', label: 'Save Bean' },
+      { from: 120, to: 102, arrows: 'to', label: 'Save Recipe' },
+      { from: 121, to: 115, arrows: 'to', label: 'Save Equipment' },
+      { from: 122, to: 116, arrows: 'to', label: 'Save Review' },
+      { from: 123, to: 117, arrows: 'to', label: 'Update Settings' },
 
       // Domain Utilities to Screens & Cards
       { from: 108, to: 113, dashes: true, arrows: 'to' },
@@ -326,7 +339,7 @@
       { from: 110, to: 22, dashes: true, arrows: 'to' },
       { from: 113, to: 43, dashes: true, arrows: 'to' },
       { from: 15, to: 44, dashes: true, arrows: 'to' },
-      { from: 109, to: 44, dashes: true, arrows: 'to' },
+      { from: 123, to: 44, dashes: true, arrows: 'to' },
 
       // Mobile Storage & Cloud Sync
       { from: 103, to: 114, arrows: 'to', label: 'Offline Cache' },

@@ -89,9 +89,9 @@ export const RecipesRoute: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Recipe Studio
-          </h2>
+          </h1>
           <p className="text-sm text-foreground-secondary mt-1">
             World Champion & Expert brew profiles alongside your custom dialed-in recipes.
           </p>

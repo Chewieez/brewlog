@@ -393,7 +393,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                   className={`pointer-events-auto mt-1 px-2.5 py-0.5 rounded text-[10px] font-sans uppercase tracking-wider font-bold flex items-center space-x-1 transition-all shadow-sm active:scale-95 cursor-pointer ${
                     inspectedItem.isSelected
                       ? 'bg-accent text-canvas'
-                      : 'bg-panel-recessed text-foreground-secondary border border-border-subtle hover:bg-zinc-800 hover:text-foreground'
+                      : 'bg-panel-recessed text-foreground-secondary border border-border-subtle hover:bg-panel hover:border-border-active hover:text-foreground'
                   }`}
                 >
                   {inspectedItem.isSelected ? (
