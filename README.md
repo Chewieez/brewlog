@@ -40,6 +40,7 @@ brewlog/
 * **Upcoming Roadmap & Wearables**:
   - **Design System Surface Adoption**: Expanding `@brewlog/ui` primitive adoption across remaining bespoke cards and inputs.
   - **Responsive & Adaptive Layouts**: Landscape brew station dual-column timer, foldable/tablet two-pane master-detail grids, and Android Material Design 3 chrome.
+  - **Sentry Observability & Error Monitoring**: Production crash reporting, React error boundaries, offline sync exception telemetry, and route performance tracing across web (`@sentry/react`) and mobile (`@sentry/react-native`).
   - **WearOS & watchOS Companions**: Standalone wrist timers and watch tiles/complications built with Jetpack Compose (Wearable DataLayer) and SwiftUI (WatchConnectivity).
 
 > See [`docs/ROADMAP.md`](docs/ROADMAP.md) for the active roadmap, technical debt backlog, and completed milestone history.
