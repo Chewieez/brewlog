@@ -19,12 +19,17 @@ This document tracks upcoming milestones, active engineering work, technical deb
 - [ ] **Foldable & Tablet Master-Detail Grids**: Two-pane Master-Detail layouts for Stash (`app/(tabs)/stash.tsx`), Recipes (`app/(tabs)/recipes.tsx`), and Reviews (`app/(tabs)/reviews.tsx`) on tablets and unfolded foldables.
 - [ ] **Tabletop / Flex Mode Posture Awareness**: Support half-folded postures (Pixel Fold, Galaxy Z Fold) placing the active timer readout on the upper half and tactile controls on the lower half.
 
-### 4. Database CI/CD & Schema Automation (`@brewlog/supabase`)
+### 4. Sentry Observability, Error Tracking & Performance Monitoring (`apps/web` & `apps/mobile`) *(Issue: [#73](https://github.com/Chewieez/brewlog/issues/73))*
+- [ ] **Web Error & Performance Tracing (`@sentry/react`)**: Initialize `@sentry/react` in `apps/web/src/main.tsx` (`VITE_SENTRY_DSN`), wrap routes in a themed `Sentry.ErrorBoundary`, enable React Router v8 browser tracing, and upload source maps via `@sentry/vite-plugin`.
+- [ ] **Mobile Crash & Navigation Monitoring (`@sentry/react-native`)**: Configure the `@sentry/react-native` Expo plugin in `apps/mobile/app.json` (`EXPO_PUBLIC_SENTRY_DSN`), wrap `RootLayout` (`Sentry.wrap`), track Expo Router screen transitions, and upload native debug symbols / Metro source maps during EAS Builds.
+- [ ] **Offline Sync Telemetry & Privacy Guards**: Capture structured breadcrumbs and exceptions when offline-first Supabase sync operations fail (`StashContext`, `RecipeContext`, `EquipmentContext`, `ReviewsContext`, `SettingsContext`) while stripping all PII (emails, tokens) from payloads.
+
+### 5. Database CI/CD & Schema Automation (`@brewlog/supabase`)
 - [ ] **Supabase CLI Integration**: Wire `npm run db:migrate` / `supabase db push` into repository scripts.
 - [ ] **Automated Migration Pipeline**: Add a GitHub Actions workflow to validate and apply pending SQL migrations from `packages/supabase/migrations/` upon merge to `main`.
 - [ ] **Schema Drift Gate**: Add automated type-generation checks verifying `database.types.ts` matches the live PostgreSQL schema.
 
-### 5. Wearable Companion Apps (`apps/wearos` & `apps/watchos`)
+### 6. Wearable Companion Apps (`apps/wearos` & `apps/watchos`)
 - [ ] **WearOS Companion (`apps/wearos`)**: Standalone Wear OS companion app and watch tile for glanceable brew timing, countdown alerts, and haptic pour cues (Jetpack Compose, Wearable DataLayer).
 - [ ] **watchOS Companion (`apps/watchos`)**: Standalone Apple Watch companion app and Lock Screen / Smart Stack complications for active brew progress (SwiftUI, WatchConnectivity).
 
