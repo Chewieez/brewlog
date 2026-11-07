@@ -47,7 +47,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
         aria-expanded={dropdownOpen}
         className="btn-tactile-secondary h-8 flex items-center space-x-2 px-2.5 rounded-lg"
       >
-        <div className="w-6 h-6 rounded bg-accent flex items-center justify-center text-zinc-950 font-bold text-xs font-mono">
+        <div className="w-6 h-6 rounded bg-accent flex items-center justify-center text-canvas font-bold text-xs font-mono">
           {displayName.charAt(0).toUpperCase()}
         </div>
         <span className="text-xs font-mono text-foreground hidden sm:inline max-w-[100px] truncate">

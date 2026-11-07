@@ -730,7 +730,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
                           type="button"
                           disabled={isCreatingGrinder}
                           onClick={handleSaveInlineGrinder}
-                          className="h-8 inline-flex items-center justify-center px-3 rounded-lg bg-accent hover:bg-accent-hover text-zinc-950 font-mono text-xs uppercase font-bold transition-all cursor-pointer disabled:opacity-50"
+                          className="h-8 inline-flex items-center justify-center px-3 rounded-lg bg-accent hover:bg-accent-hover text-canvas font-mono text-xs uppercase font-bold transition-all cursor-pointer disabled:opacity-50"
                         >
                           {isCreatingGrinder ? "Saving..." : "Save Grinder"}
                         </button>

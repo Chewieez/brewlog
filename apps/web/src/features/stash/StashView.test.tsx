@@ -70,7 +70,7 @@ describe('StashView', () => {
       />
     );
 
-    expect(screen.getByRole('heading', { level: 2, name: 'Coffee Bean Stash' })).toBeDefined();
+    expect(screen.getByRole('heading', { level: 1, name: 'Coffee Bean Stash' })).toBeDefined();
     expect(screen.getByRole('button', { name: /ADD BEAN/i })).toBeDefined();
     expect(screen.getByPlaceholderText(/Search by coffee name/i)).toBeDefined();
     expect(screen.getByRole('combobox')).toBeDefined();

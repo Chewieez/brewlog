@@ -458,8 +458,12 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
   return (
     <div className="max-w-7xl mx-auto pb-12">
-      {/* Top Segmented Mode Switcher */}
-      <div className="flex items-center justify-between gap-4 pb-4 mb-6 border-b border-border-subtle">
+      {/* Page Header & Segmented Mode Switcher */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-6 border-b border-border-subtle">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          Timer
+        </h1>
+
         <SegmentedControl<TimerMode>
           value={mode}
           onChange={handleSwitchMode}

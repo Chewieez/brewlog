@@ -271,7 +271,7 @@ export const StashView: React.FC<StashViewProps> = ({
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">Coffee Bean Stash</h2>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Coffee Bean Stash</h1>
           <p className="text-sm text-foreground-secondary mt-0.5">
             Track origins, roast dates, and peak resting windows for your whole beans.
           </p>

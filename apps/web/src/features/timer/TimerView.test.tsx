@@ -52,6 +52,19 @@ describe('TimerView', () => {
     vi.useRealTimers();
   });
 
+  it('renders the Timer page header', () => {
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    const heading = screen.getByRole('heading', { level: 1, name: 'Timer' });
+    expect(heading).toBeDefined();
+  });
+
   it('renders START BREW, PAUSE, and RESUME buttons with exact uppercase text', () => {
     render(
       <TimerView
