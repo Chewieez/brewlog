@@ -4,8 +4,6 @@ import { Link } from 'react-router';
 import {
   BrewRecipe,
   rescaleRecipeDose,
-  Equipment,
-  DEFAULT_USER_SETTINGS,
   formatWeight,
   formatTemperature,
 } from '@brewlog/core';
@@ -20,8 +18,8 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
-import { useOptionalEquipment } from '../equipment/EquipmentContext';
-import { useOptionalSettings } from '../settings/SettingsContext';
+import { useEquipment } from '../equipment/EquipmentContext';
+import { useSettings } from '../settings/SettingsContext';
 
 export interface RecipeDetailPaneProps {
   recipe: BrewRecipe;
@@ -29,7 +27,6 @@ export interface RecipeDetailPaneProps {
   onEditRecipe?: (recipe: BrewRecipe) => void;
   onDeleteRecipe?: (recipe: BrewRecipe) => void;
   showMobileBackButton?: boolean;
-  equipment?: Equipment[];
 }
 
 export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
@@ -38,12 +35,9 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
   onEditRecipe,
   onDeleteRecipe,
   showMobileBackButton = false,
-  equipment: propEquipment,
 }) => {
-  const equipmentContext = useOptionalEquipment();
-  const equipment = propEquipment ?? equipmentContext?.equipment ?? [];
-  const settingsContext = useOptionalSettings();
-  const settings = settingsContext?.settings ?? DEFAULT_USER_SETTINGS;
+  const { equipment } = useEquipment();
+  const { settings } = useSettings();
 
   const [customDose, setCustomDose] = useState<number>(Math.round(recipe.coffeeDoseGrams));
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);

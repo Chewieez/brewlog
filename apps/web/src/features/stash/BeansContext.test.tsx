@@ -5,7 +5,6 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 import {
   BeansProvider,
   useBeans,
-  useOptionalBeans,
 } from "./BeansContext";
 import { useAuth } from "../auth/AuthContext";
 import { supabase } from "../../lib/supabase";
@@ -40,11 +39,6 @@ describe("BeansContext", () => {
     spy.mockRestore();
   });
 
-  it("returns null when useOptionalBeans is used outside BeansProvider", () => {
-    const { result } = renderHook(() => useOptionalBeans());
-    expect(result.current).toBeNull();
-  });
-
   it("initializes with INITIAL_BEANS (1 sample bean) and sets selectedBean when unauthenticated and localStorage is empty", async () => {
     vi.mocked(useAuth).mockReturnValue({
       user: null,
@@ -67,6 +61,30 @@ describe("BeansContext", () => {
     expect(result.current.beans).toEqual(INITIAL_BEANS);
     expect(result.current.beans).toHaveLength(1);
     expect(result.current.selectedBean).toEqual(INITIAL_BEANS[0]);
+  });
+
+  it("initializes selectedBean to null when cached beans array in localStorage is empty ([])", () => {
+    localStorage.setItem("brewlog_beans_cache", JSON.stringify([]));
+    vi.mocked(useAuth).mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: false,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useBeans(), { wrapper });
+
+    expect(result.current.beans).toEqual([]);
+    expect(result.current.selectedBean).toBeNull();
   });
 
   it("updates selectedBean when the currently selected bean is updated", async () => {

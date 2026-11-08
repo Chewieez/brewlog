@@ -13,9 +13,9 @@ export const ReviewsRoute: React.FC = () => {
     logs: tastingLogs,
     pendingBrewSession,
     setPendingBrewSession,
-    addTastingLog,
-    updateTastingLog,
-    deleteTastingLog,
+    addReview,
+    updateReview,
+    deleteReview,
   } = useReviews();
   const { beans, setSelectedBean } = useBeans();
   const { recipes, setSelectedRecipe } = useRecipes();
@@ -26,7 +26,7 @@ export const ReviewsRoute: React.FC = () => {
   };
 
   const handleSaveTastingLog = async (log: Omit<TastingLog, 'id' | 'createdAt'>) => {
-    const created = await addTastingLog(log);
+    const created = await addReview(log);
     setPendingBrewSession(null);
     return created;
   };
@@ -61,11 +61,9 @@ export const ReviewsRoute: React.FC = () => {
       pendingBrewSession={pendingBrewSession}
       onClearPendingSession={handleClearPendingSession}
       onAddTastingLog={handleSaveTastingLog}
-      onUpdateTastingLog={updateTastingLog}
-      onDeleteTastingLog={deleteTastingLog}
+      onUpdateTastingLog={updateReview}
+      onDeleteTastingLog={deleteReview}
       onBrewAgain={handleBrewAgain}
     />
   );
 };
-
-export const CuppingRoute = ReviewsRoute;

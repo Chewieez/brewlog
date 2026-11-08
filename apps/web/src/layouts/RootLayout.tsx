@@ -5,7 +5,6 @@ import { AuthModal } from '../features/auth/AuthModal';
 import { useAuth } from '../features/auth/AuthContext';
 import { useBeans } from '../features/stash/BeansContext';
 import { useReviews } from '../features/reviews/ReviewsContext';
-export { WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY } from '../features/recipes/RecipeContext';
 
 export const RootLayout: React.FC = () => {
   const { beans } = useBeans();

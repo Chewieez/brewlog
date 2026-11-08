@@ -58,7 +58,7 @@ export const BeansProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const { user } = useAuth();
   const [beans, setBeans] = useState<Bean[]>(loadLocalBeans);
   const [selectedBean, setSelectedBean] = useState<Bean | null>(
-    () => loadLocalBeans()[0] || INITIAL_BEANS[0] || null
+    () => beans[0] ?? null
   );
   const [loading, setLoading] = useState(false);
 
@@ -293,10 +293,6 @@ export const BeansProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   return <BeansContext.Provider value={value}>{children}</BeansContext.Provider>;
 };
 
-export const useOptionalBeans = (): BeansContextValue | null => {
-  return useContext(BeansContext);
-};
-
 export const useBeans = (): BeansContextValue => {
   const context = useContext(BeansContext);
   if (!context) {
@@ -304,7 +300,3 @@ export const useBeans = (): BeansContextValue => {
   }
   return context;
 };
-
-export const StashProvider = BeansProvider;
-export const useStash = useBeans;
-export const useOptionalStash = useOptionalBeans;

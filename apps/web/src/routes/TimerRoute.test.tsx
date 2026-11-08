@@ -30,6 +30,20 @@ vi.mock('../features/reviews/ReviewsContext', () => ({
   }),
 }));
 
+vi.mock('../features/settings/SettingsContext', () => ({
+  useSettings: () => ({
+    settings: {
+      weightUnit: 'metric',
+      temperatureUnit: 'celsius',
+      dateFormat: 'locale',
+      theme: 'system',
+    },
+    loading: false,
+    updateSettings: vi.fn(),
+    resetToDefaults: vi.fn(),
+  }),
+}));
+
 vi.mock('../lib/audio', () => ({
   coffeeAudio: {
     unlock: vi.fn(),

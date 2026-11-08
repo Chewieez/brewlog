@@ -4,11 +4,11 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, cleanup, act } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, Navigate } from 'react-router';
 import { DEFAULT_PRESET_RECIPES } from '@brewlog/core';
-import { RootLayout, WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY } from './layouts/RootLayout';
+import { RootLayout } from './layouts/RootLayout';
 import { TimerRoute } from './routes/TimerRoute';
 import { StashRoute } from './routes/StashRoute';
 import { NotFoundRoute } from './routes/NotFoundRoute';
-import { useRecipes } from './features/recipes/RecipeContext';
+import { useRecipes, WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY } from './features/recipes/RecipeContext';
 import { App, AppProviders } from './App';
 
 vi.mock('./features/auth/AuthContext', () => ({

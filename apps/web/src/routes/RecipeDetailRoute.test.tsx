@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, Outlet, useLocation } from 'react-router';
-import { DEFAULT_PRESET_RECIPES, BrewRecipe } from '@brewlog/core';
+import { DEFAULT_PRESET_RECIPES, DEFAULT_USER_SETTINGS, BrewRecipe } from '@brewlog/core';
 import { RecipeDetailRoute } from './RecipeDetailRoute';
 import { RecipeIndexRoute } from './RecipeIndexRoute';
 import { RecipeOutletContext } from './RecipesRoute';
@@ -10,8 +10,17 @@ import { RecipeOutletContext } from './RecipesRoute';
 const mockSetSelectedRecipe = vi.fn();
 const mockDeleteRecipe = vi.fn();
 
-vi.mock('../features/equipment/EquipmentContext', () => {
-  const mockEquipValue = {
+vi.mock('../features/settings/SettingsContext', () => ({
+  useSettings: vi.fn(() => ({
+    settings: DEFAULT_USER_SETTINGS,
+    loading: false,
+    updateSettings: vi.fn(),
+    resetToDefaults: vi.fn(),
+  })),
+}));
+
+vi.mock('../features/equipment/EquipmentContext', () => ({
+  useEquipment: vi.fn(() => ({
     equipment: [],
     grinders: [],
     brewers: [],
@@ -24,12 +33,8 @@ vi.mock('../features/equipment/EquipmentContext', () => {
     deleteEquipment: vi.fn(),
     toggleFavorite: vi.fn(),
     refreshEquipment: vi.fn(),
-  };
-  return {
-    useEquipment: vi.fn(() => mockEquipValue),
-    useOptionalEquipment: vi.fn(() => mockEquipValue),
-  };
-});
+  })),
+}));
 
 vi.mock('../features/recipes/RecipeContext', () => ({
   useRecipes: () => ({

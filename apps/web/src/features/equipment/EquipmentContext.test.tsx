@@ -5,7 +5,6 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 import {
   EquipmentProvider,
   useEquipment,
-  useOptionalEquipment,
 } from "./EquipmentContext";
 import { useAuth } from "../auth/AuthContext";
 import { supabase } from "../../lib/supabase";
@@ -37,11 +36,6 @@ describe("EquipmentContext", () => {
       "useEquipment must be used within an EquipmentProvider"
     );
     spy.mockRestore();
-  });
-
-  it("returns null when useOptionalEquipment is used outside EquipmentProvider", () => {
-    const { result } = renderHook(() => useOptionalEquipment());
-    expect(result.current).toBeNull();
   });
 
   it("initializes with INITIAL_EQUIPMENT and derived categories when unauthenticated and localStorage is empty", async () => {

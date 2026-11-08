@@ -19,20 +19,14 @@ import { PendingBrewSession } from "./ReviewsView";
 
 export interface ReviewsContextValue {
   logs: TastingLog[];
-  reviews: TastingLog[];
   loading: boolean;
   pendingBrewSession: PendingBrewSession | null;
   setPendingBrewSession: (session: PendingBrewSession | null) => void;
   addReview: (log: Omit<TastingLog, "id" | "createdAt">) => Promise<TastingLog | void>;
   updateReview: (id: string, updates: Partial<TastingLog>) => Promise<TastingLog | void>;
   deleteReview: (id: string) => Promise<void>;
-  addTastingLog: (log: Omit<TastingLog, "id" | "createdAt">) => Promise<TastingLog | void>;
-  updateTastingLog: (id: string, updates: Partial<TastingLog>) => Promise<TastingLog | void>;
-  deleteTastingLog: (id: string) => Promise<void>;
   refreshLogs: () => Promise<void>;
 }
-
-export type UseReviewsReturn = ReviewsContextValue;
 
 export const ReviewsContext = createContext<ReviewsContextValue | null>(null);
 
@@ -67,7 +61,7 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
     fetchLogs();
   }, [fetchLogs]);
 
-  const addTastingLog = useCallback(
+  const addReview = useCallback(
     async (log: Omit<TastingLog, "id" | "createdAt">) => {
       if (!supabase || !user) {
         const localLog: TastingLog = {
@@ -101,7 +95,7 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
     [user]
   );
 
-  const updateTastingLog = useCallback(
+  const updateReview = useCallback(
     async (id: string, updates: Partial<TastingLog>) => {
       const existing = logs.find((l) => l.id === id);
       if (!existing) {
@@ -149,7 +143,7 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
     [logs, user]
   );
 
-  const deleteTastingLog = useCallback(
+  const deleteReview = useCallback(
     async (id: string) => {
       const existingIndex = logs.findIndex((l) => l.id === id);
       const existing = logs[existingIndex];
@@ -193,34 +187,26 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
   const value = useMemo<ReviewsContextValue>(
     () => ({
       logs,
-      reviews: logs,
       loading,
       pendingBrewSession,
       setPendingBrewSession,
-      addReview: addTastingLog,
-      addTastingLog,
-      updateReview: updateTastingLog,
-      updateTastingLog,
-      deleteReview: deleteTastingLog,
-      deleteTastingLog,
+      addReview,
+      updateReview,
+      deleteReview,
       refreshLogs: fetchLogs,
     }),
     [
       logs,
       loading,
       pendingBrewSession,
-      addTastingLog,
-      updateTastingLog,
-      deleteTastingLog,
+      addReview,
+      updateReview,
+      deleteReview,
       fetchLogs,
     ]
   );
 
   return <ReviewsContext.Provider value={value}>{children}</ReviewsContext.Provider>;
-};
-
-export const useOptionalReviews = (): ReviewsContextValue | null => {
-  return useContext(ReviewsContext);
 };
 
 export const useReviews = (): ReviewsContextValue => {
@@ -230,5 +216,3 @@ export const useReviews = (): ReviewsContextValue => {
   }
   return context;
 };
-
-export const useTastingLogs = useReviews;

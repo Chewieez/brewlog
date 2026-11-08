@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, cleanup, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router';
 import { ReviewsRoute } from './ReviewsRoute';
-import { TastingLog, DEFAULT_PRESET_RECIPES } from '@brewlog/core';
+import { TastingLog, DEFAULT_PRESET_RECIPES, DEFAULT_USER_SETTINGS } from '@brewlog/core';
 import { INITIAL_BEANS } from '../lib/sampleData';
 
 let mockLogs: TastingLog[] = [];
@@ -14,19 +14,24 @@ const mockAddReview = vi.fn();
 const mockUpdateReview = vi.fn();
 const mockDeleteReview = vi.fn();
 
+vi.mock('../features/settings/SettingsContext', () => ({
+  useSettings: () => ({
+    settings: DEFAULT_USER_SETTINGS,
+    loading: false,
+    updateSettings: vi.fn(),
+    resetToDefaults: vi.fn(),
+  }),
+}));
+
 vi.mock('../features/reviews/ReviewsContext', () => ({
   useReviews: () => ({
     logs: mockLogs,
-    reviews: mockLogs,
     loading: false,
     pendingBrewSession: null,
     setPendingBrewSession: mockSetPendingBrewSession,
     addReview: mockAddReview,
-    addTastingLog: mockAddReview,
     updateReview: mockUpdateReview,
-    updateTastingLog: mockUpdateReview,
     deleteReview: mockDeleteReview,
-    deleteTastingLog: mockDeleteReview,
     refreshLogs: vi.fn(),
   }),
 }));

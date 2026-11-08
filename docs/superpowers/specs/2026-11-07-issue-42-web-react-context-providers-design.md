@@ -21,10 +21,10 @@ In contrast, `apps/web` currently manages its 4 core domains (`useEquipment`, `u
 
 ### Goals
 - Convert the 4 Web domain hooks into top-level React Context providers (`EquipmentContext.tsx`, `RecipeContext.tsx`, `BeansContext.tsx`, `ReviewsContext.tsx`), replacing the old `use*.ts` hook files.
-- Enforce strict context consumption (`useEquipment`, `useRecipes`, `useBeans`, `useReviews` throw when called outside their provider) while exporting `useOptional*` variants for optional consumption.
+- Enforce strict context consumption (`useEquipment`, `useRecipes`, `useBeans`, `useReviews` throw when called outside their provider).
 - Move cross-route active selection and session state (`selectedRecipe`, `selectedBean`, `pendingBrewSession`) from `RootLayout` into their owning domain providers (`RecipeContext`, `BeansContext`, `ReviewsContext`), matching Mobile's context boundaries.
 - Mount all domain providers at the application root via a reusable `<AppProviders>` component in `App.tsx`.
-- Update Web routes (`TimerRoute`, `StashRoute`, `RecipesRoute`, `RecipeDetailRoute`, `EquipmentRoute`, `ReviewsRoute`) and components (`RecipeBuilderModal`, `RecipeDetailPane`) to consume domain context hooks directly, removing `RootOutletContext` and `locallyAddedGrinders`.
+- Update Web routes (`TimerRoute`, `StashRoute`, `RecipesRoute`, `RecipeDetailRoute`, `EquipmentRoute`, `ReviewsRoute`) and components (`RecipeBuilderModal`, `RecipeDetailPane`) to consume domain context hooks directly, removing `RootOutletContext`, `locallyAddedGrinders`, and prop-override fallbacks.
 - Slim `RootLayout.tsx` down to pure layout responsibilities (`Header`, `<Outlet />`, `AuthModal`).
 
 ### Non-Goals
@@ -40,10 +40,10 @@ The 4 hook files and their test suites are replaced with canonical `*Context.tsx
 
 | Previous File | New Canonical File | Primary Exports |
 |---|---|---|
-| `features/equipment/useEquipment.ts` | `features/equipment/EquipmentContext.tsx` | `EquipmentContext`, `EquipmentProvider`, `useEquipment`, `useOptionalEquipment`, `EquipmentContextValue` |
-| `features/recipes/useRecipes.ts` | `features/recipes/RecipeContext.tsx` | `RecipeContext`, `RecipeProvider`, `useRecipes`, `useOptionalRecipes`, `RecipeContextValue`, `WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY` |
-| `features/stash/useBeans.ts` | `features/stash/BeansContext.tsx` | `BeansContext`, `BeansProvider`, `useBeans`, `useOptionalBeans`, `BeansContextValue` (plus `StashProvider`, `useStash`, `useOptionalStash` aliases) |
-| `features/reviews/useReviews.ts` | `features/reviews/ReviewsContext.tsx` | `ReviewsContext`, `ReviewsProvider`, `useReviews`, `useTastingLogs`, `useOptionalReviews`, `ReviewsContextValue` |
+| `features/equipment/useEquipment.ts` | `features/equipment/EquipmentContext.tsx` | `EquipmentContext`, `EquipmentProvider`, `useEquipment`, `EquipmentContextValue` |
+| `features/recipes/useRecipes.ts` | `features/recipes/RecipeContext.tsx` | `RecipeContext`, `RecipeProvider`, `useRecipes`, `RecipeContextValue`, `WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY` |
+| `features/stash/useBeans.ts` | `features/stash/BeansContext.tsx` | `BeansContext`, `BeansProvider`, `useBeans`, `BeansContextValue` |
+| `features/reviews/useReviews.ts` | `features/reviews/ReviewsContext.tsx` | `ReviewsContext`, `ReviewsProvider`, `useReviews`, `ReviewsContextValue` |
 
 Corresponding unit test files are renamed to:
 - `features/equipment/EquipmentContext.test.tsx`
@@ -99,7 +99,6 @@ export interface EquipmentContextValue {
 - **Storage & Sync:** Preserves existing `brewlog_equipment_cache` `localStorage` caching and `local-eq-*` auto-sync behavior.
 - **Hooks:**
   - `useEquipment()`: Returns `EquipmentContextValue` or throws `new Error('useEquipment must be used within an EquipmentProvider')`.
-  - `useOptionalEquipment()`: Returns `EquipmentContextValue | null`.
 
 ### 4.2 `RecipeContext.tsx`
 ```ts
@@ -126,7 +125,6 @@ export interface RecipeContextValue {
   - `deleteRecipe(id)` resets `selectedRecipe` to `DEFAULT_PRESET_RECIPES[0]` and updates `localStorage` if `selectedRecipe.id === id`.
 - **Hooks:**
   - `useRecipes()`: Returns `RecipeContextValue` or throws `new Error('useRecipes must be used within a RecipeProvider')`.
-  - `useOptionalRecipes()`: Returns `RecipeContextValue | null`.
 
 ### 4.3 `BeansContext.tsx`
 ```ts
@@ -142,37 +140,30 @@ export interface BeansContextValue {
 }
 ```
 - **Selected Bean Management (migrated from `RootLayout.tsx`):**
-  - Initializes `selectedBean` to `beans[0] || INITIAL_BEANS[0] || null`.
+  - Initializes `selectedBean` to `beans[0] ?? null`.
   - If `!selectedBean && beans.length > 0`, selects `beans[0]`.
   - `updateBean(updatedBean)` updates `selectedBean` if `selectedBean?.id === updatedBean.id`.
   - `deleteBean(id)` updates `selectedBean` to the first remaining bean (`beans.find((b) => b.id !== id) || null`) if `selectedBean?.id === id`.
-- **Hooks & Aliases:**
-  - `useBeans()` (and `useStash` alias): Returns `BeansContextValue` or throws `new Error('useBeans must be used within a BeansProvider')`.
-  - `useOptionalBeans()` (and `useOptionalStash` alias): Returns `BeansContextValue | null`.
-  - `BeansProvider` (and `StashProvider` alias).
+- **Hooks:**
+  - `useBeans()`: Returns `BeansContextValue` or throws `new Error('useBeans must be used within a BeansProvider')`.
 
 ### 4.4 `ReviewsContext.tsx`
 ```ts
 export interface ReviewsContextValue {
   logs: TastingLog[];
-  reviews: TastingLog[];
   loading: boolean;
   pendingBrewSession: PendingBrewSession | null;
   setPendingBrewSession: (session: PendingBrewSession | null) => void;
   addReview: (log: Omit<TastingLog, 'id' | 'createdAt'>) => Promise<TastingLog | void>;
   updateReview: (id: string, updates: Partial<TastingLog>) => Promise<TastingLog | void>;
   deleteReview: (id: string) => Promise<void>;
-  addTastingLog: (log: Omit<TastingLog, 'id' | 'createdAt'>) => Promise<TastingLog | void>;
-  updateTastingLog: (id: string, updates: Partial<TastingLog>) => Promise<TastingLog | void>;
-  deleteTastingLog: (id: string) => Promise<void>;
   refreshLogs: () => Promise<void>;
 }
 ```
 - **Pending Brew Session Management (migrated from `RootLayout.tsx`):**
   - Holds `pendingBrewSession: PendingBrewSession | null` and `setPendingBrewSession`.
 - **Hooks:**
-  - `useReviews()` and `useTastingLogs()`: Return `ReviewsContextValue` or throw `new Error('useReviews must be used within a ReviewsProvider')`.
-  - `useOptionalReviews()`: Returns `ReviewsContextValue | null`.
+  - `useReviews()`: Returns `ReviewsContextValue` or throws `new Error('useReviews must be used within a ReviewsProvider')`.
 
 ---
 
@@ -190,14 +181,14 @@ export interface ReviewsContextValue {
 - **`ReviewsRoute.tsx`**: Consumes `useReviews()`, `useBeans()`, `useRecipes()`, and `useEquipment()`.
 - **`RecipesRoute.tsx` & `RecipeDetailRoute.tsx`**:
   - `RecipesRoute` consumes `useRecipes()` (`recipes`, `addRecipe`, `updateRecipe`, `deleteRecipe`, `setSelectedRecipe`).
-  - `RecipeOutletContext` is narrowed to UI-specific coordination between `RecipesRoute` and `RecipeDetailRoute` (`onEditRecipe`), or `RecipeDetailRoute` consumes `useRecipes()` directly for `recipes`, `setSelectedRecipe`, and `deleteRecipe`, only reading `onEditRecipe` from `useRecipeOutletContext()` to open the shared `RecipeBuilderModal`.
+  - `RecipeOutletContext` is narrowed to UI-specific coordination between `RecipesRoute` and `RecipeDetailRoute` (`onEditRecipe`), and `RecipeDetailRoute` consumes `useRecipes()` directly for `recipes`, `setSelectedRecipe`, and `deleteRecipe`, only reading `onEditRecipe` from `useRecipeOutletContext()` to open the shared `RecipeBuilderModal`.
 
 ### 5.3 Feature Components (`RecipeBuilderModal.tsx` & `RecipeDetailPane.tsx`)
 - **`RecipeBuilderModal.tsx`**:
-  - Uses `useOptionalEquipment()` (falling back to optional `equipment` / `onAddEquipment` props if provided in isolated unit tests, or using context directly).
-  - Removes the `locallyAddedGrinders` state workaround—when `addEquipment` is called inside `handleSaveInlineGrinder`, `EquipmentContext` updates `equipment` in-place immediately.
+  - Strictly consumes `useEquipment()` (`const { equipment, addEquipment } = useEquipment()`).
+  - Removes `locallyAddedGrinders` and the `equipment` / `onAddEquipment` prop overrides—when `addEquipment` is called inside `handleSaveInlineGrinder`, `EquipmentContext` updates `equipment` in-place immediately.
 - **`RecipeDetailPane.tsx`**:
-  - Uses `useOptionalEquipment()` alongside optional `equipment` prop override so it shares the root `EquipmentContext` in the app while remaining simple to render in isolated unit tests.
+  - Strictly consumes `useEquipment()` (`const { equipment } = useEquipment()`), removing the `equipment` prop override.
 
 ---
 

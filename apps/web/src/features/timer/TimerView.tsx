@@ -7,7 +7,6 @@ import {
   WeightUnit,
   rescaleRecipeDose,
   splitsToRecipeStages,
-  DEFAULT_USER_SETTINGS,
   DEFAULT_FREE_BREW_RECIPE,
   DEFAULT_FREE_BREW_DOSE,
   formatWeight,
@@ -16,7 +15,7 @@ import {
   gramsToOz,
   ozToGrams,
 } from '@brewlog/core';
-import { useSettings, useOptionalSettings } from '../settings/SettingsContext';
+import { useSettings } from '../settings/SettingsContext';
 import { useBrewTimer } from './useBrewTimer';
 import { WebRatioTranslator } from './WebRatioTranslator';
 import { SegmentedControl } from '@brewlog/ui';
@@ -41,7 +40,6 @@ export interface TimerViewProps {
   selectedBean?: Bean | null;
   beans?: Bean[];
   initialMode?: TimerMode;
-  weightUnit?: WeightUnit;
   onSelectBean?: (bean: Bean) => void;
   onSelectOtherRecipe: () => void;
   onLogCompletedBrew: (recipe: BrewRecipe, actualTimeSeconds: number, bean: Bean | null) => void;
@@ -72,15 +70,13 @@ export const TimerView: React.FC<TimerViewProps> = ({
   selectedBean,
   beans = [],
   initialMode,
-  weightUnit,
   onSelectBean,
   onSelectOtherRecipe,
   onLogCompletedBrew,
   onSaveAsRecipe,
 }) => {
-  const settingsContext = useOptionalSettings();
-  const settings = settingsContext?.settings ?? DEFAULT_USER_SETTINGS;
-  const currentWeightUnit = weightUnit ?? settings.weightUnit;
+  const { settings } = useSettings();
+  const currentWeightUnit = settings.weightUnit;
 
   const initialRecipeRef = useRef(initialRecipe);
   const doseInputRef = useRef<HTMLInputElement>(null);

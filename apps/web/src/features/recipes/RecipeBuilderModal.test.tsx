@@ -15,7 +15,6 @@ vi.mock('../auth/AuthContext', () => ({
 
 vi.mock('../equipment/EquipmentContext', () => ({
   useEquipment,
-  useOptionalEquipment: (...args: unknown[]) => useEquipment(...args),
 }));
 
 describe('RecipeBuilderModal', () => {
@@ -236,24 +235,29 @@ describe('RecipeBuilderModal', () => {
   });
 
   it('adding first grinder inline adds it to equipment and populates the first grinder setting row', async () => {
-    const mockAddEquipment = vi.fn().mockResolvedValue({
+    let currentEquipment: Equipment[] = [];
+    const createdGrinder: Equipment = {
       id: 'grinder-created-1',
       type: 'grinder',
       brand: 'Timemore',
       model: 'Chestnut C2',
       settingScaleType: 'clicks',
       createdAt: '2026-01-01',
+    };
+    const mockAddEquipment = vi.fn().mockImplementation(async () => {
+      currentEquipment = [createdGrinder];
+      return createdGrinder;
     });
 
-    vi.mocked(useEquipment).mockReturnValue({
-      equipment: [],
+    vi.mocked(useEquipment).mockImplementation(() => ({
+      equipment: currentEquipment,
       addEquipment: mockAddEquipment,
       updateEquipment: vi.fn(),
       deleteEquipment: vi.fn(),
       toggleFavorite: vi.fn(),
       loading: false,
       refreshEquipment: vi.fn(),
-    });
+    }));
 
     render(
       <RecipeBuilderModal
@@ -441,24 +445,29 @@ describe('RecipeBuilderModal', () => {
   });
 
   it('preserves user input in recipe form when adding an inline grinder (no form reset on equipment update)', async () => {
-    const mockAddEquipment = vi.fn().mockResolvedValue({
+    let currentEquipment: Equipment[] = [];
+    const createdGrinder: Equipment = {
       id: 'grinder-created-99',
       type: 'grinder',
       brand: '1Zpresso',
       model: 'K-Ultra',
       settingScaleType: 'clicks',
       createdAt: '2026-01-01',
+    };
+    const mockAddEquipment = vi.fn().mockImplementation(async () => {
+      currentEquipment = [createdGrinder];
+      return createdGrinder;
     });
 
-    vi.mocked(useEquipment).mockReturnValue({
-      equipment: [],
+    vi.mocked(useEquipment).mockImplementation(() => ({
+      equipment: currentEquipment,
       addEquipment: mockAddEquipment,
       updateEquipment: vi.fn(),
       deleteEquipment: vi.fn(),
       toggleFavorite: vi.fn(),
       loading: false,
       refreshEquipment: vi.fn(),
-    });
+    }));
 
     render(
       <RecipeBuilderModal
@@ -644,77 +653,6 @@ describe('RecipeBuilderModal', () => {
     expect((screen.getByRole('combobox', { name: /grinder 2/i }) as HTMLSelectElement).value).toBe(sampleGrinder1.id);
   });
 
-  it('uses equipment passed via props directly', () => {
-    const propGrinder: Equipment = {
-      id: 'prop-k6',
-      brand: 'Kingrinder',
-      model: 'K6',
-      type: 'grinder',
-      settingScaleType: 'clicks',
-      createdAt: '2026-01-01',
-    };
-
-    render(
-      <RecipeBuilderModal
-        isOpen={true}
-        onClose={vi.fn()}
-        onSaveRecipe={vi.fn()}
-        initialRecipe={null}
-        equipment={[propGrinder]}
-      />
-    );
-
-    expect(screen.getByRole('combobox', { name: /grinder 1/i })).toBeDefined();
-    expect((screen.getByRole('combobox', { name: /grinder 1/i }) as HTMLSelectElement).value).toBe('prop-k6');
-    expect(screen.getByText(/Kingrinder K6/)).toBeDefined();
-  });
-
-  it('calls onAddEquipment prop when creating inline grinder', async () => {
-    const mockOnAddEquipment = vi.fn().mockResolvedValue({
-      id: 'new-k6',
-      brand: 'Kingrinder',
-      model: 'K6',
-      type: 'grinder',
-      settingScaleType: 'clicks',
-      createdAt: '2026-01-01',
-    });
-
-    render(
-      <RecipeBuilderModal
-        isOpen={true}
-        onClose={vi.fn()}
-        onSaveRecipe={vi.fn()}
-        initialRecipe={null}
-        equipment={[]}
-        onAddEquipment={mockOnAddEquipment}
-      />
-    );
-
-    // Prompt to add grinder should be visible
-    expect(screen.getByText(/no grinders found in your equipment/i)).toBeDefined();
-    fireEvent.click(screen.getByRole('button', { name: /add grinder/i }));
-
-    // Fill inline form
-    fireEvent.change(screen.getByLabelText(/brand/i), { target: { value: 'Kingrinder' } });
-    fireEvent.change(screen.getByLabelText(/model/i), { target: { value: 'K6' } });
-    fireEvent.click(screen.getByRole('button', { name: /save grinder/i }));
-
-    await waitFor(() => {
-      expect(mockOnAddEquipment).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'grinder',
-          brand: 'Kingrinder',
-          model: 'K6',
-        })
-      );
-    });
-
-    await waitFor(() => {
-      expect(screen.getByRole('combobox', { name: /grinder 1/i })).toBeDefined();
-      expect((screen.getByRole('combobox', { name: /grinder 1/i }) as HTMLSelectElement).value).toBe('new-k6');
-    });
-  });
-
   it('renders target dose, total water, and all step inputs and badges with neutral text styling (not orange text-accent)', () => {
     const { container } = render(
       <RecipeBuilderModal
@@ -722,7 +660,6 @@ describe('RecipeBuilderModal', () => {
         onClose={vi.fn()}
         onSaveRecipe={vi.fn()}
         initialRecipe={null}
-        equipment={[]}
       />
     );
 

@@ -5,7 +5,6 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 import {
   RecipeProvider,
   useRecipes,
-  useOptionalRecipes,
   WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY,
 } from "./RecipeContext";
 import { useAuth } from "../auth/AuthContext";
@@ -38,11 +37,6 @@ describe("RecipeContext", () => {
       "useRecipes must be used within a RecipeProvider"
     );
     spy.mockRestore();
-  });
-
-  it("returns null when useOptionalRecipes is used outside RecipeProvider", () => {
-    const { result } = renderHook(() => useOptionalRecipes());
-    expect(result.current).toBeNull();
   });
 
   it("initializes with DEFAULT_PRESET_RECIPES when unauthenticated and localStorage is empty", async () => {

@@ -11,7 +11,7 @@ import {
   BrewMethodType,
   formatDisplayDate,
 } from '@brewlog/core';
-import { useOptionalSettings } from '../settings/SettingsContext';
+import { useSettings } from '../settings/SettingsContext';
 import {
   Plus,
   Search,
@@ -124,8 +124,8 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
   onDeleteTastingLog,
   onBrewAgain,
 }) => {
-  const settingsContext = useOptionalSettings();
-  const dateFormat = settingsContext?.settings.dateFormat ?? 'locale';
+  const { settings } = useSettings();
+  const dateFormat = settings.dateFormat;
 
   // Mode state: 'view' | 'create' | 'edit'
   const [mode, setMode] = useState<'view' | 'create' | 'edit'>(() => {

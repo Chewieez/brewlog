@@ -101,14 +101,12 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   );
 
   const [selectedRecipe, setSelectedRecipeState] = useState<BrewRecipe>(() => {
-    const initialCustom = loadLocalCustomRecipes();
-    const initialAll = [...initialCustom, ...DEFAULT_PRESET_RECIPES];
     const savedId = loadSavedActiveRecipeId();
     if (savedId) {
-      const match = initialAll.find((r) => r.id === savedId);
+      const match = recipes.find((r) => r.id === savedId);
       if (match) return match;
     }
-    return initialAll[0] || DEFAULT_PRESET_RECIPES[0];
+    return recipes[0] || DEFAULT_PRESET_RECIPES[0];
   });
 
   const setSelectedRecipe = useCallback((recipe: BrewRecipe) => {
@@ -486,10 +484,6 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   );
 
   return <RecipeContext.Provider value={value}>{children}</RecipeContext.Provider>;
-};
-
-export const useOptionalRecipes = (): RecipeContextValue | null => {
-  return useContext(RecipeContext);
 };
 
 export const useRecipes = (): RecipeContextValue => {

@@ -5,7 +5,6 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 import {
   ReviewsProvider,
   useReviews,
-  useOptionalReviews,
 } from "./ReviewsContext";
 import { useAuth } from "../auth/AuthContext";
 import { supabase } from "../../lib/supabase";
@@ -72,11 +71,6 @@ describe("ReviewsContext", () => {
       "useReviews must be used within a ReviewsProvider"
     );
     spy.mockRestore();
-  });
-
-  it("returns null when useOptionalReviews is used outside ReviewsProvider", () => {
-    const { result } = renderHook(() => useOptionalReviews());
-    expect(result.current).toBeNull();
   });
 
   it("manages pendingBrewSession state", () => {
@@ -370,7 +364,7 @@ describe("ReviewsContext", () => {
 
     let returnedLog: any;
     await act(async () => {
-      returnedLog = await result.current.updateTastingLog("log-1", {
+      returnedLog = await result.current.updateReview("log-1", {
         notes: "Updated tasting notes via Supabase",
       });
     });
@@ -384,7 +378,7 @@ describe("ReviewsContext", () => {
     expect(returnedLog?.notes).toBe("Updated tasting notes via Supabase");
   });
 
-  it("reverts local state and throws if updateTastingLog fails in Supabase", async () => {
+  it("reverts local state and throws if updateReview fails in Supabase", async () => {
     const mockUpdateSingle = vi.fn().mockResolvedValue({
       data: null,
       error: new Error("Network timeout during tasting log update"),
@@ -473,7 +467,7 @@ describe("ReviewsContext", () => {
 
     await expect(
       act(async () => {
-        await result.current.updateTastingLog("log-1", {
+        await result.current.updateReview("log-1", {
           notes: "Failing update",
         });
       })
@@ -482,7 +476,7 @@ describe("ReviewsContext", () => {
     expect(result.current.logs.find((l) => l.id === "log-1")?.notes).toBe("Original pristine notes");
   });
 
-  it("reverts local state and throws if deleteTastingLog fails in Supabase", async () => {
+  it("reverts local state and throws if deleteReview fails in Supabase", async () => {
     const mockDeleteEq = vi.fn().mockResolvedValue({
       error: new Error("Network timeout during delete"),
     });
@@ -564,14 +558,14 @@ describe("ReviewsContext", () => {
 
     await expect(
       act(async () => {
-        await result.current.deleteTastingLog("log-1");
+        await result.current.deleteReview("log-1");
       })
     ).rejects.toThrow("Network timeout during delete");
 
     expect(result.current.logs.some((l) => l.id === "log-1")).toBe(true);
   });
 
-  it("reverts local state and maintains chronological order if deleteTastingLog fails in Supabase", async () => {
+  it("reverts local state and maintains chronological order if deleteReview fails in Supabase", async () => {
     const mockDeleteEq = vi.fn().mockResolvedValue({
       error: new Error("Network timeout during delete"),
     });
@@ -637,7 +631,7 @@ describe("ReviewsContext", () => {
 
     await expect(
       act(async () => {
-        await result.current.deleteTastingLog("log-middle");
+        await result.current.deleteReview("log-middle");
       })
     ).rejects.toThrow("Network timeout during delete");
 
@@ -779,7 +773,7 @@ describe("ReviewsContext", () => {
 
     let created: any;
     await act(async () => {
-      created = await result.current.addTastingLog({
+      created = await result.current.addReview({
         beanNameSnapshot: "Gesha Spirits",
         roasterSnapshot: "Sey Coffee",
         recipeNameSnapshot: "V60 Standard",
@@ -810,7 +804,7 @@ describe("ReviewsContext", () => {
     expect(result.current.logs).toHaveLength(2);
   });
 
-  it("throws if addTastingLog fails in Supabase when authenticated", async () => {
+  it("throws if addReview fails in Supabase when authenticated", async () => {
     const mockOrder = vi.fn().mockResolvedValue({
       data: [mockRow1],
       error: null,
@@ -857,7 +851,7 @@ describe("ReviewsContext", () => {
 
     await expect(
       act(async () => {
-        await result.current.addTastingLog({
+        await result.current.addReview({
           beanNameSnapshot: "Failing Bean",
           roasterSnapshot: "Sey",
           recipeNameSnapshot: "V60",
@@ -919,7 +913,7 @@ describe("ReviewsContext", () => {
     await waitFor(() => expect(result.current.logs).toHaveLength(1));
 
     await act(async () => {
-      await result.current.deleteTastingLog("db-log-1");
+      await result.current.deleteReview("db-log-1");
     });
 
     expect(mockDelete).toHaveBeenCalled();

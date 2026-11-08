@@ -9,10 +9,9 @@ import {
   calculateRatio,
   RecipeGrinderSetting,
   GrinderSettingScale,
-  Equipment,
 } from "@brewlog/core";
 import { useAuth } from "../auth/AuthContext";
-import { useOptionalEquipment } from "../equipment/EquipmentContext";
+import { useEquipment } from "../equipment/EquipmentContext";
 import {
   X,
   Plus,
@@ -31,8 +30,6 @@ interface RecipeBuilderModalProps {
   onClose: () => void;
   onSaveRecipe: (recipe: Omit<BrewRecipe, "id" | "createdAt">) => Promise<void> | void;
   initialRecipe?: BrewRecipe | null;
-  equipment?: Equipment[];
-  onAddEquipment?: (item: Omit<Equipment, "id" | "createdAt">) => Promise<Equipment> | Promise<void>;
 }
 
 const BREW_METHODS: { value: BrewMethodType; label: string }[] = [
@@ -108,20 +105,12 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
   onClose,
   onSaveRecipe,
   initialRecipe,
-  equipment: propEquipment,
-  onAddEquipment: propAddEquipment,
 }) => {
   const { user } = useAuth();
-  const equipmentContext = useOptionalEquipment();
-  const equipment = propEquipment ?? equipmentContext?.equipment ?? [];
-  const addEquipment = propAddEquipment ?? equipmentContext?.addEquipment;
-  const [locallyAddedGrinders, setLocallyAddedGrinders] = useState<Equipment[]>([]);
+  const { equipment, addEquipment } = useEquipment();
 
   // Filter grinders
-  const userGrinders = [
-    ...equipment.filter((e) => e.type === "grinder"),
-    ...locallyAddedGrinders.filter((lg) => !equipment.some((e) => e.id === lg.id)),
-  ];
+  const userGrinders = equipment.filter((e) => e.type === "grinder");
 
   // Grinder settings state
   const [grinderSettings, setGrinderSettings] = useState<RecipeGrinderSetting[]>([]);
@@ -164,10 +153,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
       setInlineScale("stepped-numbers");
       setInlineError(null);
 
-      const availableGrinders = [
-        ...equipment.filter((e) => e.type === "grinder"),
-        ...locallyAddedGrinders.filter((lg) => !equipment.some((e) => e.id === lg.id)),
-      ];
+      const availableGrinders = equipment.filter((e) => e.type === "grinder");
 
       if (initialRecipe) {
         setName(initialRecipe.name || "");
@@ -329,10 +315,6 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
       setInlineError("Please enter both brand and model for the grinder.");
       return;
     }
-    if (!addEquipment) {
-      setInlineError("Equipment provider is unavailable.");
-      return;
-    }
     setInlineError(null);
     setIsCreatingGrinder(true);
     try {
@@ -343,7 +325,6 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
         settingScaleType: inlineScale,
       });
       if (created && typeof created === "object" && "id" in created) {
-        setLocallyAddedGrinders((prev) => [...prev, created as Equipment]);
         setGrinderSettings([{ grinderId: created.id, setting: "" }]);
       }
       setIsAddingInlineGrinder(false);

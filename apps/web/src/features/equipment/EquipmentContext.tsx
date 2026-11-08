@@ -319,10 +319,6 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
   return <EquipmentContext.Provider value={value}>{children}</EquipmentContext.Provider>;
 };
 
-export const useOptionalEquipment = (): EquipmentContextValue | null => {
-  return useContext(EquipmentContext);
-};
-
 export const useEquipment = (): EquipmentContextValue => {
   const context = useContext(EquipmentContext);
   if (!context) {
