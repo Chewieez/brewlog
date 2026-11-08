@@ -1,6 +1,8 @@
 import * as Sentry from '@sentry/react';
-import { reactRouterBrowserTracingIntegration } from '@sentry/react/react-router';
+import { reactRouterBrowserTracingIntegration, wrapReactRouterRouting } from '@sentry/react/react-router';
 import { scrubPii, classifySyncError, SyncTelemetryPayload } from '@brewlog/core';
+
+export { wrapReactRouterRouting };
 
 export function initSentry(): void {
   const dsn = import.meta.env.VITE_SENTRY_DSN;

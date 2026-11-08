@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as Sentry from '@sentry/react';
-import { initSentry, setTelemetryUser, captureSyncError } from './sentry';
+import { initSentry, setTelemetryUser, captureSyncError, wrapReactRouterRouting } from './sentry';
 
 vi.mock('@sentry/react', () => ({
   init: vi.fn(),
@@ -11,6 +11,7 @@ vi.mock('@sentry/react', () => ({
 
 vi.mock('@sentry/react/react-router', () => ({
   reactRouterBrowserTracingIntegration: vi.fn(() => ({ name: 'ReactRouterTracing' })),
+  wrapReactRouterRouting: vi.fn((routes: any) => routes),
 }));
 
 describe('web sentry integration', () => {
@@ -76,5 +77,11 @@ describe('web sentry integration', () => {
       })
     );
     expect(Sentry.captureException).not.toHaveBeenCalled();
+  });
+
+  it('exports wrapReactRouterRouting for instrumenting web navigation transitions', () => {
+    const mockRoutes = () => null;
+    const wrapped = wrapReactRouterRouting(mockRoutes);
+    expect(wrapped).toBe(mockRoutes);
   });
 });
