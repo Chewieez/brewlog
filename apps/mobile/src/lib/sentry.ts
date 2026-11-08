@@ -13,6 +13,7 @@ export function initSentry(): void {
 
   Sentry.init({
     dsn,
+    sendDefaultPii: false,
     tracesSampleRate: 1.0,
     integrations: [
       navigationIntegration,

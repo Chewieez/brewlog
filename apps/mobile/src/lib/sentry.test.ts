@@ -33,6 +33,7 @@ describe('mobile sentry integration', () => {
     expect(Sentry.init).toHaveBeenCalledWith(
       expect.objectContaining({
         dsn: 'https://key@sentry.io/mobile',
+        sendDefaultPii: false,
       })
     );
   });
