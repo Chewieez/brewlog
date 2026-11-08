@@ -15,8 +15,17 @@
       }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "SENTRY_ORG": "brewlog",
+        "SENTRY_PROJECT": "brewlog-mobile"
+      }
     },
-    "production": {}
+    "production": {
+      "env": {
+        "SENTRY_ORG": "brewlog",
+        "SENTRY_PROJECT": "brewlog-mobile"
+      }
+    }
   }
 }
