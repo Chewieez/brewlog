@@ -1,31 +1,32 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { ReviewsView } from '../features/reviews/ReviewsView';
-import { useRootOutletContext } from '../layouts/RootLayout';
+import { useReviews } from '../features/reviews/ReviewsContext';
+import { useBeans } from '../features/stash/BeansContext';
+import { useRecipes } from '../features/recipes/RecipeContext';
+import { useEquipment } from '../features/equipment/EquipmentContext';
 import { TastingLog } from '@brewlog/core';
 
 export const ReviewsRoute: React.FC = () => {
   const navigate = useNavigate();
   const {
-    tastingLogs,
-    beans,
-    recipes,
-    equipment,
+    logs: tastingLogs,
     pendingBrewSession,
     setPendingBrewSession,
-    setSelectedBean,
-    setSelectedRecipe,
-    onAddTastingLog,
-    onUpdateTastingLog,
-    onDeleteTastingLog,
-  } = useRootOutletContext();
+    addTastingLog,
+    updateTastingLog,
+    deleteTastingLog,
+  } = useReviews();
+  const { beans, setSelectedBean } = useBeans();
+  const { recipes, setSelectedRecipe } = useRecipes();
+  const { equipment } = useEquipment();
 
   const handleClearPendingSession = () => {
     setPendingBrewSession(null);
   };
 
   const handleSaveTastingLog = async (log: Omit<TastingLog, 'id' | 'createdAt'>) => {
-    const created = await onAddTastingLog(log);
+    const created = await addTastingLog(log);
     setPendingBrewSession(null);
     return created;
   };
@@ -60,8 +61,8 @@ export const ReviewsRoute: React.FC = () => {
       pendingBrewSession={pendingBrewSession}
       onClearPendingSession={handleClearPendingSession}
       onAddTastingLog={handleSaveTastingLog}
-      onUpdateTastingLog={onUpdateTastingLog}
-      onDeleteTastingLog={onDeleteTastingLog}
+      onUpdateTastingLog={updateTastingLog}
+      onDeleteTastingLog={deleteTastingLog}
       onBrewAgain={handleBrewAgain}
     />
   );

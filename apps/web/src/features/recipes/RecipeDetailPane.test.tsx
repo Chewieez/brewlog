@@ -4,11 +4,15 @@ import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { DEFAULT_PRESET_RECIPES, BrewRecipe, Equipment } from '@brewlog/core';
 import { RecipeDetailPane } from './RecipeDetailPane';
-import { useEquipment } from '../equipment/useEquipment';
+import { useEquipment } from '../equipment/EquipmentContext';
 
-vi.mock('../equipment/useEquipment', () => ({
-  useEquipment: vi.fn(),
-}));
+vi.mock('../equipment/EquipmentContext', () => {
+  const useEquipment = vi.fn();
+  return {
+    useEquipment,
+    useOptionalEquipment: (...args: unknown[]) => useEquipment(...args),
+  };
+});
 
 const mockGrinders: Equipment[] = [
   {
@@ -35,6 +39,11 @@ describe('RecipeDetailPane', () => {
   beforeEach(() => {
     vi.mocked(useEquipment).mockReturnValue({
       equipment: mockGrinders,
+      grinders: mockGrinders,
+      brewers: [],
+      scales: [],
+      kettles: [],
+      other: [],
       addEquipment: vi.fn(),
       updateEquipment: vi.fn(),
       deleteEquipment: vi.fn(),

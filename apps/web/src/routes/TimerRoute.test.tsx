@@ -1,10 +1,34 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
-import { MemoryRouter, Routes, Route, Outlet, useLocation } from 'react-router';
+import { MemoryRouter, Routes, Route, useLocation } from 'react-router';
 import { DEFAULT_PRESET_RECIPES } from '@brewlog/core';
 import { TimerRoute } from './TimerRoute';
-import { RootOutletContext } from '../layouts/RootLayout';
+
+const mockAddRecipe = vi.fn();
+const mockSetSelectedBean = vi.fn();
+const mockSetPendingBrewSession = vi.fn();
+
+vi.mock('../features/recipes/RecipeContext', () => ({
+  useRecipes: () => ({
+    selectedRecipe: DEFAULT_PRESET_RECIPES[0],
+    addRecipe: mockAddRecipe,
+  }),
+}));
+
+vi.mock('../features/stash/BeansContext', () => ({
+  useBeans: () => ({
+    beans: [],
+    selectedBean: null,
+    setSelectedBean: mockSetSelectedBean,
+  }),
+}));
+
+vi.mock('../features/reviews/ReviewsContext', () => ({
+  useReviews: () => ({
+    setPendingBrewSession: mockSetPendingBrewSession,
+  }),
+}));
 
 vi.mock('../lib/audio', () => ({
   coffeeAudio: {
@@ -30,19 +54,11 @@ const LocationDisplay = () => {
 };
 
 describe('TimerRoute', () => {
-  let mockContext: Partial<RootOutletContext>;
-
   beforeEach(() => {
     vi.useFakeTimers();
-    mockContext = {
-      selectedRecipe: DEFAULT_PRESET_RECIPES[0],
-      selectedBean: null,
-      beans: [],
-      setSelectedBean: vi.fn(),
-      setSelectedRecipe: vi.fn(),
-      setPendingBrewSession: vi.fn(),
-      onAddRecipe: vi.fn().mockResolvedValue(DEFAULT_PRESET_RECIPES[0]),
-    };
+    mockAddRecipe.mockReset().mockResolvedValue(DEFAULT_PRESET_RECIPES[0]);
+    mockSetSelectedBean.mockReset();
+    mockSetPendingBrewSession.mockReset();
   });
 
   afterEach(() => {
@@ -52,15 +68,13 @@ describe('TimerRoute', () => {
     vi.useRealTimers();
   });
 
-  it('saves recipe via onAddRecipe and navigates to /recipes from Free Brew mode', async () => {
+  it('saves recipe via addRecipe and navigates to /recipes from Free Brew mode', async () => {
     render(
       <MemoryRouter initialEntries={['/timer']}>
         <LocationDisplay />
         <Routes>
-          <Route element={<Outlet context={mockContext} />}>
-            <Route path="timer" element={<TimerRoute />} />
-            <Route path="recipes" element={<div>Recipes Screen</div>} />
-          </Route>
+          <Route path="timer" element={<TimerRoute />} />
+          <Route path="recipes" element={<div>Recipes Screen</div>} />
         </Routes>
       </MemoryRouter>
     );
@@ -93,7 +107,7 @@ describe('TimerRoute', () => {
       fireEvent.click(screen.getByRole('button', { name: /SAVE AS CUSTOM RECIPE/i }));
     });
 
-    expect(mockContext.onAddRecipe).toHaveBeenCalledTimes(1);
+    expect(mockAddRecipe).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('location-display').textContent).toBe('/recipes');
   });
 });

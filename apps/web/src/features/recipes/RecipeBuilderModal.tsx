@@ -12,7 +12,7 @@ import {
   Equipment,
 } from "@brewlog/core";
 import { useAuth } from "../auth/AuthContext";
-import { useEquipment } from "../equipment/useEquipment";
+import { useOptionalEquipment } from "../equipment/EquipmentContext";
 import {
   X,
   Plus,
@@ -112,9 +112,9 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
   onAddEquipment: propAddEquipment,
 }) => {
   const { user } = useAuth();
-  const hookEquipment = useEquipment();
-  const equipment = propEquipment ?? hookEquipment.equipment;
-  const addEquipment = propAddEquipment ?? hookEquipment.addEquipment;
+  const equipmentContext = useOptionalEquipment();
+  const equipment = propEquipment ?? equipmentContext?.equipment ?? [];
+  const addEquipment = propAddEquipment ?? equipmentContext?.addEquipment;
   const [locallyAddedGrinders, setLocallyAddedGrinders] = useState<Equipment[]>([]);
 
   // Filter grinders
@@ -327,6 +327,10 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
   const handleSaveInlineGrinder = async () => {
     if (!inlineBrand.trim() || !inlineModel.trim()) {
       setInlineError("Please enter both brand and model for the grinder.");
+      return;
+    }
+    if (!addEquipment) {
+      setInlineError("Equipment provider is unavailable.");
       return;
     }
     setInlineError(null);

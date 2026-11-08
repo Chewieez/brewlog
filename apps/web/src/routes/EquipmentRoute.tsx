@@ -1,23 +1,23 @@
 import React from 'react';
 import { EquipmentView } from '../features/equipment/EquipmentView';
-import { useRootOutletContext } from '../layouts/RootLayout';
+import { useEquipment } from '../features/equipment/EquipmentContext';
 
 export const EquipmentRoute: React.FC = () => {
   const {
     equipment,
-    onAddEquipment,
-    onUpdateEquipment,
-    onDeleteEquipment,
-    onToggleFavorite,
-  } = useRootOutletContext();
+    addEquipment,
+    updateEquipment,
+    deleteEquipment,
+    toggleFavorite,
+  } = useEquipment();
 
   return (
     <EquipmentView
       equipment={equipment}
-      onAddEquipment={onAddEquipment}
-      onUpdateEquipment={onUpdateEquipment}
-      onDeleteEquipment={onDeleteEquipment}
-      onToggleFavorite={onToggleFavorite}
+      onAddEquipment={addEquipment}
+      onUpdateEquipment={updateEquipment}
+      onDeleteEquipment={deleteEquipment}
+      onToggleFavorite={toggleFavorite}
     />
   );
 };

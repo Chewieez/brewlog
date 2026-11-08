@@ -1,6 +1,12 @@
+/** @vitest-environment jsdom */
+import React from "react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { useBeans } from "./useBeans";
+import {
+  BeansProvider,
+  useBeans,
+  useOptionalBeans,
+} from "./BeansContext";
 import { useAuth } from "../auth/AuthContext";
 import { supabase } from "../../lib/supabase";
 import { INITIAL_BEANS } from "../../lib/sampleData";
@@ -16,13 +22,30 @@ vi.mock("../../lib/supabase", () => ({
   },
 }));
 
-describe("useBeans hook", () => {
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <BeansProvider>{children}</BeansProvider>
+);
+
+describe("BeansContext", () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
   });
 
-  it("initializes with INITIAL_BEANS (1 sample bean) when unauthenticated and localStorage is empty", async () => {
+  it("throws when useBeans is used outside BeansProvider", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(() => renderHook(() => useBeans())).toThrow(
+      "useBeans must be used within a BeansProvider"
+    );
+    spy.mockRestore();
+  });
+
+  it("returns null when useOptionalBeans is used outside BeansProvider", () => {
+    const { result } = renderHook(() => useOptionalBeans());
+    expect(result.current).toBeNull();
+  });
+
+  it("initializes with INITIAL_BEANS (1 sample bean) and sets selectedBean when unauthenticated and localStorage is empty", async () => {
     vi.mocked(useAuth).mockReturnValue({
       user: null,
       session: null,
@@ -39,10 +62,93 @@ describe("useBeans hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useBeans());
+    const { result } = renderHook(() => useBeans(), { wrapper });
 
     expect(result.current.beans).toEqual(INITIAL_BEANS);
     expect(result.current.beans).toHaveLength(1);
+    expect(result.current.selectedBean).toEqual(INITIAL_BEANS[0]);
+  });
+
+  it("updates selectedBean when the currently selected bean is updated", async () => {
+    const existingBean: Bean = {
+      id: "local-bean-123",
+      name: "Old Name",
+      roaster: "Roaster",
+      flavorNotes: [],
+      createdAt: new Date().toISOString(),
+    };
+    localStorage.setItem("brewlog_beans_cache", JSON.stringify([existingBean]));
+
+    vi.mocked(useAuth).mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: false,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useBeans(), { wrapper });
+    expect(result.current.selectedBean?.name).toBe("Old Name");
+
+    await act(async () => {
+      await result.current.updateBean({
+        ...existingBean,
+        name: "Updated Selected Name",
+      });
+    });
+
+    expect(result.current.selectedBean?.name).toBe("Updated Selected Name");
+  });
+
+  it("falls back selectedBean to next available bean when selectedBean is deleted", async () => {
+    const bean1: Bean = {
+      id: "bean-1",
+      name: "First Bean",
+      roaster: "Roaster",
+      flavorNotes: [],
+      createdAt: new Date().toISOString(),
+    };
+    const bean2: Bean = {
+      id: "bean-2",
+      name: "Second Bean",
+      roaster: "Roaster",
+      flavorNotes: [],
+      createdAt: new Date().toISOString(),
+    };
+    localStorage.setItem("brewlog_beans_cache", JSON.stringify([bean1, bean2]));
+
+    vi.mocked(useAuth).mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: false,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useBeans(), { wrapper });
+    expect(result.current.selectedBean?.id).toBe("bean-1");
+
+    await act(async () => {
+      await result.current.deleteBean("bean-1");
+    });
+
+    expect(result.current.selectedBean?.id).toBe("bean-2");
   });
 
   it("loads existing beans from localStorage cache", async () => {
@@ -72,7 +178,7 @@ describe("useBeans hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useBeans());
+    const { result } = renderHook(() => useBeans(), { wrapper });
 
     expect(result.current.beans).toEqual([cachedBean]);
   });
@@ -94,7 +200,7 @@ describe("useBeans hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useBeans());
+    const { result } = renderHook(() => useBeans(), { wrapper });
 
     let created: Bean | undefined;
     await act(async () => {
@@ -138,7 +244,7 @@ describe("useBeans hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useBeans());
+    const { result } = renderHook(() => useBeans(), { wrapper });
 
     await act(async () => {
       await result.current.updateBean({
@@ -188,7 +294,7 @@ describe("useBeans hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useBeans());
+    const { result } = renderHook(() => useBeans(), { wrapper });
 
     await act(async () => {
       await result.current.deleteBean("bean-delete");
@@ -255,7 +361,7 @@ describe("useBeans hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useBeans());
+    const { result } = renderHook(() => useBeans(), { wrapper });
 
     await waitFor(() => {
       expect(mockInsert).toHaveBeenCalledTimes(1);
@@ -312,7 +418,7 @@ describe("useBeans hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useBeans());
+    const { result } = renderHook(() => useBeans(), { wrapper });
 
     await waitFor(() => {
       expect(mockInsert).toHaveBeenCalledTimes(1);
@@ -390,7 +496,7 @@ describe("useBeans hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useBeans());
+    const { result } = renderHook(() => useBeans(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.beans).toHaveLength(1);

@@ -20,7 +20,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
-import { useEquipment } from '../equipment/useEquipment';
+import { useOptionalEquipment } from '../equipment/EquipmentContext';
 import { useOptionalSettings } from '../settings/SettingsContext';
 
 export interface RecipeDetailPaneProps {
@@ -40,8 +40,8 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
   showMobileBackButton = false,
   equipment: propEquipment,
 }) => {
-  const { equipment: contextEquipment = [] } = useEquipment();
-  const equipment = propEquipment ?? contextEquipment;
+  const equipmentContext = useOptionalEquipment();
+  const equipment = propEquipment ?? equipmentContext?.equipment ?? [];
   const settingsContext = useOptionalSettings();
   const settings = settingsContext?.settings ?? DEFAULT_USER_SETTINGS;
 

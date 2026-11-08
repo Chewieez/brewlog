@@ -1,7 +1,9 @@
+import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { TimerView } from '../features/timer/TimerView';
-import { useRootOutletContext } from '../layouts/RootLayout';
-import { useRecipes } from '../features/recipes/useRecipes';
+import { useRecipes } from '../features/recipes/RecipeContext';
+import { useBeans } from '../features/stash/BeansContext';
+import { useReviews } from '../features/reviews/ReviewsContext';
 import { BrewRecipe, Bean, TimerMode } from '@brewlog/core';
 
 export const TimerRoute: React.FC = () => {
@@ -10,15 +12,9 @@ export const TimerRoute: React.FC = () => {
   const initialMode: TimerMode | undefined =
     modeParam === 'recipe' || modeParam === 'free_brew' ? (modeParam as TimerMode) : undefined;
 
-  const {
-    selectedRecipe,
-    selectedBean,
-    beans,
-    setSelectedBean,
-    setPendingBrewSession,
-    onAddRecipe,
-  } = useRootOutletContext();
-  const { addRecipe } = useRecipes();
+  const { selectedRecipe, addRecipe } = useRecipes();
+  const { beans, selectedBean, setSelectedBean } = useBeans();
+  const { setPendingBrewSession } = useReviews();
   const navigate = useNavigate();
 
   const handleLogCompletedBrew = (recipe: BrewRecipe, actualTimeSeconds: number, bean: Bean | null) => {
@@ -35,11 +31,7 @@ export const TimerRoute: React.FC = () => {
   };
 
   const handleSaveAsRecipe = async (recipe: Omit<BrewRecipe, 'id' | 'createdAt'>) => {
-    if (onAddRecipe) {
-      await onAddRecipe(recipe);
-    } else {
-      await addRecipe(recipe);
-    }
+    await addRecipe(recipe);
     navigate('/recipes');
   };
 

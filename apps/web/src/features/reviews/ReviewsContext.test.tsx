@@ -1,10 +1,16 @@
 /** @vitest-environment jsdom */
+import React from "react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { useReviews } from "./useReviews";
+import {
+  ReviewsProvider,
+  useReviews,
+  useOptionalReviews,
+} from "./ReviewsContext";
 import { useAuth } from "../auth/AuthContext";
 import { supabase } from "../../lib/supabase";
 import { INITIAL_TASTING_LOGS } from "../../lib/sampleData";
+import { DEFAULT_PRESET_RECIPES } from "@brewlog/core";
 
 vi.mock("../auth/AuthContext", () => ({
   useAuth: vi.fn(),
@@ -15,6 +21,10 @@ vi.mock("../../lib/supabase", () => ({
     from: vi.fn(),
   },
 }));
+
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <ReviewsProvider>{children}</ReviewsProvider>
+);
 
 const mockRow1 = {
   id: "db-log-1",
@@ -51,9 +61,55 @@ const mockRow1 = {
   created_at: "2026-10-04T12:00:00Z",
 };
 
-describe("useReviews hook", () => {
+describe("ReviewsContext", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("throws when useReviews is used outside ReviewsProvider", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(() => renderHook(() => useReviews())).toThrow(
+      "useReviews must be used within a ReviewsProvider"
+    );
+    spy.mockRestore();
+  });
+
+  it("returns null when useOptionalReviews is used outside ReviewsProvider", () => {
+    const { result } = renderHook(() => useOptionalReviews());
+    expect(result.current).toBeNull();
+  });
+
+  it("manages pendingBrewSession state", () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: false,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useReviews(), { wrapper });
+    expect(result.current.pendingBrewSession).toBeNull();
+
+    const session = {
+      bean: null,
+      recipe: DEFAULT_PRESET_RECIPES[0],
+      actualTimeSeconds: 185,
+    };
+
+    act(() => {
+      result.current.setPendingBrewSession(session);
+    });
+
+    expect(result.current.pendingBrewSession).toEqual(session);
   });
 
   it("initializes with INITIAL_TASTING_LOGS when unauthenticated", () => {
@@ -73,7 +129,7 @@ describe("useReviews hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useReviews());
+    const { result } = renderHook(() => useReviews(), { wrapper });
     expect(result.current.logs).toEqual(INITIAL_TASTING_LOGS);
   });
 
@@ -94,7 +150,7 @@ describe("useReviews hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useReviews());
+    const { result } = renderHook(() => useReviews(), { wrapper });
     let newLog: any;
 
     await act(async () => {
@@ -151,7 +207,7 @@ describe("useReviews hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useReviews());
+    const { result } = renderHook(() => useReviews(), { wrapper });
     const targetId = result.current.logs[0].id;
 
     await act(async () => {
@@ -183,7 +239,7 @@ describe("useReviews hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useReviews());
+    const { result } = renderHook(() => useReviews(), { wrapper });
     const initialCount = result.current.logs.length;
     const targetId = result.current.logs[0].id;
 
@@ -310,7 +366,7 @@ describe("useReviews hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useReviews());
+    const { result } = renderHook(() => useReviews(), { wrapper });
 
     let returnedLog: any;
     await act(async () => {
@@ -410,7 +466,7 @@ describe("useReviews hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useReviews());
+    const { result } = renderHook(() => useReviews(), { wrapper });
     await waitFor(() => {
       expect(result.current.logs.find((l) => l.id === "log-1")?.notes).toBe("Original pristine notes");
     });
@@ -503,7 +559,7 @@ describe("useReviews hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useReviews());
+    const { result } = renderHook(() => useReviews(), { wrapper });
     expect(result.current.logs.some((l) => l.id === "log-1")).toBe(true);
 
     await expect(
@@ -573,7 +629,7 @@ describe("useReviews hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useReviews());
+    const { result } = renderHook(() => useReviews(), { wrapper });
     await waitFor(() => {
       expect(result.current.logs).toHaveLength(3);
     });
@@ -618,7 +674,7 @@ describe("useReviews hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useReviews());
+    const { result } = renderHook(() => useReviews(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -661,7 +717,7 @@ describe("useReviews hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useReviews());
+    const { result } = renderHook(() => useReviews(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -718,7 +774,7 @@ describe("useReviews hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useReviews());
+    const { result } = renderHook(() => useReviews(), { wrapper });
     await waitFor(() => expect(result.current.logs).toHaveLength(1));
 
     let created: any;
@@ -796,7 +852,7 @@ describe("useReviews hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useReviews());
+    const { result } = renderHook(() => useReviews(), { wrapper });
     await waitFor(() => expect(result.current.logs).toHaveLength(1));
 
     await expect(
@@ -859,7 +915,7 @@ describe("useReviews hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useReviews());
+    const { result } = renderHook(() => useReviews(), { wrapper });
     await waitFor(() => expect(result.current.logs).toHaveLength(1));
 
     await act(async () => {

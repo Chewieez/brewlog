@@ -3,7 +3,9 @@ import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { RecipeBuilderModal } from './RecipeBuilderModal';
 import { BrewRecipe, Equipment } from '@brewlog/core';
-import { useEquipment } from '../equipment/useEquipment';
+const { useEquipment } = vi.hoisted(() => ({
+  useEquipment: vi.fn(),
+}));
 
 vi.mock('../auth/AuthContext', () => ({
   useAuth: vi.fn().mockReturnValue({
@@ -11,8 +13,9 @@ vi.mock('../auth/AuthContext', () => ({
   }),
 }));
 
-vi.mock('../equipment/useEquipment', () => ({
-  useEquipment: vi.fn(),
+vi.mock('../equipment/EquipmentContext', () => ({
+  useEquipment,
+  useOptionalEquipment: (...args: unknown[]) => useEquipment(...args),
 }));
 
 describe('RecipeBuilderModal', () => {
