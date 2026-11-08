@@ -17,6 +17,7 @@ import {
 } from '@brewlog/supabase';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/AuthContext';
+import { captureSyncError } from '../../lib/sentry';
 
 const STORAGE_KEY = '@brewlog/custom_recipes';
 /**
@@ -182,11 +183,19 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                 const stagePayloads = item.stages.map((stage, idx) =>
                   mapRecipeStageDomainToInsert(stage, recData.id, idx)
                 );
-                await supabase.from('recipe_stages').insert(stagePayloads);
+                const { error: stageErr } = await supabase.from('recipe_stages').insert(stagePayloads);
+                if (stageErr) {
+                  console.error('Failed to sync offline recipe stages:', item.name, stageErr);
+                  captureSyncError('recipes', 'insert', stageErr, item.id);
+                }
               }
+            } else if (recErr) {
+              console.error('Failed to sync offline recipe:', item.name, recErr);
+              captureSyncError('recipes', 'insert', recErr, item.id);
             }
           } catch (syncErr) {
             console.error('Failed to sync offline recipe:', item.name, syncErr);
+            captureSyncError('recipes', 'insert', syncErr, item.id);
           }
         }
       }
@@ -197,7 +206,10 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         .select('*, recipe_stages(*)')
         .order('created_at', { ascending: false });
 
-      if (!error && data) {
+      if (error) {
+        console.error('fetchRecipes error:', error);
+        captureSyncError('recipes', 'fetch', error);
+      } else if (data) {
         const mapped: BrewRecipe[] = data.map((row: any) =>
           mapRecipeRowToDomain(row, row.recipe_stages || [])
         );
@@ -221,6 +233,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       }
     } catch (err) {
       console.error('fetchRecipes error:', err);
+      captureSyncError('recipes', 'fetch', err);
     } finally {
       setLoading(false);
     }
@@ -262,6 +275,8 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           .single();
 
         if (recError || !recData) {
+          console.error('addRecipe error:', recError);
+          captureSyncError('recipes', 'insert', recError, fallback.id);
           const nextRecipes = [fallback, ...customRecipes];
           setCustomRecipes(nextRecipes);
           await persistCachedRecipes(nextRecipes);
@@ -273,11 +288,16 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           const stageInserts = stagesWithIds.map((st, idx) =>
             mapRecipeStageDomainToInsert(st, recData.id, idx)
           );
-          const { data: stageData } = await supabase
+          const { data: stageData, error: stageError } = await supabase
             .from('recipe_stages')
             .insert(stageInserts)
             .select();
-          if (stageData) createdStages = stageData;
+          if (stageError) {
+            console.error('addRecipe stages error:', stageError);
+            captureSyncError('recipes', 'insert', stageError, fallback.id);
+          } else if (stageData) {
+            createdStages = stageData;
+          }
         }
 
         const created = mapRecipeRowToDomain(recData, createdStages);
@@ -287,6 +307,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         return created;
       } catch (err) {
         console.error('addRecipe exception:', err);
+        captureSyncError('recipes', 'insert', err, fallback.id);
         const nextRecipes = [fallback, ...customRecipes];
         setCustomRecipes(nextRecipes);
         await persistCachedRecipes(nextRecipes);
@@ -318,17 +339,26 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       if (supabase && user && !id.startsWith('local-rec-')) {
         try {
           const payload = mapRecipeDomainToInsert(updatedTarget, user.id);
-          await supabase.from('recipes').update(payload).eq('id', id);
+          const { error: updErr } = await supabase.from('recipes').update(payload).eq('id', id);
+          if (updErr) {
+            console.error('updateRecipe supabase error:', updErr);
+            captureSyncError('recipes', 'update', updErr, id);
+          }
 
           if (updates.stages) {
             await supabase.from('recipe_stages').delete().eq('recipe_id', id);
             const stageInserts = updates.stages.map((st, idx) =>
               mapRecipeStageDomainToInsert(st, id, idx)
             );
-            await supabase.from('recipe_stages').insert(stageInserts);
+            const { error: stageErr } = await supabase.from('recipe_stages').insert(stageInserts);
+            if (stageErr) {
+              console.error('updateRecipe stages error:', stageErr);
+              captureSyncError('recipes', 'update', stageErr, id);
+            }
           }
         } catch (err) {
           console.error('updateRecipe exception:', err);
+          captureSyncError('recipes', 'update', err, id);
         }
       }
 
@@ -367,9 +397,14 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
       if (supabase && user && !id.startsWith('local-rec-')) {
         try {
-          await supabase.from('recipes').delete().eq('id', id);
+          const { error: delErr } = await supabase.from('recipes').delete().eq('id', id);
+          if (delErr) {
+            console.error('deleteRecipe error:', delErr);
+            captureSyncError('recipes', 'delete', delErr, id);
+          }
         } catch (err) {
           console.error('deleteRecipe exception:', err);
+          captureSyncError('recipes', 'delete', err, id);
         }
       }
     },

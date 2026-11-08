@@ -14,6 +14,7 @@ import { BeanRow, mapBeanRowToDomain, mapBeanDomainToInsert } from '@brewlog/sup
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/AuthContext';
 import { offsetRoastDateForThaw } from './utils/restingUtils';
+import { captureSyncError } from '../../lib/sentry';
 
 export const STASH_STORAGE_KEY = '@brewlog/mobile:stash_cache';
 export const STASH_PENDING_UPDATES_KEY = '@brewlog/mobile:stash_pending_updates';
@@ -187,9 +188,11 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
               pendingDeletesRef.current.delete(id);
             } else {
               console.error('Failed to sync pending delete:', id, delErr);
+              captureSyncError('beans', 'delete', delErr, id);
             }
           } catch (delEx) {
             console.error('Exception syncing pending delete:', id, delEx);
+            captureSyncError('beans', 'delete', delEx, id);
           }
         }
         await persistPendingDeletes(pendingDeletesRef.current);
@@ -221,10 +224,12 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 syncedIds.add(item.id);
               } else {
                 console.error('Failed to sync offline bean:', item.name, beanErr);
+                captureSyncError('beans', 'insert', beanErr, item.id);
               }
             }
           } catch (syncErr) {
             console.error('Failed to sync offline bean:', item.name, syncErr);
+            captureSyncError('beans', 'insert', syncErr, item.id);
           }
         }
       }
@@ -248,9 +253,11 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 pendingUpdatesRef.current.delete(id);
               } else {
                 console.error('Failed to push pending update:', target.name, updErr);
+                captureSyncError('beans', 'update', updErr, id);
               }
             } catch (updEx) {
               console.error('Exception pushing pending update:', target.name, updEx);
+              captureSyncError('beans', 'update', updEx, id);
             }
           } else {
             pendingUpdatesRef.current.delete(id);
@@ -300,9 +307,11 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         await persistCachedBeans(merged);
       } else if (error) {
         console.error('fetchBeans select error:', error);
+        captureSyncError('beans', 'fetch', error);
       }
     } catch (err) {
       console.error('fetchBeans error:', err);
+      captureSyncError('beans', 'fetch', err);
     } finally {
       isFetchingRef.current = false;
       setLoading(false);
@@ -365,6 +374,7 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
         if (beanError || !beanData) {
           console.error('addBean supabase error:', beanError);
+          captureSyncError('beans', 'insert', beanError, fallback.id);
           // Supabase failed: preserve local bean as unsynced (already has userId: undefined) for subsequent sync
           return fallback;
         }
@@ -382,6 +392,7 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         return created;
       } catch (err) {
         console.error('addBean exception:', err);
+        captureSyncError('beans', 'insert', err, fallback.id);
         return fallback;
       }
     },
@@ -420,12 +431,14 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           const { error } = await supabase.from('beans').update(payload).eq('id', id);
           if (error) {
             console.error('updateBean supabase error:', error);
+            captureSyncError('beans', 'update', error, id);
           } else {
             pendingUpdatesRef.current.delete(id);
             await persistPendingUpdates(pendingUpdatesRef.current);
           }
         } catch (err) {
           console.error('updateBean exception:', err);
+          captureSyncError('beans', 'update', err, id);
         }
       }
 
@@ -457,12 +470,14 @@ export const StashProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           const { error } = await supabase.from('beans').delete().eq('id', id);
           if (error) {
             console.error('deleteBean supabase error:', error);
+            captureSyncError('beans', 'delete', error, id);
           } else {
             pendingDeletesRef.current.delete(id);
             await persistPendingDeletes(pendingDeletesRef.current);
           }
         } catch (err) {
           console.error('deleteBean exception:', err);
+          captureSyncError('beans', 'delete', err, id);
         }
       }
     },

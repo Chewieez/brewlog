@@ -38,6 +38,7 @@ vi.mock('expo-router', () => ({
     }
   ),
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
+  useNavigationContainerRef: () => ({}),
 }));
 
 vi.mock('expo-splash-screen', () => ({

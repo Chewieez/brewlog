@@ -22,6 +22,7 @@ import {
 } from '@brewlog/supabase';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/AuthContext';
+import { captureSyncError } from '../../lib/sentry';
 
 export const REVIEWS_STORAGE_KEY = '@brewlog/mobile:reviews_cache';
 export const REVIEWS_PENDING_UPDATES_KEY = '@brewlog/mobile:reviews_pending_updates';
@@ -197,9 +198,11 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
               pendingDeletesRef.current.delete(id);
             } else {
               console.error('Failed to sync pending review delete:', id, delErr);
+              captureSyncError('reviews', 'delete', delErr, id);
             }
           } catch (delEx) {
             console.error('Exception syncing pending review delete:', id, delEx);
+            captureSyncError('reviews', 'delete', delEx, id);
           }
         }
         await persistPendingDeletes(pendingDeletesRef.current);
@@ -248,9 +251,11 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
               }
             } else if (revErr) {
               console.error('Failed to sync offline review:', item.beanNameSnapshot, revErr);
+              captureSyncError('reviews', 'insert', revErr, item.id);
             }
           } catch (syncErr) {
             console.error('Failed to sync offline review:', item.beanNameSnapshot, syncErr);
+            captureSyncError('reviews', 'insert', syncErr, item.id);
           }
         }
       }
@@ -278,9 +283,11 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
                 pendingUpdatesRef.current.delete(id);
               } else {
                 console.error('Failed to push pending review update:', target.beanNameSnapshot, updErr);
+                captureSyncError('reviews', 'update', updErr, id);
               }
             } catch (updEx) {
               console.error('Exception pushing pending review update:', target.beanNameSnapshot, updEx);
+              captureSyncError('reviews', 'update', updEx, id);
             }
           } else {
             pendingUpdatesRef.current.delete(id);
@@ -326,9 +333,11 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
         await persistCachedReviews(merged);
       } else if (error) {
         console.error('fetchReviews select error:', error);
+        captureSyncError('reviews', 'fetch', error);
       }
     } catch (err) {
       console.error('fetchReviews error:', err);
+      captureSyncError('reviews', 'fetch', err);
     } finally {
       isFetchingRef.current = false;
       setLoading(false);
@@ -383,6 +392,7 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
 
         if (revError || !revData) {
           console.error('addReview supabase error:', revError);
+          captureSyncError('reviews', 'insert', revError, fallback.id);
           return fallback;
         }
 
@@ -399,6 +409,7 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
         return created;
       } catch (err) {
         console.error('addReview exception:', err);
+        captureSyncError('reviews', 'insert', err, fallback.id);
         return fallback;
       }
     },
@@ -437,12 +448,14 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
           const { error } = await supabase.from('tasting_logs').update(payload).eq('id', id);
           if (error) {
             console.error('updateReview supabase error:', error);
+            captureSyncError('reviews', 'update', error, id);
           } else {
             pendingUpdatesRef.current.delete(id);
             await persistPendingUpdates(pendingUpdatesRef.current);
           }
         } catch (err) {
           console.error('updateReview exception:', err);
+          captureSyncError('reviews', 'update', err, id);
         }
       } else if (!user) {
         pendingUpdatesRef.current.add(id);
@@ -483,12 +496,14 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
           const { error } = await supabase.from('tasting_logs').delete().eq('id', id);
           if (error) {
             console.error('deleteReview supabase error:', error);
+            captureSyncError('reviews', 'delete', error, id);
           } else {
             pendingDeletesRef.current.delete(id);
             await persistPendingDeletes(pendingDeletesRef.current);
           }
         } catch (err) {
           console.error('deleteReview exception:', err);
+          captureSyncError('reviews', 'delete', err, id);
         }
       }
     },
