@@ -18,6 +18,7 @@ import {
 } from "@brewlog/supabase";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../auth/AuthContext";
+import { captureSyncError } from "../../lib/sentry";
 
 export type AddRecipeInput = Omit<BrewRecipe, "id" | "createdAt" | "stages"> & {
   stages?: (Omit<BrewStage, "id"> & { id?: string })[];
@@ -195,6 +196,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
             if (recErr || !recData) {
               console.error("Failed to sync offline recipe:", item.name, recErr);
+              captureSyncError("recipes", "insert", recErr, item.id);
               continue;
             }
 
@@ -214,10 +216,12 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                   item.name,
                   stageErr
                 );
+                captureSyncError("recipes", "insert", stageErr, item.id);
               }
             }
           } catch (syncErr) {
             console.error("Failed to sync recipe:", item, syncErr);
+            captureSyncError("recipes", "insert", syncErr, item.id);
           }
         }
       }
@@ -230,6 +234,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
       if (error) {
         console.error("Supabase fetchRecipes error:", error);
+        captureSyncError("recipes", "fetch", error);
       } else if (data) {
         const mapped: BrewRecipe[] = (
           data as unknown as (RecipeRow & { recipe_stages?: RecipeStageRow[] })[]
@@ -245,6 +250,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       }
     } catch (err) {
       console.error("fetchRecipes exception:", err);
+      captureSyncError("recipes", "fetch", err);
     } finally {
       setLoading(false);
     }
@@ -293,6 +299,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         if (recError || !recData) {
           console.error("Supabase recipe insert error:", recError);
+          captureSyncError("recipes", "insert", recError, fallbackRecipe.id);
           setCustomRecipes((prev) => {
             const updated = [fallbackRecipe, ...prev];
             saveLocalCustomRecipes(updated);
@@ -313,6 +320,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
           if (stageError) {
             console.error("Supabase recipe stages insert error:", stageError);
+            captureSyncError("recipes", "insert", stageError, fallbackRecipe.id);
           } else if (stageData) {
             createdStages = stageData;
           }
@@ -330,6 +338,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         return createdRecipe;
       } catch (err) {
         console.error("addRecipe exception:", err);
+        captureSyncError("recipes", "insert", err, fallbackRecipe.id);
         setCustomRecipes((prev) => {
           const updated = [fallbackRecipe, ...prev];
           saveLocalCustomRecipes(updated);
@@ -423,6 +432,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           }
         } catch (err) {
           console.error("updateRecipe exception:", err);
+          captureSyncError("recipes", "update", err, id);
           // Roll back local state and cache to existing snapshot
           setCustomRecipes((prev) => {
             const reverted = prev.map((item) => (item.id === id ? existing : item));
@@ -474,9 +484,11 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             .eq("id", id);
           if (error) {
             console.error("Supabase recipe delete error:", error);
+            captureSyncError("recipes", "delete", error, id);
           }
         } catch (err) {
           console.error("deleteRecipe exception:", err);
+          captureSyncError("recipes", "delete", err, id);
         }
       }
     },

@@ -16,6 +16,7 @@ import { supabase } from "../../lib/supabase";
 import { useAuth } from "../auth/AuthContext";
 import { INITIAL_TASTING_LOGS } from "../../lib/sampleData";
 import { PendingBrewSession } from "./ReviewsView";
+import { captureSyncError } from "../../lib/sentry";
 
 function generateUUID(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -54,18 +55,27 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
 
     setLoading(true);
-    const { data, error } = await supabase
-      .from("tasting_logs")
-      .select("*")
-      .order("brew_date", { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from("tasting_logs")
+        .select("*")
+        .order("brew_date", { ascending: false });
 
-    if (!error && data && data.length > 0) {
-      const mapped: TastingLog[] = data.map(mapTastingLogRowToDomain);
-      setLogs(mapped);
-    } else if (!error && data && data.length === 0) {
-      setLogs([]);
+      if (error) {
+        console.error("Supabase fetchLogs error:", error);
+        captureSyncError("reviews", "fetch", error);
+      } else if (data && data.length > 0) {
+        const mapped: TastingLog[] = data.map(mapTastingLogRowToDomain);
+        setLogs(mapped);
+      } else if (data && data.length === 0) {
+        setLogs([]);
+      }
+    } catch (err) {
+      console.error("fetchLogs exception:", err);
+      captureSyncError("reviews", "fetch", err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [user]);
 
   useEffect(() => {
@@ -84,23 +94,28 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
         return localLog;
       }
 
-      const payload = mapTastingLogDomainToInsert(log, user.id);
+      try {
+        const payload = mapTastingLogDomainToInsert(log, user.id);
 
-      const { data, error } = await supabase
-        .from("tasting_logs")
-        .insert(payload)
-        .select()
-        .single();
+        const { data, error } = await supabase
+          .from("tasting_logs")
+          .insert(payload)
+          .select()
+          .single();
 
-      if (error) {
-        console.error("addTastingLog error:", error);
-        throw error;
-      }
+        if (error) {
+          throw error;
+        }
 
-      if (data) {
-        const created: TastingLog = mapTastingLogRowToDomain(data);
-        setLogs((prev) => [created, ...prev]);
-        return created;
+        if (data) {
+          const created: TastingLog = mapTastingLogRowToDomain(data);
+          setLogs((prev) => [created, ...prev]);
+          return created;
+        }
+      } catch (err) {
+        console.error("addTastingLog error:", err);
+        captureSyncError("reviews", "insert", err);
+        throw err;
       }
     },
     [user]
@@ -135,7 +150,6 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
           .single();
 
         if (error) {
-          console.error("updateTastingLog error:", error);
           throw error;
         }
 
@@ -146,6 +160,7 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
         }
       } catch (err) {
         console.error("updateTastingLog exception:", err);
+        captureSyncError("reviews", "update", err, id);
         setLogs((prev) => prev.map((l) => (l.id === id ? existing : l)));
         throw err;
       }
@@ -167,11 +182,11 @@ export const ReviewsProvider: React.FC<{ children: ReactNode }> = ({ children })
       try {
         const { error } = await supabase.from("tasting_logs").delete().eq("id", id);
         if (error) {
-          console.error("deleteTastingLog error:", error);
           throw error;
         }
       } catch (err) {
         console.error("deleteTastingLog exception:", err);
+        captureSyncError("reviews", "delete", err, id);
         if (existing) {
           setLogs((prev) => {
             if (prev.some((l) => l.id === id)) return prev;
