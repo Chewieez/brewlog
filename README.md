@@ -36,11 +36,11 @@ brewlog/
 * **Centralized Cross-Platform Design System (`@brewlog/ui`) & Dynamic Theming**: Shared monorepo component package with platform-split rendering layers (`.web.tsx` with Tailwind v4, `.native.tsx` with React Native StyleSheet), unified TypeScript contracts (`Button`, `Card`, `Badge`, `Input`, `MetricTile`, `SegmentedControl`), dynamic multi-theme architecture (**Tactile Dark Craft** and **Crisp Studio Light** via `ThemeProvider`, `useTheme`, and memoized `makeStyles`), semantic foreground tokens (`text-foreground`, `text-foreground-secondary`, `text-foreground-muted`), and standardized 3-tier rem-based control sizing (`sm`: 32px, `md`: 40px, `lg`: 48px) verified by automated Playwright E2E gates.
 * **Cloud Sync, Multi-User & Secure Storage**: Supabase PostgreSQL backend with Row Level Security (RLS), cross-platform authentication (`AuthSheet` in-tree modal overlay with Android autofill support, sign-in/up/reset, `ProfileHeaderButton` avatar indicator), and hardware-secured session storage (`LargeSecureStore` AES-256 CTR hybrid encryption backed by `expo-secure-store` with `WHEN_UNLOCKED_THIS_DEVICE_ONLY` keychain accessibility).
 * **User Preferences & Instrument Calibration**: Pure domain conversion engines (`gramsToOz`, `celsiusToFahrenheit`) and presentation formatters (`formatWeight`, `formatTemperature`, `formatDisplayDate`) supporting dynamic unit localization (grams / ounces, Celsius / Fahrenheit), customizable date formats, default brew timer mode selection (`free_brew` stopwatch vs `recipe` stage engine), and dynamic theme selection (`system`, `tactile_dark`, `studio_light`). Delivers offline-first local hydration with automated Supabase cloud sync, dedicated mobile settings modal (`app/settings/modal.tsx`), and web settings chassis route (`/settings`).
+* **Observability, Crash Reporting & Performance Tracing (Sentry)**: Cross-platform Sentry telemetry architecture across web (`@sentry/react` v11) and mobile (`@sentry/react-native` v6). Features shared pure utilities in `@brewlog/core` (`scrubPii` with recursive sensitive key stripping, circular reference handling, and URL query parameter masking; `classifySyncError` routing network dropouts to low-noise info breadcrumbs while capturing true database exceptions), themed React error boundary with user feedback fallback (`SentryFeedbackFallback.tsx`), error-only Session Replay with text/media masking, Vite production source map generation, `Sentry.expoRouterIntegration()` with wrapped root layouts on mobile, authenticated user scope tracking, and telemetry instrumentation across all 5 offline-first domain contexts.
 * **Platform-Adaptive Mobile Navigation**: iOS `NativeTabs` (`_layout.ios.tsx`) with translucent blur materials and a custom spring-animated `FloatingPillTabBar` (`_layout.tsx`) with haptic feedback and keyboard auto-hide.
 * **Upcoming Roadmap & Wearables**:
   - **Design System Surface Adoption**: Expanding `@brewlog/ui` primitive adoption across remaining bespoke cards and inputs.
   - **Responsive & Adaptive Layouts**: Landscape brew station dual-column timer, foldable/tablet two-pane master-detail grids, and Android Material Design 3 chrome.
-  - **Sentry Observability & Error Monitoring**: Production crash reporting, React error boundaries, offline sync exception telemetry, and route performance tracing across web (`@sentry/react`) and mobile (`@sentry/react-native`).
   - **WearOS & watchOS Companions**: Standalone wrist timers and watch tiles/complications built with Jetpack Compose (Wearable DataLayer) and SwiftUI (WatchConnectivity).
 
 > See [`docs/ROADMAP.md`](docs/ROADMAP.md) for the active roadmap, technical debt backlog, and completed milestone history.
@@ -83,9 +83,9 @@ cp apps/web/.env.example apps/web/.env
 cp apps/mobile/.env.example apps/mobile/.env
 ```
 
-Open each `.env` file and provide your project URL and public anon key:
-* `apps/web/.env`: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
-* `apps/mobile/.env`: `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+Open each `.env` file and provide your project URL and public anon key (and optional Sentry DSN for telemetry):
+* `apps/web/.env`: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and optional `VITE_SENTRY_DSN`
+* `apps/mobile/.env`: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`, and optional `EXPO_PUBLIC_SENTRY_DSN`
 
 ---
 
