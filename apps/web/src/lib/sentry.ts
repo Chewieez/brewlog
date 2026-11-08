@@ -13,8 +13,14 @@ export function initSentry(): void {
   Sentry.init({
     dsn,
     tracesSampleRate: import.meta.env.PROD ? 0.2 : 1.0,
+    replaysSessionSampleRate: 0.0,
+    replaysOnErrorSampleRate: 1.0,
     integrations: [
       reactRouterBrowserTracingIntegration(),
+      Sentry.replayIntegration({
+        maskAllText: true,
+        blockAllMedia: true,
+      }),
     ],
     beforeSend(event) {
       return scrubPii(event);

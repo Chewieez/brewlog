@@ -7,6 +7,7 @@ vi.mock('@sentry/react', () => ({
   setUser: vi.fn(),
   addBreadcrumb: vi.fn(),
   captureException: vi.fn(),
+  replayIntegration: vi.fn(() => ({ name: 'Replay' })),
 }));
 
 vi.mock('@sentry/react/react-router', () => ({
@@ -29,12 +30,17 @@ describe('web sentry integration', () => {
     expect(Sentry.init).not.toHaveBeenCalled();
   });
 
-  it('initializes Sentry when VITE_SENTRY_DSN is provided', () => {
+  it('initializes Sentry when VITE_SENTRY_DSN is provided with error-only session replay', () => {
     vi.stubEnv('VITE_SENTRY_DSN', 'https://key@sentry.io/123');
     initSentry();
     expect(Sentry.init).toHaveBeenCalledWith(
       expect.objectContaining({
         dsn: 'https://key@sentry.io/123',
+        replaysSessionSampleRate: 0.0,
+        replaysOnErrorSampleRate: 1.0,
+        integrations: expect.arrayContaining([
+          expect.objectContaining({ name: 'Replay' }),
+        ]),
       })
     );
   });
