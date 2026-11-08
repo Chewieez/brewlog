@@ -18,6 +18,17 @@ import { INITIAL_BEANS } from "../../lib/sampleData";
 
 const STORAGE_KEY = "brewlog_beans_cache";
 
+function generateUUID(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 export interface BeansContextValue {
   beans: Bean[];
   selectedBean: Bean | null;
@@ -135,7 +146,7 @@ export const BeansProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const addBean = useCallback(
     async (newBean: Omit<Bean, "id" | "createdAt">): Promise<Bean> => {
-      const localId = `local-bean-${Date.now()}`;
+      const localId = `local-bean-${generateUUID()}`;
       const fallbackBean: Bean = {
         ...newBean,
         id: localId,

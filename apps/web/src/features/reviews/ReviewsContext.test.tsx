@@ -179,7 +179,9 @@ describe("ReviewsContext", () => {
       });
     });
 
-    expect(newLog.id).toMatch(/^local-log-/);
+    expect(newLog.id).toMatch(
+      /^local-log-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    );
     expect(result.current.logs[0].id).toBe(newLog.id);
     expect(result.current.logs[0].beanNameSnapshot).toBe("Ethiopia Yirgacheffe");
   });

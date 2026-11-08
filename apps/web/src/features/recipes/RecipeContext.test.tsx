@@ -966,4 +966,93 @@ describe("RecipeContext", () => {
     expect(saved[0].name).toBe("Original Chemex");
     expect(saved[0].stages[0].name).toBe("Original Bloom");
   });
+
+  it("generates UUID-based IDs for offline recipes and stages to prevent millisecond collisions", async () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: false,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+
+    let added: BrewRecipe | undefined;
+    await act(async () => {
+      added = await result.current.addRecipe({
+        name: "Offline Collision Test",
+        brewMethod: "v60",
+        coffeeDoseGrams: 15,
+        waterAmountGrams: 250,
+        targetTimeSeconds: 180,
+        stages: [
+          {
+            name: "Bloom",
+            startSecond: 0,
+            durationSeconds: 45,
+            targetWaterWeightGrams: 50,
+            instruction: "Bloom",
+            stageType: "bloom",
+          },
+        ],
+      });
+    });
+
+    expect(added?.id).toMatch(
+      /^local-rec-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    );
+    expect(added?.stages[0].id).toMatch(
+      /^local-stage-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    );
+  });
+
+  it("avoids redundant localStorage reads when switching selectedRecipe or re-rendering", async () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: false,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const getItemSpy = vi.spyOn(Storage.prototype, "getItem");
+
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+
+    const readsAfterMount = getItemSpy.mock.calls.filter(
+      (c) => c[0] === WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY
+    ).length;
+
+    // Switch recipe
+    act(() => {
+      result.current.setSelectedRecipe(DEFAULT_PRESET_RECIPES[1]);
+    });
+
+    const readsAfterSelect = getItemSpy.mock.calls.filter(
+      (c) => c[0] === WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY
+    ).length;
+
+    // Selecting recipe should NOT trigger extra getItem calls on the storage key
+    expect(readsAfterSelect).toBe(readsAfterMount);
+    expect(result.current.selectedRecipe.id).toBe(DEFAULT_PRESET_RECIPES[1].id);
+
+    getItemSpy.mockRestore();
+  });
 });

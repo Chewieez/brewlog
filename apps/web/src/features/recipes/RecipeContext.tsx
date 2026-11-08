@@ -5,16 +5,30 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  useRef,
   ReactNode,
 } from "react";
 import { BrewRecipe, DEFAULT_PRESET_RECIPES } from "@brewlog/core";
 import {
+  RecipeRow,
+  RecipeStageRow,
   mapRecipeRowToDomain,
   mapRecipeDomainToInsert,
   mapRecipeStageDomainToInsert,
 } from "@brewlog/supabase";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../auth/AuthContext";
+
+function generateUUID(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
 
 const STORAGE_KEY = "brewlog_custom_recipes_cache";
 
@@ -100,45 +114,50 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     [customRecipes]
   );
 
+  const lastActiveIdRef = useRef<string | null>(null);
   const [selectedRecipe, setSelectedRecipeState] = useState<BrewRecipe>(() => {
     const savedId = loadSavedActiveRecipeId();
     if (savedId) {
+      lastActiveIdRef.current = savedId;
       const match = recipes.find((r) => r.id === savedId);
       if (match) return match;
     }
-    return recipes[0] || DEFAULT_PRESET_RECIPES[0];
+    const fallback = recipes[0] || DEFAULT_PRESET_RECIPES[0];
+    if (lastActiveIdRef.current === null) {
+      lastActiveIdRef.current = fallback.id;
+    }
+    return fallback;
   });
 
   const setSelectedRecipe = useCallback((recipe: BrewRecipe) => {
+    lastActiveIdRef.current = recipe.id;
     setSelectedRecipeState(recipe);
     persistSavedActiveRecipeId(recipe.id);
   }, []);
 
   useEffect(() => {
-    const savedId = loadSavedActiveRecipeId();
-    if (savedId) {
-      const match = recipes.find((r) => r.id === savedId);
+    const targetId = lastActiveIdRef.current;
+    if (targetId) {
+      const match = recipes.find((r) => r.id === targetId);
       if (match) {
-        if (selectedRecipe !== match) {
-          setSelectedRecipeState(match);
-        }
+        setSelectedRecipeState((prev) => (prev === match ? prev : match));
         return;
       }
       // Stored recipe was deleted or corrupted: self-heal by writing fallback
       const fallback = recipes[0] || DEFAULT_PRESET_RECIPES[0];
-      if (selectedRecipe !== fallback) {
-        setSelectedRecipeState(fallback);
-      }
+      lastActiveIdRef.current = fallback.id;
+      setSelectedRecipeState((prev) => (prev === fallback ? prev : fallback));
       persistSavedActiveRecipeId(fallback.id);
       return;
     }
 
-    if (recipes.length > 0 && !recipes.some((r) => r.id === selectedRecipe.id)) {
+    if (recipes.length > 0) {
       const fallback = recipes[0] || DEFAULT_PRESET_RECIPES[0];
-      setSelectedRecipeState(fallback);
+      lastActiveIdRef.current = fallback.id;
+      setSelectedRecipeState((prev) => (prev === fallback ? prev : fallback));
       persistSavedActiveRecipeId(fallback.id);
     }
-  }, [recipes, selectedRecipe]);
+  }, [recipes]);
 
   const fetchRecipes = useCallback(async () => {
     if (!supabase || !user) {
@@ -208,7 +227,9 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       if (error) {
         console.error("Supabase fetchRecipes error:", error);
       } else if (data) {
-        const mapped: BrewRecipe[] = data.map((row: any) =>
+        const mapped: BrewRecipe[] = (
+          data as unknown as (RecipeRow & { recipe_stages?: RecipeStageRow[] })[]
+        ).map((row) =>
           mapRecipeRowToDomain(row, row.recipe_stages || [])
         );
         const remainingUnsynced = localItems.filter(
@@ -233,10 +254,10 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     async (
       newRecipe: Omit<BrewRecipe, "id" | "createdAt">
     ): Promise<BrewRecipe> => {
-      const localId = `local-rec-${Date.now()}`;
-      const stagesWithIds = (newRecipe.stages || []).map((stage, index) => ({
+      const localId = `local-rec-${generateUUID()}`;
+      const stagesWithIds = (newRecipe.stages || []).map((stage) => ({
         ...stage,
-        id: stage.id || `local-stage-${Date.now()}-${index}`,
+        id: stage.id || `local-stage-${generateUUID()}`,
       }));
 
       const fallbackRecipe: BrewRecipe = {
@@ -276,7 +297,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           return fallbackRecipe;
         }
 
-        let createdStages: any[] = [];
+        let createdStages: RecipeStageRow[] = [];
         if (stagesWithIds.length > 0) {
           const stageInserts = stagesWithIds.map((stage, idx) =>
             mapRecipeStageDomainToInsert(stage, recData.id, idx)
@@ -337,9 +358,9 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       }
 
       const stagesWithIds = updates.stages
-        ? updates.stages.map((stage, index) => ({
+        ? updates.stages.map((stage) => ({
             ...stage,
-            id: stage.id || `local-stage-${Date.now()}-${index}`,
+            id: stage.id || `local-stage-${generateUUID()}`,
           }))
         : existing.stages;
 
@@ -434,6 +455,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       setSelectedRecipeState((prev) => {
         if (prev.id === id) {
           const fallback = DEFAULT_PRESET_RECIPES[0];
+          lastActiveIdRef.current = fallback.id;
           persistSavedActiveRecipeId(fallback.id);
           return fallback;
         }
