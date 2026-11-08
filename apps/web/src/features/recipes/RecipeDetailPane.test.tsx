@@ -2,12 +2,21 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { DEFAULT_PRESET_RECIPES, BrewRecipe, Equipment } from '@brewlog/core';
+import { DEFAULT_PRESET_RECIPES, DEFAULT_USER_SETTINGS, BrewRecipe, Equipment } from '@brewlog/core';
 import { RecipeDetailPane } from './RecipeDetailPane';
-import { useEquipment } from '../equipment/useEquipment';
+import { useEquipment } from '../equipment/EquipmentContext';
 
-vi.mock('../equipment/useEquipment', () => ({
+vi.mock('../equipment/EquipmentContext', () => ({
   useEquipment: vi.fn(),
+}));
+
+vi.mock('../settings/SettingsContext', () => ({
+  useSettings: vi.fn(() => ({
+    settings: DEFAULT_USER_SETTINGS,
+    loading: false,
+    updateSettings: vi.fn(),
+    resetToDefaults: vi.fn(),
+  })),
 }));
 
 const mockGrinders: Equipment[] = [
@@ -35,6 +44,11 @@ describe('RecipeDetailPane', () => {
   beforeEach(() => {
     vi.mocked(useEquipment).mockReturnValue({
       equipment: mockGrinders,
+      grinders: mockGrinders,
+      brewers: [],
+      scales: [],
+      kettles: [],
+      other: [],
       addEquipment: vi.fn(),
       updateEquipment: vi.fn(),
       deleteEquipment: vi.fn(),

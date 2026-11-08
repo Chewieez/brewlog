@@ -2,7 +2,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
 import { TimerView } from './TimerView';
-import { BrewRecipe } from '@brewlog/core';
+import { BrewRecipe, DEFAULT_USER_SETTINGS } from '@brewlog/core';
+import { useSettings } from '../settings/SettingsContext';
+
+vi.mock('../settings/SettingsContext', () => ({
+  useSettings: vi.fn(),
+}));
 
 vi.mock('../../lib/audio', () => ({
   coffeeAudio: {
@@ -43,6 +48,12 @@ describe('TimerView', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.clearAllMocks();
+    vi.mocked(useSettings).mockReturnValue({
+      settings: DEFAULT_USER_SETTINGS,
+      loading: false,
+      updateSettings: vi.fn(),
+      resetToDefaults: vi.fn(),
+    });
   });
 
   afterEach(() => {
@@ -372,11 +383,17 @@ describe('TimerView', () => {
   });
 
   it('formats telemetry metrics in imperial units when weightUnit="imperial"', () => {
+    vi.mocked(useSettings).mockReturnValue({
+      settings: { ...DEFAULT_USER_SETTINGS, weightUnit: 'imperial' },
+      loading: false,
+      updateSettings: vi.fn(),
+      resetToDefaults: vi.fn(),
+    });
+
     render(
       <TimerView
         recipe={mockRecipe}
         initialMode="recipe"
-        weightUnit="imperial"
         onSelectOtherRecipe={vi.fn()}
         onLogCompletedBrew={vi.fn()}
       />
@@ -590,11 +607,17 @@ describe('TimerView', () => {
       ratio: 16.67,
     };
 
+    vi.mocked(useSettings).mockReturnValue({
+      settings: { ...DEFAULT_USER_SETTINGS, weightUnit: 'imperial' },
+      loading: false,
+      updateSettings: vi.fn(),
+      resetToDefaults: vi.fn(),
+    });
+
     render(
       <TimerView
         recipe={recipeWith18gDose}
         initialMode="recipe"
-        weightUnit="imperial"
         onSelectOtherRecipe={vi.fn()}
         onLogCompletedBrew={vi.fn()}
       />

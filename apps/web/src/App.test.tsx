@@ -4,13 +4,12 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, cleanup, act } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, Navigate } from 'react-router';
 import { DEFAULT_PRESET_RECIPES } from '@brewlog/core';
-import { RootLayout, useRootOutletContext, WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY } from './layouts/RootLayout';
+import { RootLayout } from './layouts/RootLayout';
 import { TimerRoute } from './routes/TimerRoute';
 import { StashRoute } from './routes/StashRoute';
 import { NotFoundRoute } from './routes/NotFoundRoute';
-import { AuthProvider } from './features/auth/AuthContext';
-import { SettingsProvider } from './features/settings/SettingsContext';
-import { App } from './App';
+import { useRecipes, WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY } from './features/recipes/RecipeContext';
+import { App, AppProviders } from './App';
 
 vi.mock('./features/auth/AuthContext', () => ({
   useAuth: () => ({
@@ -23,20 +22,18 @@ vi.mock('./features/auth/AuthContext', () => ({
 
 function TestApp({ initialPath = '/' }: { initialPath?: string }) {
   return (
-    <AuthProvider>
-      <SettingsProvider>
-        <MemoryRouter initialEntries={[initialPath]}>
-          <Routes>
-            <Route element={<RootLayout />}>
-              <Route index element={<Navigate to="/timer" replace />} />
-              <Route path="/timer" element={<TimerRoute />} />
-              <Route path="/stash" element={<StashRoute />} />
-              <Route path="*" element={<NotFoundRoute />} />
-            </Route>
-          </Routes>
-        </MemoryRouter>
-      </SettingsProvider>
-    </AuthProvider>
+    <AppProviders>
+      <MemoryRouter initialEntries={[initialPath]}>
+        <Routes>
+          <Route element={<RootLayout />}>
+            <Route index element={<Navigate to="/timer" replace />} />
+            <Route path="/timer" element={<TimerRoute />} />
+            <Route path="/stash" element={<StashRoute />} />
+            <Route path="*" element={<NotFoundRoute />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    </AppProviders>
   );
 }
 
@@ -169,11 +166,11 @@ describe('App Routing', () => {
     );
 
     const TestDeleteConsumer = () => {
-      const { selectedRecipe, onDeleteRecipe } = useRootOutletContext();
+      const { selectedRecipe, deleteRecipe } = useRecipes();
       return (
         <div>
           <span data-testid="selected-recipe-id">{selectedRecipe.id}</span>
-          <button type="button" onClick={() => onDeleteRecipe(customRecipe.id)}>
+          <button type="button" onClick={() => deleteRecipe(customRecipe.id)}>
             Delete Recipe
           </button>
         </div>
@@ -181,7 +178,7 @@ describe('App Routing', () => {
     };
 
     render(
-      <AuthProvider>
+      <AppProviders>
         <MemoryRouter initialEntries={['/test']}>
           <Routes>
             <Route element={<RootLayout />}>
@@ -189,7 +186,7 @@ describe('App Routing', () => {
             </Route>
           </Routes>
         </MemoryRouter>
-      </AuthProvider>
+      </AppProviders>
     );
 
     expect(screen.getByTestId('selected-recipe-id').textContent).toBe(customRecipe.id);

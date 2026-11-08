@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { StashView } from '../features/stash/StashView';
-import { useRootOutletContext } from '../layouts/RootLayout';
+import { useBeans } from '../features/stash/BeansContext';
 import { Bean } from '@brewlog/core';
 
 export const StashRoute: React.FC = () => {
-  const { beans, onAddBean, onUpdateBean, onDeleteBean, setSelectedBean } = useRootOutletContext();
+  const { beans, addBean, updateBean, deleteBean, setSelectedBean } = useBeans();
   const navigate = useNavigate();
 
   const handleSelectBeanForBrew = (bean: Bean) => {
@@ -13,12 +13,20 @@ export const StashRoute: React.FC = () => {
     navigate('/timer');
   };
 
+  const handleAddBean = async (bean: Bean) => {
+    await addBean(bean);
+  };
+
+  const handleUpdateBean = async (bean: Bean) => {
+    await updateBean(bean);
+  };
+
   return (
     <StashView
       beans={beans}
-      onAddBean={onAddBean}
-      onUpdateBean={onUpdateBean}
-      onDeleteBean={onDeleteBean}
+      onAddBean={handleAddBean}
+      onUpdateBean={handleUpdateBean}
+      onDeleteBean={deleteBean}
       onSelectBeanForBrew={handleSelectBeanForBrew}
     />
   );

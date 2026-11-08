@@ -1,7 +1,11 @@
 /** @vitest-environment jsdom */
+import React from "react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { useEquipment } from "./useEquipment";
+import {
+  EquipmentProvider,
+  useEquipment,
+} from "./EquipmentContext";
 import { useAuth } from "../auth/AuthContext";
 import { supabase } from "../../lib/supabase";
 import { INITIAL_EQUIPMENT } from "../../lib/sampleData";
@@ -16,13 +20,25 @@ vi.mock("../../lib/supabase", () => ({
   },
 }));
 
-describe("useEquipment hook", () => {
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <EquipmentProvider>{children}</EquipmentProvider>
+);
+
+describe("EquipmentContext", () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
   });
 
-  it("initializes with INITIAL_EQUIPMENT when unauthenticated and localStorage is empty", async () => {
+  it("throws when useEquipment is used outside EquipmentProvider", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(() => renderHook(() => useEquipment())).toThrow(
+      "useEquipment must be used within an EquipmentProvider"
+    );
+    spy.mockRestore();
+  });
+
+  it("initializes with INITIAL_EQUIPMENT and derived categories when unauthenticated and localStorage is empty", async () => {
     vi.mocked(useAuth).mockReturnValue({
       user: null,
       session: null,
@@ -39,9 +55,24 @@ describe("useEquipment hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useEquipment());
+    const { result } = renderHook(() => useEquipment(), { wrapper });
 
     expect(result.current.equipment).toEqual(INITIAL_EQUIPMENT);
+    expect(result.current.grinders).toEqual(
+      INITIAL_EQUIPMENT.filter((e) => e.type === "grinder")
+    );
+    expect(result.current.brewers).toEqual(
+      INITIAL_EQUIPMENT.filter((e) => e.type === "brewer")
+    );
+    expect(result.current.scales).toEqual(
+      INITIAL_EQUIPMENT.filter((e) => e.type === "scale")
+    );
+    expect(result.current.kettles).toEqual(
+      INITIAL_EQUIPMENT.filter((e) => e.type === "kettle")
+    );
+    expect(result.current.other).toEqual(
+      INITIAL_EQUIPMENT.filter((e) => e.type === "other")
+    );
   });
 
   it("loads existing equipment from localStorage cache", async () => {
@@ -72,7 +103,7 @@ describe("useEquipment hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useEquipment());
+    const { result } = renderHook(() => useEquipment(), { wrapper });
 
     expect(result.current.equipment).toEqual(cachedGear);
   });
@@ -96,7 +127,7 @@ describe("useEquipment hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useEquipment());
+    const { result } = renderHook(() => useEquipment(), { wrapper });
 
     expect(result.current.equipment).toEqual([]);
   });
@@ -118,7 +149,7 @@ describe("useEquipment hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useEquipment());
+    const { result } = renderHook(() => useEquipment(), { wrapper });
 
     let addedItem: any;
     await act(async () => {
@@ -130,7 +161,9 @@ describe("useEquipment hook", () => {
       });
     });
 
-    expect(addedItem.id).toMatch(/^local-eq-/);
+    expect(addedItem.id).toMatch(
+      /^local-eq-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    );
     expect(addedItem.brand).toBe("Acaia");
     expect(addedItem.model).toBe("Lunar");
 
@@ -170,7 +203,7 @@ describe("useEquipment hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useEquipment());
+    const { result } = renderHook(() => useEquipment(), { wrapper });
 
     expect(result.current.equipment).toHaveLength(1);
 
@@ -242,7 +275,7 @@ describe("useEquipment hook", () => {
       return {} as any;
     });
 
-    const { result } = renderHook(() => useEquipment());
+    const { result } = renderHook(() => useEquipment(), { wrapper });
 
     await waitFor(() => {
       expect(mockInsert).toHaveBeenCalledWith(
@@ -314,7 +347,7 @@ describe("useEquipment hook", () => {
       return {} as any;
     });
 
-    const { result } = renderHook(() => useEquipment());
+    const { result } = renderHook(() => useEquipment(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.equipment.some((e) => e.id === "local-eq-fail-1")).toBe(true);
@@ -355,7 +388,7 @@ describe("useEquipment hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useEquipment());
+    const { result } = renderHook(() => useEquipment(), { wrapper });
 
     await act(async () => {
       await result.current.updateEquipment("eq-update-me", {
@@ -400,7 +433,7 @@ describe("useEquipment hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useEquipment());
+    const { result } = renderHook(() => useEquipment(), { wrapper });
 
     expect(result.current.equipment[0].isFavorite).toBe(false);
 
@@ -419,4 +452,3 @@ describe("useEquipment hook", () => {
     expect(result.current.equipment[0].isFavorite).toBe(false);
   });
 });
-

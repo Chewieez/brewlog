@@ -1,7 +1,12 @@
 /** @vitest-environment jsdom */
+import React from "react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { useRecipes } from "./useRecipes";
+import {
+  RecipeProvider,
+  useRecipes,
+  WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY,
+} from "./RecipeContext";
 import { useAuth } from "../auth/AuthContext";
 import { supabase } from "../../lib/supabase";
 import { DEFAULT_PRESET_RECIPES, BrewRecipe } from "@brewlog/core";
@@ -16,10 +21,22 @@ vi.mock("../../lib/supabase", () => ({
   },
 }));
 
-describe("useRecipes hook", () => {
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <RecipeProvider>{children}</RecipeProvider>
+);
+
+describe("RecipeContext", () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+  });
+
+  it("throws when useRecipes is used outside RecipeProvider", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(() => renderHook(() => useRecipes())).toThrow(
+      "useRecipes must be used within a RecipeProvider"
+    );
+    spy.mockRestore();
   });
 
   it("initializes with DEFAULT_PRESET_RECIPES when unauthenticated and localStorage is empty", async () => {
@@ -39,10 +56,59 @@ describe("useRecipes hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useRecipes());
+    const { result } = renderHook(() => useRecipes(), { wrapper });
 
     expect(result.current.customRecipes).toEqual([]);
     expect(result.current.recipes).toEqual(DEFAULT_PRESET_RECIPES);
+    expect(result.current.selectedRecipe).toEqual(DEFAULT_PRESET_RECIPES[0]);
+  });
+
+  it("persists selectedRecipe to localStorage and updates selectedRecipe when edited", async () => {
+    const customRecipe: BrewRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      id: "local-rec-active",
+      name: "Initial Active Custom",
+      isPreset: false,
+    };
+    localStorage.setItem(
+      "brewlog_custom_recipes_cache",
+      JSON.stringify([customRecipe])
+    );
+
+    vi.mocked(useAuth).mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: false,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+
+    act(() => {
+      result.current.setSelectedRecipe(customRecipe);
+    });
+
+    expect(result.current.selectedRecipe.id).toBe("local-rec-active");
+    expect(
+      JSON.parse(localStorage.getItem(WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY) || "{}")
+    ).toEqual({ recipeId: "local-rec-active" });
+
+    await act(async () => {
+      await result.current.updateRecipe("local-rec-active", {
+        name: "Renamed Active Custom",
+      });
+    });
+
+    expect(result.current.selectedRecipe.name).toBe("Renamed Active Custom");
   });
 
   it("loads existing custom recipes from localStorage cache merged with presets", async () => {
@@ -83,7 +149,7 @@ describe("useRecipes hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useRecipes());
+    const { result } = renderHook(() => useRecipes(), { wrapper });
 
     expect(result.current.customRecipes).toEqual([cachedCustomRecipe]);
     expect(result.current.recipes).toEqual([
@@ -109,7 +175,7 @@ describe("useRecipes hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useRecipes());
+    const { result } = renderHook(() => useRecipes(), { wrapper });
 
     let addedRecipe: BrewRecipe | undefined;
     await act(async () => {
@@ -187,7 +253,7 @@ describe("useRecipes hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useRecipes());
+    const { result } = renderHook(() => useRecipes(), { wrapper });
 
     expect(result.current.customRecipes).toHaveLength(1);
 
@@ -221,7 +287,7 @@ describe("useRecipes hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useRecipes());
+    const { result } = renderHook(() => useRecipes(), { wrapper });
 
     const initialPresetCount = result.current.recipes.length;
     const presetId = DEFAULT_PRESET_RECIPES[0].id;
@@ -352,7 +418,7 @@ describe("useRecipes hook", () => {
       return {} as any;
     });
 
-    const { result } = renderHook(() => useRecipes());
+    const { result } = renderHook(() => useRecipes(), { wrapper });
 
     await waitFor(() => {
       expect(mockRecipeInsert).toHaveBeenCalledWith(
@@ -431,7 +497,7 @@ describe("useRecipes hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useRecipes());
+    const { result } = renderHook(() => useRecipes(), { wrapper });
 
     let updated: BrewRecipe | undefined;
     await act(async () => {
@@ -474,7 +540,7 @@ describe("useRecipes hook", () => {
       signOut: vi.fn(),
     });
 
-    const { result } = renderHook(() => useRecipes());
+    const { result } = renderHook(() => useRecipes(), { wrapper });
     const preset = DEFAULT_PRESET_RECIPES[0];
 
     let attemptedUpdate: BrewRecipe | undefined;
@@ -605,7 +671,7 @@ describe("useRecipes hook", () => {
       return {} as any;
     });
 
-    const { result } = renderHook(() => useRecipes());
+    const { result } = renderHook(() => useRecipes(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.customRecipes).toHaveLength(1);
@@ -736,7 +802,7 @@ describe("useRecipes hook", () => {
       return {} as any;
     });
 
-    const { result } = renderHook(() => useRecipes());
+    const { result } = renderHook(() => useRecipes(), { wrapper });
 
     await waitFor(() => {
       expect(mockRecipeInsert).toHaveBeenCalledTimes(1);
@@ -864,7 +930,7 @@ describe("useRecipes hook", () => {
       return {} as any;
     });
 
-    const { result } = renderHook(() => useRecipes());
+    const { result } = renderHook(() => useRecipes(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.customRecipes).toHaveLength(1);
@@ -900,5 +966,93 @@ describe("useRecipes hook", () => {
     expect(saved[0].name).toBe("Original Chemex");
     expect(saved[0].stages[0].name).toBe("Original Bloom");
   });
-});
 
+  it("generates UUID-based IDs for offline recipes and stages to prevent millisecond collisions", async () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: false,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+
+    let added: BrewRecipe | undefined;
+    await act(async () => {
+      added = await result.current.addRecipe({
+        name: "Offline Collision Test",
+        brewMethod: "v60",
+        coffeeDoseGrams: 15,
+        waterAmountGrams: 250,
+        targetTimeSeconds: 180,
+        stages: [
+          {
+            name: "Bloom",
+            startSecond: 0,
+            durationSeconds: 45,
+            targetWaterWeightGrams: 50,
+            instruction: "Bloom",
+            stageType: "bloom",
+          },
+        ],
+      });
+    });
+
+    expect(added?.id).toMatch(
+      /^local-rec-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    );
+    expect(added?.stages[0].id).toMatch(
+      /^local-stage-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    );
+  });
+
+  it("avoids redundant localStorage reads when switching selectedRecipe or re-rendering", async () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: false,
+      isPasswordRecovery: false,
+      authUrlError: null,
+      clearAuthUrlError: vi.fn(),
+      setIsPasswordRecovery: vi.fn(),
+      signInWithEmail: vi.fn(),
+      signUpWithEmail: vi.fn(),
+      resetPasswordForEmail: vi.fn(),
+      updatePassword: vi.fn(),
+      signOut: vi.fn(),
+    });
+
+    const getItemSpy = vi.spyOn(Storage.prototype, "getItem");
+
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+
+    const readsAfterMount = getItemSpy.mock.calls.filter(
+      (c) => c[0] === WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY
+    ).length;
+
+    // Switch recipe
+    act(() => {
+      result.current.setSelectedRecipe(DEFAULT_PRESET_RECIPES[1]);
+    });
+
+    const readsAfterSelect = getItemSpy.mock.calls.filter(
+      (c) => c[0] === WEB_LAST_ACTIVE_RECIPE_STORAGE_KEY
+    ).length;
+
+    // Selecting recipe should NOT trigger extra getItem calls on the storage key
+    expect(readsAfterSelect).toBe(readsAfterMount);
+    expect(result.current.selectedRecipe.id).toBe(DEFAULT_PRESET_RECIPES[1].id);
+
+    getItemSpy.mockRestore();
+  });
+});

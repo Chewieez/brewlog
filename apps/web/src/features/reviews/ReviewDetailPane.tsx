@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@brewlog/ui';
 import { TastingLog, Bean, Equipment, formatDisplayDate } from '@brewlog/core';
-import { useOptionalSettings } from '../settings/SettingsContext';
+import { useSettings } from '../settings/SettingsContext';
 import {
   Star,
   Edit3,
@@ -69,8 +69,8 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
   onDelete,
   onBrewAgain,
 }) => {
-  const settingsContext = useOptionalSettings();
-  const dateFormat = settingsContext?.settings.dateFormat ?? 'locale';
+  const { settings } = useSettings();
+  const dateFormat = settings.dateFormat;
 
   const [sensoryTab, setSensoryTab] = useState<'descriptors' | 'wheel'>('descriptors');
   const [showDeleteModal, setShowDeleteModal] = useState(false);

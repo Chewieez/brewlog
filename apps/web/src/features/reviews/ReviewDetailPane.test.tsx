@@ -2,7 +2,16 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { ReviewDetailPane } from './ReviewDetailPane';
-import { TastingLog, Bean } from '@brewlog/core';
+import { DEFAULT_USER_SETTINGS, TastingLog, Bean } from '@brewlog/core';
+
+vi.mock('../settings/SettingsContext', () => ({
+  useSettings: vi.fn(() => ({
+    settings: DEFAULT_USER_SETTINGS,
+    loading: false,
+    updateSettings: vi.fn(),
+    resetToDefaults: vi.fn(),
+  })),
+}));
 
 const mockLog: TastingLog = {
   id: 'log-test-1',

@@ -1,22 +1,92 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, cleanup, fireEvent, act } from '@testing-library/react';
-import { MemoryRouter, Routes, Route, Outlet } from 'react-router';
+import { MemoryRouter, Routes, Route } from 'react-router';
 import { ReviewsRoute } from './ReviewsRoute';
-import { RootOutletContext } from '../layouts/RootLayout';
-import { TastingLog, DEFAULT_PRESET_RECIPES } from '@brewlog/core';
+import { TastingLog, DEFAULT_PRESET_RECIPES, DEFAULT_USER_SETTINGS } from '@brewlog/core';
 import { INITIAL_BEANS } from '../lib/sampleData';
 
-let mockOutletContext: Partial<RootOutletContext>;
+let mockLogs: TastingLog[] = [];
+const mockSetPendingBrewSession = vi.fn();
+const mockSetSelectedBean = vi.fn();
+const mockSetSelectedRecipe = vi.fn();
+const mockAddReview = vi.fn();
+const mockUpdateReview = vi.fn();
+const mockDeleteReview = vi.fn();
+
+vi.mock('../features/settings/SettingsContext', () => ({
+  useSettings: () => ({
+    settings: DEFAULT_USER_SETTINGS,
+    loading: false,
+    updateSettings: vi.fn(),
+    resetToDefaults: vi.fn(),
+  }),
+}));
+
+vi.mock('../features/reviews/ReviewsContext', () => ({
+  useReviews: () => ({
+    logs: mockLogs,
+    loading: false,
+    pendingBrewSession: null,
+    setPendingBrewSession: mockSetPendingBrewSession,
+    addReview: mockAddReview,
+    updateReview: mockUpdateReview,
+    deleteReview: mockDeleteReview,
+    refreshLogs: vi.fn(),
+  }),
+}));
+
+vi.mock('../features/stash/BeansContext', () => ({
+  useBeans: () => ({
+    beans: INITIAL_BEANS,
+    selectedBean: null,
+    setSelectedBean: mockSetSelectedBean,
+    loading: false,
+    addBean: vi.fn(),
+    updateBean: vi.fn(),
+    deleteBean: vi.fn(),
+    refreshBeans: vi.fn(),
+  }),
+}));
+
+vi.mock('../features/recipes/RecipeContext', () => ({
+  useRecipes: () => ({
+    recipes: DEFAULT_PRESET_RECIPES,
+    customRecipes: [],
+    presets: DEFAULT_PRESET_RECIPES,
+    selectedRecipe: DEFAULT_PRESET_RECIPES[0],
+    setSelectedRecipe: mockSetSelectedRecipe,
+    loading: false,
+    addRecipe: vi.fn(),
+    updateRecipe: vi.fn(),
+    deleteRecipe: vi.fn(),
+    refreshRecipes: vi.fn(),
+  }),
+}));
+
+vi.mock('../features/equipment/EquipmentContext', () => ({
+  useEquipment: () => ({
+    equipment: [],
+    grinders: [],
+    brewers: [],
+    scales: [],
+    kettles: [],
+    other: [],
+    loading: false,
+    addEquipment: vi.fn(),
+    updateEquipment: vi.fn(),
+    deleteEquipment: vi.fn(),
+    toggleFavorite: vi.fn(),
+    refreshEquipment: vi.fn(),
+  }),
+}));
 
 const renderReviewsRoute = () => {
   return render(
     <MemoryRouter initialEntries={['/reviews']}>
       <Routes>
-        <Route element={<Outlet context={mockOutletContext} />}>
-          <Route path="reviews" element={<ReviewsRoute />} />
-          <Route path="timer" element={<div>Timer Page</div>} />
-        </Route>
+        <Route path="reviews" element={<ReviewsRoute />} />
+        <Route path="timer" element={<div>Timer Page</div>} />
       </Routes>
     </MemoryRouter>
   );
@@ -28,19 +98,13 @@ describe('ReviewsRoute', () => {
   });
 
   beforeEach(() => {
-    mockOutletContext = {
-      tastingLogs: [],
-      beans: INITIAL_BEANS,
-      recipes: DEFAULT_PRESET_RECIPES,
-      equipment: [],
-      pendingBrewSession: null,
-      setPendingBrewSession: vi.fn(),
-      setSelectedBean: vi.fn(),
-      setSelectedRecipe: vi.fn(),
-      onAddTastingLog: vi.fn(),
-      onUpdateTastingLog: vi.fn(),
-      onDeleteTastingLog: vi.fn(),
-    };
+    mockLogs = [];
+    mockSetPendingBrewSession.mockReset();
+    mockSetSelectedBean.mockReset();
+    mockSetSelectedRecipe.mockReset();
+    mockAddReview.mockReset();
+    mockUpdateReview.mockReset();
+    mockDeleteReview.mockReset();
   });
 
   it('renders ReviewsView inside the route', () => {
@@ -48,7 +112,7 @@ describe('ReviewsRoute', () => {
     expect(screen.getByText(/Reviews & Cupping Journal/i)).toBeDefined();
   });
 
-  it('passes onAddTastingLog that returns the created log and clears pendingBrewSession', async () => {
+  it('passes addReview that returns the created log and clears pendingBrewSession', async () => {
     const createdLog: TastingLog = {
       id: 'log-created-test',
       brewMethod: 'v60',
@@ -81,7 +145,7 @@ describe('ReviewsRoute', () => {
       createdAt: '2026-10-06T12:00:00Z',
     };
 
-    mockOutletContext.onAddTastingLog = vi.fn().mockResolvedValue(createdLog);
+    mockAddReview.mockResolvedValue(createdLog);
 
     renderReviewsRoute();
 
@@ -95,8 +159,8 @@ describe('ReviewsRoute', () => {
       fireEvent.submit(form);
     });
 
-    expect(mockOutletContext.onAddTastingLog).toHaveBeenCalledTimes(1);
-    expect(mockOutletContext.setPendingBrewSession).toHaveBeenCalledWith(null);
+    expect(mockAddReview).toHaveBeenCalledTimes(1);
+    expect(mockSetPendingBrewSession).toHaveBeenCalledWith(null);
   });
 
   it('navigates directly to /timer and preselects bean and recipe on onBrewAgain', () => {
@@ -134,15 +198,15 @@ describe('ReviewsRoute', () => {
       createdAt: '2026-10-06T12:00:00Z',
     };
 
-    mockOutletContext.tastingLogs = [existingLog];
+    mockLogs = [existingLog];
 
     renderReviewsRoute();
 
     const brewAgainBtn = screen.getByRole('button', { name: /Brew Again/i });
     fireEvent.click(brewAgainBtn);
 
-    expect(mockOutletContext.setSelectedBean).toHaveBeenCalledWith(INITIAL_BEANS[0]);
-    expect(mockOutletContext.setSelectedRecipe).toHaveBeenCalledWith(DEFAULT_PRESET_RECIPES[0]);
+    expect(mockSetSelectedBean).toHaveBeenCalledWith(INITIAL_BEANS[0]);
+    expect(mockSetSelectedRecipe).toHaveBeenCalledWith(DEFAULT_PRESET_RECIPES[0]);
     expect(screen.getByText('Timer Page')).toBeDefined();
   });
 });

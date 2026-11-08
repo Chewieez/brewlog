@@ -1,45 +1,31 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Button } from '@brewlog/ui';
 import { Outlet, useOutletContext, useParams, useNavigate } from 'react-router';
-import { BrewRecipe, Equipment } from '@brewlog/core';
+import { BrewRecipe } from '@brewlog/core';
 import { Plus } from 'lucide-react';
-import { useRootOutletContext } from '../layouts/RootLayout';
+import { useRecipes } from '../features/recipes/RecipeContext';
 import { RecipeCatalogList } from '../features/recipes/RecipeCatalogList';
 import { RecipeBuilderModal } from '../features/recipes/RecipeBuilderModal';
 
 export interface RecipeOutletContext {
-  recipes: BrewRecipe[];
-  equipment?: Equipment[];
-  onSelectRecipeForTimer: (recipe: BrewRecipe) => void;
   onEditRecipe?: (recipe: BrewRecipe) => void;
-  onDeleteRecipe?: (id: string) => Promise<void> | void;
 }
 
-export const useRecipeOutletContext = () => useOutletContext<RecipeOutletContext>();
+export const useRecipeOutletContext = () => useOutletContext<RecipeOutletContext | undefined>();
 
 export const RecipesRoute: React.FC = () => {
   const {
     recipes,
-    equipment,
-    onAddEquipment,
-    onAddRecipe,
-    onUpdateRecipe,
-    onDeleteRecipe,
-    setSelectedRecipe,
-  } = useRootOutletContext();
+    addRecipe,
+    updateRecipe,
+    deleteRecipe,
+  } = useRecipes();
   const { recipeId } = useParams<{ recipeId?: string }>();
   const navigate = useNavigate();
 
   const [selectedMethodFilter, setSelectedMethodFilter] = useState<string>('all');
   const [isBuilderModalOpen, setIsBuilderModalOpen] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<BrewRecipe | null>(null);
-
-  const handleSelectRecipeForTimer = useCallback(
-    (recipe: BrewRecipe) => {
-      setSelectedRecipe(recipe);
-    },
-    [setSelectedRecipe]
-  );
 
   const handleEditRecipe = useCallback((recipe: BrewRecipe) => {
     setEditingRecipe(recipe);
@@ -48,40 +34,34 @@ export const RecipesRoute: React.FC = () => {
 
   const handleDeleteRecipeFromList = useCallback(
     async (recipe: BrewRecipe) => {
-      if (onDeleteRecipe) {
-        await onDeleteRecipe(recipe.id);
-      }
+      await deleteRecipe(recipe.id);
       if (recipe.id === recipeId) {
         navigate('/recipes');
       }
     },
-    [onDeleteRecipe, recipeId, navigate]
+    [deleteRecipe, recipeId, navigate]
   );
 
   const handleSaveRecipe = useCallback(
     async (newRecipe: Omit<BrewRecipe, 'id' | 'createdAt'>) => {
       if (editingRecipe) {
-        await onUpdateRecipe(editingRecipe.id, newRecipe);
+        await updateRecipe(editingRecipe.id, newRecipe);
         setEditingRecipe(null);
       } else {
-        const created = await onAddRecipe(newRecipe);
+        const created = await addRecipe(newRecipe);
         if (created?.id) {
           navigate('/recipes/' + created.id);
         }
       }
     },
-    [editingRecipe, onUpdateRecipe, onAddRecipe, navigate]
+    [editingRecipe, updateRecipe, addRecipe, navigate]
   );
 
   const recipeOutletContextValue = useMemo<RecipeOutletContext>(
     () => ({
-      recipes,
-      equipment,
-      onSelectRecipeForTimer: handleSelectRecipeForTimer,
       onEditRecipe: handleEditRecipe,
-      onDeleteRecipe,
     }),
-    [recipes, equipment, handleSelectRecipeForTimer, handleEditRecipe, onDeleteRecipe]
+    [handleEditRecipe]
   );
 
   return (
@@ -142,8 +122,6 @@ export const RecipesRoute: React.FC = () => {
       <RecipeBuilderModal
         isOpen={isBuilderModalOpen}
         initialRecipe={editingRecipe}
-        equipment={equipment}
-        onAddEquipment={onAddEquipment}
         onClose={() => {
           setIsBuilderModalOpen(false);
           setEditingRecipe(null);

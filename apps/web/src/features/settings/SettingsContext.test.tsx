@@ -64,6 +64,14 @@ describe('SettingsContext (Web)', () => {
     });
   });
 
+  it('throws when useSettings is used outside SettingsProvider', () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(() => renderHook(() => useSettings())).toThrow(
+      'useSettings must be used within a SettingsProvider'
+    );
+    spy.mockRestore();
+  });
+
   it('hydrates with default settings when localStorage is empty', async () => {
     const { result } = renderHook(() => useSettings(), {
       wrapper: ({ children }) => <SettingsProvider>{children}</SettingsProvider>,

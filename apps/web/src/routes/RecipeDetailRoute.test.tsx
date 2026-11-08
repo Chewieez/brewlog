@@ -2,14 +2,31 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, Outlet, useLocation } from 'react-router';
-import { DEFAULT_PRESET_RECIPES, BrewRecipe } from '@brewlog/core';
+import { DEFAULT_PRESET_RECIPES, DEFAULT_USER_SETTINGS, BrewRecipe } from '@brewlog/core';
 import { RecipeDetailRoute } from './RecipeDetailRoute';
 import { RecipeIndexRoute } from './RecipeIndexRoute';
 import { RecipeOutletContext } from './RecipesRoute';
 
-vi.mock('../features/equipment/useEquipment', () => ({
+const mockSetSelectedRecipe = vi.fn();
+const mockDeleteRecipe = vi.fn();
+
+vi.mock('../features/settings/SettingsContext', () => ({
+  useSettings: vi.fn(() => ({
+    settings: DEFAULT_USER_SETTINGS,
+    loading: false,
+    updateSettings: vi.fn(),
+    resetToDefaults: vi.fn(),
+  })),
+}));
+
+vi.mock('../features/equipment/EquipmentContext', () => ({
   useEquipment: vi.fn(() => ({
     equipment: [],
+    grinders: [],
+    brewers: [],
+    scales: [],
+    kettles: [],
+    other: [],
     loading: false,
     addEquipment: vi.fn(),
     updateEquipment: vi.fn(),
@@ -17,6 +34,14 @@ vi.mock('../features/equipment/useEquipment', () => ({
     toggleFavorite: vi.fn(),
     refreshEquipment: vi.fn(),
   })),
+}));
+
+vi.mock('../features/recipes/RecipeContext', () => ({
+  useRecipes: () => ({
+    recipes: [mockCustomRecipe, ...DEFAULT_PRESET_RECIPES],
+    setSelectedRecipe: mockSetSelectedRecipe,
+    deleteRecipe: mockDeleteRecipe,
+  }),
 }));
 
 const mockCustomRecipe: BrewRecipe = {
@@ -63,11 +88,10 @@ describe('RecipeDetailRoute', () => {
   });
 
   beforeEach(() => {
+    mockSetSelectedRecipe.mockReset();
+    mockDeleteRecipe.mockReset();
     mockContext = {
-      recipes: [mockCustomRecipe, ...DEFAULT_PRESET_RECIPES],
-      onSelectRecipeForTimer: vi.fn(),
       onEditRecipe: vi.fn(),
-      onDeleteRecipe: vi.fn(),
     };
   });
 
@@ -86,14 +110,14 @@ describe('RecipeDetailRoute', () => {
     expect(screen.getByText(/page not found/i)).toBeDefined();
   });
 
-  it('calls onSelectRecipeForTimer and navigates to /timer when brew button is clicked', () => {
+  it('calls setSelectedRecipe and navigates to /timer when brew button is clicked', () => {
     const targetRecipe = DEFAULT_PRESET_RECIPES[0];
     renderWithContext(`/recipes/${targetRecipe.id}`);
 
     const brewButton = screen.getByRole('button', { name: /brew with this recipe/i });
     fireEvent.click(brewButton);
 
-    expect(mockContext.onSelectRecipeForTimer).toHaveBeenCalledTimes(1);
+    expect(mockSetSelectedRecipe).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('location-display').textContent).toBe('/timer?mode=recipe');
   });
 
@@ -108,7 +132,7 @@ describe('RecipeDetailRoute', () => {
     expect(mockContext.onEditRecipe).toHaveBeenCalledWith(mockCustomRecipe);
   });
 
-  it('prompts confirmation modal and calls onDeleteRecipe and navigates to /recipes on confirm', async () => {
+  it('prompts confirmation modal and calls deleteRecipe and navigates to /recipes on confirm', async () => {
     renderWithContext(`/recipes/${mockCustomRecipe.id}`);
 
     const deleteButton = screen.getByRole('button', {
@@ -118,12 +142,12 @@ describe('RecipeDetailRoute', () => {
 
     expect(screen.getByRole('dialog')).toBeDefined();
     expect(screen.getByText('Delete Custom Recipe?')).toBeDefined();
-    expect(mockContext.onDeleteRecipe).not.toHaveBeenCalled();
+    expect(mockDeleteRecipe).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete Recipe' }));
 
     await waitFor(() => {
-      expect(mockContext.onDeleteRecipe).toHaveBeenCalledWith(mockCustomRecipe.id);
+      expect(mockDeleteRecipe).toHaveBeenCalledWith(mockCustomRecipe.id);
       expect(screen.getByTestId('location-display').textContent).toBe('/recipes');
     });
   });
@@ -136,9 +160,7 @@ describe('RecipeIndexRoute', () => {
 
   beforeEach(() => {
     mockContext = {
-      recipes: DEFAULT_PRESET_RECIPES,
-      onSelectRecipeForTimer: vi.fn(),
-      onDeleteRecipe: vi.fn(),
+      onEditRecipe: vi.fn(),
     };
   });
 

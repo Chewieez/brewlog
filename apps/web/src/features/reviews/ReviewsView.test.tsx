@@ -3,7 +3,16 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, act, cleanup, within, createEvent } from '@testing-library/react';
 import { ReviewsView } from './ReviewsView';
 import { INITIAL_BEANS } from '../../lib/sampleData';
-import { DEFAULT_PRESET_RECIPES, Equipment, TastingLog, BrewRecipe, formatDisplayDate } from '@brewlog/core';
+import { DEFAULT_PRESET_RECIPES, DEFAULT_USER_SETTINGS, Equipment, TastingLog, BrewRecipe, formatDisplayDate } from '@brewlog/core';
+
+vi.mock('../settings/SettingsContext', () => ({
+  useSettings: vi.fn(() => ({
+    settings: DEFAULT_USER_SETTINGS,
+    loading: false,
+    updateSettings: vi.fn(),
+    resetToDefaults: vi.fn(),
+  })),
+}));
 
 const mockEquipment: Equipment[] = [
   {

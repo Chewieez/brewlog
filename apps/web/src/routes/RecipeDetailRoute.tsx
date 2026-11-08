@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { BrewRecipe } from '@brewlog/core';
+import { useRecipes } from '../features/recipes/RecipeContext';
 import { useRecipeOutletContext } from './RecipesRoute';
 import { RecipeDetailPane } from '../features/recipes/RecipeDetailPane';
 import { NotFoundRoute } from './NotFoundRoute';
@@ -8,26 +9,25 @@ import { NotFoundRoute } from './NotFoundRoute';
 export const RecipeDetailRoute: React.FC = () => {
   const { recipeId } = useParams<{ recipeId: string }>();
   const navigate = useNavigate();
-  const { recipes, equipment, onSelectRecipeForTimer, onEditRecipe, onDeleteRecipe } = useRecipeOutletContext();
+  const { recipes, setSelectedRecipe, deleteRecipe } = useRecipes();
+  const outletContext = useRecipeOutletContext();
 
   const recipe = recipes.find((r) => r.id === recipeId);
 
   const handleSelectRecipeForTimer = useCallback(
     (selectedRecipe: BrewRecipe) => {
-      onSelectRecipeForTimer(selectedRecipe);
+      setSelectedRecipe(selectedRecipe);
       navigate('/timer?mode=recipe');
     },
-    [onSelectRecipeForTimer, navigate]
+    [setSelectedRecipe, navigate]
   );
 
   const handleDeleteRecipe = useCallback(
     async (recipeToDelete: BrewRecipe) => {
-      if (onDeleteRecipe) {
-        await onDeleteRecipe(recipeToDelete.id);
-      }
+      await deleteRecipe(recipeToDelete.id);
       navigate('/recipes');
     },
-    [onDeleteRecipe, navigate]
+    [deleteRecipe, navigate]
   );
 
   if (!recipe) {
@@ -37,9 +37,8 @@ export const RecipeDetailRoute: React.FC = () => {
   return (
     <RecipeDetailPane
       recipe={recipe}
-      equipment={equipment}
       onSelectRecipeForTimer={handleSelectRecipeForTimer}
-      onEditRecipe={onEditRecipe}
+      onEditRecipe={outletContext?.onEditRecipe}
       onDeleteRecipe={handleDeleteRecipe}
       showMobileBackButton={true}
     />
