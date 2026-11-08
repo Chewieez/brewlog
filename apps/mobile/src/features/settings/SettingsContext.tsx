@@ -13,6 +13,7 @@ import { UserSettings, DEFAULT_USER_SETTINGS } from '@brewlog/core';
 import { mapDbToUserSettings, mapUserSettingsToDb } from '@brewlog/supabase';
 import { useAuth } from '../auth/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { captureSyncError } from '../../lib/sentry';
 
 export const SETTINGS_STORAGE_KEY = '@brewlog/mobile:settings_cache';
 
@@ -93,7 +94,10 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
 
         if (!isMounted) return;
 
-        if (!error && data) {
+        if (error) {
+          console.error('Failed to fetch settings from Supabase:', error);
+          captureSyncError('settings', 'fetch', error);
+        } else if (data) {
           const remoteSettings = mapDbToUserSettings(data);
           const merged: UserSettings = {
             ...current,
@@ -102,15 +106,17 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
           };
           setSettings(merged);
           await persistCachedSettings(merged);
-        } else if (!error && !data) {
+        } else if (!data) {
           const payload = mapUserSettingsToDb(current, user.id);
           const { error: upsertError } = await supabase.from('user_settings').upsert(payload);
           if (upsertError) {
             console.error('Failed to sync settings to Supabase:', upsertError);
+            captureSyncError('settings', 'insert', upsertError);
           }
         }
       } catch (err) {
         console.error('Failed to sync settings with Supabase:', err);
+        captureSyncError('settings', 'fetch', err);
       }
     };
 
@@ -137,9 +143,11 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
           const { error } = await supabase.from('user_settings').upsert(payload);
           if (error) {
             console.error('Failed to sync settings to Supabase:', error);
+            captureSyncError('settings', 'update', error);
           }
         } catch (err) {
           console.error('Failed to sync updated settings to Supabase:', err);
+          captureSyncError('settings', 'update', err);
         }
       }
     },
@@ -158,9 +166,11 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
         const { error } = await supabase.from('user_settings').upsert(payload);
         if (error) {
           console.error('Failed to sync settings to Supabase:', error);
+          captureSyncError('settings', 'update', error);
         }
       } catch (err) {
         console.error('Failed to sync reset settings to Supabase:', err);
+        captureSyncError('settings', 'update', err);
       }
     }
   }, [user]);

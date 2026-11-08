@@ -46,6 +46,13 @@
             "usePrecompiledModules": false
           }
         }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "brewlog",
+          "project": "brewlog-mobile"
+        }
       ]
     ]
   }

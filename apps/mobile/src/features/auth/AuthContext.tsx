@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback, use
 import { AppState, AppStateStatus } from "react-native";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
+import { setTelemetryUser } from "../../lib/sentry";
 
 export interface MobileAuthContextType {
   user: User | null;
@@ -47,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      setTelemetryUser(session?.user?.id ?? null);
       setLoading(false);
     }).catch(() => {
       setLoading(false);
@@ -56,6 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      setTelemetryUser(session?.user?.id ?? null);
       setLoading(false);
     });
 
@@ -123,6 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setUser(null);
       setSession(null);
+      setTelemetryUser(null);
     }
   }, []);
 

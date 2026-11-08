@@ -2,10 +2,12 @@ import "react-native-get-random-values";
 import React, { useEffect, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { Stack } from 'expo-router';
+import * as Sentry from '@sentry/react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import * as SplashScreen from 'expo-splash-screen';
+import { initSentry } from '../src/lib/sentry';
 import {
   useFonts,
   Outfit_300Light,
@@ -28,9 +30,11 @@ import { StashProvider } from '../src/features/stash/StashContext';
 import { EquipmentProvider } from '../src/features/equipment/EquipmentContext';
 import { ReviewsProvider } from '../src/features/reviews/ReviewsContext';
 
+initSentry();
+
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     Outfit_300Light,
     Outfit_400Regular,
@@ -177,3 +181,5 @@ function NavigationRoot() {
     </>
   );
 }
+
+export default Sentry.wrap(RootLayout);

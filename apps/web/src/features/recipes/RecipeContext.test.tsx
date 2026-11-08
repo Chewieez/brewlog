@@ -991,9 +991,13 @@ describe("RecipeContext", () => {
       added = await result.current.addRecipe({
         name: "Offline Collision Test",
         brewMethod: "v60",
+        description: "Test description",
         coffeeDoseGrams: 15,
         waterAmountGrams: 250,
-        targetTimeSeconds: 180,
+        ratio: 16.67,
+        grindSize: "Medium",
+        waterTempCelsius: 93,
+        totalTimeSeconds: 180,
         stages: [
           {
             name: "Bloom",

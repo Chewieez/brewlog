@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
+import { setTelemetryUser } from "../../lib/sentry";
 
 interface AuthContextType {
   user: User | null;
@@ -65,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      setTelemetryUser(session?.user?.id ?? null);
       setLoading(false);
     });
 
@@ -75,6 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       setSession(session);
       setUser(session?.user ?? null);
+      setTelemetryUser(session?.user?.id ?? null);
       setLoading(false);
     });
 
@@ -127,6 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     setUser(null);
     setSession(null);
+    setTelemetryUser(null);
     setIsPasswordRecovery(false);
   };
 

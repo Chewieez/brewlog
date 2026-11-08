@@ -14,6 +14,7 @@ import {
 } from "@brewlog/supabase";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../auth/AuthContext";
+import { captureSyncError } from "../../lib/sentry";
 
 const STORAGE_KEY = "brewlog_equipment_cache";
 
@@ -98,9 +99,11 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
               syncedIds.add(item.id);
             } else {
               console.error("Failed to sync item:", item, insertErr);
+              captureSyncError("equipment", "insert", insertErr, item.id);
             }
           } catch (syncErr) {
             console.error("Failed to sync item:", item, syncErr);
+            captureSyncError("equipment", "insert", syncErr, item.id);
           }
         }
       }
@@ -113,6 +116,7 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
 
       if (error) {
         console.error("Supabase fetchEquipment error:", error);
+        captureSyncError("equipment", "fetch", error);
       } else if (data) {
         const mapped: Equipment[] = data.map(mapEquipmentRowToDomain);
         const remainingUnsynced = localItems.filter(
@@ -124,6 +128,7 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
       }
     } catch (err) {
       console.error("fetchEquipment exception:", err);
+      captureSyncError("equipment", "fetch", err);
     } finally {
       setLoading(false);
     }
@@ -163,6 +168,7 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
 
         if (error) {
           console.error("Supabase equipment insert error:", error);
+          captureSyncError("equipment", "insert", error, fallbackItem.id);
           // Retain optimistic local item so user sees their gear immediately
           setEquipment((prev) => {
             const updated = [fallbackItem, ...prev];
@@ -183,6 +189,7 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
         }
       } catch (err) {
         console.error("addEquipment exception:", err);
+        captureSyncError("equipment", "insert", err, fallbackItem.id);
         setEquipment((prev) => {
           const updated = [fallbackItem, ...prev];
           saveLocalEquipment(updated);
@@ -229,9 +236,11 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
             .eq("id", id);
           if (error) {
             console.error("Supabase equipment update error:", error);
+            captureSyncError("equipment", "update", error, id);
           }
         } catch (err) {
           console.error("updateEquipment exception:", err);
+          captureSyncError("equipment", "update", err, id);
         }
       }
 
@@ -262,9 +271,11 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
           const { error } = await supabase.from("equipment").delete().eq("id", id);
           if (error) {
             console.error("Supabase equipment delete error:", error);
+            captureSyncError("equipment", "delete", error, id);
           }
         } catch (err) {
           console.error("deleteEquipment exception:", err);
+          captureSyncError("equipment", "delete", err, id);
         }
       }
     },

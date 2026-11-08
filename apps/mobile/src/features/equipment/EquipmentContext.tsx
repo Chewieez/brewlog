@@ -17,6 +17,7 @@ import {
 } from '@brewlog/supabase';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../auth/AuthContext';
+import { captureSyncError } from '../../lib/sentry';
 
 export const EQUIPMENT_STORAGE_KEY = '@brewlog/mobile:equipment_cache';
 export const EQUIPMENT_PENDING_UPDATES_KEY = '@brewlog/mobile:equipment_pending_updates';
@@ -177,9 +178,11 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
               pendingDeletesRef.current.delete(id);
             } else {
               console.error('Failed to sync pending equipment delete:', id, delErr);
+              captureSyncError('equipment', 'delete', delErr, id);
             }
           } catch (delEx) {
             console.error('Exception syncing pending equipment delete:', id, delEx);
+            captureSyncError('equipment', 'delete', delEx, id);
           }
         }
         await persistPendingDeletes(pendingDeletesRef.current);
@@ -222,9 +225,11 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
               }
             } else if (eqErr) {
               console.error('Failed to sync offline equipment:', item.model, eqErr);
+              captureSyncError('equipment', 'insert', eqErr, item.id);
             }
           } catch (syncErr) {
             console.error('Failed to sync offline equipment:', item.model, syncErr);
+            captureSyncError('equipment', 'insert', syncErr, item.id);
           }
         }
       }
@@ -248,9 +253,11 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
                 pendingUpdatesRef.current.delete(id);
               } else {
                 console.error('Failed to push pending equipment update:', target.model, updErr);
+                captureSyncError('equipment', 'update', updErr, id);
               }
             } catch (updEx) {
               console.error('Exception pushing pending equipment update:', target.model, updEx);
+              captureSyncError('equipment', 'update', updEx, id);
             }
           } else {
             pendingUpdatesRef.current.delete(id);
@@ -296,9 +303,11 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
         await persistCachedEquipment(merged);
       } else if (error) {
         console.error('fetchEquipment select error:', error);
+        captureSyncError('equipment', 'fetch', error);
       }
     } catch (err) {
       console.error('fetchEquipment error:', err);
+      captureSyncError('equipment', 'fetch', err);
     } finally {
       isFetchingRef.current = false;
       setLoading(false);
@@ -349,6 +358,7 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
 
         if (eqError || !eqData) {
           console.error('addEquipment supabase error:', eqError);
+          captureSyncError('equipment', 'insert', eqError, fallback.id);
           return fallback;
         }
 
@@ -365,6 +375,7 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
         return created;
       } catch (err) {
         console.error('addEquipment exception:', err);
+        captureSyncError('equipment', 'insert', err, fallback.id);
         return fallback;
       }
     },
@@ -402,12 +413,14 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
           const { error } = await supabase.from('equipment').update(payload).eq('id', id);
           if (error) {
             console.error('updateEquipment supabase error:', error);
+            captureSyncError('equipment', 'update', error, id);
           } else {
             pendingUpdatesRef.current.delete(id);
             await persistPendingUpdates(pendingUpdatesRef.current);
           }
         } catch (err) {
           console.error('updateEquipment exception:', err);
+          captureSyncError('equipment', 'update', err, id);
         }
       } else if (!user) {
         pendingUpdatesRef.current.add(id);
@@ -447,12 +460,14 @@ export const EquipmentProvider: React.FC<{ children: ReactNode }> = ({ children 
           const { error } = await supabase.from('equipment').delete().eq('id', id);
           if (error) {
             console.error('deleteEquipment supabase error:', error);
+            captureSyncError('equipment', 'delete', error, id);
           } else {
             pendingDeletesRef.current.delete(id);
             await persistPendingDeletes(pendingDeletesRef.current);
           }
         } catch (err) {
           console.error('deleteEquipment exception:', err);
+          captureSyncError('equipment', 'delete', err, id);
         }
       }
     },

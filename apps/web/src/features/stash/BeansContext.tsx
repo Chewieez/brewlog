@@ -15,6 +15,7 @@ import {
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../auth/AuthContext";
 import { INITIAL_BEANS } from "../../lib/sampleData";
+import { captureSyncError } from "../../lib/sentry";
 
 const STORAGE_KEY = "brewlog_beans_cache";
 
@@ -107,11 +108,13 @@ export const BeansProvider: React.FC<{ children: ReactNode }> = ({ children }) =
               .insert(payload);
             if (insertErr) {
               console.error("Failed to sync offline bean:", item.name, insertErr);
+              captureSyncError("beans", "insert", insertErr, item.id);
             } else {
               syncedIds.add(item.id);
             }
           } catch (syncErr) {
             console.error("Failed to sync bean:", item, syncErr);
+            captureSyncError("beans", "insert", syncErr, item.id);
           }
         }
       }
@@ -124,6 +127,7 @@ export const BeansProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
       if (error) {
         console.error("Supabase fetchBeans error:", error);
+        captureSyncError("beans", "fetch", error);
       } else if (data) {
         const mapped: Bean[] = data.map(mapBeanRowToDomain);
         const remainingUnsynced = localItems.filter(
@@ -135,6 +139,7 @@ export const BeansProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       }
     } catch (err) {
       console.error("fetchBeans exception:", err);
+      captureSyncError("beans", "fetch", err);
     } finally {
       setLoading(false);
     }
@@ -172,6 +177,7 @@ export const BeansProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
         if (error || !data) {
           console.error("Supabase insert error:", error);
+          captureSyncError("beans", "insert", error, fallbackBean.id);
           setBeans((prev) => {
             const updated = [fallbackBean, ...prev];
             saveLocalBeans(updated);
@@ -189,6 +195,7 @@ export const BeansProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         return created;
       } catch (err) {
         console.error("addBean exception:", err);
+        captureSyncError("beans", "insert", err, fallbackBean.id);
         setBeans((prev) => {
           const updated = [fallbackBean, ...prev];
           saveLocalBeans(updated);
@@ -227,6 +234,7 @@ export const BeansProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
         if (error) {
           console.error("Supabase update error:", error);
+          captureSyncError("beans", "update", error, updatedBean.id);
           throw error;
         }
 
@@ -242,6 +250,7 @@ export const BeansProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         }
       } catch (err) {
         console.error("updateBean exception:", err);
+        captureSyncError("beans", "update", err, updatedBean.id);
         if (existing) {
           setBeans((prev) => {
             const reverted = prev.map((b) => (b.id === updatedBean.id ? existing : b));
@@ -278,9 +287,11 @@ export const BeansProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           const { error } = await supabase.from("beans").delete().eq("id", id);
           if (error) {
             console.error("Supabase delete error:", error);
+            captureSyncError("beans", "delete", error, id);
           }
         } catch (err) {
           console.error("deleteBean exception:", err);
+          captureSyncError("beans", "delete", err, id);
         }
       }
     },
