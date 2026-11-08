@@ -5,6 +5,7 @@ vi.mock('@sentry/react-native', () => ({
   setUser: vi.fn(),
   addBreadcrumb: vi.fn(),
   captureException: vi.fn(),
+  expoRouterIntegration: vi.fn(() => ({})),
   reactNavigationIntegration: vi.fn(() => ({
     registerNavigationContainer: vi.fn(),
   })),

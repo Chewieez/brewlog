@@ -1,10 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 import { scrubPii, classifySyncError, SyncTelemetryPayload } from '@brewlog/core';
 
-export const navigationIntegration = Sentry.reactNavigationIntegration({
-  enableTimeToInitialDisplay: true,
-});
-
 export function initSentry(): void {
   const dsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
   if (!dsn) {
@@ -14,9 +10,9 @@ export function initSentry(): void {
   Sentry.init({
     dsn,
     sendDefaultPii: false,
-    tracesSampleRate: 1.0,
+    tracesSampleRate: typeof __DEV__ !== 'undefined' && !__DEV__ ? 0.2 : 1.0,
     integrations: [
-      navigationIntegration,
+      Sentry.expoRouterIntegration(),
     ],
     beforeSend(event) {
       return scrubPii(event);

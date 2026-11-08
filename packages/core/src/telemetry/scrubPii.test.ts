@@ -38,6 +38,19 @@ describe('scrubPii', () => {
     expect(result.details).toBe('Contact admin at [REDACTED_EMAIL] now');
   });
 
+  it('redacts sensitive query parameters from URLs in strings and messages', () => {
+    const input = {
+      url: 'https://api.brewlog.coffee/v1/sync?token=secretToken123&user=barista&apiKey=ak_live_xyz987',
+      authCallback: 'https://app.brewlog.coffee/callback?access_token=jwt123#state=abc',
+      safeUrl: 'https://api.brewlog.coffee/beans?limit=20&page=2',
+    };
+
+    const result = scrubPii(input);
+    expect(result.url).toBe('https://api.brewlog.coffee/v1/sync?token=[REDACTED]&user=barista&apiKey=[REDACTED]');
+    expect(result.authCallback).toBe('https://app.brewlog.coffee/callback?access_token=[REDACTED]#state=abc');
+    expect(result.safeUrl).toBe('https://api.brewlog.coffee/beans?limit=20&page=2');
+  });
+
   it('handles null, undefined, and non-object inputs safely', () => {
     expect(scrubPii(null)).toBeNull();
     expect(scrubPii(undefined)).toBeUndefined();

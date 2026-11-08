@@ -7,9 +7,7 @@ vi.mock('@sentry/react-native', () => ({
   setUser: vi.fn(),
   addBreadcrumb: vi.fn(),
   captureException: vi.fn(),
-  reactNavigationIntegration: vi.fn(() => ({
-    registerNavigationContainer: vi.fn(),
-  })),
+  expoRouterIntegration: vi.fn(() => ({ name: 'ExpoRouter' })),
   wrap: vi.fn((component) => component),
 }));
 
@@ -27,15 +25,34 @@ describe('mobile sentry integration', () => {
     expect(Sentry.init).not.toHaveBeenCalled();
   });
 
-  it('initializes Sentry when EXPO_PUBLIC_SENTRY_DSN is set', () => {
+  it('initializes Sentry when EXPO_PUBLIC_SENTRY_DSN is set with expoRouterIntegration and sample rate', () => {
     process.env.EXPO_PUBLIC_SENTRY_DSN = 'https://key@sentry.io/mobile';
     initSentry();
     expect(Sentry.init).toHaveBeenCalledWith(
       expect.objectContaining({
         dsn: 'https://key@sentry.io/mobile',
         sendDefaultPii: false,
+        tracesSampleRate: 1.0,
+        integrations: [{ name: 'ExpoRouter' }],
       })
     );
+  });
+
+  it('uses 0.2 sample rate in production builds when __DEV__ is false', () => {
+    process.env.EXPO_PUBLIC_SENTRY_DSN = 'https://key@sentry.io/mobile';
+    const originalDev = (globalThis as unknown as { __DEV__?: boolean }).__DEV__;
+    (globalThis as unknown as { __DEV__?: boolean }).__DEV__ = false;
+
+    try {
+      initSentry();
+      expect(Sentry.init).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tracesSampleRate: 0.2,
+        })
+      );
+    } finally {
+      (globalThis as unknown as { __DEV__?: boolean }).__DEV__ = originalDev;
+    }
   });
 
   it('sets user ID and clears scope on null', () => {

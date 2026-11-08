@@ -1,13 +1,13 @@
 import "react-native-get-random-values";
 import React, { useEffect, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
-import { Stack, useNavigationContainerRef } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as Sentry from '@sentry/react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import * as SplashScreen from 'expo-splash-screen';
-import { initSentry, navigationIntegration } from '../src/lib/sentry';
+import { initSentry } from '../src/lib/sentry';
 import {
   useFonts,
   Outfit_300Light,
@@ -35,14 +35,6 @@ initSentry();
 SplashScreen.preventAutoHideAsync();
 
 function RootLayout() {
-  const navigationRef = useNavigationContainerRef();
-
-  useEffect(() => {
-    if (navigationRef) {
-      navigationIntegration.registerNavigationContainer(navigationRef);
-    }
-  }, [navigationRef]);
-
   const [fontsLoaded, fontError] = useFonts({
     Outfit_300Light,
     Outfit_400Regular,

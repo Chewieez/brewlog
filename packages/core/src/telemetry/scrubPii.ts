@@ -1,5 +1,7 @@
 const SENSITIVE_KEY_REGEX = /password|token|secret|authorization|accessToken|refreshToken|apiKey/i;
 const EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+const SENSITIVE_QUERY_PARAM_REGEX =
+  /([?&](?:token|secret[_-]?key|secret|password|passwd|auth|authorization|api[_-]?key|access[_-]?token|refresh[_-]?token)=)[^&#\s]+/gi;
 
 export function scrubPii<T>(data: T, seen = new WeakSet<object>()): T {
   if (data === null || data === undefined) {
@@ -7,7 +9,9 @@ export function scrubPii<T>(data: T, seen = new WeakSet<object>()): T {
   }
 
   if (typeof data === 'string') {
-    return data.replace(EMAIL_REGEX, '[REDACTED_EMAIL]') as unknown as T;
+    return data
+      .replace(EMAIL_REGEX, '[REDACTED_EMAIL]')
+      .replace(SENSITIVE_QUERY_PARAM_REGEX, '$1[REDACTED]') as unknown as T;
   }
 
   if (typeof data !== 'object') {
