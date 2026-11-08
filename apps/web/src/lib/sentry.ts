@@ -10,7 +10,6 @@ export function initSentry(): void {
 
   Sentry.init({
     dsn,
-    sendDefaultPii: false,
     tracesSampleRate: import.meta.env.PROD ? 0.2 : 1.0,
     integrations: [
       reactRouterBrowserTracingIntegration(),

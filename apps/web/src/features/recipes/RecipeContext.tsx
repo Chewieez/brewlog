@@ -8,7 +8,7 @@ import React, {
   useRef,
   ReactNode,
 } from "react";
-import { BrewRecipe, DEFAULT_PRESET_RECIPES } from "@brewlog/core";
+import { BrewRecipe, DEFAULT_PRESET_RECIPES, BrewStage } from "@brewlog/core";
 import {
   RecipeRow,
   RecipeStageRow,
@@ -18,6 +18,10 @@ import {
 } from "@brewlog/supabase";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../auth/AuthContext";
+
+export type AddRecipeInput = Omit<BrewRecipe, "id" | "createdAt" | "stages"> & {
+  stages?: (Omit<BrewStage, "id"> & { id?: string })[];
+};
 
 function generateUUID(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -95,7 +99,7 @@ export interface RecipeContextValue {
   presets: BrewRecipe[];
   selectedRecipe: BrewRecipe;
   loading: boolean;
-  addRecipe: (newRecipe: Omit<BrewRecipe, "id" | "createdAt">) => Promise<BrewRecipe>;
+  addRecipe: (newRecipe: AddRecipeInput) => Promise<BrewRecipe>;
   updateRecipe: (id: string, updates: Partial<BrewRecipe>) => Promise<BrewRecipe>;
   deleteRecipe: (id: string) => Promise<void>;
   setSelectedRecipe: (recipe: BrewRecipe) => void;
@@ -252,7 +256,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const addRecipe = useCallback(
     async (
-      newRecipe: Omit<BrewRecipe, "id" | "createdAt">
+      newRecipe: AddRecipeInput
     ): Promise<BrewRecipe> => {
       const localId = `local-rec-${generateUUID()}`;
       const stagesWithIds = (newRecipe.stages || []).map((stage) => ({
@@ -279,7 +283,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       }
 
       try {
-        const payload = mapRecipeDomainToInsert(newRecipe, user.id);
+        const payload = mapRecipeDomainToInsert(fallbackRecipe, user.id);
 
         const { data: recData, error: recError } = await supabase
           .from("recipes")

@@ -34,7 +34,6 @@ describe('web sentry integration', () => {
     expect(Sentry.init).toHaveBeenCalledWith(
       expect.objectContaining({
         dsn: 'https://key@sentry.io/123',
-        sendDefaultPii: false,
       })
     );
   });

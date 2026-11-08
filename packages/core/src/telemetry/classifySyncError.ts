@@ -29,7 +29,8 @@ export function isOfflineError(error: unknown): boolean {
     const candidate = error as { message?: string; name?: string };
     if (candidate.name === 'AbortError') return true;
     if (typeof candidate.message === 'string') {
-      return OFFLINE_MESSAGE_PATTERNS.some((pattern) => pattern.test(candidate.message));
+      const msg = candidate.message;
+      return OFFLINE_MESSAGE_PATTERNS.some((pattern) => pattern.test(msg));
     }
   }
   return false;

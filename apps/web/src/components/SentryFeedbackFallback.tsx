@@ -2,15 +2,16 @@ import React from 'react';
 import { AlertTriangle, RefreshCw, RotateCcw } from 'lucide-react';
 
 export interface SentryFeedbackFallbackProps {
-  error?: Error | null;
+  error?: unknown;
+  componentStack?: string;
   resetError?: () => void;
   eventId?: string | null;
 }
 
-export const SentryFeedbackFallback: React.FC<SentryFeedbackFallbackProps> = ({
+export const SentryFeedbackFallback = ({
   resetError,
   eventId,
-}) => {
+}: SentryFeedbackFallbackProps): React.ReactElement => {
   return (
     <div className="min-h-[50vh] flex items-center justify-center p-4">
       <div className="bg-panel border border-border text-foreground rounded-xl p-6 sm:p-8 max-w-md w-full shadow-lg">
