@@ -151,7 +151,7 @@ const TabButton: React.FC<TabButtonProps> = ({
             },
           ]}
         >
-          {renderIcon(isFocused ? colors.accent : colors.foregroundMuted)}
+          {renderIcon(isFocused ? colors.accent : colors.foregroundSecondary)}
         </Animated.View>
         {typeof label === 'string' ? (
           <Text
@@ -314,7 +314,7 @@ export const FloatingPillTabBar: React.FC<BottomTabBarProps> = ({
           typeof options?.tabBarLabel === 'function'
             ? options.tabBarLabel({
                 focused: isFocused,
-                color: isFocused ? colors.accent : colors.foregroundMuted,
+                color: isFocused ? colors.accent : colors.foregroundSecondary,
                 position: 'below-icon',
                 children: defaultItem.label,
               })
@@ -418,12 +418,12 @@ const useStyles = makeStyles((colors) => ({
     fontFamily: FONTS.sansMedium,
     fontSize: 10,
     marginTop: 2,
-    color: colors.foregroundMuted,
+    color: colors.foregroundSecondary,
     letterSpacing: 0.2,
   },
   labelActive: {
     fontFamily: FONTS.sansBold,
-    color: colors.foreground,
+    color: colors.accent,
     fontWeight: '700',
   },
 }));
