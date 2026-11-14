@@ -3,6 +3,8 @@ import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, fireEvent, cleanup } from "@testing-library/react";
 import TabLayout from "../../app/(tabs)/_layout";
+import TabLayoutIOS from "../../app/(tabs)/_layout.ios";
+import { ThemeProvider, CRISP_STUDIO_LIGHT_THEME } from "@brewlog/ui";
 import { AuthProvider } from "../../src/features/auth/AuthContext";
 import { useAuthModal } from "../../src/features/auth/AuthModalContext";
 import { Keyboard } from "react-native";
@@ -185,6 +187,24 @@ vi.mock("../../src/lib/mobileFeedback", () => ({
   },
 }));
 
+const mockNativeTabs = vi.fn(({ children }: any) => (
+  <div data-testid="native-tabs-mock">{children}</div>
+));
+vi.mock("expo-router/native-tabs", () => ({
+  NativeTabs: Object.assign(
+    (props: any) => mockNativeTabs(props),
+    {
+      Trigger: Object.assign(
+        ({ name, children }: any) => <div data-testid={`native-tab-trigger-${name}`}>{children}</div>,
+        {
+          Label: ({ children }: any) => <span>{children}</span>,
+          Icon: () => null,
+        }
+      ),
+    }
+  ),
+}));
+
 vi.mock("expo-router", () => {
   return {
     useRouter: () => ({
@@ -239,6 +259,7 @@ const TestScreenConsumer: React.FC<{ screenName: string }> = ({ screenName }) =>
 describe("TabLayout Integration", () => {
   afterEach(() => {
     cleanup();
+    mockNativeTabs.mockClear();
   });
 
   it("mounts Tabs with all 5 tab screens wrapped in AuthModalContext.Provider", () => {
@@ -291,5 +312,59 @@ describe("TabLayout Integration", () => {
     fireEvent.click(getByLabelText("Close sheet"));
     expect(queryByTestId("modal")).toBeNull();
     expect(Keyboard.dismiss).toHaveBeenCalled();
+  });
+
+  it("configures NativeTabs on iOS with accent selected color and foregroundSecondary default color for both icons and labels", () => {
+    render(
+      <AuthProvider>
+        <TabLayoutIOS />
+      </AuthProvider>
+    );
+
+    expect(mockNativeTabs).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tintColor: "#d97736",
+        iconColor: {
+          default: "#a8a29e",
+          selected: "#d97736",
+        },
+        labelStyle: {
+          default: {
+            color: "#a8a29e",
+          },
+          selected: {
+            color: "#d97736",
+          },
+        },
+      })
+    );
+  });
+
+  it("resolves light theme NativeTabs colors on iOS via ThemeProvider", () => {
+    render(
+      <ThemeProvider theme={CRISP_STUDIO_LIGHT_THEME}>
+        <AuthProvider>
+          <TabLayoutIOS />
+        </AuthProvider>
+      </ThemeProvider>
+    );
+
+    expect(mockNativeTabs).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tintColor: "#c25412",
+        iconColor: {
+          default: "#475569",
+          selected: "#c25412",
+        },
+        labelStyle: {
+          default: {
+            color: "#475569",
+          },
+          selected: {
+            color: "#c25412",
+          },
+        },
+      })
+    );
   });
 });
