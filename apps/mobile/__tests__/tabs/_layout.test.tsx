@@ -85,8 +85,18 @@ vi.mock("react-native", () => ({
     secureTextEntry,
     ...props
   }: any) => <input value={value} readOnly {...props} />,
-  TouchableWithoutFeedback: ({ children, onPress }: any) => (
+  TouchableWithoutFeedback: ({
+    children,
+    onPress,
+    accessibilityLabel,
+    accessibilityRole,
+    accessibilityState,
+    accessible,
+  }: any) => (
     <div
+      role={accessible ? accessibilityRole : undefined}
+      aria-label={accessible ? accessibilityLabel : undefined}
+      aria-disabled={accessibilityState?.disabled ? "true" : undefined}
       onClick={(e) => {
         e.stopPropagation();
         onPress?.(e);
@@ -136,6 +146,9 @@ vi.mock("react-native", () => ({
   },
   BackHandler: {
     addEventListener: vi.fn(() => ({ remove: vi.fn() })),
+  },
+  PanResponder: {
+    create: vi.fn(() => ({ panHandlers: {} })),
   },
 }));
 
@@ -265,9 +278,9 @@ describe("TabLayout Integration", () => {
       </AuthProvider>
     );
 
-    expect(queryByTestId("modal")).toBeNull();
+    expect(queryByTestId("auth-sheet")).toBeNull();
     fireEvent.click(getByLabelText("Open auth from index"));
-    expect(queryByTestId("modal")).not.toBeNull();
+    expect(queryByTestId("auth-sheet")).not.toBeNull();
     expect(getByTestId("auth-visible-index").textContent).toBe("true");
   });
 
@@ -282,14 +295,14 @@ describe("TabLayout Integration", () => {
 
     // Open sheet via context
     fireEvent.click(getByLabelText("Open auth from index"));
-    expect(queryByTestId("modal")).not.toBeNull();
+    expect(queryByTestId("auth-sheet")).not.toBeNull();
     expect(Keyboard.dismiss).toHaveBeenCalled();
 
     vi.mocked(Keyboard.dismiss).mockClear();
 
-    // Close sheet via close button in AuthSheet
+    // Close sheet via accessible backdrop dismiss in AuthSheet
     fireEvent.click(getByLabelText("Close sheet"));
-    expect(queryByTestId("modal")).toBeNull();
+    expect(queryByTestId("auth-sheet")).toBeNull();
     expect(Keyboard.dismiss).toHaveBeenCalled();
   });
 });

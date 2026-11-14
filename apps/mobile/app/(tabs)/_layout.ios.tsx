@@ -1,30 +1,49 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Keyboard } from 'react-native';
+import { useRouter, usePathname } from 'expo-router';
 import { NativeTabs } from 'expo-router/native-tabs';
 import { useTheme } from '@brewlog/ui';
-import { AuthSheet } from '../../src/features/auth/AuthSheet';
 import { AuthModalContext } from '../../src/features/auth/AuthModalContext';
 
 export default function TabLayoutIOS() {
   const { colors, isDark } = useTheme();
-  const [authSheetVisible, setAuthSheetVisible] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  const isOpeningRef = useRef(false);
+  const isAuthSheetVisible = pathname === '/auth/sheet';
+
+  useEffect(() => {
+    isOpeningRef.current = false;
+  }, [pathname]);
 
   const openAuthSheet = useCallback(() => {
     Keyboard.dismiss();
-    setAuthSheetVisible(true);
-  }, []);
+    if (pathname === '/auth/sheet' || isOpeningRef.current) {
+      return;
+    }
+    isOpeningRef.current = true;
+    router.navigate('/auth/sheet');
+  }, [pathname, router]);
 
   const closeAuthSheet = useCallback(() => {
     Keyboard.dismiss();
-    setAuthSheetVisible(false);
-  }, []);
+    isOpeningRef.current = false;
+    if (pathname !== '/auth/sheet') {
+      return;
+    }
+    if (router.canDismiss()) {
+      router.dismiss();
+    } else if (router.canGoBack()) {
+      router.back();
+    }
+  }, [pathname, router]);
 
   return (
     <AuthModalContext.Provider
       value={{
         openAuthSheet,
         closeAuthSheet,
-        isAuthSheetVisible: authSheetVisible,
+        isAuthSheetVisible,
       }}
     >
       <NativeTabs
@@ -79,11 +98,6 @@ export default function TabLayoutIOS() {
           />
         </NativeTabs.Trigger>
       </NativeTabs>
-
-      <AuthSheet
-        visible={authSheetVisible}
-        onClose={closeAuthSheet}
-      />
     </AuthModalContext.Provider>
   );
 }

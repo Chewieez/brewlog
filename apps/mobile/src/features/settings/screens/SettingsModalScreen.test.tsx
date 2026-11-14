@@ -46,6 +46,7 @@ vi.mock('react-native', () => ({
   }: any) => (
     <div
       data-testid={testID}
+      data-has-grabber={_style?.width === 36 && _style?.height === 4 ? 'true' : undefined}
       role={accessibilityRole}
       aria-label={accessibilityLabel}
       {...props}
@@ -364,5 +365,17 @@ describe('SettingsModalScreen', () => {
     fireEvent.press(darkBtn);
     expect(Haptics.selectionAsync).toHaveBeenCalled();
     expect(updateSettingsMock).toHaveBeenCalledWith({ theme: 'tactile_dark' });
+  });
+
+  it('renders Settings header without any non-functional grabber view', () => {
+    const { container, getByText, getByLabelText } = render(
+      <SettingsProvider>
+        <SettingsModalScreen />
+      </SettingsProvider>
+    );
+
+    expect(getByText('Settings')).toBeDefined();
+    expect(getByLabelText('Close settings')).toBeDefined();
+    expect(container.querySelector('[data-has-grabber="true"]')).toBeNull();
   });
 });

@@ -104,11 +104,6 @@ export default function SettingsModalScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-      {/* Grabber Handle */}
-      <View style={styles.grabberContainer}>
-        <View style={styles.grabber} />
-      </View>
-
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.titleRow}>
@@ -363,17 +358,6 @@ const useStyles = makeStyles((colors) => ({
   safeArea: {
     flex: 1,
     backgroundColor: colors.canvas,
-  },
-  grabberContainer: {
-    alignItems: 'center',
-    paddingTop: 8,
-    paddingBottom: 4,
-  },
-  grabber: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.borderSubtle,
   },
   header: {
     flexDirection: 'row',

@@ -7,8 +7,9 @@ import * as AuthContextModule from "./AuthContext";
 
 import { Platform, Keyboard, Animated } from "react-native";
 
-const { mockAlert, mockKeyboardDismiss, mockKeyboardAddListener, getBackHandlerListeners, setBackHandlerListeners } = vi.hoisted(() => {
+const { mockAlert, mockKeyboardDismiss, mockKeyboardAddListener, getBackHandlerListeners, setBackHandlerListeners, getLastPanConfig, setLastPanConfig } = vi.hoisted(() => {
   let listeners: any[] = [];
+  let lastPanConfig: any = null;
   return {
     mockAlert: vi.fn(),
     mockKeyboardDismiss: vi.fn(),
@@ -16,6 +17,10 @@ const { mockAlert, mockKeyboardDismiss, mockKeyboardAddListener, getBackHandlerL
     getBackHandlerListeners: () => listeners,
     setBackHandlerListeners: (next: any[]) => {
       listeners = next;
+    },
+    getLastPanConfig: () => lastPanConfig,
+    setLastPanConfig: (cfg: any) => {
+      lastPanConfig = cfg;
     },
   };
 });
@@ -34,6 +39,7 @@ vi.mock("react-native", () => ({
     <div
       data-testid={testID}
       data-accessibility-view-is-modal={accessibilityViewIsModal ? "true" : undefined}
+      data-has-grabber={style?.width === 36 && style?.height === 4 ? "true" : undefined}
       {...props}
     >
       {children}
@@ -110,8 +116,18 @@ vi.mock("react-native", () => ({
       {typeof children === "function" ? children({ pressed: false }) : children}
     </button>
   ),
-  TouchableWithoutFeedback: ({ children, onPress }: any) => (
+  TouchableWithoutFeedback: ({
+    children,
+    onPress,
+    accessibilityLabel,
+    accessibilityRole,
+    accessibilityState,
+    accessible,
+  }: any) => (
     <div
+      role={accessible ? accessibilityRole : undefined}
+      aria-label={accessible ? accessibilityLabel : undefined}
+      aria-disabled={accessibilityState?.disabled ? "true" : undefined}
       onClick={(e) => {
         e.stopPropagation();
         onPress?.(e);
@@ -176,6 +192,12 @@ vi.mock("react-native", () => ({
           setBackHandlerListeners(getBackHandlerListeners().filter((l) => l !== cb));
         }),
       };
+    }),
+  },
+  PanResponder: {
+    create: vi.fn((config: any) => {
+      setLastPanConfig(config);
+      return { panHandlers: { "data-has-pan-handlers": "true" } };
     }),
   },
 }));
@@ -705,9 +727,12 @@ describe("AuthSheet", () => {
     });
 
     const onClose = vi.fn();
-    const { getByLabelText } = render(
+    const { getByLabelText, queryByTestId } = render(
       <AuthSheet visible={true} onClose={onClose} />
     );
+
+    // Header X close button is intentionally removed; dismissal happens via grabber drag, back button, or accessible backdrop
+    expect(queryByTestId("x-icon")).toBeNull();
 
     fireEvent.click(getByLabelText("Close sheet"));
     expect(onClose).toHaveBeenCalledTimes(1);
@@ -745,8 +770,9 @@ describe("AuthSheet", () => {
     const signInButtons = getAllByText("SIGN IN");
     fireEvent.click(signInButtons[signInButtons.length - 1]);
 
-    // Close button should be disabled
+    // Backdrop close action should be disabled while submitting
     const closeBtn = getByLabelText("Close sheet");
+    expect(closeBtn.getAttribute("aria-disabled")).toBe("true");
     fireEvent.click(closeBtn);
     expect(onClose).not.toHaveBeenCalled();
 
@@ -771,7 +797,7 @@ describe("AuthSheet", () => {
       <AuthSheet visible={false} onClose={vi.fn()} />
     );
 
-    expect(queryByTestId("modal")).toBeNull();
+    expect(queryByTestId("auth-sheet")).toBeNull();
   });
 
   it("catches unexpected exceptions during submit and displays error message", async () => {
@@ -919,7 +945,7 @@ describe("AuthSheet", () => {
       <AuthSheet visible={true} onClose={vi.fn()} />
     );
 
-    const modal = getByTestId("modal");
+    const modal = getByTestId("auth-sheet");
     expect(modal).toBeDefined();
     expect(modal.getAttribute("aria-modal")).toBe("true");
     expect(modal.getAttribute("data-accessibility-view-is-modal")).toBe("true");
@@ -1250,5 +1276,119 @@ describe("AuthSheet", () => {
     // Hide sheet
     rerender(<AuthSheet visible={false} onClose={vi.fn()} />);
     expect(mockRemove).toHaveBeenCalled();
+  });
+
+  it("renders the Android in-tree grabber handle bar inside AuthSheet", () => {
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    const { container } = render(<AuthSheet visible={true} onClose={vi.fn()} />);
+    expect(container.querySelector('[data-has-grabber="true"]')).not.toBeNull();
+  });
+
+  it("wires PanResponder on the Android grabber to drag-dismiss past threshold and snap back under threshold", () => {
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    const onClose = vi.fn();
+    const { getByTestId } = render(<AuthSheet visible={true} onClose={onClose} />);
+
+    const grabberArea = getByTestId("auth-sheet-grabber");
+    expect(grabberArea.getAttribute("data-has-pan-handlers")).toBe("true");
+
+    const panConfig = getLastPanConfig();
+    expect(panConfig).toBeTruthy();
+    expect(panConfig.onStartShouldSetPanResponder()).toBe(true);
+    expect(panConfig.onMoveShouldSetPanResponder(null, { dx: 0, dy: 8 })).toBe(true);
+    expect(panConfig.onMoveShouldSetPanResponder(null, { dx: 12, dy: 2 })).toBe(false);
+
+    // Small drag should snap back without closing
+    (Animated.timing as any).mockClear();
+    panConfig.onPanResponderMove(null, { dy: 30 });
+    panConfig.onPanResponderRelease(null, { dy: 30, vy: 0.1 });
+    expect(onClose).not.toHaveBeenCalled();
+    expect(Animated.timing).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ toValue: 0 })
+    );
+
+    // Dragging past distance threshold dismisses sheet
+    panConfig.onPanResponderMove(null, { dy: 120 });
+    panConfig.onPanResponderRelease(null, { dy: 120, vy: 0.2 });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("dismisses via PanResponder on fast downward flick and blocks drag while submitting", async () => {
+    let resolveSignIn!: (val: { error: null }) => void;
+    mockSignIn.mockImplementation(
+      () =>
+        new Promise<{ error: null }>((resolve) => {
+          resolveSignIn = resolve;
+        })
+    );
+
+    vi.spyOn(AuthContextModule, "useAuth").mockReturnValue({
+      user: null,
+      session: null,
+      loading: false,
+      isConfigured: true,
+      signInWithEmail: mockSignIn,
+      signUpWithEmail: mockSignUp,
+      resetPasswordForEmail: mockResetPassword,
+      signOut: mockSignOut,
+    });
+
+    const onClose = vi.fn();
+    const { getByPlaceholderText, getAllByText } = render(
+      <AuthSheet visible={true} onClose={onClose} />
+    );
+
+    fireEvent.change(getByPlaceholderText("you@example.com"), {
+      target: { value: "barista@brewlog.dev" },
+    });
+    fireEvent.change(getByPlaceholderText("••••••••"), {
+      target: { value: "password123" },
+    });
+
+    const signInButtons = getAllByText("SIGN IN");
+    fireEvent.click(signInButtons[signInButtons.length - 1]);
+
+    await waitFor(() => {
+      const panConfig = getLastPanConfig();
+      expect(panConfig.onStartShouldSetPanResponder()).toBe(false);
+      expect(panConfig.onMoveShouldSetPanResponder(null, { dx: 0, dy: 20 })).toBe(false);
+    });
+
+    const panConfig = getLastPanConfig();
+    panConfig.onPanResponderRelease(null, { dy: 140, vy: 1.0 });
+    expect(onClose).not.toHaveBeenCalled();
+
+    resolveSignIn({ error: null });
+    await waitFor(() => {
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    // Fast flick when idle also dismisses
+    onClose.mockClear();
+    render(<AuthSheet visible={true} onClose={onClose} />);
+    const freshPan = getLastPanConfig();
+    freshPan.onPanResponderRelease(null, { dy: 30, vy: 0.8 });
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });
