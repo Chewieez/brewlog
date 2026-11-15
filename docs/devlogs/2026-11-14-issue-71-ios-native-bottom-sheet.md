@@ -49,7 +49,7 @@ This change converts iOS `AuthSheet` presentation to Expo Router's native `formS
   - `@brewlog/core`: 6 test files, 89 tests passed
   - `@brewlog/supabase`: 4 test files, 29 tests passed
   - `@brewlog/ui`: 12 test files, 63 tests passed
-  - `@brewlog/mobile`: 59 test files, 503 tests passed
+  - `@brewlog/mobile`: 59 test files, 507 tests passed
   - `@brewlog/web`: 28 test files, 273 tests passed
 - **Simulator & Emulator Checks**:
   - **iOS Simulator (`iPhone 18 Pro`)**: Verified `app/auth/sheet.tsx` opens in native `formSheet` presentation with system grabber visible immediately, `'fitToContents'` sizing hugging both the signed-in Profile view and signed-out `SIGN IN` view cleanly without wasted space, automatic concentric corner radius inside the display bezel, and no header `X` close button. (Switching to `CREATE ACCOUNT` / opening the software keyboard / `Settings` transition were not separately automated in the iOS simulator.)

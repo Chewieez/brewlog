@@ -224,10 +224,15 @@ vi.mock("expo-router/native-tabs", () => ({
 
 vi.mock("expo-router", () => {
   return {
+    usePathname: () => "/",
     useRouter: () => ({
       push: vi.fn(),
       replace: vi.fn(),
       back: vi.fn(),
+      navigate: vi.fn(),
+      dismiss: vi.fn(),
+      canDismiss: vi.fn(() => false),
+      canGoBack: vi.fn(() => false),
     }),
     Tabs: Object.assign(
       ({ children }: any) => {
