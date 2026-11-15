@@ -100,6 +100,7 @@ vi.mock("react-native", () => ({
     accessibilityLabel,
     accessibilityRole,
     accessibilityState,
+    accessible,
     disabled,
     style: _style,
     ...props
@@ -107,9 +108,10 @@ vi.mock("react-native", () => ({
     <button
       type="button"
       onClick={disabled ? undefined : onPress}
-      aria-label={accessibilityLabel}
-      role={accessibilityRole}
+      aria-label={accessible === false ? undefined : accessibilityLabel}
+      role={accessible === false ? undefined : accessibilityRole}
       aria-selected={accessibilityState?.selected}
+      aria-disabled={accessibilityState?.disabled || disabled ? "true" : undefined}
       disabled={disabled}
       {...props}
     >
@@ -183,6 +185,7 @@ vi.mock("react-native", () => ({
   },
   StyleSheet: {
     create: (styles: any) => styles,
+    absoluteFill: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   },
   BackHandler: {
     addEventListener: vi.fn((event: string, cb: any) => {
@@ -727,14 +730,17 @@ describe("AuthSheet", () => {
     });
 
     const onClose = vi.fn();
-    const { getByLabelText, queryByTestId } = render(
+    const { getByLabelText, getByText, queryByTestId } = render(
       <AuthSheet visible={true} onClose={onClose} />
     );
 
-    // Header X close button is intentionally removed; dismissal happens via grabber drag, back button, or accessible backdrop
+    // Header X close button is intentionally removed; dismissal happens via grabber drag, back button, or leaf sibling backdrop Pressable
     expect(queryByTestId("x-icon")).toBeNull();
 
-    fireEvent.click(getByLabelText("Close sheet"));
+    const closeTarget = getByLabelText("Close sheet");
+    expect(closeTarget.contains(getByText("BREWLOG CLOUD"))).toBe(false);
+
+    fireEvent.click(closeTarget);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 

@@ -108,6 +108,7 @@ export const AuthSheetContent: React.FC<AuthSheetContentProps> = ({
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
         } else {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+          updateSubmitting(false);
           onDismiss();
         }
       } else if (mode === "signup") {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
-  TouchableWithoutFeedback,
+  Pressable,
   ScrollView,
   Platform,
   Animated,
@@ -9,6 +9,7 @@ import {
   Easing,
   BackHandler,
   PanResponder,
+  StyleSheet,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -212,49 +213,48 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
       <Animated.View
         style={[styles.keyboardAvoidContainer, { paddingBottom: keyboardPadding }]}
       >
-        <TouchableWithoutFeedback
-          onPress={submitting ? undefined : handleDismiss}
-          accessible={true}
-          accessibilityRole="button"
-          accessibilityLabel="Close sheet"
-          accessibilityState={{ disabled: submitting }}
-        >
-          <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
-            <TouchableWithoutFeedback>
-              <Animated.View
-                style={[
-                  styles.sheetContainer,
-                  {
-                    paddingBottom: Math.max(28, insets.bottom + 12),
-                    transform: [{ translateY }],
-                  },
-                ]}
-              >
-                {/* Grabber Handle */}
-                <View
-                  testID="auth-sheet-grabber"
-                  style={styles.grabberArea}
-                  {...panResponder.panHandlers}
-                >
-                  <View style={styles.grabber} />
-                </View>
+        <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={submitting ? undefined : handleDismiss}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Close sheet"
+            accessibilityState={{ disabled: submitting }}
+          />
+          <Animated.View
+            onStartShouldSetResponder={() => true}
+            style={[
+              styles.sheetContainer,
+              {
+                paddingBottom: Math.max(28, insets.bottom + 12),
+                transform: [{ translateY }],
+              },
+            ]}
+          >
+            {/* Grabber Handle */}
+            <View
+              testID="auth-sheet-grabber"
+              style={styles.grabberArea}
+              {...panResponder.panHandlers}
+            >
+              <View style={styles.grabber} />
+            </View>
 
-                <ScrollView
-                  contentContainerStyle={styles.scrollContent}
-                  keyboardShouldPersistTaps="handled"
-                  bounces={false}
-                >
-                  <AuthSheetContent
-                    isActive={visible}
-                    onDismiss={handleDismiss}
-                    onOpenSettings={handleOpenPreferences}
-                    onSubmittingChange={setSubmitting}
-                  />
-                </ScrollView>
-              </Animated.View>
-            </TouchableWithoutFeedback>
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
+              bounces={false}
+            >
+              <AuthSheetContent
+                isActive={visible}
+                onDismiss={handleDismiss}
+                onOpenSettings={handleOpenPreferences}
+                onSubmittingChange={setSubmitting}
+              />
+            </ScrollView>
           </Animated.View>
-        </TouchableWithoutFeedback>
+        </Animated.View>
       </Animated.View>
     </View>
   );

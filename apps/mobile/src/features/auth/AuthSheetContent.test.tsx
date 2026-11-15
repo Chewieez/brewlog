@@ -225,6 +225,9 @@ describe("AuthSheetContent", () => {
       expect(onSubmittingChange).toHaveBeenCalledWith(false);
       expect(onDismiss).toHaveBeenCalledTimes(1);
     });
+    const lastFalseIdx = onSubmittingChange.mock.invocationCallOrder[onSubmittingChange.mock.calls.findIndex((c) => c[0] === false)];
+    const dismissOrder = onDismiss.mock.invocationCallOrder[0];
+    expect(lastFalseIdx).toBeLessThan(dismissOrder);
   });
 
   it("preserves form state when parent passes a fresh inline onSubmittingChange function on rerender", () => {

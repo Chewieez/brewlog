@@ -27,6 +27,8 @@ vi.mock("react-native", () => ({
     onPress,
     accessibilityLabel,
     accessibilityRole,
+    accessibilityState,
+    accessible,
     style,
     ...props
   }: any) => (
@@ -36,8 +38,9 @@ vi.mock("react-native", () => ({
         e.stopPropagation();
         onPress?.(e);
       }}
-      role={accessibilityRole}
-      aria-label={accessibilityLabel}
+      role={accessible === false ? undefined : accessibilityRole}
+      aria-label={accessible === false ? undefined : accessibilityLabel}
+      aria-disabled={accessibilityState?.disabled ? "true" : undefined}
       {...props}
     >
       {children}
@@ -68,6 +71,7 @@ vi.mock("react-native", () => ({
   ),
   StyleSheet: {
     create: (styles: any) => styles,
+    absoluteFill: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   },
   Platform: {
     OS: "ios",
