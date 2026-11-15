@@ -125,7 +125,7 @@ test.describe("Core Web App End-to-End Context Flows", () => {
     await expect(persistedFahrenheitBtn).toHaveAttribute("aria-pressed", "true");
   });
 
-  test("Settings: renders live preview tiles without horizontal truncation on desktop and mobile", async ({ page }) => {
+  test("Settings: renders live preview tiles without truncation or ellipsis across desktop and mobile", async ({ page }) => {
     const previewTestIds = [
       "preview-dose",
       "preview-water",
@@ -135,27 +135,88 @@ test.describe("Core Web App End-to-End Context Flows", () => {
       "preview-theme",
     ];
 
-    for (const viewport of [
-      { width: 1280, height: 800 },
-      { width: 375, height: 812 },
-    ]) {
-      await page.setViewportSize(viewport);
-      await page.goto("/settings");
+    const assertPreviewTiles = async (viewportLabel: string, requireSingleLine: boolean) => {
+      for (const id of previewTestIds) {
+        const tile = page.getByTestId(id);
+        await expect(tile).toBeVisible();
+        const metrics = await tile.evaluate((el) => {
+          const cs = getComputedStyle(el);
+          const rect = el.getBoundingClientRect();
+          const lineHeight = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.5;
+          return {
+            scrollWidth: el.scrollWidth,
+            clientWidth: el.clientWidth,
+            textOverflow: cs.textOverflow,
+            height: rect.height,
+            lineHeight,
+          };
+        });
+        expect(
+          metrics.scrollWidth,
+          `${id} (${viewportLabel}) should not overflow horizontally`
+        ).toBeLessThanOrEqual(metrics.clientWidth);
+        expect(
+          metrics.textOverflow,
+          `${id} (${viewportLabel}) should not truncate with ellipsis`
+        ).not.toBe("ellipsis");
+        if (requireSingleLine) {
+          expect(
+            metrics.height,
+            `${id} (${viewportLabel}) should fit on a single line`
+          ).toBeLessThanOrEqual(metrics.lineHeight + 2);
+        }
+      }
+    };
 
+    const viewports = [
+      { label: "1280x800", width: 1280, height: 800, requireSingleLine: true },
+      { label: "375x812", width: 375, height: 812, requireSingleLine: true },
+      { label: "320x568", width: 320, height: 568, requireSingleLine: false },
+    ];
+
+    for (const vp of viewports) {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await page.goto("/settings");
+      await page.evaluate(() => localStorage.clear());
+      await page.reload();
+
+      // Default values
+      await expect(page.getByTestId("preview-dose")).toHaveText("18.0 g");
+      await expect(page.getByTestId("preview-water")).toHaveText("300.0 g");
+      await expect(page.getByTestId("preview-temp")).toHaveText("94°C");
+      await expect(page.getByTestId("preview-timer-mode")).toHaveText("FREE BREW");
+      await expect(page.getByTestId("preview-theme")).toHaveText("SYSTEM");
+      await assertPreviewTiles(`${vp.label} defaults`, vp.requireSingleLine);
+
+      // Light mode + ISO date format
+      await page.getByRole("button", { name: "LIGHT", exact: true }).click();
+      await page.getByRole("button", { name: "YYYY-MM-DD", exact: true }).click();
+      await expect(page.getByTestId("preview-theme")).toHaveText("LIGHT");
+      await expect(page.getByTestId("preview-date")).toHaveText("2026-10-18");
+      await assertPreviewTiles(`${vp.label} light+iso`, vp.requireSingleLine);
+
+      // Alternate date formats
+      await page.getByRole("button", { name: "MM/DD/YYYY", exact: true }).click();
+      await expect(page.getByTestId("preview-date")).toHaveText("10/18/2026");
+      await assertPreviewTiles(`${vp.label} mm/dd/yyyy`, vp.requireSingleLine);
+
+      await page.getByRole("button", { name: "DD/MM/YYYY", exact: true }).click();
+      await expect(page.getByTestId("preview-date")).toHaveText("18/10/2026");
+      await assertPreviewTiles(`${vp.label} dd/mm/yyyy`, vp.requireSingleLine);
+
+      // Dark mode + Guided Recipe + Imperial + Fahrenheit + Locale date
+      await page.getByRole("button", { name: "LOCALE", exact: true }).click();
       await page.getByRole("button", { name: "GUIDED RECIPE", exact: true }).click();
       await page.getByRole("button", { name: "IMPERIAL (oz)", exact: true }).click();
       await page.getByRole("button", { name: "FAHRENHEIT (°F)", exact: true }).click();
       await page.getByRole("button", { name: "DARK", exact: true }).click();
 
+      await expect(page.getByTestId("preview-dose")).toHaveText("0.63 oz");
+      await expect(page.getByTestId("preview-water")).toHaveText("10.58 oz");
+      await expect(page.getByTestId("preview-temp")).toHaveText("201°F");
       await expect(page.getByTestId("preview-timer-mode")).toHaveText("GUIDED RECIPE");
       await expect(page.getByTestId("preview-theme")).toHaveText("DARK");
-
-      for (const id of previewTestIds) {
-        const tile = page.getByTestId(id);
-        await expect(tile).toBeVisible();
-        const noOverflow = await tile.evaluate((el) => el.scrollWidth <= el.clientWidth);
-        expect(noOverflow, `Expected ${id} at ${viewport.width}px not to overflow horizontally`).toBe(true);
-      }
+      await assertPreviewTiles(`${vp.label} dark+guided`, vp.requireSingleLine);
     }
   });
 });

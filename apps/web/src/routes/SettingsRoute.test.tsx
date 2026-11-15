@@ -373,6 +373,11 @@ describe('SettingsRoute', () => {
 
       // Open user dropdown
       const menuButton = screen.getByRole('button', { name: /user account menu/i });
+      const avatarInitial = menuButton.querySelector('div');
+      expect(avatarInitial?.className).toContain('bg-accent');
+      expect(avatarInitial?.className).toContain('text-accent-foreground');
+      expect(avatarInitial?.className).not.toContain('text-canvas');
+
       await act(async () => {
         fireEvent.click(menuButton);
       });
