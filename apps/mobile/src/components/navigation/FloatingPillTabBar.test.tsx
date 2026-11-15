@@ -41,7 +41,9 @@ vi.mock('react-native', () => ({
       </div>
     );
   },
-  Text: ({ children, style, numberOfLines, maxFontSizeMultiplier, ...props }: any) => <span {...props}>{children}</span>,
+  Text: ({ children, style, numberOfLines, maxFontSizeMultiplier, ...props }: any) => (
+    <span style={flattenStyle(style)} {...props}>{children}</span>
+  ),
   Pressable: ({ children, onPress, onLongPress, accessibilityLabel, accessibilityRole, accessibilityState, style, android_ripple, ...props }: any) => (
     <button
       type="button"
@@ -101,11 +103,11 @@ vi.mock('react-native-safe-area-context', () => ({
 }));
 
 vi.mock('lucide-react-native', () => ({
-  Timer: () => <span data-testid="icon-timer" />,
-  BookOpen: () => <span data-testid="icon-recipes" />,
-  Bean: () => <span data-testid="icon-stash" />,
-  Scale: () => <span data-testid="icon-equipment" />,
-  Award: () => <span data-testid="icon-reviews" />,
+  Timer: ({ color }: any) => <span data-testid="icon-timer" data-color={color} />,
+  BookOpen: ({ color }: any) => <span data-testid="icon-recipes" data-color={color} />,
+  Bean: ({ color }: any) => <span data-testid="icon-stash" data-color={color} />,
+  Scale: ({ color }: any) => <span data-testid="icon-equipment" data-color={color} />,
+  Award: ({ color }: any) => <span data-testid="icon-reviews" data-color={color} />,
 }));
 
 const mockTriggerHapticTap = vi.fn();
@@ -115,6 +117,7 @@ vi.mock('../../lib/mobileFeedback', () => ({
   },
 }));
 
+import { ThemeProvider, CRISP_STUDIO_LIGHT_THEME } from '@brewlog/ui';
 import {
   FloatingPillTabBar,
   getTabScreenBottomPadding,
@@ -412,6 +415,76 @@ describe('FloatingPillTabBar', () => {
       })
     );
     expect(getByText('My Cellar')).toBeDefined();
+  });
+
+  it('styles the selected tab with accent color and unselected tabs with foregroundSecondary', () => {
+    const customLabelFn = vi.fn(({ color, children }: any) => (
+      <span data-testid="custom-label-fn" data-color={color}>{children}</span>
+    ));
+    const descriptors = {
+      'stash-key': {
+        options: {
+          tabBarLabel: customLabelFn,
+        },
+      },
+    };
+
+    const { getByTestId, getByText, rerender } = render(
+      <FloatingPillTabBar
+        state={{ index: 0, routes }}
+        descriptors={descriptors}
+        navigation={{ navigate: vi.fn(), emit: vi.fn() }}
+      />
+    );
+
+    // Active tab (index: Timer) -> colors.accent (#d97736)
+    expect(getByTestId('icon-timer').getAttribute('data-color')).toBe('#d97736');
+    expect(getByText('Timer').style.color).toBe('rgb(217, 119, 54)');
+
+    // Inactive tab (recipes) -> colors.foregroundSecondary (#a8a29e)
+    expect(getByTestId('icon-recipes').getAttribute('data-color')).toBe('#a8a29e');
+    expect(getByText('Recipes').style.color).toBe('rgb(168, 162, 158)');
+
+    // Inactive tab with function tabBarLabel (stash) receives colors.foregroundSecondary
+    expect(customLabelFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        focused: false,
+        color: '#a8a29e',
+      })
+    );
+
+    // Active tab with function tabBarLabel (stash when index === 1) receives colors.accent
+    rerender(
+      <FloatingPillTabBar
+        state={{ index: 1, routes }}
+        descriptors={descriptors}
+        navigation={{ navigate: vi.fn(), emit: vi.fn() }}
+      />
+    );
+
+    expect(customLabelFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        focused: true,
+        color: '#d97736',
+      })
+    );
+  });
+
+  it('resolves light theme accent and foregroundSecondary colors via ThemeProvider', () => {
+    const { getByTestId, getByText } = render(
+      <ThemeProvider theme={CRISP_STUDIO_LIGHT_THEME}>
+        <FloatingPillTabBar
+          state={{ index: 0, routes }}
+          navigation={{ navigate: vi.fn(), emit: vi.fn() }}
+        />
+      </ThemeProvider>
+    );
+
+    expect(getByTestId('icon-timer').getAttribute('data-color')).toBe('#c25412');
+    expect(getByText('Timer').style.color).toBe('rgb(194, 84, 18)');
+
+    expect(getByTestId('icon-recipes').getAttribute('data-color')).toBe('#475569');
+    expect(getByText('Recipes').style.color).toBe('rgb(71, 85, 105)');
   });
 
   describe('getTabScreenBottomPadding', () => {

@@ -30,6 +30,10 @@ export default function TabLayoutIOS() {
       <NativeTabs
         blurEffect={isDark ? 'dark' : 'systemMaterialLight'}
         tintColor={colors.accent}
+        iconColor={{
+          default: colors.foregroundSecondary,
+          selected: colors.accent,
+        }}
         labelStyle={{
           default: {
             color: colors.foregroundSecondary,
