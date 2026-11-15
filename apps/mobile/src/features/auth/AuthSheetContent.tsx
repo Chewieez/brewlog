@@ -165,11 +165,9 @@ export const AuthSheetContent: React.FC<AuthSheetContentProps> = ({
     <>
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.headerTitle}>
-            {user ? "Profile" : mode === "forgot" ? "RESET PASSWORD" : "BREWLOG CLOUD"}
-          </Text>
-        </View>
+        <Text style={styles.headerTitle}>
+          {user ? "Profile" : mode === "forgot" ? "RESET PASSWORD" : "BREWLOG CLOUD"}
+        </Text>
       </View>
 
       {/* Logged In View */}
@@ -379,15 +377,7 @@ export const AuthSheetContent: React.FC<AuthSheetContentProps> = ({
 
 const useStyles = makeStyles((colors) => ({
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     marginBottom: 20,
-  },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
   },
   headerTitle: {
     fontFamily: FONTS.monoBold,

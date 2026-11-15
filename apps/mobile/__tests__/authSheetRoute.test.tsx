@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, fireEvent, cleanup, waitFor } from '@testing-library/react';
+import { render, fireEvent, cleanup, waitFor, act } from '@testing-library/react';
 import AuthSheetScreen from '../app/auth/sheet';
 import * as AuthContextModule from '../src/features/auth/AuthContext';
 
@@ -192,7 +192,6 @@ vi.mock('lucide-react-native', () => ({
   Mail: () => <span data-testid="mail-icon" />,
   User: () => <span data-testid="user-icon" />,
   Settings: () => <span data-testid="settings-icon" />,
-  X: () => <span data-testid="x-icon" />,
   ArrowLeft: () => <span data-testid="arrow-left-icon" />,
   ChevronRight: () => <span data-testid="chevron-right-icon" />,
 }));
@@ -218,6 +217,7 @@ describe('AuthSheetScreen (iOS formSheet route)', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     cleanup();
   });
 
@@ -236,6 +236,49 @@ describe('AuthSheetScreen (iOS formSheet route)', () => {
     await waitFor(() => {
       expect(getOptions().sheetGrabberVisible).toBe(true);
     });
+  });
+
+  it('ignores closing transitions and enables sheetGrabberVisible on transitionEnd', async () => {
+    const { getByTestId } = render(<AuthSheetScreen />);
+
+    const getOptions = () =>
+      JSON.parse(getByTestId('stack-screen-options').getAttribute('data-options') || '{}');
+
+    expect(getOptions().sheetGrabberVisible).toBe(false);
+
+    act(() => {
+      getNavListeners().get('transitionStart')?.forEach((cb) => cb({ data: { closing: true } }));
+      getNavListeners().get('transitionEnd')?.forEach((cb) => cb({ data: { closing: true } }));
+    });
+    expect(getOptions().sheetGrabberVisible).toBe(false);
+
+    act(() => {
+      getNavListeners().get('transitionEnd')?.forEach((cb) => cb({ data: { closing: false } }));
+    });
+
+    await waitFor(() => {
+      expect(getOptions().sheetGrabberVisible).toBe(true);
+    });
+  });
+
+  it('enables sheetGrabberVisible via 150ms fallback timer if no transition event fires', () => {
+    vi.useFakeTimers();
+    const { getByTestId } = render(<AuthSheetScreen />);
+
+    const getOptions = () =>
+      JSON.parse(getByTestId('stack-screen-options').getAttribute('data-options') || '{}');
+
+    expect(getOptions().sheetGrabberVisible).toBe(false);
+
+    act(() => {
+      vi.advanceTimersByTime(149);
+    });
+    expect(getOptions().sheetGrabberVisible).toBe(false);
+
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+    expect(getOptions().sheetGrabberVisible).toBe(true);
   });
 
   it('renders testID="auth-sheet" ScrollView with bounces={false}, no manual grabber, and no header close X button', () => {

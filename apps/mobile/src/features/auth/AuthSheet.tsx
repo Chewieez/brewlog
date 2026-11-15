@@ -236,6 +236,7 @@ export const AuthSheet: React.FC<AuthSheetProps> = ({ visible, onClose }) => {
             <View
               testID="auth-sheet-grabber"
               style={styles.grabberArea}
+              hitSlop={{ top: 10, bottom: 10, left: 0, right: 0 }}
               {...panResponder.panHandlers}
             >
               <View style={styles.grabber} />
@@ -290,8 +291,8 @@ const useStyles = makeStyles((colors) => ({
   grabberArea: {
     width: "100%",
     alignItems: "center",
-    paddingTop: 10,
-    paddingBottom: 8,
+    paddingTop: 14,
+    paddingBottom: 12,
   },
   grabber: {
     width: 36,

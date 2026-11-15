@@ -5,6 +5,19 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { makeStyles } from '@brewlog/ui';
 import { AuthSheetContent } from '../../src/features/auth/AuthSheetContent';
 
+interface SheetTransitionEvent {
+  data?: {
+    closing?: boolean;
+  };
+}
+
+interface SheetTransitionNavigation {
+  addListener?: (
+    event: 'transitionStart' | 'transitionEnd',
+    callback: (e: SheetTransitionEvent) => void
+  ) => (() => void) | undefined;
+}
+
 export default function AuthSheetScreen() {
   const styles = useStyles();
   const router = useRouter();
@@ -18,12 +31,13 @@ export default function AuthSheetScreen() {
     // react-native-screens applies sheetGrabberVisible in finalizeUpdates before presentViewController,
     // which iOS 26+ UISheetPresentationController can defer until interaction; enable once transition starts.
     const activateGrabber = () => setGrabberVisible(true);
-    const unsubscribeStart = (navigation as any).addListener?.('transitionStart', (e: any) => {
+    const transitionNav = navigation as unknown as SheetTransitionNavigation;
+    const unsubscribeStart = transitionNav.addListener?.('transitionStart', (e) => {
       if (!e?.data?.closing) {
         activateGrabber();
       }
     });
-    const unsubscribeEnd = (navigation as any).addListener?.('transitionEnd', (e: any) => {
+    const unsubscribeEnd = transitionNav.addListener?.('transitionEnd', (e) => {
       if (!e?.data?.closing) {
         activateGrabber();
       }

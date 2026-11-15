@@ -104,7 +104,6 @@ vi.mock("lucide-react-native", () => ({
   Mail: () => <span data-testid="mail-icon" />,
   User: () => <span data-testid="user-icon" />,
   Settings: () => <span data-testid="settings-icon" />,
-  X: () => <span data-testid="x-icon" />,
   ArrowLeft: () => <span data-testid="arrow-left-icon" />,
   ChevronRight: () => <span data-testid="chevron-right-icon" />,
 }));

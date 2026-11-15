@@ -186,4 +186,17 @@ describe("TabLayoutIOS Integration", () => {
     expect(Keyboard.dismiss).toHaveBeenCalledTimes(1);
     expect(mockDismiss).toHaveBeenCalledTimes(1);
   });
+
+  it("closeAuthSheet falls back to router.back() when canDismiss() is false and canGoBack() is true", () => {
+    setPathname("/auth/sheet");
+    mockCanDismiss.mockReturnValue(false);
+    mockCanGoBack.mockReturnValue(true);
+
+    const { getByLabelText } = render(<TabLayoutIOS />);
+
+    fireEvent.click(getByLabelText("Close auth from index"));
+    expect(Keyboard.dismiss).toHaveBeenCalledTimes(1);
+    expect(mockDismiss).not.toHaveBeenCalled();
+    expect(mockBack).toHaveBeenCalledTimes(1);
+  });
 });

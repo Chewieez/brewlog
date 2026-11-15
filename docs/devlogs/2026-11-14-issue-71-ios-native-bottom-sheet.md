@@ -3,8 +3,9 @@
 - **Date**: 2026-11-14
 - **Milestone**: Issue #71: Convert iOS Bottom Sheet to Use Native Option
 - **Status**: Completed & Verified
-- **Branch**: `71-convert-ios-bottom-sheet-to-use-native-o`
+- **Branch**: `Chewieez/71-convert-ios-bottom-sheet-to-use-native-o`
 - **Issue**: [#71](https://github.com/Chewieez/brewlog/issues/71)
+- **PR**: [#77](https://github.com/Chewieez/brewlog/pull/77)
 - **Design Spec**: [`docs/superpowers/specs/2026-11-14-issue-71-ios-native-bottom-sheet-design.md`](../superpowers/specs/2026-11-14-issue-71-ios-native-bottom-sheet-design.md)
 - **Tech Stack**: React Native 0.88 (Expo SDK 58), Expo Router (`~58.0.25`), `react-native-screens` (`~4.30.0`), TypeScript 6, Vitest
 
@@ -49,7 +50,7 @@ This change converts iOS `AuthSheet` presentation to Expo Router's native `formS
   - `@brewlog/core`: 6 test files, 89 tests passed
   - `@brewlog/supabase`: 4 test files, 29 tests passed
   - `@brewlog/ui`: 12 test files, 63 tests passed
-  - `@brewlog/mobile`: 59 test files, 507 tests passed
+  - `@brewlog/mobile`: 59 test files, 510 tests passed
   - `@brewlog/web`: 28 test files, 273 tests passed
 - **Simulator & Emulator Checks**:
   - **iOS Simulator (`iPhone 18 Pro`)**: Verified `app/auth/sheet.tsx` opens in native `formSheet` presentation with system grabber visible immediately, `'fitToContents'` sizing hugging both the signed-in Profile view and signed-out `SIGN IN` view cleanly without wasted space, automatic concentric corner radius inside the display bezel, and no header `X` close button. (Switching to `CREATE ACCOUNT` / opening the software keyboard / `Settings` transition were not separately automated in the iOS simulator.)
