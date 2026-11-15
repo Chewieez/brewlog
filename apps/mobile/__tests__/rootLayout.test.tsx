@@ -90,5 +90,18 @@ describe('RootLayout', () => {
     expect(getByTestId('mock-screen-recipe/[id]')).toBeDefined();
     expect(getByTestId('mock-screen-recipe/builder')).toBeDefined();
     expect(getByTestId('mock-screen-stash/[id]')).toBeDefined();
+
+    const authSheetScreen = getByTestId('mock-screen-auth/sheet');
+    expect(authSheetScreen).toBeDefined();
+    const authSheetOptions = JSON.parse(authSheetScreen.getAttribute('data-options') || '{}');
+    expect(authSheetOptions).toMatchObject({
+      presentation: 'formSheet',
+      sheetGrabberVisible: false,
+      sheetAllowedDetents: 'fitToContents',
+      sheetExpandsWhenScrolledToEdge: true,
+      headerShown: false,
+    });
+    expect(authSheetOptions.sheetInitialDetentIndex).toBeUndefined();
+    expect(authSheetOptions.sheetCornerRadius).toBeUndefined();
   });
 });

@@ -29,6 +29,8 @@ vi.mock("react-native", () => ({
     onPress,
     accessibilityLabel,
     accessibilityRole,
+    accessibilityState,
+    accessible,
     style,
     ...props
   }: any) => (
@@ -38,8 +40,9 @@ vi.mock("react-native", () => ({
         e.stopPropagation();
         onPress?.(e);
       }}
-      role={accessibilityRole}
-      aria-label={accessibilityLabel}
+      role={accessible === false ? undefined : accessibilityRole}
+      aria-label={accessible === false ? undefined : accessibilityLabel}
+      aria-disabled={accessibilityState?.disabled ? "true" : undefined}
       {...props}
     >
       {children}
@@ -70,6 +73,7 @@ vi.mock("react-native", () => ({
   ),
   StyleSheet: {
     create: (styles: any) => styles,
+    absoluteFill: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   },
   Platform: {
     OS: "ios",
@@ -87,8 +91,18 @@ vi.mock("react-native", () => ({
     secureTextEntry,
     ...props
   }: any) => <input value={value} readOnly {...props} />,
-  TouchableWithoutFeedback: ({ children, onPress }: any) => (
+  TouchableWithoutFeedback: ({
+    children,
+    onPress,
+    accessibilityLabel,
+    accessibilityRole,
+    accessibilityState,
+    accessible,
+  }: any) => (
     <div
+      role={accessible ? accessibilityRole : undefined}
+      aria-label={accessible ? accessibilityLabel : undefined}
+      aria-disabled={accessibilityState?.disabled ? "true" : undefined}
       onClick={(e) => {
         e.stopPropagation();
         onPress?.(e);
@@ -138,6 +152,9 @@ vi.mock("react-native", () => ({
   },
   BackHandler: {
     addEventListener: vi.fn(() => ({ remove: vi.fn() })),
+  },
+  PanResponder: {
+    create: vi.fn(() => ({ panHandlers: {} })),
   },
 }));
 
@@ -207,10 +224,15 @@ vi.mock("expo-router/native-tabs", () => ({
 
 vi.mock("expo-router", () => {
   return {
+    usePathname: () => "/",
     useRouter: () => ({
       push: vi.fn(),
       replace: vi.fn(),
       back: vi.fn(),
+      navigate: vi.fn(),
+      dismiss: vi.fn(),
+      canDismiss: vi.fn(() => false),
+      canGoBack: vi.fn(() => false),
     }),
     Tabs: Object.assign(
       ({ children }: any) => {
@@ -286,9 +308,9 @@ describe("TabLayout Integration", () => {
       </AuthProvider>
     );
 
-    expect(queryByTestId("modal")).toBeNull();
+    expect(queryByTestId("auth-sheet")).toBeNull();
     fireEvent.click(getByLabelText("Open auth from index"));
-    expect(queryByTestId("modal")).not.toBeNull();
+    expect(queryByTestId("auth-sheet")).not.toBeNull();
     expect(getByTestId("auth-visible-index").textContent).toBe("true");
   });
 
@@ -303,14 +325,14 @@ describe("TabLayout Integration", () => {
 
     // Open sheet via context
     fireEvent.click(getByLabelText("Open auth from index"));
-    expect(queryByTestId("modal")).not.toBeNull();
+    expect(queryByTestId("auth-sheet")).not.toBeNull();
     expect(Keyboard.dismiss).toHaveBeenCalled();
 
     vi.mocked(Keyboard.dismiss).mockClear();
 
-    // Close sheet via close button in AuthSheet
+    // Close sheet via accessible backdrop dismiss in AuthSheet
     fireEvent.click(getByLabelText("Close sheet"));
-    expect(queryByTestId("modal")).toBeNull();
+    expect(queryByTestId("auth-sheet")).toBeNull();
     expect(Keyboard.dismiss).toHaveBeenCalled();
   });
 });

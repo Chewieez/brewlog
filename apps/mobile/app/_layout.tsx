@@ -171,6 +171,19 @@ function NavigationRoot() {
           }}
         />
         <Stack.Screen
+          name="auth/sheet"
+          options={{
+            presentation: 'formSheet',
+            // Keep false on initial frame; app/auth/sheet.tsx enables it on transitionStart
+            // so react-native-screens applies prefersGrabberVisible after presentViewController starts.
+            sheetGrabberVisible: false,
+            sheetAllowedDetents: 'fitToContents',
+            sheetExpandsWhenScrolledToEdge: true,
+            headerShown: false,
+            contentStyle: { backgroundColor: colors.panel },
+          }}
+        />
+        <Stack.Screen
           name="settings/modal"
           options={{
             presentation: 'modal',

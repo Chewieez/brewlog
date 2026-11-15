@@ -309,9 +309,6 @@ const ReviewModalForm: React.FC<ReviewModalFormProps> = ({
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       {/* Pinned Navigation Header */}
       <View style={styles.headerContainer}>
-        <View style={styles.dragHandleContainer}>
-          <View style={styles.dragHandle} />
-        </View>
         <View style={styles.navHeader}>
           <Pressable
             style={styles.navButton}
@@ -721,22 +718,12 @@ const useStyles = makeStyles((colors) => ({
     borderBottomWidth: 1,
     borderBottomColor: colors.borderSubtle,
   },
-  dragHandleContainer: {
-    alignItems: 'center',
-    paddingTop: 8,
-    paddingBottom: 4,
-  },
-  dragHandle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.borderSubtle,
-  },
   navHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
+    paddingTop: 8,
     paddingBottom: 8,
   },
   navButton: {
