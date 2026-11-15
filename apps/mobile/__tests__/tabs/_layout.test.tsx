@@ -313,6 +313,13 @@ describe("TabLayout Integration", () => {
     expect(queryByTestId("modal")).toBeNull();
     expect(Keyboard.dismiss).toHaveBeenCalled();
   });
+});
+
+describe("TabLayoutIOS", () => {
+  afterEach(() => {
+    cleanup();
+    mockNativeTabs.mockClear();
+  });
 
   it("configures NativeTabs on iOS with accent selected color and foregroundSecondary default color for both icons and labels", () => {
     render(

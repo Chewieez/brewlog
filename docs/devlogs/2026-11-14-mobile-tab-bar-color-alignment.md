@@ -3,6 +3,7 @@
 - **Date**: 2026-11-14
 - **Status**: Completed & Verified
 - **Branch**: `fix/mobile-tab-bar-colors`
+- **Pull Request**: [#78](https://github.com/Chewieez/brewlog/pull/78)
 - **Plan**: [`docs/superpowers/plans/2026-11-14-mobile-tab-bar-color-alignment.md`](../superpowers/plans/2026-11-14-mobile-tab-bar-color-alignment.md)
 - **Tech Stack**: React Native 0.88 (Expo SDK 58), `expo-router/native-tabs`, `@brewlog/ui` (`useTheme`, `makeStyles`), TypeScript 6, Vitest, Playwright E2E
 

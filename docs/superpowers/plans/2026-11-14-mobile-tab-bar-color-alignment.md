@@ -34,7 +34,7 @@
 - Consumes: `useTheme`, `makeStyles` from `@brewlog/ui` (`colors.accent`, `colors.foregroundSecondary`).
 - Produces: `FloatingPillTabBar` rendering active icon + label with `colors.accent` and inactive icon + label with `colors.foregroundSecondary`.
 
-- [ ] **Step 1: Update `FloatingPillTabBar.test.tsx` mocks and add failing color assertions**
+- [x] **Step 1: Update `FloatingPillTabBar.test.tsx` mocks and add failing color assertions**
 
 In `apps/mobile/src/components/navigation/FloatingPillTabBar.test.tsx`:
 1. Pass `style={flattenStyle(style)}` on the mocked `Text` component (`line 44`):
@@ -93,7 +93,7 @@ In `apps/mobile/src/components/navigation/FloatingPillTabBar.test.tsx`:
    });
    ```
 
-- [ ] **Step 2: Run targeted test to verify it fails**
+- [x] **Step 2: Run targeted test to verify it fails**
 
 Run:
 ```bash
@@ -101,7 +101,7 @@ npx vitest run apps/mobile/src/components/navigation/FloatingPillTabBar.test.tsx
 ```
 Expected: FAIL — `Timer` label color is `rgb(245, 240, 235)` (`colors.foreground`) instead of `rgb(217, 119, 54)` (`colors.accent`), and inactive icon/label color is `#78716c` (`colors.foregroundMuted`) instead of `#a8a29e` (`colors.foregroundSecondary`).
 
-- [ ] **Step 3: Update `FloatingPillTabBar.tsx` to use `colors.accent` and `colors.foregroundSecondary`**
+- [x] **Step 3: Update `FloatingPillTabBar.tsx` to use `colors.accent` and `colors.foregroundSecondary`**
 
 In `apps/mobile/src/components/navigation/FloatingPillTabBar.tsx`:
 - Line 154: Change `renderIcon(isFocused ? colors.accent : colors.foregroundMuted)` to:
@@ -128,7 +128,7 @@ In `apps/mobile/src/components/navigation/FloatingPillTabBar.tsx`:
   },
   ```
 
-- [ ] **Step 4: Run targeted test to verify it passes**
+- [x] **Step 4: Run targeted test to verify it passes**
 
 Run:
 ```bash
@@ -148,7 +148,7 @@ Expected: PASS
 - Consumes: `NativeTabs` from `expo-router/native-tabs`, `useTheme` from `@brewlog/ui`.
 - Produces: `TabLayoutIOS` passing `iconColor={{ default: colors.foregroundSecondary, selected: colors.accent }}` alongside `tintColor={colors.accent}` and `labelStyle`.
 
-- [ ] **Step 1: Add failing test for `TabLayoutIOS` color props in `apps/mobile/__tests__/tabs/_layout.test.tsx`**
+- [x] **Step 1: Add failing test for `TabLayoutIOS` color props in `apps/mobile/__tests__/tabs/_layout.test.tsx`**
 
 In `apps/mobile/__tests__/tabs/_layout.test.tsx`:
 1. Add a mock for `expo-router/native-tabs` that captures props passed to `NativeTabs`:
@@ -200,7 +200,7 @@ In `apps/mobile/__tests__/tabs/_layout.test.tsx`:
    });
    ```
 
-- [ ] **Step 2: Run targeted test to verify it fails**
+- [x] **Step 2: Run targeted test to verify it fails**
 
 Run:
 ```bash
@@ -208,7 +208,7 @@ npx vitest run apps/mobile/__tests__/tabs/_layout.test.tsx
 ```
 Expected: FAIL — `iconColor` is `undefined` on `NativeTabs`.
 
-- [ ] **Step 3: Add `iconColor` to `NativeTabs` in `apps/mobile/app/(tabs)/_layout.ios.tsx`**
+- [x] **Step 3: Add `iconColor` to `NativeTabs` in `apps/mobile/app/(tabs)/_layout.ios.tsx`**
 
 In `apps/mobile/app/(tabs)/_layout.ios.tsx`:
 ```tsx
@@ -230,7 +230,7 @@ In `apps/mobile/app/(tabs)/_layout.ios.tsx`:
       >
 ```
 
-- [ ] **Step 4: Run targeted test and typecheck to verify**
+- [x] **Step 4: Run targeted test and typecheck to verify**
 
 Run:
 ```bash
@@ -239,7 +239,7 @@ npm run typecheck --workspace=@brewlog/mobile
 ```
 Expected: All tests PASS and `tsc --noEmit` exits `0`.
 
-- [ ] **Step 5: Commit changes**
+- [x] **Step 5: Commit changes**
 
 ```bash
 git add apps/mobile/src/components/navigation/FloatingPillTabBar.tsx \

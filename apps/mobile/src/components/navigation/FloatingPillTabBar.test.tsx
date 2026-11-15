@@ -429,7 +429,7 @@ describe('FloatingPillTabBar', () => {
       },
     };
 
-    const { getByTestId, getByText } = render(
+    const { getByTestId, getByText, rerender } = render(
       <FloatingPillTabBar
         state={{ index: 0, routes }}
         descriptors={descriptors}
@@ -450,6 +450,22 @@ describe('FloatingPillTabBar', () => {
       expect.objectContaining({
         focused: false,
         color: '#a8a29e',
+      })
+    );
+
+    // Active tab with function tabBarLabel (stash when index === 1) receives colors.accent
+    rerender(
+      <FloatingPillTabBar
+        state={{ index: 1, routes }}
+        descriptors={descriptors}
+        navigation={{ navigate: vi.fn(), emit: vi.fn() }}
+      />
+    );
+
+    expect(customLabelFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        focused: true,
+        color: '#d97736',
       })
     );
   });
