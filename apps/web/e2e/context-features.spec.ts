@@ -124,4 +124,38 @@ test.describe("Core Web App End-to-End Context Flows", () => {
     const persistedFahrenheitBtn = page.getByRole("button", { name: /fahrenheit/i });
     await expect(persistedFahrenheitBtn).toHaveAttribute("aria-pressed", "true");
   });
+
+  test("Settings: renders live preview tiles without horizontal truncation on desktop and mobile", async ({ page }) => {
+    const previewTestIds = [
+      "preview-dose",
+      "preview-water",
+      "preview-temp",
+      "preview-timer-mode",
+      "preview-date",
+      "preview-theme",
+    ];
+
+    for (const viewport of [
+      { width: 1280, height: 800 },
+      { width: 375, height: 812 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.goto("/settings");
+
+      await page.getByRole("button", { name: "GUIDED RECIPE", exact: true }).click();
+      await page.getByRole("button", { name: "IMPERIAL (oz)", exact: true }).click();
+      await page.getByRole("button", { name: "FAHRENHEIT (°F)", exact: true }).click();
+      await page.getByRole("button", { name: "DARK", exact: true }).click();
+
+      await expect(page.getByTestId("preview-timer-mode")).toHaveText("GUIDED RECIPE");
+      await expect(page.getByTestId("preview-theme")).toHaveText("DARK");
+
+      for (const id of previewTestIds) {
+        const tile = page.getByTestId(id);
+        await expect(tile).toBeVisible();
+        const noOverflow = await tile.evaluate((el) => el.scrollWidth <= el.clientWidth);
+        expect(noOverflow, `Expected ${id} at ${viewport.width}px not to overflow horizontally`).toBe(true);
+      }
+    }
+  });
 });
