@@ -76,7 +76,7 @@ export const SettingsRoute: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {/* Dose Preview */}
           <div className="bg-panel-recessed border border-border-subtle rounded-lg p-3">
             <div className="text-[10px] font-mono uppercase tracking-wider text-foreground-muted flex items-center space-x-1 mb-1">
@@ -85,7 +85,7 @@ export const SettingsRoute: React.FC = () => {
             </div>
             <div
               data-testid="preview-dose"
-              className="text-lg sm:text-xl font-light tabular-nums text-foreground"
+              className="text-sm sm:text-base font-medium tabular-nums text-foreground"
             >
               {formatWeight(18, settings.weightUnit)}
             </div>
@@ -99,7 +99,7 @@ export const SettingsRoute: React.FC = () => {
             </div>
             <div
               data-testid="preview-water"
-              className="text-lg sm:text-xl font-light tabular-nums text-foreground"
+              className="text-sm sm:text-base font-medium tabular-nums text-foreground"
             >
               {formatWeight(300, settings.weightUnit)}
             </div>
@@ -113,7 +113,7 @@ export const SettingsRoute: React.FC = () => {
             </div>
             <div
               data-testid="preview-temp"
-              className="text-lg sm:text-xl font-light tabular-nums text-foreground"
+              className="text-sm sm:text-base font-medium tabular-nums text-foreground"
             >
               {formatTemperature(94, settings.temperatureUnit)}
             </div>
@@ -127,7 +127,7 @@ export const SettingsRoute: React.FC = () => {
             </div>
             <div
               data-testid="preview-timer-mode"
-              className="text-lg sm:text-xl font-light text-foreground truncate"
+              className="text-sm sm:text-base font-medium text-foreground"
             >
               {settings.defaultTimerMode === 'free_brew' ? 'FREE BREW' : 'GUIDED RECIPE'}
             </div>
@@ -141,7 +141,7 @@ export const SettingsRoute: React.FC = () => {
             </div>
             <div
               data-testid="preview-date"
-              className="text-lg sm:text-xl font-light tabular-nums text-foreground truncate"
+              className="text-sm sm:text-base font-medium tabular-nums text-foreground"
             >
               {formatDisplayDate(sampleDate, settings.dateFormat)}
             </div>
@@ -155,7 +155,7 @@ export const SettingsRoute: React.FC = () => {
             </div>
             <div
               data-testid="preview-theme"
-              className="text-lg sm:text-xl font-light text-foreground truncate"
+              className="text-sm sm:text-base font-medium text-foreground"
             >
               {settings.theme === 'studio_light'
                 ? 'LIGHT'
