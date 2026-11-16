@@ -475,7 +475,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
       {/* Top Device Context Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-6 border-b border-border-subtle">
-        <div>
+        <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2.5">
             {mode === 'recipe' && renderBrewMethodBadge(currentRecipe.brewMethod)}
             <h2 className="text-2xl font-bold text-foreground tracking-tight">
@@ -489,7 +489,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 aria-label="Switch recipe"
                 className="btn-tactile-secondary h-8 px-2.5 rounded-lg text-[11px] font-mono uppercase tracking-wider font-semibold inline-flex items-center gap-1.5 cursor-pointer"
               >
-                <ArrowLeftRight className="w-3.5 h-3.5 text-accent" />
+                <ArrowLeftRight className="w-3.5 h-3.5 text-accent" aria-hidden="true" />
                 <span>SWITCH</span>
               </button>
             )}
@@ -502,30 +502,43 @@ export const TimerView: React.FC<TimerViewProps> = ({
         </div>
 
         {/* Active Bean Indicator / Inline Selector */}
-        <div className="flex items-center sm:justify-end space-x-2 text-xs flex-shrink-0">
-          <div className="flex items-center space-x-1.5 text-accent font-medium font-mono uppercase tracking-wider text-[11px]">
-            <Coffee className="w-3.5 h-3.5" />
-            <span>Bean:</span>
-          </div>
+        <div className="flex items-center sm:justify-end space-x-2 text-xs min-w-0 max-w-full flex-shrink-0">
           {beans.length > 0 ? (
-            <select
-              value={selectedBean?.id || ''}
-              onChange={(e) => {
-                const b = beans.find((item) => item.id === e.target.value);
-                if (b && onSelectBean) onSelectBean(b);
-              }}
-              className="bg-panel border border-border-subtle rounded-lg px-2.5 py-1 text-xs font-medium text-foreground focus:outline-none focus:border-accent cursor-pointer"
-            >
-              {beans.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name} ({b.roaster})
-                </option>
-              ))}
-            </select>
+            <>
+              <label
+                htmlFor="timer-bean-select"
+                className="flex items-center space-x-1.5 text-accent font-medium font-mono uppercase tracking-wider text-[11px] flex-shrink-0 cursor-pointer"
+              >
+                <Coffee className="w-3.5 h-3.5" aria-hidden="true" />
+                <span>Bean:</span>
+              </label>
+              <select
+                id="timer-bean-select"
+                aria-label="Active coffee bean"
+                value={selectedBean?.id || ''}
+                onChange={(e) => {
+                  const b = beans.find((item) => item.id === e.target.value);
+                  if (b && onSelectBean) onSelectBean(b);
+                }}
+                className="min-w-0 max-w-full sm:max-w-[260px] bg-panel border border-border-subtle rounded-lg px-2.5 py-1 text-xs font-medium text-foreground focus:outline-none focus:border-accent cursor-pointer truncate"
+              >
+                {beans.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name} ({b.roaster})
+                  </option>
+                ))}
+              </select>
+            </>
           ) : (
-            <span className="text-foreground-secondary text-xs">
-              {selectedBean ? `${selectedBean.name} (${selectedBean.roaster})` : "Specialty Blend"}
-            </span>
+            <>
+              <div className="flex items-center space-x-1.5 text-accent font-medium font-mono uppercase tracking-wider text-[11px] flex-shrink-0">
+                <Coffee className="w-3.5 h-3.5" aria-hidden="true" />
+                <span>Bean:</span>
+              </div>
+              <span className="text-foreground-secondary text-xs truncate">
+                {selectedBean ? `${selectedBean.name} (${selectedBean.roaster})` : "Specialty Blend"}
+              </span>
+            </>
           )}
         </div>
       </div>
@@ -969,7 +982,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               </div>
 
               {/* Quick Tag Chips (Free Brew Mode) */}
-              {mode === 'free_brew' && !isFreeBrewFinished && (
+              {!isFreeBrewFinished && (
                 <div className="flex flex-wrap items-center gap-2 py-2.5">
                   <span className="text-[11px] font-mono text-foreground-muted uppercase tracking-wider mr-1">
                     TAGS:

@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
 import { TimerView } from './TimerView';
-import { BrewRecipe, DEFAULT_USER_SETTINGS } from '@brewlog/core';
+import { BrewRecipe, Bean, DEFAULT_USER_SETTINGS } from '@brewlog/core';
 import { useSettings } from '../settings/SettingsContext';
 
 vi.mock('../settings/SettingsContext', () => ({
@@ -795,5 +795,48 @@ describe('TimerView', () => {
     );
 
     expect(screen.getByRole('button', { name: /switch recipe/i })).toBeDefined();
+  });
+
+  it('associates the Bean label with the bean selector and marks the SWITCH icon aria-hidden', () => {
+    const mockBeans: Bean[] = [
+      {
+        id: 'bean-1',
+        name: 'Worka Sakaro',
+        roaster: 'Sey Coffee',
+        flavorNotes: ['Peach'],
+        createdAt: '2026-09-01T12:00:00.000Z',
+      },
+      {
+        id: 'bean-2',
+        name: 'Las Flores',
+        roaster: 'Onyx',
+        flavorNotes: ['Jasmine'],
+        createdAt: '2026-09-02T12:00:00.000Z',
+      },
+    ];
+    const handleSelectBean = vi.fn();
+
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        initialMode="recipe"
+        beans={mockBeans}
+        selectedBean={mockBeans[0]}
+        onSelectBean={handleSelectBean}
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    const beanSelect = screen.getByLabelText(/active coffee bean/i) as HTMLSelectElement;
+    expect(beanSelect.id).toBe('timer-bean-select');
+    expect(beanSelect.value).toBe('bean-1');
+
+    fireEvent.change(beanSelect, { target: { value: 'bean-2' } });
+    expect(handleSelectBean).toHaveBeenCalledWith(mockBeans[1]);
+
+    const switchBtn = screen.getByRole('button', { name: /switch recipe/i });
+    const switchIcon = switchBtn.querySelector('svg');
+    expect(switchIcon?.getAttribute('aria-hidden')).toBe('true');
   });
 });

@@ -1,125 +1,75 @@
-# Remove "Change Recipe" Button in Free Brew Mode Implementation Plan
+# Remove "Change Recipe" Button in Free Brew Mode & Timer Header Polish Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
-**Goal:** Omit the `CHANGE RECIPE` button on the web Timer page whenever `mode === 'free_brew'`, and align unit and E2E tests with Free Brew being the default cold-start timer mode.
+**Goal:** Omit the recipe-switch button and `V60` brew-method badge on the web Timer page whenever `mode === 'free_brew'`, refine the header/drawer layout (`SWITCH` inline, `Bean:` right-aligned, quick tags under `SPLIT LOG`, unified `bg-panel` Ratio Calculator below controls), and align unit and E2E tests with Free Brew being the default cold-start timer mode.
 
-**Architecture:** In `apps/web/src/features/timer/TimerView.tsx`, gate the Top Device Context Bar's `CHANGE RECIPE` button container behind `mode === 'recipe'`. No mobile changes are needed because `apps/mobile` has no "Change recipe" button on its Timer screen. Update `TimerView.test.tsx` (Vitest) and `apps/web/e2e/context-features.spec.ts` (Playwright) to verify visibility in Guided Recipe mode and absence in Free Brew mode.
+**Architecture:** In `apps/web/src/features/timer/TimerView.tsx`, gate both `renderBrewMethodBadge(currentRecipe.brewMethod)` and the compact inline `SWITCH` button (`ArrowLeftRight` + `SWITCH`, `aria-label="Switch recipe"`) behind `mode === 'recipe'`, right-align the `Bean:` selector, move Free Brew quick tags below `SPLIT LOG`, and place `<WebRatioTranslator />` below the left-column controls. In `apps/web/src/features/timer/WebRatioTranslator.tsx`, unify the `h-10` trigger and expanded body in a single `bg-panel` bordered card with `bg-panel-recessed` inputs. Update `TimerView.test.tsx`, `context-features.spec.ts`, and `button-sizing-tokens.spec.ts`.
 
 **Tech Stack:** React 19, TypeScript, Tailwind CSS, Vitest + React Testing Library, Playwright.
 
 **Spec:** `docs/superpowers/specs/2026-11-15-remove-change-recipe-free-brew-design.md`
 
+## Post-Plan Scope Revision
+
+After initial Task 1–3 completion, interactive PR #80 UI review added:
+- Hiding `renderBrewMethodBadge(currentRecipe.brewMethod)` (`V60`) in `free_brew` mode.
+- Replacing `CHANGE RECIPE` with compact inline `ArrowLeftRight` + `SWITCH` (`aria-label="Switch recipe"`, `h-8 px-2.5 text-[11px]`), moving `Bean:` right (`rounded-lg`, bounded width, `<label htmlFor>`), moving quick tags under `SPLIT LOG` (explicitly kept in right column on all viewports per user decision), and unifying `WebRatioTranslator` as a `bg-panel` drawer below controls.
+- Addressing code-review findings: `min-w-0` / `max-w` bounds and label association on `Bean:`, `aria-hidden="true"` on `ArrowLeftRight`, redundant `mode === 'free_brew'` cleanup, `focus-visible` ring on `WebRatioTranslator`, clicking `SWITCH` in `context-features.spec.ts`, and including `/timer?mode=recipe` in `button-sizing-tokens.spec.ts`.
+
 ## Global Constraints
 
-- Omit the `CHANGE RECIPE` button and its wrapper `div` from the DOM when `mode === 'free_brew'` (do not use `disabled` or CSS `invisible`).
-- Keep `CHANGE RECIPE` rendering, classes (`btn-tactile-secondary h-8 px-3.5 rounded-lg text-xs font-mono uppercase tracking-wider font-semibold inline-flex items-center justify-center cursor-pointer`), and `onClick={onSelectOtherRecipe}` unchanged in `'recipe'` mode.
-- Keep `TimerViewProps.onSelectOtherRecipe` unchanged.
+- Omit the recipe-switch button and brew-method badge from the DOM when `mode === 'free_brew'` (do not use `disabled` or CSS `invisible`).
+- Keep `onSelectOtherRecipe` navigation to `/recipes` intact in `'recipe'` mode and keep `TimerViewProps.onSelectOtherRecipe` unchanged.
+- Comply with `[32px, 40px, 48px]` button-sizing tokens (`h-8` for `SWITCH` and quick tags, `h-10` for `WebRatioTranslator`).
 - Zero emoji anywhere in code, tests, comments, or docs.
-- Note on test execution during implementation: follow user rule to avoid running broad/full test suites on small intermediate edits; run full typecheck, unit tests, and Playwright E2E checks as the final verification gate before committing.
 
 ## Review Focus
 
-- **Cold-start default mode (`free_brew`):** `TimerView` defaults to `settings.defaultTimerMode` (`'free_brew'` in `DEFAULT_USER_SETTINGS`), so `CHANGE RECIPE` must NOT render on initial default mount. (Covered in Task 1 & Task 2)
-- **Mode switching (`free_brew` <-> `recipe`):** Toggling via `SegmentedControl` between `FREE BREW` and `GUIDED RECIPE` must immediately hide and restore `CHANGE RECIPE` without stale state, including when an active-brew `window.confirm` is cancelled (button stays hidden/visible matching the retained mode). (Covered in Task 1 & Task 2)
-- **URL query parameter entry (`?mode=recipe` / `?mode=free_brew` / `initialMode`):** Opening with `initialMode="recipe"` shows `CHANGE RECIPE`; opening with `initialMode="free_brew"` omits it. (Covered in Task 1)
-- **Clicking `CHANGE RECIPE` in Guided Recipe mode:** `onSelectOtherRecipe` still fires once clicked after switching from Free Brew to Guided Recipe. (Covered in Task 1)
-- **Recipe prop change auto-switch:** When `initialRecipe` changes (e.g. user selects a recipe from `/recipes`), `TimerView` switches `mode` to `'recipe'`, so `CHANGE RECIPE` becomes visible. (Covered in Task 1)
+- **Cold-start default mode (`free_brew`):** `TimerView` defaults to `settings.defaultTimerMode` (`'free_brew'` in `DEFAULT_USER_SETTINGS`), so `SWITCH` and `V60` badge must NOT render on initial default mount. (Covered in Task 1 & Task 2)
+- **Mode switching (`free_brew` <-> `recipe`):** Toggling via `SegmentedControl` between `FREE BREW` and `GUIDED RECIPE` must immediately hide and restore `SWITCH` and the brew-method badge without stale state, including when an active-brew `window.confirm` is cancelled. (Covered in Task 1 & Task 2)
+- **URL query parameter entry (`?mode=recipe` / `?mode=free_brew` / `initialMode`):** Opening with `initialMode="recipe"` (or `/timer?mode=recipe`) shows `SWITCH`; opening with `initialMode="free_brew"` omits it. (Covered in Task 1 & Task 2)
+- **Clicking `SWITCH` in Guided Recipe mode:** `onSelectOtherRecipe` fires once and navigates to `/recipes`. (Covered in Task 1 & Task 2)
+- **Recipe prop change auto-switch:** When `initialRecipe` changes (e.g. user selects a recipe from `/recipes`), `TimerView` switches `mode` to `'recipe'`, so `SWITCH` becomes visible. (Covered in Task 1)
 
 ---
 
-### Task 1: Conditionally render `CHANGE RECIPE` only in Guided Recipe mode (`TimerView`)
+### Task 1: Conditionally render `SWITCH` & brew-method badge and update Timer/Calculator layout (`TimerView`, `WebRatioTranslator`)
 
 **Files:**
-- Modify: `apps/web/src/features/timer/TimerView.tsx:519-527`
+- Modify: `apps/web/src/features/timer/TimerView.tsx`
+- Modify: `apps/web/src/features/timer/WebRatioTranslator.tsx`
 - Test: `apps/web/src/features/timer/TimerView.test.tsx`
 
 **Interfaces:**
-- Consumes: `mode: TimerMode` (`'recipe' | 'free_brew'`), `onSelectOtherRecipe: () => void` in `TimerView` (`apps/web/src/features/timer/TimerView.tsx`)
-- Produces: Conditional rendering of `<button type="button" onClick={onSelectOtherRecipe} ...>CHANGE RECIPE</button>` strictly when `mode === 'recipe'`
+- Consumes: `mode: TimerMode` (`'recipe' | 'free_brew'`), `onSelectOtherRecipe: () => void` in `TimerView`
+- Produces: Conditional rendering of brew-method badge and `<button ... aria-label="Switch recipe">SWITCH</button>` strictly when `mode === 'recipe'`, accessible right-aligned `Bean:` selector, quick tags under `SPLIT LOG`, and unified `bg-panel` `WebRatioTranslator` drawer below controls.
 
-- [ ] **Step 1: Add unit tests to `apps/web/src/features/timer/TimerView.test.tsx`**
-
-Add tests in the `describe('TimerView', ...)` block covering:
-1. Cold-start default (`DEFAULT_USER_SETTINGS.defaultTimerMode === 'free_brew'`): `screen.queryByRole('button', { name: /change recipe/i })` is `null`.
-2. `initialMode="free_brew"`: `screen.queryByRole('button', { name: /change recipe/i })` is `null`.
-3. `initialMode="recipe"`: `CHANGE RECIPE` button is rendered and clicking it calls `onSelectOtherRecipe` once.
-4. Mode switching (`recipe` -> `free_brew` -> `recipe`): `CHANGE RECIPE` disappears on `FREE BREW` click and reappears on `GUIDED RECIPE` click (and still calls `onSelectOtherRecipe` when clicked).
-5. `initialRecipe` prop update while in `free_brew` mode switches to `'recipe'` mode and renders `CHANGE RECIPE` again.
-
-- [ ] **Step 2: Run targeted unit test file to verify new tests fail before the fix**
-
-Run: `npx vitest run src/features/timer/TimerView.test.tsx` (in `apps/web`)
-Expected: FAIL on assertions expecting `CHANGE RECIPE` to be `null` in `free_brew` mode.
-
-- [ ] **Step 3: Gate the `CHANGE RECIPE` button container in `apps/web/src/features/timer/TimerView.tsx`**
-
-Wrap lines 519–527 in `{mode === 'recipe' && (...)}`:
-
-```tsx
-        {mode === 'recipe' && (
-          <div className="flex items-center">
-            <button
-              type="button"
-              onClick={onSelectOtherRecipe}
-              className="btn-tactile-secondary h-8 px-3.5 rounded-lg text-xs font-mono uppercase tracking-wider font-semibold inline-flex items-center justify-center cursor-pointer"
-            >
-              CHANGE RECIPE
-            </button>
-          </div>
-        )}
-```
-
-- [ ] **Step 4: Run targeted unit test file to verify all tests in `TimerView.test.tsx` pass**
-
-Run: `npx vitest run src/features/timer/TimerView.test.tsx` (in `apps/web`)
-Expected: PASS (all tests in `TimerView.test.tsx` green).
+- [x] **Step 1: Add unit tests to `apps/web/src/features/timer/TimerView.test.tsx`**
+- [x] **Step 2: Run targeted unit test file to verify new tests fail before the fix**
+- [x] **Step 3: Implement changes in `apps/web/src/features/timer/TimerView.tsx` and `apps/web/src/features/timer/WebRatioTranslator.tsx`**
+- [x] **Step 4: Run targeted unit test file to verify all tests in `TimerView.test.tsx` pass**
 
 ---
 
-### Task 2: Update Playwright E2E flow in `context-features.spec.ts`
+### Task 2: Update Playwright E2E flows (`context-features.spec.ts`, `button-sizing-tokens.spec.ts`)
 
 **Files:**
-- Modify: `apps/web/e2e/context-features.spec.ts:11-41`
+- Modify: `apps/web/e2e/context-features.spec.ts`
+- Modify: `apps/web/e2e/button-sizing-tokens.spec.ts`
 
-**Interfaces:**
-- Consumes: `/timer` route (`TimerRoute` -> `TimerView`) with default `DEFAULT_USER_SETTINGS.defaultTimerMode === 'free_brew'`
-
-- [ ] **Step 1: Update `"Timer: switches between Guided Recipe and Free Brew, controls stopwatch"` in `apps/web/e2e/context-features.spec.ts`**
-
-Update lines 11–41 so the test reflects the actual default mode (`free_brew`) and explicitly verifies `CHANGE RECIPE` visibility across both modes:
-1. After `await page.goto("/timer")`:
-   - Verify Free Brew mode is active by default (`Free Brew Stopwatch` and `MANUAL STOPWATCH` are visible).
-   - Verify `page.getByRole("button", { name: /change recipe/i })` is NOT visible (`not.toBeVisible()`).
-2. Switch to Guided Recipe (`page.getByRole("button", { name: "GUIDED RECIPE" }).click()`):
-   - Verify `page.getByRole("button", { name: /change recipe/i })` IS visible.
-3. Switch back to Free Brew (`page.getByRole("button", { name: "FREE BREW" }).click()`):
-   - Verify `Free Brew Stopwatch` and `MANUAL STOPWATCH` are visible and `CHANGE RECIPE` is NOT visible.
-4. Keep the existing Start -> Pause -> Reset stopwatch verification in Free Brew mode, then switch back to `GUIDED RECIPE` and verify `CHANGE RECIPE` is visible again.
+- [x] **Step 1: Update `"Timer: switches between Guided Recipe and Free Brew, controls stopwatch"` in `apps/web/e2e/context-features.spec.ts` to assert `free_brew` cold-start (`SWITCH` and `V60` hidden), `MANUAL STOPWATCH` / `SPLIT LOG` alignment, mode switching, and clicking `SWITCH` to navigate to `/recipes`.**
+- [x] **Step 2: Add `/timer?mode=recipe` to `routes` in `apps/web/e2e/button-sizing-tokens.spec.ts` so `SWITCH` (`32px`) is measured.**
 
 ---
 
 ### Task 3: Final Verification & Documentation Check (Ready to Commit)
 
 **Files:**
-- Verify: `apps/web/src/features/timer/TimerView.tsx`, `apps/web/src/features/timer/TimerView.test.tsx`, `apps/web/e2e/context-features.spec.ts`
-- Check `AGENTS.md` Documentation & PR Completion Protocol (create dated devlog in `docs/devlogs/` if preparing a PR; note this is a focused bug/UX fix, not a roadmap milestone).
+- Verify: `apps/web/src/features/timer/TimerView.tsx`, `apps/web/src/features/timer/WebRatioTranslator.tsx`, `apps/web/src/features/timer/TimerView.test.tsx`, `apps/web/e2e/context-features.spec.ts`, `apps/web/e2e/button-sizing-tokens.spec.ts`
+- Devlog: `docs/devlogs/2026-11-15-remove-change-recipe-free-brew.md`
 
-- [ ] **Step 1: Run workspace typecheck**
-
-Run: `npm run typecheck` (from repo root)
-Expected: Exit code 0 across all workspaces.
-
-- [ ] **Step 2: Run full unit test suite**
-
-Run: `npm test` (from repo root)
-Expected: All workspace unit test suites pass with 0 failures.
-
-- [ ] **Step 3: Run Playwright E2E suite**
-
-Run: `npm run test:e2e` (from repo root)
-Expected: All E2E specs pass (including `context-features.spec.ts` and `button-sizing-tokens.spec.ts`).
-
-- [ ] **Step 4: Commit changes**
-
-Stage modified files (`docs/superpowers/specs/2026-11-15-remove-change-recipe-free-brew-design.md`, `docs/superpowers/plans/2026-11-15-remove-change-recipe-free-brew.md`, `apps/web/src/features/timer/TimerView.tsx`, `apps/web/src/features/timer/TimerView.test.tsx`, `apps/web/e2e/context-features.spec.ts`, and any devlog if added) and commit cleanly.
+- [x] **Step 1: Run workspace typecheck (`npm run typecheck`)**
+- [x] **Step 2: Run full unit test suite (`npm test`)**
+- [x] **Step 3: Run Playwright E2E suite (`npm run test:e2e`)**
+- [x] **Step 4: Commit and push changes to PR #80**

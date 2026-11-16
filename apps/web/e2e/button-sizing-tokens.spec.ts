@@ -88,7 +88,7 @@ test.describe("Design System Button Sizing Tokens", () => {
   });
 
   test("all interactive buttons across primary views conform to [32px, 40px, 48px]", async ({ page }) => {
-    const routes = ["/timer", "/stash", "/recipes", "/equipment", "/reviews", "/settings"];
+    const routes = ["/timer", "/timer?mode=recipe", "/stash", "/recipes", "/equipment", "/reviews", "/settings"];
     for (const route of routes) {
       await page.goto(route);
       const buttons = await page.locator("button:visible, a[role='button']:visible").all();

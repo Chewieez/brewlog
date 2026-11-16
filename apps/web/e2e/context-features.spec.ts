@@ -55,9 +55,12 @@ test.describe("Core Web App End-to-End Context Flows", () => {
     await expect(resetBtn).toBeVisible();
     await resetBtn.click();
 
-    // Switch back to Guided Recipe
+    // Switch back to Guided Recipe and verify SWITCH navigates to /recipes
     await page.getByRole("button", { name: "GUIDED RECIPE" }).click();
-    await expect(page.getByRole("button", { name: /switch recipe/i })).toBeVisible();
+    const switchBtn = page.getByRole("button", { name: /switch recipe/i });
+    await expect(switchBtn).toBeVisible();
+    await switchBtn.click();
+    await expect(page).toHaveURL(/.*\/recipes/);
   });
 
   test("Recipes Studio: selects recipe, views details, and brews with recipe", async ({ page }) => {

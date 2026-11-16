@@ -26,17 +26,18 @@ Additionally, `apps/web/e2e/context-features.spec.ts` was aligned with `DEFAULT_
 ## Architecture & Deliverables
 
 ### 1. Context Bar & Layout Refinement (`apps/web/src/features/timer/TimerView.tsx`)
-- Gated `renderBrewMethodBadge(currentRecipe.brewMethod)` and the inline `SWITCH` button (`ArrowLeftRight` + `SWITCH`, `aria-label="Switch recipe"`, `h-8 px-2.5 text-[11px]`) behind `mode === 'recipe'`.
-- Right-aligned the `Bean:` selector (`rounded-lg` to match surrounding `/timer` controls) inside the Top Device Context Bar (`pb-4 mb-6`) to eliminate the extra vertical row above the faceplate.
+- Gated `renderBrewMethodBadge(currentRecipe.brewMethod)` and the inline `SWITCH` button (`ArrowLeftRight` with `aria-hidden="true"` + `SWITCH`, `aria-label="Switch recipe"`, `h-8 px-2.5 text-[11px]`) behind `mode === 'recipe'`.
+- Right-aligned the `Bean:` selector (`rounded-lg`, `min-w-0` + `sm:max-w-[260px]` width bounds, and `<label htmlFor="timer-bean-select">` / `aria-label="Active coffee bean"`) inside the Top Device Context Bar (`pb-4 mb-6`) with `min-w-0` on the left header block.
 - Moved Free Brew quick tags directly below the `SPLIT LOG` header in the right column and moved `<WebRatioTranslator />` below the left-column controls so `MANUAL STOPWATCH` starts flush at the top of the grid alongside `SPLIT LOG`.
 - Verified mobile parity (`apps/mobile/app/(tabs)/index.tsx` and `apps/mobile/src/components/timer/TimerHero.tsx`): mobile renders neither a recipe-switch button nor a `V60` badge in Free Brew mode.
 
 ### 2. Ratio Calculator Drawer Affordance (`apps/web/src/features/timer/WebRatioTranslator.tsx`)
-- Unified the collapsed toggle and expanded drawer body into a single bordered `bg-panel` container (`rounded-lg border border-border-subtle`, with `bg-panel-recessed` inputs inside) separated by a hairline `border-t` when open, keeping an `h-10` trigger (`40px` button-sizing token).
+- Unified the collapsed toggle and expanded drawer body into a single bordered `bg-panel` container (`rounded-lg border border-border-subtle`, with `bg-panel-recessed` inputs inside) separated by a hairline `border-t` when open, keeping an `h-10` trigger (`40px` button-sizing token) with an explicit `focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset` indicator.
 
 ### 3. Unit & E2E Test Updates
-- **`apps/web/src/features/timer/TimerView.test.tsx`**: Added 5 unit tests covering cold-start default (`free_brew`), cold-start `initialMode="recipe"`, toggling `free_brew` <-> `recipe`, active-brew confirmation cancellation, and `recipe` prop updates for `SWITCH` and the `V60` badge.
-- **`apps/web/e2e/context-features.spec.ts`**: Updated `"Timer: switches between Guided Recipe and Free Brew, controls stopwatch"` to assert `free_brew` cold-start (`SWITCH` and `V60` hidden in Free Brew, visible in Guided Recipe) and desktop vertical alignment between `MANUAL STOPWATCH` and `SPLIT LOG`.
+- **`apps/web/src/features/timer/TimerView.test.tsx`**: Added 6 unit tests covering cold-start default (`free_brew`), cold-start `initialMode="recipe"`, toggling `free_brew` <-> `recipe`, active-brew confirmation cancellation, `recipe` prop updates for `SWITCH` and the `V60` badge, and Bean `<select>` label binding + `aria-hidden="true"` on the `SWITCH` icon.
+- **`apps/web/e2e/context-features.spec.ts`**: Updated `"Timer: switches between Guided Recipe and Free Brew, controls stopwatch"` to assert `free_brew` cold-start (`SWITCH` and `V60` hidden in Free Brew, visible in Guided Recipe), desktop vertical alignment between `MANUAL STOPWATCH` and `SPLIT LOG`, and clicking `SWITCH` to navigate to `/recipes`.
+- **`apps/web/e2e/button-sizing-tokens.spec.ts`**: Added `/timer?mode=recipe` to `routes` so the `SWITCH` button (`32px`) is covered by token height checks.
 
 ---
 
@@ -56,5 +57,5 @@ Additionally, `apps/web/e2e/context-features.spec.ts` was aligned with `DEFAULT_
   - `@brewlog/supabase`: 4 files, 29 tests passed
   - `@brewlog/ui`: 12 files, 63 tests passed
   - `@brewlog/mobile`: 59 files, 510 tests passed
-  - `@brewlog/web`: 28 files, 278 tests passed (including 20 tests in `TimerView.test.tsx`)
-- **Playwright E2E (`npm run test:e2e`)**: 12/12 web E2E tests passed (`4.0s`), including desktop `MANUAL STOPWATCH` / `SPLIT LOG` alignment and button-sizing token checks.
+  - `@brewlog/web`: 28 files, 279 tests passed (including 21 tests in `TimerView.test.tsx`)
+- **Playwright E2E (`npm run test:e2e`)**: 12/12 web E2E tests passed (`3.9s`), including desktop `MANUAL STOPWATCH` / `SPLIT LOG` alignment, `SWITCH` -> `/recipes` navigation, and `/timer?mode=recipe` button-sizing token checks.

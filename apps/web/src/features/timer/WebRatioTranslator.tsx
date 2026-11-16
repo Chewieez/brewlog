@@ -148,7 +148,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`w-full h-10 px-3.5 flex items-center justify-between text-left text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground transition-colors cursor-pointer ${
+        className={`w-full h-10 px-3.5 flex items-center justify-between text-left text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset transition-colors cursor-pointer ${
           isOpen ? 'rounded-t-lg' : 'rounded-lg'
         }`}
         aria-expanded={isOpen}
