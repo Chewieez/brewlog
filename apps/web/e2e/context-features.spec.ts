@@ -12,13 +12,20 @@ test.describe("Core Web App End-to-End Context Flows", () => {
     await page.goto("/timer");
     await expect(page.getByRole("heading", { name: "Timer" })).toBeVisible();
 
-    // Verify Guided mode by default
+    // Verify Free Brew mode by default (no Change Recipe button)
+    await expect(page.getByText("Free Brew Stopwatch")).toBeVisible();
+    await expect(page.getByText("MANUAL STOPWATCH")).toBeVisible();
+    await expect(page.getByRole("button", { name: /change recipe/i })).not.toBeVisible();
+
+    // Switch to Guided Recipe mode (Change Recipe button is visible)
+    await page.getByRole("button", { name: "GUIDED RECIPE" }).click();
     await expect(page.getByRole("button", { name: /change recipe/i })).toBeVisible();
 
-    // Switch to Free Brew mode
+    // Switch back to Free Brew mode (Change Recipe button is hidden again)
     await page.getByRole("button", { name: "FREE BREW" }).click();
     await expect(page.getByText("Free Brew Stopwatch")).toBeVisible();
     await expect(page.getByText("MANUAL STOPWATCH")).toBeVisible();
+    await expect(page.getByRole("button", { name: /change recipe/i })).not.toBeVisible();
 
     // Start brew
     const startBtn = page.getByRole("button", { name: "START" });

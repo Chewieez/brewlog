@@ -666,4 +666,128 @@ describe('TimerView', () => {
     expect(waterInput.value).toBe('10.58');
     expect(doseInput.value).toBe('0.63');
   });
+
+  it('omits the CHANGE RECIPE button on cold start in default free_brew mode', () => {
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    expect(screen.queryByRole('button', { name: /change recipe/i })).toBeNull();
+  });
+
+  it('renders the CHANGE RECIPE button on cold start when initialMode="recipe"', () => {
+    const handleSelectOtherRecipe = vi.fn();
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        initialMode="recipe"
+        onSelectOtherRecipe={handleSelectOtherRecipe}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    const changeRecipeBtn = screen.getByRole('button', { name: /change recipe/i });
+    expect(changeRecipeBtn).toBeDefined();
+
+    act(() => {
+      fireEvent.click(changeRecipeBtn);
+    });
+    expect(handleSelectOtherRecipe).toHaveBeenCalledTimes(1);
+  });
+
+  it('omits the CHANGE RECIPE button in free_brew mode and shows it in recipe mode', () => {
+    const handleSelectOtherRecipe = vi.fn();
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        initialMode="free_brew"
+        onSelectOtherRecipe={handleSelectOtherRecipe}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    expect(screen.queryByRole('button', { name: /change recipe/i })).toBeNull();
+
+    // Switch to Guided Recipe mode -> CHANGE RECIPE appears and triggers callback
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /GUIDED RECIPE/i }));
+    });
+
+    const changeRecipeBtn = screen.getByRole('button', { name: /change recipe/i });
+    expect(changeRecipeBtn).toBeDefined();
+
+    act(() => {
+      fireEvent.click(changeRecipeBtn);
+    });
+    expect(handleSelectOtherRecipe).toHaveBeenCalledTimes(1);
+
+    // Switch back to Free Brew mode -> CHANGE RECIPE disappears again
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /FREE BREW/i }));
+    });
+    expect(screen.queryByRole('button', { name: /change recipe/i })).toBeNull();
+  });
+
+  it('keeps CHANGE RECIPE hidden when an active-brew mode switch confirmation is cancelled', () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValueOnce(false);
+    render(
+      <TimerView
+        recipe={mockRecipe}
+        initialMode="free_brew"
+        onSelectOtherRecipe={vi.fn()}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /START BREW/i }));
+    });
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /GUIDED RECIPE/i }));
+    });
+
+    expect(confirmSpy).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button', { name: /change recipe/i })).toBeNull();
+    confirmSpy.mockRestore();
+  });
+
+  it('shows CHANGE RECIPE when recipe prop changes while in free_brew mode', () => {
+    const onSelectOtherRecipe = vi.fn();
+    const { rerender } = render(
+      <TimerView
+        recipe={mockRecipe}
+        initialMode="free_brew"
+        onSelectOtherRecipe={onSelectOtherRecipe}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    expect(screen.queryByRole('button', { name: /change recipe/i })).toBeNull();
+
+    const updatedRecipe: BrewRecipe = {
+      ...mockRecipe,
+      id: 'test-chemex',
+      name: 'Test Chemex',
+      brewMethod: 'chemex',
+    };
+
+    rerender(
+      <TimerView
+        recipe={updatedRecipe}
+        initialMode="free_brew"
+        onSelectOtherRecipe={onSelectOtherRecipe}
+        onLogCompletedBrew={vi.fn()}
+      />
+    );
+
+    expect(screen.getByRole('button', { name: /change recipe/i })).toBeDefined();
+  });
 });

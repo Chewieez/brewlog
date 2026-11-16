@@ -516,15 +516,17 @@ export const TimerView: React.FC<TimerViewProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center">
-          <button
-            type="button"
-            onClick={onSelectOtherRecipe}
-            className="btn-tactile-secondary h-8 px-3.5 rounded-lg text-xs font-mono uppercase tracking-wider font-semibold inline-flex items-center justify-center cursor-pointer"
-          >
-            CHANGE RECIPE
-          </button>
-        </div>
+        {mode === 'recipe' && (
+          <div className="flex items-center">
+            <button
+              type="button"
+              onClick={onSelectOtherRecipe}
+              className="btn-tactile-secondary h-8 px-3.5 rounded-lg text-xs font-mono uppercase tracking-wider font-semibold inline-flex items-center justify-center cursor-pointer"
+            >
+              CHANGE RECIPE
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Main Open Instrument Faceplate */}
