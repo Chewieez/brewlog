@@ -139,12 +139,18 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
   };
 
   return (
-    <div className={`w-full ${className}`}>
+    <div
+      className={`w-full rounded-lg border border-border-subtle bg-panel-recessed transition-colors ${
+        isOpen ? '' : 'hover:border-border-active'
+      } ${className}`}
+    >
       {/* Header Accordion Toggle */}
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full h-10 px-3.5 rounded-lg flex items-center justify-between text-left text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground border border-border-subtle hover:border-border-active bg-panel-recessed transition-colors cursor-pointer"
+        className={`w-full h-10 px-3.5 flex items-center justify-between text-left text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground transition-colors cursor-pointer ${
+          isOpen ? 'rounded-t-lg' : 'rounded-lg'
+        }`}
         aria-expanded={isOpen}
       >
         <div className="flex items-center space-x-2">
@@ -163,7 +169,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
 
       {/* Collapsible Content */}
       {isOpen && (
-        <div className="mt-2.5 p-4 border border-border-subtle rounded bg-panel-recessed space-y-4">
+        <div className="px-4 pb-4 pt-3 border-t border-border-subtle space-y-4">
           <p className="text-xs text-foreground-muted">
             Translate recipe dose & water proportionally to match your target coffee dose.
           </p>

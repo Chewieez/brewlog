@@ -32,7 +32,7 @@ Additionally, `apps/web/e2e/context-features.spec.ts` was aligned with `DEFAULT_
 - Verified mobile parity (`apps/mobile/app/(tabs)/index.tsx` and `apps/mobile/src/components/timer/TimerHero.tsx`): mobile renders neither a recipe-switch button nor a `V60` badge in Free Brew mode.
 
 ### 2. Ratio Calculator Drawer Affordance (`apps/web/src/features/timer/WebRatioTranslator.tsx`)
-- Updated the accordion trigger to `h-10 px-3.5 rounded-lg border border-border-subtle hover:border-border-active bg-panel-recessed` with a right-aligned `Scale dose` + chevron cue so it reads clearly as an expandable panel while preserving the `40px` (`h-10`) button-sizing token.
+- Unified the collapsed toggle and expanded drawer body into a single bordered `bg-panel-recessed` container (`rounded-lg border border-border-subtle`) with a hairline `border-t` separator when open, an `h-10` trigger (`40px` button-sizing token), and a right-aligned `Scale dose` + chevron cue.
 
 ### 3. Unit & E2E Test Updates
 - **`apps/web/src/features/timer/TimerView.test.tsx`**: Added 5 unit tests covering cold-start default (`free_brew`), cold-start `initialMode="recipe"`, toggling `free_brew` <-> `recipe`, active-brew confirmation cancellation, and `recipe` prop updates for `SWITCH` and the `V60` badge.
@@ -57,4 +57,4 @@ Additionally, `apps/web/e2e/context-features.spec.ts` was aligned with `DEFAULT_
   - `@brewlog/ui`: 12 files, 63 tests passed
   - `@brewlog/mobile`: 59 files, 510 tests passed
   - `@brewlog/web`: 28 files, 278 tests passed (including 20 tests in `TimerView.test.tsx`)
-- **Playwright E2E (`npm run test:e2e`)**: 12/12 web E2E tests passed (`6.0s`), including desktop `MANUAL STOPWATCH` / `SPLIT LOG` alignment and button-sizing token checks.
+- **Playwright E2E (`npm run test:e2e`)**: 12/12 web E2E tests passed (`3.7s`), including desktop `MANUAL STOPWATCH` / `SPLIT LOG` alignment and button-sizing token checks.
