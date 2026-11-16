@@ -27,7 +27,7 @@ export const Badge: React.FC<BadgeProps> = ({
   return (
     <span
       data-testid={testID}
-      className={`inline-flex items-center justify-center rounded transition-colors ${sizeClasses} ${variantClasses}`}
+      className={`inline-flex items-center justify-center rounded-md transition-colors ${sizeClasses} ${variantClasses}`}
     >
       {label}
     </span>

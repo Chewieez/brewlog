@@ -3,8 +3,8 @@ import { Coffee } from 'lucide-react';
 
 export const RecipeIndexRoute: React.FC = () => {
   return (
-    <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl bg-panel border border-border-subtle min-h-[400px]">
-      <div className="p-4 rounded-xl bg-panel-recessed border border-border-subtle text-accent mb-4">
+    <div className="flex flex-col items-center justify-center p-12 text-center rounded-xl bg-panel border border-border-subtle min-h-[400px]">
+      <div className="p-4 rounded-lg bg-panel-recessed border border-border-subtle text-accent mb-4">
         <Coffee className="w-8 h-8" />
       </div>
       <h3 className="text-lg font-bold text-foreground">Select a Recipe</h3>

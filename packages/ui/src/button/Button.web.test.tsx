@@ -109,4 +109,12 @@ describe('Button (web)', () => {
     expect(spans).toHaveLength(1);
     expect(screen.getByTestId('test-icon')).toBeInTheDocument();
   });
+
+  it('uses standardized rounded-lg corner radius across button variants', () => {
+    const { rerender } = render(<Button label="PRIMARY" variant="primary" />);
+    expect(screen.getByRole('button', { name: 'PRIMARY' }).className).toContain('rounded-lg');
+
+    rerender(<Button label="SECONDARY" variant="secondary" />);
+    expect(screen.getByRole('button', { name: 'SECONDARY' }).className).toContain('rounded-lg');
+  });
 });

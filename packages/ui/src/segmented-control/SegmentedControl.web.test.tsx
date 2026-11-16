@@ -32,4 +32,12 @@ describe('SegmentedControl (web)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'FREE BREW' }));
     expect(handleChange).toHaveBeenCalledWith('free_brew');
   });
+
+  it('uses rounded-lg on track and rounded-md on segmented thumbs', () => {
+    render(<SegmentedControl options={options} value="recipe" onChange={() => {}} testID="mode-seg" />);
+    const track = screen.getByTestId('mode-seg');
+    const thumb = screen.getByRole('button', { name: 'GUIDED RECIPE' });
+    expect(track.className).toContain('rounded-lg');
+    expect(thumb.className).toContain('rounded-md');
+  });
 });

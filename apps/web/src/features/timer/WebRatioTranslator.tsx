@@ -189,7 +189,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
                   step="0.1"
                   value={sourceCoffee}
                   onChange={(e) => handleSourceCoffeeChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel-recessed border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel-recessed border border-border-subtle rounded-lg text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
               <div>
@@ -207,7 +207,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
                   step="1"
                   value={sourceWater}
                   onChange={(e) => handleSourceWaterChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel-recessed border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel-recessed border border-border-subtle rounded-lg text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
             </div>
@@ -231,7 +231,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
                   step="0.1"
                   value={targetCoffee}
                   onChange={(e) => handleTargetCoffeeChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel-recessed border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel-recessed border border-border-subtle rounded-lg text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
               <div>
@@ -249,7 +249,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
                   step="1"
                   value={targetWater}
                   onChange={(e) => handleTargetWaterChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel-recessed border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel-recessed border border-border-subtle rounded-lg text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
             </div>

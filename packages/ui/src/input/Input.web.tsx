@@ -30,7 +30,7 @@ export const Input: React.FC<InputProps> = ({
           {label}
         </label>
       )}
-      <div className={`relative flex items-center bg-panel-recessed border rounded-md px-3 h-10 transition-colors ${borderClasses}`}>
+      <div className={`relative flex items-center bg-panel-recessed border rounded-lg px-3 h-10 transition-colors ${borderClasses}`}>
         <input
           id={inputId}
           data-testid={testID}

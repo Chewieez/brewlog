@@ -47,7 +47,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
         aria-expanded={dropdownOpen}
         className="btn-tactile-secondary h-8 flex items-center space-x-2 px-2.5 rounded-lg"
       >
-        <div className="w-6 h-6 rounded bg-accent flex items-center justify-center text-accent-foreground font-bold text-xs font-mono">
+        <div className="w-6 h-6 rounded-md bg-accent flex items-center justify-center text-accent-foreground font-bold text-xs font-mono">
           {displayName.charAt(0).toUpperCase()}
         </div>
         <span className="text-xs font-mono text-foreground hidden sm:inline max-w-[100px] truncate">
@@ -68,7 +68,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
             <Link
               to="/settings"
               onClick={() => setDropdownOpen(false)}
-              className="w-full flex items-center space-x-2 px-3 py-2 rounded text-foreground hover:bg-panel-recessed font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
+              className="w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-foreground hover:bg-panel-recessed font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
             >
               <Settings className="w-3.5 h-3.5 text-foreground" />
               <span>SETTINGS</span>
@@ -79,7 +79,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
                 setDropdownOpen(false);
                 signOut();
               }}
-              className="group w-full flex items-center space-x-2 px-3 py-2 rounded text-foreground hover:bg-panel-recessed font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
+              className="group w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-foreground hover:bg-panel-recessed font-mono text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors"
             >
               <LogOut className="w-3.5 h-3.5 text-foreground group-hover:text-red-400 transition-colors" />
               <span>SIGN OUT</span>

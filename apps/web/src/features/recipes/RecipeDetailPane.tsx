@@ -73,7 +73,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
       ];
 
   return (
-    <div className="p-6 rounded-2xl bg-panel border border-border-subtle space-y-6">
+    <div className="p-6 rounded-xl bg-panel border border-border-subtle space-y-6">
       {/* Mobile Back Button */}
       {showMobileBackButton && (
         <div className="lg:hidden pb-2 border-b border-border-subtle">
@@ -150,7 +150,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
       </div>
 
       {/* Dose Rescaler Slider */}
-      <div className="p-4 rounded-xl bg-panel-recessed border border-border-subtle space-y-3">
+      <div className="p-4 rounded-lg bg-panel-recessed border border-border-subtle space-y-3">
         <div className="flex items-center justify-between text-xs">
           <span className="text-foreground-muted font-medium font-mono uppercase tracking-wider text-[11px]">Coffee Dose</span>
           <div className="flex items-center space-x-2">
@@ -200,7 +200,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
                 key={dose}
                 type="button"
                 onClick={() => setCustomDose(dose)}
-                className={`h-8 inline-flex items-center px-2.5 rounded-md text-xs tabular-nums font-medium transition-all cursor-pointer ${
+                className={`h-8 inline-flex items-center px-2.5 rounded-lg text-xs tabular-nums font-medium transition-all cursor-pointer ${
                   isActive
                     ? 'border border-accent text-accent shadow-xs'
                     : 'bg-panel-recessed text-foreground-secondary border border-border-subtle hover:text-foreground'
@@ -215,12 +215,12 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
 
       {/* Specifications Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3 rounded-xl bg-panel border border-border-subtle flex flex-col justify-between min-w-0">
+        <div className="p-3 rounded-lg bg-panel border border-border-subtle flex flex-col justify-between min-w-0">
           <div className="flex items-center justify-between gap-1.5 mb-1.5">
             <span className="text-[10px] text-foreground-secondary uppercase font-mono tracking-wider font-medium truncate">
               Total Water
             </span>
-            <div className="p-1 rounded bg-panel-recessed text-accent border border-border-subtle shrink-0">
+            <div className="p-1 rounded-md bg-panel-recessed text-accent border border-border-subtle shrink-0">
               <Droplets className="w-3.5 h-3.5" />
             </div>
           </div>
@@ -229,12 +229,12 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           </div>
         </div>
 
-        <div className="p-3 rounded-xl bg-panel border border-border-subtle flex flex-col justify-between min-w-0">
+        <div className="p-3 rounded-lg bg-panel border border-border-subtle flex flex-col justify-between min-w-0">
           <div className="flex items-center justify-between gap-1.5 mb-1.5">
             <span className="text-[10px] text-foreground-secondary uppercase font-mono tracking-wider font-medium truncate">
               Brew Ratio
             </span>
-            <div className="p-1 rounded bg-panel-recessed text-accent border border-border-subtle shrink-0">
+            <div className="p-1 rounded-md bg-panel-recessed text-accent border border-border-subtle shrink-0">
               <BookOpen className="w-3.5 h-3.5" />
             </div>
           </div>
@@ -243,12 +243,12 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           </div>
         </div>
 
-        <div className="p-3 rounded-xl bg-panel border border-border-subtle flex flex-col justify-between min-w-0">
+        <div className="p-3 rounded-lg bg-panel border border-border-subtle flex flex-col justify-between min-w-0">
           <div className="flex items-center justify-between gap-1.5 mb-1.5">
             <span className="text-[10px] text-foreground-secondary uppercase font-mono tracking-wider font-medium truncate">
               Target Time
             </span>
-            <div className="p-1 rounded bg-panel-recessed text-accent border border-border-subtle shrink-0">
+            <div className="p-1 rounded-md bg-panel-recessed text-accent border border-border-subtle shrink-0">
               <Clock className="w-3.5 h-3.5" />
             </div>
           </div>
@@ -257,12 +257,12 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
           </div>
         </div>
 
-        <div className="p-3 rounded-xl bg-panel border border-border-subtle flex flex-col justify-between min-w-0">
+        <div className="p-3 rounded-lg bg-panel border border-border-subtle flex flex-col justify-between min-w-0">
           <div className="flex items-center justify-between gap-1.5 mb-1.5">
             <span className="text-[10px] text-foreground-secondary uppercase font-mono tracking-wider font-medium truncate">
               Water Temp
             </span>
-            <div className="p-1 rounded bg-panel-recessed text-accent border border-border-subtle shrink-0">
+            <div className="p-1 rounded-md bg-panel-recessed text-accent border border-border-subtle shrink-0">
               <Thermometer className="w-3.5 h-3.5" />
             </div>
           </div>
@@ -275,7 +275,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
       </div>
 
       {/* Grinder Settings Section */}
-      <div className="p-4 rounded-xl bg-panel-recessed border border-border-subtle space-y-2.5">
+      <div className="p-4 rounded-lg bg-panel-recessed border border-border-subtle space-y-2.5">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-medium font-mono uppercase tracking-wider text-foreground-secondary">
             Grinder Settings
@@ -294,7 +294,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
                     {grinder.brand} {grinder.model} — {setting.setting || recipe.grindSize}
                   </span>
                   {index === 0 && (
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-accent/15 text-accent">
+                    <span className="px-1.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-accent/15 text-accent">
                       Primary
                     </span>
                   )}
@@ -323,7 +323,7 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
             return (
               <div
                 key={step.id || idx}
-                className="p-3.5 rounded-xl bg-panel-recessed border border-border-subtle flex items-start space-x-3"
+                className="p-3.5 rounded-lg bg-panel-recessed border border-border-subtle flex items-start space-x-3"
               >
                 <div className="flex items-center justify-center w-6 h-6 rounded-full bg-panel text-foreground-secondary text-xs tabular-nums font-bold shrink-0 shadow-xs">
                   {idx + 1}
