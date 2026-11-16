@@ -27,12 +27,12 @@ Additionally, `apps/web/e2e/context-features.spec.ts` was aligned with `DEFAULT_
 
 ### 1. Context Bar & Layout Refinement (`apps/web/src/features/timer/TimerView.tsx`)
 - Gated `renderBrewMethodBadge(currentRecipe.brewMethod)` and the inline `SWITCH` button (`ArrowLeftRight` + `SWITCH`, `aria-label="Switch recipe"`, `h-8 px-2.5 text-[11px]`) behind `mode === 'recipe'`.
-- Right-aligned the `Bean:` selector inside the Top Device Context Bar (`pb-4 mb-6`) to eliminate the extra vertical row above the faceplate.
+- Right-aligned the `Bean:` selector (`rounded-lg` to match surrounding `/timer` controls) inside the Top Device Context Bar (`pb-4 mb-6`) to eliminate the extra vertical row above the faceplate.
 - Moved Free Brew quick tags directly below the `SPLIT LOG` header in the right column and moved `<WebRatioTranslator />` below the left-column controls so `MANUAL STOPWATCH` starts flush at the top of the grid alongside `SPLIT LOG`.
 - Verified mobile parity (`apps/mobile/app/(tabs)/index.tsx` and `apps/mobile/src/components/timer/TimerHero.tsx`): mobile renders neither a recipe-switch button nor a `V60` badge in Free Brew mode.
 
 ### 2. Ratio Calculator Drawer Affordance (`apps/web/src/features/timer/WebRatioTranslator.tsx`)
-- Unified the collapsed toggle and expanded drawer body into a single bordered `bg-panel-recessed` container (`rounded-lg border border-border-subtle`) with a hairline `border-t` separator when open and an `h-10` trigger (`40px` button-sizing token).
+- Unified the collapsed toggle and expanded drawer body into a single bordered `bg-panel` container (`rounded-lg border border-border-subtle`, with `bg-panel-recessed` inputs inside) separated by a hairline `border-t` when open, keeping an `h-10` trigger (`40px` button-sizing token).
 
 ### 3. Unit & E2E Test Updates
 - **`apps/web/src/features/timer/TimerView.test.tsx`**: Added 5 unit tests covering cold-start default (`free_brew`), cold-start `initialMode="recipe"`, toggling `free_brew` <-> `recipe`, active-brew confirmation cancellation, and `recipe` prop updates for `SWITCH` and the `V60` badge.
@@ -57,4 +57,4 @@ Additionally, `apps/web/e2e/context-features.spec.ts` was aligned with `DEFAULT_
   - `@brewlog/ui`: 12 files, 63 tests passed
   - `@brewlog/mobile`: 59 files, 510 tests passed
   - `@brewlog/web`: 28 files, 278 tests passed (including 20 tests in `TimerView.test.tsx`)
-- **Playwright E2E (`npm run test:e2e`)**: 12/12 web E2E tests passed (`3.8s`), including desktop `MANUAL STOPWATCH` / `SPLIT LOG` alignment and button-sizing token checks.
+- **Playwright E2E (`npm run test:e2e`)**: 12/12 web E2E tests passed (`4.0s`), including desktop `MANUAL STOPWATCH` / `SPLIT LOG` alignment and button-sizing token checks.

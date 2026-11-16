@@ -514,7 +514,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 const b = beans.find((item) => item.id === e.target.value);
                 if (b && onSelectBean) onSelectBean(b);
               }}
-              className="bg-panel border border-border-subtle rounded px-2.5 py-1 text-xs font-medium text-foreground focus:outline-none focus:border-accent cursor-pointer"
+              className="bg-panel border border-border-subtle rounded-lg px-2.5 py-1 text-xs font-medium text-foreground focus:outline-none focus:border-accent cursor-pointer"
             >
               {beans.map((b) => (
                 <option key={b.id} value={b.id}>
