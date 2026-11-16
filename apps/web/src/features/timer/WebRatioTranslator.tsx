@@ -139,12 +139,18 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
   };
 
   return (
-    <div className={`w-full ${className}`}>
+    <div
+      className={`w-full rounded-lg border border-border-subtle bg-panel transition-colors ${
+        isOpen ? '' : 'hover:border-border-active'
+      } ${className}`}
+    >
       {/* Header Accordion Toggle */}
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full h-8 flex items-center justify-between text-left text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground transition-colors cursor-pointer"
+        className={`w-full h-10 px-3.5 flex items-center justify-between text-left text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset transition-colors cursor-pointer ${
+          isOpen ? 'rounded-t-lg' : 'rounded-lg'
+        }`}
         aria-expanded={isOpen}
       >
         <div className="flex items-center space-x-2">
@@ -160,7 +166,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
 
       {/* Collapsible Content */}
       {isOpen && (
-        <div className="mt-3 p-4 border border-border-subtle rounded bg-panel-recessed space-y-4">
+        <div className="px-4 pb-4 pt-3 border-t border-border-subtle space-y-4">
           <p className="text-xs text-foreground-muted">
             Translate recipe dose & water proportionally to match your target coffee dose.
           </p>
@@ -183,7 +189,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
                   step="0.1"
                   value={sourceCoffee}
                   onChange={(e) => handleSourceCoffeeChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel-recessed border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
               <div>
@@ -201,7 +207,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
                   step="1"
                   value={sourceWater}
                   onChange={(e) => handleSourceWaterChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel-recessed border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
             </div>
@@ -225,7 +231,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
                   step="0.1"
                   value={targetCoffee}
                   onChange={(e) => handleTargetCoffeeChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel-recessed border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
               <div>
@@ -243,7 +249,7 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
                   step="1"
                   value={targetWater}
                   onChange={(e) => handleTargetWaterChange(e.target.value)}
-                  className="w-full px-2.5 py-1.5 bg-panel border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
+                  className="w-full px-2.5 py-1.5 bg-panel-recessed border border-border-subtle rounded text-xs text-foreground tabular-nums font-sans focus:outline-none focus:border-accent"
                 />
               </div>
             </div>

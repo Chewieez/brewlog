@@ -12,13 +12,33 @@ test.describe("Core Web App End-to-End Context Flows", () => {
     await page.goto("/timer");
     await expect(page.getByRole("heading", { name: "Timer" })).toBeVisible();
 
-    // Verify Guided mode by default
-    await expect(page.getByRole("button", { name: /change recipe/i })).toBeVisible();
+    // Verify Free Brew mode by default (no Switch recipe button or brew method badge)
+    await expect(page.getByText("Free Brew Stopwatch")).toBeVisible();
+    await expect(page.getByText("MANUAL STOPWATCH")).toBeVisible();
+    await expect(page.getByRole("button", { name: /switch recipe/i })).not.toBeVisible();
+    await expect(page.getByText("V60", { exact: true })).not.toBeVisible();
 
-    // Switch to Free Brew mode
+    // Verify MANUAL STOPWATCH and SPLIT LOG column headers align vertically on desktop
+    const viewport = page.viewportSize();
+    if (viewport && viewport.width >= 1024) {
+      const manualBox = await page.getByText("MANUAL STOPWATCH").boundingBox();
+      const splitHeadingBox = await page.getByRole("heading", { name: /split log/i }).boundingBox();
+      expect(manualBox).not.toBeNull();
+      expect(splitHeadingBox).not.toBeNull();
+      expect(Math.abs(manualBox!.y - splitHeadingBox!.y)).toBeLessThanOrEqual(2);
+    }
+
+    // Switch to Guided Recipe mode (Switch recipe button and brew method badge are visible)
+    await page.getByRole("button", { name: "GUIDED RECIPE" }).click();
+    await expect(page.getByRole("button", { name: /switch recipe/i })).toBeVisible();
+    await expect(page.getByText("V60", { exact: true })).toBeVisible();
+
+    // Switch back to Free Brew mode (Switch recipe button and brew method badge are hidden again)
     await page.getByRole("button", { name: "FREE BREW" }).click();
     await expect(page.getByText("Free Brew Stopwatch")).toBeVisible();
     await expect(page.getByText("MANUAL STOPWATCH")).toBeVisible();
+    await expect(page.getByRole("button", { name: /switch recipe/i })).not.toBeVisible();
+    await expect(page.getByText("V60", { exact: true })).not.toBeVisible();
 
     // Start brew
     const startBtn = page.getByRole("button", { name: "START" });
@@ -35,9 +55,12 @@ test.describe("Core Web App End-to-End Context Flows", () => {
     await expect(resetBtn).toBeVisible();
     await resetBtn.click();
 
-    // Switch back to Guided Recipe
+    // Switch back to Guided Recipe and verify SWITCH navigates to /recipes
     await page.getByRole("button", { name: "GUIDED RECIPE" }).click();
-    await expect(page.getByRole("button", { name: /change recipe/i })).toBeVisible();
+    const switchBtn = page.getByRole("button", { name: /switch recipe/i });
+    await expect(switchBtn).toBeVisible();
+    await switchBtn.click();
+    await expect(page).toHaveURL(/.*\/recipes/);
   });
 
   test("Recipes Studio: selects recipe, views details, and brews with recipe", async ({ page }) => {
