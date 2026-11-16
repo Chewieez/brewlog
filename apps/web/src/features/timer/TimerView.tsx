@@ -33,6 +33,7 @@ import {
   Trash2,
   Check,
   Plus,
+  ArrowLeftRight,
 } from 'lucide-react';
 
 export interface TimerViewProps {
@@ -473,60 +474,60 @@ export const TimerView: React.FC<TimerViewProps> = ({
       </div>
 
       {/* Top Device Context Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 pb-6 mb-8 border-b border-border-subtle">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-6 border-b border-border-subtle">
         <div>
-          <div className="flex items-center space-x-2.5">
-            {renderBrewMethodBadge(currentRecipe.brewMethod)}
+          <div className="flex flex-wrap items-center gap-2.5">
+            {mode === 'recipe' && renderBrewMethodBadge(currentRecipe.brewMethod)}
             <h2 className="text-2xl font-bold text-foreground tracking-tight">
               {mode === 'free_brew' ? 'Free Brew Stopwatch' : currentRecipe.name}
             </h2>
+            {mode === 'recipe' && (
+              <button
+                type="button"
+                onClick={onSelectOtherRecipe}
+                title="Switch recipe"
+                aria-label="Switch recipe"
+                className="btn-tactile-secondary h-8 px-2.5 rounded-lg text-[11px] font-mono uppercase tracking-wider font-semibold inline-flex items-center gap-1.5 cursor-pointer"
+              >
+                <ArrowLeftRight className="w-3.5 h-3.5 text-accent" />
+                <span>SWITCH</span>
+              </button>
+            )}
           </div>
           <p className="text-xs text-foreground-muted mt-1.5">
             {mode === 'free_brew'
               ? 'Precision manual split tracking & custom extraction stopwatch.'
               : currentRecipe.description}
           </p>
-
-          {/* Active Bean Indicator / Inline Selector */}
-          <div className="mt-3 flex items-center space-x-2 text-xs">
-            <div className="flex items-center space-x-1.5 text-accent font-medium font-mono uppercase tracking-wider text-[11px]">
-              <Coffee className="w-3.5 h-3.5" />
-              <span>Bean:</span>
-            </div>
-            {beans.length > 0 ? (
-              <select
-                value={selectedBean?.id || ''}
-                onChange={(e) => {
-                  const b = beans.find((item) => item.id === e.target.value);
-                  if (b && onSelectBean) onSelectBean(b);
-                }}
-                className="bg-panel border border-border-subtle rounded px-2.5 py-1 text-xs font-medium text-foreground focus:outline-none focus:border-accent cursor-pointer"
-              >
-                {beans.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name} ({b.roaster})
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <span className="text-foreground-secondary text-xs">
-                {selectedBean ? `${selectedBean.name} (${selectedBean.roaster})` : "Specialty Blend"}
-              </span>
-            )}
-          </div>
         </div>
 
-        {mode === 'recipe' && (
-          <div className="flex items-center">
-            <button
-              type="button"
-              onClick={onSelectOtherRecipe}
-              className="btn-tactile-secondary h-8 px-3.5 rounded-lg text-xs font-mono uppercase tracking-wider font-semibold inline-flex items-center justify-center cursor-pointer"
-            >
-              CHANGE RECIPE
-            </button>
+        {/* Active Bean Indicator / Inline Selector */}
+        <div className="flex items-center sm:justify-end space-x-2 text-xs flex-shrink-0">
+          <div className="flex items-center space-x-1.5 text-accent font-medium font-mono uppercase tracking-wider text-[11px]">
+            <Coffee className="w-3.5 h-3.5" />
+            <span>Bean:</span>
           </div>
-        )}
+          {beans.length > 0 ? (
+            <select
+              value={selectedBean?.id || ''}
+              onChange={(e) => {
+                const b = beans.find((item) => item.id === e.target.value);
+                if (b && onSelectBean) onSelectBean(b);
+              }}
+              className="bg-panel border border-border-subtle rounded px-2.5 py-1 text-xs font-medium text-foreground focus:outline-none focus:border-accent cursor-pointer"
+            >
+              {beans.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name} ({b.roaster})
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="text-foreground-secondary text-xs">
+              {selectedBean ? `${selectedBean.name} (${selectedBean.roaster})` : "Specialty Blend"}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Main Open Instrument Faceplate */}
@@ -535,17 +536,8 @@ export const TimerView: React.FC<TimerViewProps> = ({
         {/* Left Column: Direct Instrument Readouts (Timer + Metrics + Hardware Controls) */}
         <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
           
-          <div className="space-y-5">
-            {/* Integrated Ratio Translator Collapsible Drawer */}
-            <WebRatioTranslator
-              currentDose={currentDose}
-              baseCoffee={currentDose}
-              baseWater={currentRecipe.waterAmountGrams}
-              onApplyDose={handleApplyDose}
-            />
-
-            {/* Active Stage & Progress Header */}
-            <div className="space-y-2.5">
+          {/* Active Stage & Progress Header */}
+          <div className="space-y-2.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-accent font-bold tracking-widest uppercase font-mono">
                   {mode === 'free_brew' ? 'MANUAL STOPWATCH' : currentStage.name}
@@ -572,7 +564,6 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 )}
               </div>
             </div>
-          </div>
 
           {/* Oversized Tabular Digital Time Readout */}
           <div className="py-2 select-none flex justify-center sm:justify-start">
@@ -813,47 +804,6 @@ export const TimerView: React.FC<TimerViewProps> = ({
               </button>
             </div>
 
-            {/* Quick Tag Chips (Free Brew Mode) */}
-            {mode === 'free_brew' && !isFreeBrewFinished && (
-              <div className="flex flex-wrap items-center gap-2 pt-2">
-                <span className="text-[11px] font-mono text-foreground-muted uppercase tracking-wider mr-1">
-                  TAGS:
-                </span>
-                <button
-                  type="button"
-                  onClick={() => recordSplit('Bloom', 'bloom')}
-                  className="h-8 inline-flex items-center justify-center px-3 rounded-lg btn-tactile-secondary text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground cursor-pointer"
-                  aria-label="+ BLOOM"
-                >
-                  + BLOOM
-                </button>
-                <button
-                  type="button"
-                  onClick={() => recordSplit('Pour 1', 'pour')}
-                  className="h-8 inline-flex items-center justify-center px-3 rounded-lg btn-tactile-secondary text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground cursor-pointer"
-                  aria-label="+ POUR 1"
-                >
-                  + POUR 1
-                </button>
-                <button
-                  type="button"
-                  onClick={() => recordSplit('Pour 2', 'pour')}
-                  className="h-8 inline-flex items-center justify-center px-3 rounded-lg btn-tactile-secondary text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground cursor-pointer"
-                  aria-label="+ POUR 2"
-                >
-                  + POUR 2
-                </button>
-                <button
-                  type="button"
-                  onClick={() => recordSplit('Drawdown', 'drawdown')}
-                  className="h-8 inline-flex items-center justify-center px-3 rounded-lg btn-tactile-secondary text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground cursor-pointer"
-                  aria-label="+ DRAWDOWN"
-                >
-                  + DRAWDOWN
-                </button>
-              </div>
-            )}
-
             {/* Free Brew Dedicated Finish Action Button */}
             {mode === 'free_brew' && (isRunning || elapsedSeconds > 0) && !isFreeBrewFinished && (
               <button
@@ -865,6 +815,14 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 <span>FINISH BREW</span>
               </button>
             )}
+
+            {/* Integrated Ratio Translator Collapsible Drawer */}
+            <WebRatioTranslator
+              currentDose={currentDose}
+              baseCoffee={currentDose}
+              baseWater={currentRecipe.waterAmountGrams}
+              onApplyDose={handleApplyDose}
+            />
           </div>
 
           {/* Guided Recipe Finish Banner */}
@@ -1009,6 +967,47 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   {splits.length} {splits.length === 1 ? 'Split' : 'Splits'}
                 </span>
               </div>
+
+              {/* Quick Tag Chips (Free Brew Mode) */}
+              {mode === 'free_brew' && !isFreeBrewFinished && (
+                <div className="flex flex-wrap items-center gap-2 py-2.5">
+                  <span className="text-[11px] font-mono text-foreground-muted uppercase tracking-wider mr-1">
+                    TAGS:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => recordSplit('Bloom', 'bloom')}
+                    className="h-8 inline-flex items-center justify-center px-3 rounded-lg btn-tactile-secondary text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground cursor-pointer"
+                    aria-label="+ BLOOM"
+                  >
+                    + BLOOM
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => recordSplit('Pour 1', 'pour')}
+                    className="h-8 inline-flex items-center justify-center px-3 rounded-lg btn-tactile-secondary text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground cursor-pointer"
+                    aria-label="+ POUR 1"
+                  >
+                    + POUR 1
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => recordSplit('Pour 2', 'pour')}
+                    className="h-8 inline-flex items-center justify-center px-3 rounded-lg btn-tactile-secondary text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground cursor-pointer"
+                    aria-label="+ POUR 2"
+                  >
+                    + POUR 2
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => recordSplit('Drawdown', 'drawdown')}
+                    className="h-8 inline-flex items-center justify-center px-3 rounded-lg btn-tactile-secondary text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground cursor-pointer"
+                    aria-label="+ DRAWDOWN"
+                  >
+                    + DRAWDOWN
+                  </button>
+                </div>
+              )}
 
               {splits.length === 0 ? (
                 <div className="py-16 text-center border border-dashed border-border-subtle rounded-md my-4">

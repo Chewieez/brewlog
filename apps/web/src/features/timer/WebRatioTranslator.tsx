@@ -144,23 +144,26 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="w-full h-8 flex items-center justify-between text-left text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground transition-colors cursor-pointer"
+        className="w-full h-10 px-3.5 rounded-lg flex items-center justify-between text-left text-xs font-mono uppercase tracking-wider text-foreground-secondary hover:text-foreground border border-border-subtle hover:border-border-active bg-panel-recessed transition-colors cursor-pointer"
         aria-expanded={isOpen}
       >
         <div className="flex items-center space-x-2">
           <Scale className="w-3.5 h-3.5 text-accent" />
           <span className="font-semibold text-foreground">RATIO CALCULATOR</span>
         </div>
-        {isOpen ? (
-          <ChevronUp className="w-3.5 h-3.5 text-foreground-muted" />
-        ) : (
-          <ChevronDown className="w-3.5 h-3.5 text-foreground-muted" />
-        )}
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-sans normal-case tracking-normal text-foreground-muted">
+          <span>Scale dose</span>
+          {isOpen ? (
+            <ChevronUp className="w-3.5 h-3.5 text-foreground-muted" />
+          ) : (
+            <ChevronDown className="w-3.5 h-3.5 text-foreground-muted" />
+          )}
+        </span>
       </button>
 
       {/* Collapsible Content */}
       {isOpen && (
-        <div className="mt-3 p-4 border border-border-subtle rounded bg-panel-recessed space-y-4">
+        <div className="mt-2.5 p-4 border border-border-subtle rounded bg-panel-recessed space-y-4">
           <p className="text-xs text-foreground-muted">
             Translate recipe dose & water proportionally to match your target coffee dose.
           </p>
