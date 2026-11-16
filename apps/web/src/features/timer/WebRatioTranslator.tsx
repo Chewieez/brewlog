@@ -157,14 +157,11 @@ export const WebRatioTranslator: React.FC<WebRatioTranslatorProps> = ({
           <Scale className="w-3.5 h-3.5 text-accent" />
           <span className="font-semibold text-foreground">RATIO CALCULATOR</span>
         </div>
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-sans normal-case tracking-normal text-foreground-muted">
-          <span>Scale dose</span>
-          {isOpen ? (
-            <ChevronUp className="w-3.5 h-3.5 text-foreground-muted" />
-          ) : (
-            <ChevronDown className="w-3.5 h-3.5 text-foreground-muted" />
-          )}
-        </span>
+        {isOpen ? (
+          <ChevronUp className="w-3.5 h-3.5 text-foreground-muted" />
+        ) : (
+          <ChevronDown className="w-3.5 h-3.5 text-foreground-muted" />
+        )}
       </button>
 
       {/* Collapsible Content */}
