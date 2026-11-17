@@ -26,4 +26,10 @@ describe('Card (web)', () => {
     fireEvent.click(screen.getByText('Click Me'));
     expect(handlePress).toHaveBeenCalledTimes(1);
   });
+
+  it('uses standardized rounded-xl corner radius for container cards', () => {
+    render(<Card><span>Container</span></Card>);
+    const card = screen.getByText('Container').parentElement;
+    expect(card?.className).toContain('rounded-xl');
+  });
 });

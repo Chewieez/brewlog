@@ -24,7 +24,7 @@ export const SentryFeedbackFallback = ({
         </p>
 
         {eventId && (
-          <div className="mb-6 p-2.5 bg-canvas rounded border border-border text-xs font-mono text-foreground/60 select-all">
+          <div className="mb-6 p-2.5 bg-canvas rounded-lg border border-border text-xs font-mono text-foreground/60 select-all">
             Event ID: {eventId}
           </div>
         )}

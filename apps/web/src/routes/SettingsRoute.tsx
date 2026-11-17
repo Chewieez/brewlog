@@ -61,6 +61,7 @@ export const SettingsRoute: React.FC = () => {
 
       {/* Live Calibration Preview Gauge Tile */}
       <section
+        data-testid="settings-live-preview-card"
         aria-labelledby="preview-heading"
         className="bg-panel border border-accent/40 rounded-xl p-5 sm:p-6 shadow-lg shadow-accent/5"
       >
@@ -78,7 +79,10 @@ export const SettingsRoute: React.FC = () => {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {/* Dose Preview */}
-          <div className="bg-panel-recessed border border-border-subtle rounded-lg p-3">
+          <div
+            data-testid="settings-preview-tile"
+            className="bg-panel-recessed border border-border-subtle rounded-lg p-3"
+          >
             <div className="text-[10px] font-mono uppercase tracking-wider text-foreground-muted flex items-center space-x-1 mb-1">
               <Scale className="w-3 h-3 text-foreground-secondary" />
               <span>SAMPLE DOSE</span>

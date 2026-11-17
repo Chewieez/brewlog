@@ -295,14 +295,14 @@ export const StashView: React.FC<StashViewProps> = ({
             placeholder="Search by coffee name, roaster, or country..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-panel border border-border-subtle text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent/60 transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-panel border border-border-subtle text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent/60 transition-colors"
           />
         </div>
 
         <select
           value={selectedProcess}
           onChange={(e) => setSelectedProcess(e.target.value)}
-          className="px-3.5 py-2.5 rounded-xl bg-panel border border-border-subtle text-sm text-foreground focus:outline-none focus:border-accent/60 transition-colors cursor-pointer"
+          className="px-3.5 py-2.5 rounded-lg bg-panel border border-border-subtle text-sm text-foreground focus:outline-none focus:border-accent/60 transition-colors cursor-pointer"
         >
           <option value="all" className="bg-panel text-foreground">All Processes</option>
           {PROCESS_OPTIONS.map((opt) => (
@@ -315,7 +315,7 @@ export const StashView: React.FC<StashViewProps> = ({
 
       {/* Beans Grid */}
       {filteredBeans.length === 0 ? (
-        <div className="p-8 rounded-2xl bg-panel border border-dashed border-border-subtle text-center text-xs text-foreground-muted font-mono">
+        <div className="p-8 rounded-xl bg-panel border border-dashed border-border-subtle text-center text-xs text-foreground-muted font-mono">
           No coffee beans found matching your search.
         </div>
       ) : (
@@ -326,7 +326,8 @@ export const StashView: React.FC<StashViewProps> = ({
             return (
               <div
                 key={bean.id}
-                className="p-5 rounded-2xl bg-panel border border-border-subtle hover:border-border-active transition-all duration-200 flex flex-col justify-between group shadow-sm"
+                data-testid="stash-bean-card"
+                className="p-5 rounded-xl bg-panel border border-border-subtle hover:border-border-active transition-all duration-200 flex flex-col justify-between group shadow-sm"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
@@ -336,7 +337,7 @@ export const StashView: React.FC<StashViewProps> = ({
                           {bean.roaster}
                         </span>
                         {bean.isFrozen && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/30">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-sky-500/10 text-sky-400 border border-sky-500/30">
                             <Snowflake className="w-3 h-3" />
                             FROZEN
                           </span>
@@ -382,7 +383,10 @@ export const StashView: React.FC<StashViewProps> = ({
                   </div>
 
                   {/* Resting Status Badge */}
-                  <div className="mt-4 p-2.5 rounded-xl bg-panel-recessed border border-border-subtle flex items-center justify-between">
+                  <div
+                    data-testid="stash-resting-panel"
+                    className="mt-4 p-2.5 rounded-lg bg-panel-recessed border border-border-subtle flex items-center justify-between"
+                  >
                     <div className="flex items-center space-x-2 tabular-nums text-xs font-mono">
                       {bean.isFrozen ? (
                         <Snowflake className="w-3.5 h-3.5 text-sky-500" />
@@ -405,6 +409,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       </span>
                     </div>
                     <span
+                      data-testid="stash-resting-badge"
                       className={`text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-md ${getRestingStatusBadgeClass(
                         restInfo.status,
                         Boolean(bean.isFrozen),
@@ -421,7 +426,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       {bean.flavorNotes.map((note, i) => (
                         <span
                           key={i}
-                          className="btn-tactile-secondary px-2.5 py-0.5 rounded-md text-[11px] font-medium text-foreground-secondary"
+                          className="bg-panel-recessed border border-border-subtle px-2.5 py-0.5 rounded-md text-[11px] font-medium text-foreground-secondary"
                         >
                           {note}
                         </span>
@@ -478,7 +483,10 @@ export const StashView: React.FC<StashViewProps> = ({
             }
           }}
         >
-          <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 rounded-2xl bg-panel border border-border-subtle shadow-2xl space-y-4">
+          <div
+            data-testid="stash-bean-modal"
+            className="w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 rounded-xl bg-panel border border-border-subtle shadow-2xl space-y-4"
+          >
             <div className="flex items-center justify-between pb-2 border-b border-border-subtle sticky top-0 bg-panel z-10">
               <h3 id="add-bean-modal-title" className="text-lg font-bold text-foreground">
                 {editingBean ? 'Edit Coffee Bean' : 'Add New Whole Bean'}
@@ -495,7 +503,7 @@ export const StashView: React.FC<StashViewProps> = ({
 
             <form onSubmit={handleSubmitBean} className="space-y-4 text-sm">
               {errorMessage && (
-                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
                   {errorMessage}
                 </div>
               )}
@@ -516,7 +524,7 @@ export const StashView: React.FC<StashViewProps> = ({
                     placeholder="e.g. Sey Coffee, Onyx, Tim Wendelboe"
                     value={roaster}
                     onChange={(e) => setRoaster(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                    className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                   />
                 </div>
 
@@ -531,7 +539,7 @@ export const StashView: React.FC<StashViewProps> = ({
                     placeholder="e.g. Worka Sakaro, Southern Weather"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                    className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                   />
                 </div>
               </div>
@@ -552,7 +560,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       placeholder="e.g. Ethiopia, Colombia"
                       value={originCountry}
                       onChange={(e) => setOriginCountry(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                      className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                     />
                   </div>
 
@@ -566,7 +574,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       placeholder="e.g. Yirgacheffe, Huila"
                       value={region}
                       onChange={(e) => setRegion(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                      className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                     />
                   </div>
                 </div>
@@ -582,7 +590,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       placeholder="e.g. Finca El Paraiso"
                       value={farm}
                       onChange={(e) => setFarm(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                      className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                     />
                   </div>
 
@@ -596,7 +604,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       placeholder="e.g. Gesha, Bourbon"
                       value={varietyStr}
                       onChange={(e) => setVarietyStr(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                      className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                     />
                   </div>
 
@@ -613,7 +621,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       onChange={(e) =>
                         setAltitudeMeters(e.target.value === '' ? '' : Number(e.target.value))
                       }
-                      className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                      className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                     />
                   </div>
                 </div>
@@ -633,7 +641,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       id="add-bean-process"
                       value={process}
                       onChange={(e) => setProcess(e.target.value as ProcessMethod)}
-                      className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground text-sm focus:outline-none focus:border-accent transition-colors cursor-pointer"
+                      className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground text-sm focus:outline-none focus:border-accent transition-colors cursor-pointer"
                     >
                       {PROCESS_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value} className="bg-panel-recessed text-foreground">
@@ -651,7 +659,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       id="add-bean-roast-level"
                       value={roastLevel}
                       onChange={(e) => setRoastLevel(e.target.value as RoastLevel)}
-                      className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground text-sm focus:outline-none focus:border-accent transition-colors cursor-pointer"
+                      className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground text-sm focus:outline-none focus:border-accent transition-colors cursor-pointer"
                     >
                       {ROAST_LEVEL_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value} className="bg-panel-recessed text-foreground">
@@ -672,7 +680,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       type="date"
                       value={roastDate}
                       onChange={(e) => setRoastDate(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground text-sm focus:outline-none focus:border-accent transition-colors"
+                      className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground text-sm focus:outline-none focus:border-accent transition-colors"
                     />
                   </div>
 
@@ -689,7 +697,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       onChange={(e) =>
                         setRecommendedRestDays(e.target.value === '' ? '' : Number(e.target.value))
                       }
-                      className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                      className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                     />
                   </div>
                 </div>
@@ -738,7 +746,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       onChange={(e) =>
                         setBagWeightGrams(e.target.value === '' ? '' : Number(e.target.value))
                       }
-                      className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                      className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                     />
                   </div>
 
@@ -756,13 +764,13 @@ export const StashView: React.FC<StashViewProps> = ({
                       onChange={(e) =>
                         setRemainingGrams(e.target.value === '' ? '' : Number(e.target.value))
                       }
-                      className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                      className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                     />
                   </div>
                 </div>
 
                 {/* Freezer Vault Toggle */}
-                <label htmlFor="add-bean-is-frozen" className="flex items-center space-x-3 p-3 rounded-xl bg-panel-recessed border border-border-subtle cursor-pointer hover:border-accent/40 transition-colors">
+                <label htmlFor="add-bean-is-frozen" className="flex items-center space-x-3 p-3 rounded-lg bg-panel-recessed border border-border-subtle cursor-pointer hover:border-accent/40 transition-colors">
                   <input
                     id="add-bean-is-frozen"
                     type="checkbox"
@@ -801,7 +809,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       placeholder="e.g. Jasmine, Peach, Bergamot, Honey"
                       value={flavorNotesStr}
                       onChange={(e) => setFlavorNotesStr(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                      className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                     />
                   </div>
 
@@ -819,7 +827,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       onChange={(e) =>
                         setPrice(e.target.value === '' ? '' : Number(e.target.value))
                       }
-                      className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                      className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                     />
                   </div>
                 </div>
@@ -834,7 +842,7 @@ export const StashView: React.FC<StashViewProps> = ({
                     placeholder="Tasting impressions, brew ratio recommendations, grinder settings..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors resize-none"
+                    className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors resize-none"
                   />
                 </div>
               </div>

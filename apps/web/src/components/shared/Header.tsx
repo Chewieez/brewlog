@@ -30,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Logo */}
           <Link
             to="/timer"
-            className="group flex items-center space-x-2.5 cursor-pointer select-none flex-shrink-0 bg-transparent border-0 p-0 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-xl"
+            className="group flex items-center space-x-2.5 cursor-pointer select-none flex-shrink-0 bg-transparent border-0 p-0 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-lg"
             aria-label="BrewLog Home, switch to Brew Timer"
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-panel border border-border-subtle group-hover:border-accent/60 transition-colors flex items-center justify-center flex-shrink-0 shadow-sm">
@@ -62,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
                       <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-accent' : 'text-foreground-muted'}`} />
                       <span>{tab.label}</span>
                       {tab.badge !== undefined && tab.badge > 0 && (
-                        <span className="ml-1 px-1.5 py-0.2 text-[10px] lg:text-[11px] font-mono font-medium rounded bg-panel-recessed text-foreground-muted border border-border-subtle flex-shrink-0">
+                        <span className="ml-1 px-1.5 py-0.2 text-[10px] lg:text-[11px] font-mono font-medium rounded-md bg-panel-recessed text-foreground-muted border border-border-subtle flex-shrink-0">
                           {tab.badge}
                         </span>
                       )}
@@ -103,7 +103,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? 'text-accent' : 'text-foreground-muted'}`} />
                     <span>{tab.label}</span>
                     {tab.badge !== undefined && tab.badge > 0 && (
-                      <span className="ml-1 px-1.5 py-0.2 text-[10px] font-mono font-medium rounded bg-panel-recessed text-foreground-muted border border-border-subtle">
+                      <span className="ml-1 px-1.5 py-0.2 text-[10px] font-mono font-medium rounded-md bg-panel-recessed text-foreground-muted border border-border-subtle">
                         {tab.badge}
                       </span>
                     )}

@@ -66,4 +66,26 @@ describe('AuthModal', () => {
     fireEvent.click(closeBtn);
     expect(mockClose).toHaveBeenCalledTimes(1);
   });
+
+  it('uses rounded-lg for nested confirmation card and icon well inside rounded-xl modal', async () => {
+    mockSignUp.mockResolvedValue({ error: null });
+
+    render(<AuthModal isOpen={true} onClose={mockClose} />);
+    fireEvent.click(screen.getAllByRole('button', { name: 'CREATE ACCOUNT' })[0]);
+    fireEvent.change(screen.getByPlaceholderText('you@example.com'), {
+      target: { value: 'test@example.com' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('••••••••'), {
+      target: { value: 'password123' },
+    });
+    fireEvent.click(screen.getAllByRole('button', { name: 'CREATE ACCOUNT' })[1]);
+
+    const heading = await screen.findByText('Check Your Inbox');
+    const confirmationCard = heading.closest('div.p-5');
+    const iconWell = confirmationCard?.querySelector('div.w-12.h-12');
+    expect(confirmationCard?.className).toContain('rounded-lg');
+    expect(confirmationCard?.className).not.toContain('rounded-xl');
+    expect(iconWell?.className).toContain('rounded-lg');
+    expect(iconWell?.className).not.toContain('rounded-xl');
+  });
 });

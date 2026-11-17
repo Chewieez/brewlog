@@ -160,8 +160,9 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
   const renderCard = (item: Equipment) => (
     <div
       key={item.id}
+      data-testid="equipment-card"
       onClick={() => handleOpenEditModal(item)}
-      className="relative group p-4 rounded-2xl bg-panel border border-border-subtle hover:border-border-active transition-colors shadow-sm cursor-pointer"
+      className="relative group p-4 rounded-xl bg-panel border border-border-subtle hover:border-border-active transition-colors shadow-sm cursor-pointer"
     >
       <div className="flex items-center justify-between">
         <span className="text-xs font-bold text-accent uppercase tracking-wider font-mono">
@@ -169,12 +170,18 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
         </span>
         <div className="flex items-center space-x-2">
           {item.settingScaleType && (
-            <span className="btn-tactile-secondary px-2 py-0.5 rounded text-[10px] font-mono text-foreground-secondary">
+            <span
+              data-testid="equipment-badge"
+              className="bg-panel-recessed border border-border-subtle px-2 py-0.5 rounded-md text-[10px] font-mono text-foreground-secondary"
+            >
               {item.settingScaleType}
             </span>
           )}
           {item.subType && (
-            <span className="btn-tactile-secondary px-2 py-0.5 rounded text-[10px] font-mono text-foreground-secondary">
+            <span
+              data-testid="equipment-badge"
+              className="bg-panel-recessed border border-border-subtle px-2 py-0.5 rounded-md text-[10px] font-mono text-foreground-secondary"
+            >
               {item.subType}
             </span>
           )}
@@ -244,7 +251,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
             placeholder="Search brand, model, features..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-panel border border-border-subtle text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent/60 transition-colors"
+            className="w-full pl-10 pr-10 py-2.5 rounded-lg bg-panel border border-border-subtle text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent/60 transition-colors"
             aria-label="Search equipment"
           />
           {searchQuery ? (
@@ -288,7 +295,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
           </div>
 
           {grinders.length === 0 ? (
-            <div className="p-6 rounded-2xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-foreground-muted">
+            <div className="p-6 rounded-xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-foreground-muted">
               {searchQuery ? "No grinders matching your search." : "No grinders logged yet."}
             </div>
           ) : (
@@ -308,7 +315,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
           </div>
 
           {brewers.length === 0 ? (
-            <div className="p-6 rounded-2xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-foreground-muted">
+            <div className="p-6 rounded-xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-foreground-muted">
               {searchQuery ? "No brewers matching your search." : "No brewers logged yet."}
             </div>
           ) : (
@@ -328,7 +335,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
           </div>
 
           {scales.length === 0 ? (
-            <div className="p-6 rounded-2xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-foreground-muted">
+            <div className="p-6 rounded-xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-foreground-muted">
               {searchQuery
                 ? "No scales matching your search."
                 : "No scales logged yet. Add your brew scale to track 0.1g dose and flow rate."}
@@ -350,7 +357,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
           </div>
 
           {kettles.length === 0 ? (
-            <div className="p-6 rounded-2xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-foreground-muted">
+            <div className="p-6 rounded-xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-foreground-muted">
               {searchQuery
                 ? "No kettles matching your search."
                 : "No kettles logged yet. Add your gooseneck or temperature kettle."}
@@ -372,7 +379,10 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
           </div>
 
           {other.length === 0 ? (
-            <div className="p-6 rounded-2xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-foreground-muted">
+            <div
+              data-testid="equipment-empty-state"
+              className="p-6 rounded-xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-foreground-muted"
+            >
               {searchQuery
                 ? "No other equipment matching your search."
                 : "No other equipment logged yet. Add accessories, WDT tools, or custom gear."}
@@ -398,7 +408,10 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
             }
           }}
         >
-          <div className="w-full max-w-md p-6 rounded-2xl bg-panel border border-border-subtle shadow-2xl space-y-4">
+          <div
+            data-testid="equipment-modal"
+            className="w-full max-w-md p-6 rounded-xl bg-panel border border-border-subtle shadow-2xl space-y-4"
+          >
             <div className="flex items-center justify-between pb-1 border-b border-border-subtle">
               <h3 id="equipment-modal-title" className="text-lg font-bold text-foreground">
                 {editingEquipment ? "Edit Equipment" : "Add Equipment"}
@@ -414,7 +427,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
             </div>
 
             {errorMessage && (
-              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-400">
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
                 {errorMessage}
               </div>
             )}
@@ -427,7 +440,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                 <select
                   value={type}
                   onChange={(e) => setType(e.target.value as EquipmentType)}
-                  className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground text-sm focus:outline-none focus:border-accent transition-colors cursor-pointer"
+                  className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground text-sm focus:outline-none focus:border-accent transition-colors cursor-pointer"
                 >
                   <option value="grinder" className="bg-panel-recessed text-foreground">Grinder</option>
                   <option value="brewer" className="bg-panel-recessed text-foreground">Brewer / Dripper</option>
@@ -457,7 +470,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                   }
                   value={brand}
                   onChange={(e) => setBrand(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                  className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
 
@@ -481,7 +494,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                   }
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                  className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
 
@@ -512,7 +525,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                   }
                   value={subType}
                   onChange={(e) => setSubType(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                  className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
 
@@ -524,7 +537,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                   <select
                     value={settingScaleType}
                     onChange={(e) => setSettingScaleType(e.target.value as any)}
-                    className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground text-sm focus:outline-none focus:border-accent transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground text-sm focus:outline-none focus:border-accent transition-colors cursor-pointer"
                   >
                     <option value="stepped-numbers" className="bg-panel-recessed text-foreground">Stepped Numbers (e.g. 4.1, 5.2)</option>
                     <option value="clicks" className="bg-panel-recessed text-foreground">Clicks from Zero (e.g. 24 clicks)</option>
@@ -555,7 +568,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                   placeholder="e.g. Preferred settings, accessories, or calibration notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
+                  className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
 

@@ -366,7 +366,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
             inspectedItem.type === 'descriptor' ? (
               <div className="flex flex-col items-center justify-center max-w-[130px]">
                 <span
-                  className="text-[9px] uppercase font-sans font-bold tracking-wider px-1.5 py-0.2 rounded border"
+                  className="text-[9px] uppercase font-sans font-bold tracking-wider px-1.5 py-0.2 rounded-md border"
                   style={{
                     color: inspectedItem.color,
                     borderColor: `${inspectedItem.color}40`,
@@ -390,7 +390,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                     setAnnouncement(`${inspectedItem.name}, ${willBe ? 'selected' : 'removed'}`);
                   }}
                   aria-label={`${inspectedItem.isSelected ? 'Remove' : 'Add'} ${inspectedItem.name}`}
-                  className={`pointer-events-auto mt-1 px-2.5 py-0.5 rounded text-[10px] font-sans uppercase tracking-wider font-bold flex items-center space-x-1 transition-all shadow-sm active:scale-95 cursor-pointer ${
+                  className={`pointer-events-auto mt-1 px-2.5 py-0.5 rounded-lg text-[10px] font-sans uppercase tracking-wider font-bold flex items-center space-x-1 transition-all shadow-sm active:scale-95 cursor-pointer ${
                     inspectedItem.isSelected
                       ? 'bg-accent text-canvas'
                       : 'bg-panel-recessed text-foreground-secondary border border-border-subtle hover:bg-panel hover:border-border-active hover:text-foreground'
@@ -446,7 +446,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
       </div>
 
       <p className="text-[11px] text-foreground-muted mt-2 text-center max-w-sm font-sans">
-        Use <kbd className="px-1 py-0.5 bg-panel-recessed rounded text-[10px] font-sans text-accent border border-border-subtle">←</kbd> <kbd className="px-1 py-0.5 bg-panel-recessed rounded text-[10px] font-sans text-accent border border-border-subtle">→</kbd> to rotate, <kbd className="px-1.5 py-0.5 bg-panel-recessed rounded text-[10px] font-sans text-accent border border-border-subtle">Space</kbd> to toggle, or tap any sensory note.
+        Use <kbd className="px-1 py-0.5 bg-panel-recessed rounded-md text-[10px] font-sans text-accent border border-border-subtle">←</kbd> <kbd className="px-1 py-0.5 bg-panel-recessed rounded-md text-[10px] font-sans text-accent border border-border-subtle">→</kbd> to rotate, <kbd className="px-1.5 py-0.5 bg-panel-recessed rounded-md text-[10px] font-sans text-accent border border-border-subtle">Space</kbd> to toggle, or tap any sensory note.
       </p>
     </div>
   );

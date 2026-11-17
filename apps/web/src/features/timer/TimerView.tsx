@@ -60,7 +60,7 @@ function renderBrewMethodBadge(method: string) {
   else if (m.includes('french')) label = 'FRENCH PRESS';
 
   return (
-    <span className="inline-flex items-center px-2.5 py-1 rounded-lg badge-artisan border shadow-sm font-mono text-xs font-bold uppercase tracking-wider select-none">
+    <span className="inline-flex items-center px-2.5 py-1 rounded-md badge-artisan border shadow-sm font-mono text-xs font-bold uppercase tracking-wider select-none">
       {label}
     </span>
   );
@@ -844,7 +844,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               <button
                 type="button"
                 onClick={() => onLogCompletedBrew(currentRecipe, elapsedSeconds, selectedBean || null)}
-                className="w-full h-10 flex items-center justify-center space-x-2 px-4 rounded-xl bg-status-success hover:bg-status-success/90 text-canvas font-mono text-xs uppercase tracking-wider font-bold shadow-sm cursor-pointer transition-all border-0"
+                className="w-full h-10 flex items-center justify-center space-x-2 px-4 rounded-lg bg-status-success hover:bg-status-success/90 text-canvas font-mono text-xs uppercase tracking-wider font-bold shadow-sm cursor-pointer transition-all border-0"
                 aria-label="ADD REVIEW"
               >
                 <Plus className="w-4 h-4" />
@@ -855,7 +855,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
 
           {/* Free Brew Finish Banner with Review and Custom Recipe Actions */}
           {mode === 'free_brew' && isFreeBrewFinished && (
-            <div className="p-4 rounded border border-emerald-500/30 bg-emerald-950/20 space-y-3 animate-fade-in">
+            <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-950/20 space-y-3 animate-fade-in">
               <div className="flex items-center space-x-2 text-emerald-400 font-mono text-xs font-bold uppercase tracking-wider">
                 <Sparkles className="w-4 h-4" />
                 <span>FREE BREW COMPLETE · {formatTime(elapsedSeconds)} · {splits.length} SPLITS</span>
@@ -864,7 +864,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                 <button
                   type="button"
                   onClick={handleAddReview}
-                  className="btn-tactile-primary h-10 flex items-center justify-center space-x-2 px-4 rounded-xl font-mono text-xs uppercase tracking-wider font-bold border-0 cursor-pointer transition-all"
+                  className="btn-tactile-primary h-10 flex items-center justify-center space-x-2 px-4 rounded-lg font-mono text-xs uppercase tracking-wider font-bold border-0 cursor-pointer transition-all"
                   aria-label="ADD REVIEW"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -874,7 +874,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
                   type="button"
                   onClick={handleSaveFreeBrewRecipe}
                   disabled={isRecipeSaved}
-                  className="btn-tactile-secondary h-10 flex items-center justify-center space-x-2 px-4 rounded-xl font-mono text-xs uppercase tracking-wider font-bold border-0 cursor-pointer transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="btn-tactile-secondary h-10 flex items-center justify-center space-x-2 px-4 rounded-lg font-mono text-xs uppercase tracking-wider font-bold border-0 cursor-pointer transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                   aria-label="SAVE AS CUSTOM RECIPE"
                 >
                   {isRecipeSaved ? (
@@ -1023,7 +1023,7 @@ export const TimerView: React.FC<TimerViewProps> = ({
               )}
 
               {splits.length === 0 ? (
-                <div className="py-16 text-center border border-dashed border-border-subtle rounded-md my-4">
+                <div className="py-16 text-center border border-dashed border-border-subtle rounded-xl my-4">
                   <Flag className="w-8 h-8 text-foreground-muted mx-auto mb-2 opacity-50" />
                   <p className="text-xs font-mono text-foreground-muted max-w-xs mx-auto">
                     No splits recorded yet. Tap SPLIT or a quick tag while brewing.

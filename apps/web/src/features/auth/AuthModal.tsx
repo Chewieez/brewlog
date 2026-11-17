@@ -178,11 +178,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
         {/* Tab Switcher for Sign In / Sign Up */}
         {isCredentialMode ? (
-          <div className="flex rounded bg-panel-recessed p-1 border border-border-subtle">
+          <div className="flex rounded-lg bg-panel-recessed p-1 border border-border-subtle">
             <button
               type="button"
               onClick={() => switchMode("signin")}
-              className={`h-8 flex-1 inline-flex items-center justify-center rounded text-xs font-mono uppercase tracking-wider font-semibold cursor-pointer transition-all ${
+              className={`h-8 flex-1 inline-flex items-center justify-center rounded-md text-xs font-mono uppercase tracking-wider font-semibold cursor-pointer transition-all ${
                 isSignIn
                   ? "bg-accent text-canvas shadow-sm font-bold"
                   : "text-foreground-muted hover:text-foreground"
@@ -193,7 +193,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <button
               type="button"
               onClick={() => switchMode("signup")}
-              className={`h-8 flex-1 inline-flex items-center justify-center rounded text-xs font-mono uppercase tracking-wider font-semibold cursor-pointer transition-all ${
+              className={`h-8 flex-1 inline-flex items-center justify-center rounded-md text-xs font-mono uppercase tracking-wider font-semibold cursor-pointer transition-all ${
                 isSignUp
                   ? "bg-accent text-canvas shadow-sm font-bold"
                   : "text-foreground-muted hover:text-foreground"
@@ -213,7 +213,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         )}
 
         {!isConfigured && (
-          <div className="p-3 rounded bg-panel-recessed border border-border-subtle text-accent text-xs flex items-start space-x-2 font-mono">
+          <div className="p-3 rounded-lg bg-panel-recessed border border-border-subtle text-accent text-xs flex items-start space-x-2 font-mono">
             <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
             <span>
               Supabase credentials not detected yet in <code>apps/web/.env</code>.
@@ -222,7 +222,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         )}
 
         {errorMsg && (
-          <div className="p-3 rounded bg-red-500/10 border border-red-500/25 text-red-300 text-xs flex items-start space-x-2.5 font-mono">
+          <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/25 text-red-300 text-xs flex items-start space-x-2.5 font-mono">
             <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-400" />
             <div className="space-y-1">
               <span className="font-semibold block uppercase tracking-wider text-[11px]">Authentication Notice</span>
@@ -232,8 +232,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         )}
 
         {needsEmailConfirmation ? (
-          <div className="p-5 rounded-xl bg-panel border border-border-subtle text-foreground space-y-4 text-center animate-fade-in">
-            <div className="w-12 h-12 rounded bg-panel-recessed border border-border-subtle flex items-center justify-center mx-auto text-accent shadow-sm">
+          <div className="p-5 rounded-lg bg-panel border border-border-subtle text-foreground space-y-4 text-center animate-fade-in">
+            <div className="w-12 h-12 rounded-lg bg-panel-recessed border border-border-subtle flex items-center justify-center mx-auto text-accent shadow-sm">
               <Mail className="w-6 h-6" />
             </div>
 
@@ -244,7 +244,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               </p>
             </div>
 
-            <div className="p-3 rounded bg-panel-recessed border border-border-subtle text-[11px] text-foreground-secondary text-left space-y-1.5 font-mono">
+            <div className="p-3 rounded-lg bg-panel-recessed border border-border-subtle text-[11px] text-foreground-secondary text-left space-y-1.5 font-mono">
               <div className="flex items-center space-x-1.5 text-foreground font-semibold">
                 <Info className="w-3.5 h-3.5 text-accent" />
                 <span>Next Steps:</span>
@@ -277,7 +277,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           </div>
         ) : isUpdatePassword && successMsg ? (
           <div className="py-8 text-center space-y-4 animate-fade-in">
-            <div className="w-14 h-14 rounded bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto text-emerald-400 shadow-sm">
+            <div className="w-14 h-14 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto text-emerald-400 shadow-sm">
               <CheckCircle2 className="w-8 h-8" />
             </div>
             <div className="space-y-1">
@@ -293,7 +293,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3.5 text-sm">
             {successMsg && (
-              <div className="p-3 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-start space-x-2 font-mono">
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-start space-x-2 font-mono">
                 <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
                 <span>{successMsg}</span>
               </div>
@@ -307,7 +307,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   placeholder="e.g. Greg"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-foreground focus:outline-none focus:border-accent text-xs font-mono"
+                  className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground focus:outline-none focus:border-accent text-xs font-mono"
                 />
               </div>
             )}
@@ -321,7 +321,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-foreground focus:outline-none focus:border-accent text-xs font-mono"
+                  className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground focus:outline-none focus:border-accent text-xs font-mono"
                 />
                 {isSignUp && (
                   <span className="text-[11px] text-foreground-muted mt-1 flex items-center space-x-1 font-mono">
@@ -353,7 +353,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-foreground focus:outline-none focus:border-accent text-xs font-mono"
+                  className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground focus:outline-none focus:border-accent text-xs font-mono"
                 />
               </div>
             )}
@@ -369,7 +369,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     placeholder="Enter at least 6 characters"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-foreground focus:outline-none focus:border-accent text-xs font-mono"
+                    className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground focus:outline-none focus:border-accent text-xs font-mono"
                   />
                 </div>
 
@@ -382,7 +382,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     placeholder="Re-type your new password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-3 py-2 rounded bg-panel-recessed border border-border-subtle text-foreground focus:outline-none focus:border-accent text-xs font-mono"
+                    className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground focus:outline-none focus:border-accent text-xs font-mono"
                   />
                 </div>
               </div>

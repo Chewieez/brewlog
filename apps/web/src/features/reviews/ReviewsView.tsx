@@ -602,12 +602,12 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
               placeholder="Search coffee, roaster, tags..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 rounded-xl bg-panel border border-border-subtle text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent"
+              className="w-full pl-9 pr-3 py-2 rounded-lg bg-panel border border-border-subtle text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent"
             />
           </div>
 
           {/* Brew Method Filter Chips */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
             {METHOD_FILTERS.map((item) => {
               const isSelected = selectedMethodFilter === item.id;
               return (
@@ -615,7 +615,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                   key={item.id}
                   type="button"
                   onClick={() => setSelectedMethodFilter(item.id)}
-                  className={`h-8 px-3 rounded-xl text-xs font-medium cursor-pointer transition-all whitespace-nowrap border-0 inline-flex items-center justify-center ${
+                  className={`h-8 px-3 rounded-lg text-xs font-medium cursor-pointer transition-all whitespace-nowrap border-0 inline-flex items-center justify-center ${
                     isSelected
                       ? 'btn-tactile-primary'
                       : 'btn-tactile-secondary text-foreground-muted hover:text-foreground'
@@ -676,7 +676,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                           {log.calculatedScaScore.toFixed(1)}
                         </span>
                         <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${tier.classes}`}
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border ${tier.classes}`}
                         >
                           {tier.label}
                         </span>
@@ -697,13 +697,13 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                         {log.flavorTags.slice(0, 3).map((tag) => (
                           <span
                             key={tag}
-                            className="px-2 py-0.5 rounded-full text-[11px] font-sans font-medium bg-accent/10 text-accent border border-accent/20"
+                            className="px-2 py-0.5 rounded-md text-[11px] font-sans font-medium bg-accent/10 text-accent border border-accent/20"
                           >
                             {tag}
                           </span>
                         ))}
                         {log.flavorTags.length > 3 && (
-                          <span className="px-1.5 py-0.5 rounded text-[10px] text-foreground-secondary">
+                          <span className="px-1.5 py-0.5 rounded-md text-[10px] text-foreground-secondary">
                             +{log.flavorTags.length - 3}
                           </span>
                         )}
@@ -713,7 +713,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     {/* Telemetry Footer */}
                     <div className="flex items-center justify-between text-[11px] text-foreground-secondary mt-3 pt-2 border-t border-border-subtle/60">
                       <div className="flex items-center gap-2">
-                        <span className="uppercase font-mono text-[10px] font-bold tracking-wider px-2 py-0.5 rounded badge-artisan border">
+                        <span className="uppercase font-mono text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md badge-artisan border">
                           {log.brewMethod}
                         </span>
                         <span>•</span>
@@ -752,7 +752,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 type="button"
                 onClick={() => setErrorMessage(null)}
                 aria-label="Dismiss error"
-                className="p-1 rounded text-red-400 hover:text-red-200 hover:bg-red-500/20 transition-colors cursor-pointer"
+                className="p-1 rounded-lg text-red-400 hover:text-red-200 hover:bg-red-500/20 transition-colors cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -837,7 +837,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                   <div className="text-sm text-foreground-secondary font-medium">/ 100</div>
                   <div className="h-6 w-px bg-border-subtle" />
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold border ${getScaTier(scaScore).classes}`}
+                    className={`px-3 py-1 rounded-md text-xs font-semibold border ${getScaTier(scaScore).classes}`}
                   >
                     {getScaTier(scaScore).label} (SCA)
                   </span>
@@ -1103,7 +1103,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setFlavorViewMode('tags')}
-                      className={`h-8 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
+                      className={`h-8 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded-md transition-all cursor-pointer border-0 ${
                         flavorViewMode === 'tags'
                           ? 'segmented-thumb-active font-semibold'
                           : 'text-foreground-muted hover:text-foreground'
@@ -1116,7 +1116,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setFlavorViewMode('wheel')}
-                      className={`h-8 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
+                      className={`h-8 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded-md transition-all cursor-pointer border-0 ${
                         flavorViewMode === 'wheel'
                           ? 'segmented-thumb-active font-semibold'
                           : 'text-foreground-muted hover:text-foreground'
@@ -1129,7 +1129,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 </div>
 
                 {/* Active Selected Tags Bar */}
-                <div className="min-h-11 p-2.5 rounded-xl bg-canvas border border-border-subtle flex flex-wrap gap-1.5 items-center">
+                <div className="min-h-11 p-2.5 rounded-lg bg-canvas border border-border-subtle flex flex-wrap gap-1.5 items-center">
                   {selectedTags.length === 0 && (
                     <span className="text-xs text-foreground-secondary italic pl-1">
                       Select notes on the descriptors list or wheel to tag this cup...
@@ -1327,7 +1327,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     placeholder="e.g. Vibrant peach and white tea notes, crisp malic acidity, silky finish..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-panel-recessed border border-border-subtle text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent resize-none font-sans"
+                    className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent resize-none font-sans"
                   />
                 </div>
 
@@ -1384,7 +1384,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     type="button"
                     onClick={() => setErrorMessage(null)}
                     aria-label="Dismiss error"
-                    className="p-1 rounded text-red-400 hover:text-red-200 hover:bg-red-500/20 transition-colors cursor-pointer"
+                    className="p-1 rounded-lg text-red-400 hover:text-red-200 hover:bg-red-500/20 transition-colors cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>

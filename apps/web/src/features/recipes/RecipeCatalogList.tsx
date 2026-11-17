@@ -45,7 +45,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
               key={method}
               type="button"
               onClick={() => onSelectMethodFilter(method)}
-              className={`h-8 px-3 rounded-xl text-xs font-mono font-semibold uppercase tracking-wider transition-all cursor-pointer border-0 inline-flex items-center justify-center ${
+              className={`h-8 px-3 rounded-lg text-xs font-mono font-semibold uppercase tracking-wider transition-all cursor-pointer border-0 inline-flex items-center justify-center ${
                 isSelected
                   ? 'btn-tactile-primary'
                   : 'btn-tactile-secondary text-foreground-muted hover:text-foreground'
@@ -60,7 +60,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
       {/* Recipe Cards List */}
       <div className="space-y-3">
         {filteredRecipes.length === 0 ? (
-          <div className="p-8 rounded-2xl bg-panel border border-dashed border-border-subtle text-center text-xs text-foreground-muted">
+          <div className="p-8 rounded-xl bg-panel border border-dashed border-border-subtle text-center text-xs text-foreground-muted">
             No recipes found for this brew method.
           </div>
         ) : (
@@ -71,7 +71,8 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
             return (
               <div
                 key={r.id}
-                className={`p-4 rounded-2xl border transition-all duration-200 relative group overflow-hidden ${
+                data-testid="recipe-catalog-card"
+                className={`p-4 rounded-xl border transition-all duration-200 relative group overflow-hidden ${
                   isSelected
                     ? 'bg-panel-recessed border-border-active'
                     : 'bg-panel border-border-subtle hover:border-border-active'
@@ -87,20 +88,20 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                   to={`/recipes/${r.id}`}
                   aria-label={r.name}
                   onClick={() => onSelectRecipe?.(r)}
-                  className="absolute inset-0 rounded-2xl z-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent/50"
+                  className="absolute inset-0 rounded-xl z-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent/50"
                 />
 
                 <div className="relative z-10 flex items-center justify-between pointer-events-none">
                   <div className="flex items-center space-x-2">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-panel-recessed text-foreground-secondary">
+                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono uppercase tracking-wider bg-panel-recessed text-foreground-secondary">
                       {r.brewMethod}
                     </span>
                     {isCustom ? (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-accent/15 text-accent">
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono uppercase tracking-wider bg-accent/15 text-accent">
                         Custom
                       </span>
                     ) : (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider bg-panel-recessed text-foreground-muted">
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono uppercase tracking-wider bg-panel-recessed text-foreground-muted">
                         Preset
                       </span>
                     )}

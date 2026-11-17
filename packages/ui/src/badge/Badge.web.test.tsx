@@ -32,4 +32,10 @@ describe('Badge (web)', () => {
     expect(badge).toBeInTheDocument();
     expect(badge.className).toContain('text-status-info');
   });
+
+  it('uses standardized rounded-md corner radius for read-only badges', () => {
+    render(<Badge label="Washed" />);
+    const badge = screen.getByText('Washed');
+    expect(badge.className).toContain('rounded-md');
+  });
 });

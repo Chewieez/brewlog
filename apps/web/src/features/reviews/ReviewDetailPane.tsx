@@ -141,7 +141,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <span
               data-testid="method-badge"
-              className="text-xs font-mono font-bold px-2.5 py-0.5 rounded uppercase tracking-wider badge-artisan border"
+              className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider badge-artisan border"
             >
               {log.brewMethod}
             </span>
@@ -149,7 +149,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
               {formatDate(log.brewDate)}
             </span>
             {log.wouldBrewAgain && (
-              <span className="inline-flex items-center gap-1 text-xs text-emerald-900 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 px-2.5 py-0.5 rounded-full font-medium">
+              <span className="inline-flex items-center gap-1 text-xs text-emerald-900 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 px-2.5 py-0.5 rounded-md font-medium">
                 <CheckCircle2 className="w-3 h-3" /> Would Brew Again
               </span>
             )}
@@ -205,7 +205,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           <div className="text-sm text-foreground-secondary font-medium">/ 100</div>
           <div className="h-6 w-px bg-border-subtle" />
           <span
-            className={`px-3 py-1 rounded-full text-xs font-semibold border ${tier.classes}`}
+            className={`px-3 py-1 rounded-md text-xs font-semibold border ${tier.classes}`}
           >
             {tier.label} (SCA)
           </span>
@@ -238,7 +238,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           <div className="flex items-center p-0.5 rounded-lg segmented-track">
             <button
               onClick={() => setSensoryTab('descriptors')}
-              className={`h-8 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
+              className={`h-8 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded-md transition-all cursor-pointer border-0 ${
                 sensoryTab === 'descriptors'
                   ? 'segmented-thumb-active font-semibold'
                   : 'text-foreground-muted hover:text-foreground'
@@ -249,7 +249,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             </button>
             <button
               onClick={() => setSensoryTab('wheel')}
-              className={`h-8 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded transition-all cursor-pointer border-0 ${
+              className={`h-8 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded-md transition-all cursor-pointer border-0 ${
                 sensoryTab === 'wheel'
                   ? 'segmented-thumb-active font-semibold'
                   : 'text-foreground-muted hover:text-foreground'
@@ -268,7 +268,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
                 {log.flavorTags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/30 shadow-xs"
+                    className="px-3 py-1 rounded-md text-xs font-medium bg-accent/10 text-accent border border-accent/30 shadow-xs"
                   >
                     {tag}
                   </span>

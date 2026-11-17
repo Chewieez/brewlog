@@ -43,4 +43,10 @@ describe('Input (web)', () => {
     expect(label.getAttribute('for')).toBe('grind-input');
     expect(input.getAttribute('id')).toBe('grind-input');
   });
+
+  it('uses standardized rounded-lg corner radius on input container', () => {
+    render(<Input value="" onChangeText={() => {}} label="Roaster" testID="roaster-input" />);
+    const inputWrapper = screen.getByTestId('roaster-input').parentElement;
+    expect(inputWrapper?.className).toContain('rounded-lg');
+  });
 });
