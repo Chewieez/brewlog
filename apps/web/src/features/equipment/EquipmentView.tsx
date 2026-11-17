@@ -172,7 +172,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
           {item.settingScaleType && (
             <span
               data-testid="equipment-badge"
-              className="btn-tactile-secondary px-2 py-0.5 rounded-md text-[10px] font-mono text-foreground-secondary"
+              className="bg-panel-recessed border border-border-subtle px-2 py-0.5 rounded-md text-[10px] font-mono text-foreground-secondary"
             >
               {item.settingScaleType}
             </span>
@@ -180,7 +180,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
           {item.subType && (
             <span
               data-testid="equipment-badge"
-              className="btn-tactile-secondary px-2 py-0.5 rounded-md text-[10px] font-mono text-foreground-secondary"
+              className="bg-panel-recessed border border-border-subtle px-2 py-0.5 rounded-md text-[10px] font-mono text-foreground-secondary"
             >
               {item.subType}
             </span>

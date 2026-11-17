@@ -2,6 +2,7 @@
 
 - **Date**: 2026-11-16
 - **Issue**: [#82](https://github.com/Chewieez/brewlog/issues/82)
+- **Pull Request**: [#83](https://github.com/Chewieez/brewlog/pull/83)
 - **Branch**: `Chewieez/82-ui-web-standardize-corner-radius-hierarc`
 - **Status**: Completed & Verified
 - **Tech Stack**: React 19.3, Tailwind CSS v4, TypeScript, Vitest, Playwright

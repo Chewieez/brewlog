@@ -426,7 +426,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       {bean.flavorNotes.map((note, i) => (
                         <span
                           key={i}
-                          className="btn-tactile-secondary px-2.5 py-0.5 rounded-md text-[11px] font-medium text-foreground-secondary"
+                          className="bg-panel-recessed border border-border-subtle px-2.5 py-0.5 rounded-md text-[11px] font-medium text-foreground-secondary"
                         >
                           {note}
                         </span>
