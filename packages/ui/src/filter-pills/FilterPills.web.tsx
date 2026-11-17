@@ -16,9 +16,11 @@ export function FilterPills<T extends string = string>({
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   if (options.length === 0) {
+    buttonRefs.current.length = 0;
     return null;
   }
 
+  buttonRefs.current.length = options.length;
   const sizeClasses = size === 'md' ? 'h-10 px-4 text-xs' : 'h-8 px-3 text-xs';
   const disabledStates = options.map((opt) => Boolean(opt.disabled));
 

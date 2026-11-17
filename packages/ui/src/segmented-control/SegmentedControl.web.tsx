@@ -13,7 +13,9 @@ export function SegmentedControl<T extends string = string>({
   role = 'group',
 }: SegmentedControlProps<T>) {
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const buttonSizeClasses = size === 'sm' ? 'h-8 text-xs' : 'h-10 text-xs';
+  buttonRefs.current.length = options.length;
+  const buttonSizeClasses =
+    size === 'sm' ? 'h-8 text-[11px] sm:text-xs' : 'h-10 text-[11px] sm:text-xs';
   const widthClasses = fullWidth ? 'w-full' : 'w-80 max-w-full';
 
   return (
@@ -38,13 +40,13 @@ export function SegmentedControl<T extends string = string>({
               undefined
             }
             aria-pressed={role === 'group' ? isSelected : undefined}
-            aria-selected={role === 'tablist' || role === 'group' ? isSelected : undefined}
+            aria-selected={role === 'tablist' ? isSelected : undefined}
             aria-checked={role === 'radiogroup' ? isSelected : undefined}
             aria-label={option.accessibilityLabel || option.label}
             data-testid={option.testID}
             onClick={() => onChange(option.value)}
             onKeyDown={(e) => handleHorizontalOptionKeyDown(e, index, buttonRefs)}
-            className={`flex items-center justify-center ${buttonSizeClasses} px-3 rounded-md font-mono uppercase tracking-[0.12em] font-bold transition-all cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-canvas ${
+            className={`flex items-center justify-center ${buttonSizeClasses} px-1.5 sm:px-3 rounded-md font-mono uppercase tracking-wider sm:tracking-[0.12em] leading-tight font-bold transition-all cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-canvas ${
               isSelected
                 ? 'segmented-thumb-active shadow-sm'
                 : 'text-foreground-muted hover:text-foreground hover:bg-black/[0.04] dark:hover:bg-white/[0.04]'

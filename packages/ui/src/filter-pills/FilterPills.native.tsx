@@ -105,12 +105,13 @@ const useStyles = makeStyles((colors) => ({
     fontFamily: 'JetBrainsMono_400Regular',
     fontSize: 11,
     letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
   chipTextActive: {
     fontFamily: 'JetBrainsMono_700Bold',
     color: colors.canvas,
   },
   chipTextInactive: {
-    color: colors.textSecondary,
+    color: colors.foregroundSecondary,
   },
 }));

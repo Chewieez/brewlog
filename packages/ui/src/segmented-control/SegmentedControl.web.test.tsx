@@ -22,10 +22,10 @@ describe('SegmentedControl (web)', () => {
     const inactiveBtn = screen.getByRole('button', { name: 'FREE BREW' });
 
     expect(activeBtn.getAttribute('aria-pressed')).toBe('true');
-    expect(activeBtn.getAttribute('aria-selected')).toBe('true');
+    expect(activeBtn.getAttribute('aria-selected')).toBeNull();
     expect(activeBtn.className).toContain('segmented-thumb-active');
     expect(inactiveBtn.getAttribute('aria-pressed')).toBe('false');
-    expect(inactiveBtn.getAttribute('aria-selected')).toBe('false');
+    expect(inactiveBtn.getAttribute('aria-selected')).toBeNull();
 
     rerender(<SegmentedControl options={options} value="recipe" onChange={() => {}} role="tablist" />);
     const activeTab = screen.getByRole('tab', { name: 'GUIDED RECIPE' });
@@ -103,5 +103,32 @@ describe('SegmentedControl (web)', () => {
       archivedTab.dispatchEvent(event);
       expect(event.defaultPrevented).toBe(false);
     }
+  });
+
+  it('trims stale button refs when options shrinks and applies mobile-friendly padding/tracking', () => {
+    const threeOptions = [
+      { value: 'active', label: 'Active Cellar' },
+      { value: 'frozen', label: 'Freezer Vault' },
+      { value: 'archived', label: 'Archived' },
+    ];
+    const { rerender } = render(
+      <SegmentedControl options={threeOptions} value="active" onChange={() => {}} role="tablist" />
+    );
+
+    const activeTab = screen.getByRole('tab', { name: 'Active Cellar' });
+    expect(activeTab.className).toContain('px-1.5');
+    expect(activeTab.className).toContain('sm:px-3');
+    expect(activeTab.className).toContain('tracking-wider');
+    expect(activeTab.className).toContain('sm:tracking-[0.12em]');
+
+    rerender(
+      <SegmentedControl options={options} value="recipe" onChange={() => {}} role="tablist" />
+    );
+    const guidedTab = screen.getByRole('tab', { name: 'GUIDED RECIPE' });
+    const freeTab = screen.getByRole('tab', { name: 'FREE BREW' });
+
+    guidedTab.focus();
+    fireEvent.keyDown(guidedTab, { key: 'End' });
+    expect(document.activeElement).toBe(freeTab);
   });
 });

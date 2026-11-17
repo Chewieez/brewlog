@@ -230,19 +230,24 @@ export const StashView: React.FC<StashViewProps> = ({
     ];
   }, [currentShelfBeans]);
 
+  const effectiveProcess: ProcessFilter = useMemo(
+    () =>
+      availableProcessOptions.some((opt) => opt.value === selectedProcess)
+        ? selectedProcess
+        : 'all',
+    [availableProcessOptions, selectedProcess]
+  );
+
   useEffect(() => {
-    if (
-      selectedProcess !== 'all' &&
-      !availableProcessOptions.some((opt) => opt.value === selectedProcess)
-    ) {
-      setSelectedProcess('all');
+    if (selectedProcess !== effectiveProcess) {
+      setSelectedProcess(effectiveProcess);
     }
-  }, [availableProcessOptions, selectedProcess]);
+  }, [selectedProcess, effectiveProcess]);
 
   const filteredBeans = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return currentShelfBeans.filter((b) => {
-      if (selectedProcess !== 'all' && !matchesProcessFilter(b, selectedProcess)) {
+      if (effectiveProcess !== 'all' && !matchesProcessFilter(b, effectiveProcess)) {
         return false;
       }
 
@@ -269,7 +274,7 @@ export const StashView: React.FC<StashViewProps> = ({
         matchesVariety
       );
     });
-  }, [currentShelfBeans, selectedProcess, searchQuery]);
+  }, [currentShelfBeans, effectiveProcess, searchQuery]);
 
   const handleSubmitBean = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -379,7 +384,7 @@ export const StashView: React.FC<StashViewProps> = ({
   };
 
   const renderEmptyState = () => {
-    if (searchQuery.trim().length > 0 || selectedProcess !== 'all') {
+    if (searchQuery.trim().length > 0 || effectiveProcess !== 'all') {
       return (
         <div className="p-8 rounded-xl bg-panel border border-dashed border-border-subtle text-center flex flex-col items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-panel-recessed border border-border-subtle flex items-center justify-center">
@@ -499,7 +504,7 @@ export const StashView: React.FC<StashViewProps> = ({
               type="button"
               onClick={() => setSearchQuery('')}
               aria-label="Clear search"
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <X className="w-4 h-4" />
             </button>
@@ -523,7 +528,7 @@ export const StashView: React.FC<StashViewProps> = ({
         {availableProcessOptions.length > 1 && (
           <FilterPills<ProcessFilter>
             size="sm"
-            value={selectedProcess}
+            value={effectiveProcess}
             onChange={setSelectedProcess}
             options={availableProcessOptions}
             ariaLabel="Filter by process method"

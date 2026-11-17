@@ -124,4 +124,26 @@ describe('FilterPills (web)', () => {
       expect(event.defaultPrevented).toBe(false);
     }
   });
+
+  it('trims stale button refs when options shrinks and wraps arrow navigation cleanly', () => {
+    const { rerender } = render(
+      <FilterPills options={options} value="all" onChange={() => {}} />
+    );
+
+    const shrunkOptions = [
+      { value: 'all', label: 'All' },
+      { value: 'washed', label: 'Washed' },
+    ];
+    rerender(<FilterPills options={shrunkOptions} value="all" onChange={() => {}} />);
+
+    const allBtn = screen.getByRole('button', { name: 'All' });
+    const washedBtn = screen.getByRole('button', { name: 'Washed' });
+
+    allBtn.focus();
+    fireEvent.keyDown(allBtn, { key: 'End' });
+    expect(document.activeElement).toBe(washedBtn);
+
+    fireEvent.keyDown(washedBtn, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(allBtn);
+  });
 });

@@ -847,24 +847,35 @@ describe('StashView', () => {
     expect(screen.getByText('Unknown Process Lot')).toBeDefined();
   });
 
-  it('resets selectedProcess to all when switching to a shelf without that process', () => {
+  it('resets selectedProcess to all when switching to a shelf without that process without a one-frame empty flash', () => {
     const beansAcrossShelves: Bean[] = [
       { ...MOCK_BEANS[0], id: 'active-washed', name: 'Active Washed', process: 'washed' },
       { ...MOCK_BEANS[2], id: 'frozen-natural', name: 'Frozen Natural', process: 'natural', isFrozen: true },
     ];
 
+    let sawEmptyFlash = false;
     render(
-      <StashView
-        beans={beansAcrossShelves}
-        onAddBean={vi.fn()}
-        onSelectBeanForBrew={vi.fn()}
-      />
+      <React.Profiler
+        id="stash-switch"
+        onRender={() => {
+          if (document.body.textContent?.includes('No coffee beans found matching your search.')) {
+            sawEmptyFlash = true;
+          }
+        }}
+      >
+        <StashView
+          beans={beansAcrossShelves}
+          onAddBean={vi.fn()}
+          onSelectBeanForBrew={vi.fn()}
+        />
+      </React.Profiler>
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Washed' }));
     expect(screen.getByText('Active Washed')).toBeDefined();
 
     fireEvent.click(screen.getByRole('tab', { name: /Freezer Vault/i }));
+    expect(sawEmptyFlash).toBe(false);
     expect(screen.getByText('Frozen Natural')).toBeDefined();
     expect(screen.getByRole('button', { name: 'All' }).getAttribute('aria-pressed')).toBe('true');
   });
@@ -926,6 +937,9 @@ describe('StashView', () => {
     expect(screen.queryByText('El Paraiso Lychee')).toBeNull();
 
     const clearBtn = screen.getByRole('button', { name: 'Clear search' });
+    expect(clearBtn.className).toContain('focus-visible:outline-none');
+    expect(clearBtn.className).toContain('focus-visible:ring-2');
+    expect(clearBtn.className).toContain('focus-visible:ring-accent');
     fireEvent.click(clearBtn);
     expect(searchInput.value).toBe('');
     expect(screen.getByText('El Paraiso Lychee')).toBeDefined();

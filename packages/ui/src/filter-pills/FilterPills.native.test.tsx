@@ -73,6 +73,7 @@ vi.mock('react-native', () => {
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import { FilterPills } from './FilterPills.native';
+import { TACTILE_DARK_THEME } from '../theme';
 
 describe('FilterPills (native)', () => {
   const options = [
@@ -96,6 +97,12 @@ describe('FilterPills (native)', () => {
 
     expect(washedBtn.getAttribute('aria-selected')).toBe('true');
     expect(allBtn.getAttribute('aria-selected')).toBe('false');
+
+    const allText = screen.getByText('All');
+    expect(allText.getAttribute('data-style')).toContain('"textTransform":"uppercase"');
+    expect(allText.getAttribute('data-style')).toContain(
+      TACTILE_DARK_THEME.colors.foregroundSecondary
+    );
   });
 
   it('calls onChange when an enabled pill is pressed and skips disabled pills', () => {
