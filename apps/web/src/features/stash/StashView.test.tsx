@@ -1,4 +1,5 @@
 /** @vitest-environment jsdom */
+import React from 'react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import { StashView } from './StashView';
@@ -61,7 +62,7 @@ describe('StashView', () => {
     cleanup();
   });
 
-  it('renders header, Add Coffee Bean button, search input, and process filter', () => {
+  it('renders header, summary bar, Add Bean button, search input, shelf tabs, and dynamic process pills', () => {
     render(
       <StashView
         beans={MOCK_BEANS}
@@ -73,7 +74,19 @@ describe('StashView', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Coffee Bean Stash' })).toBeDefined();
     expect(screen.getByRole('button', { name: /ADD BEAN/i })).toBeDefined();
     expect(screen.getByPlaceholderText(/Search by coffee name/i)).toBeDefined();
-    expect(screen.getByRole('combobox')).toBeDefined();
+    expect(screen.getByText('ACTIVE BAGS')).toBeDefined();
+    expect(screen.getByRole('tablist', { name: 'Shelf selector' })).toBeDefined();
+    expect(screen.getByRole('tab', { name: /Active Cellar/i })).toBeDefined();
+    expect(screen.getByRole('tab', { name: /Freezer Vault/i })).toBeDefined();
+    expect(screen.getByRole('tab', { name: /Archived/i })).toBeDefined();
+
+    expect(screen.getByRole('group', { name: 'Filter by process method' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'All' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Washed' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Natural' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Anaerobic' })).toBeDefined();
+    // MOCK_BEANS has no honey process bean, so Honey pill is omitted
+    expect(screen.queryByRole('button', { name: 'Honey' })).toBeNull();
   });
 
   it('renders bean cards with roaster, name, flavor notes, and rating', () => {
@@ -159,7 +172,7 @@ describe('StashView', () => {
     expect(screen.queryByText('Classic House Blend')).toBeNull();
   });
 
-  it('filters bean cards by process method', () => {
+  it('filters bean cards by process filter pills including anaerobic variants', () => {
     render(
       <StashView
         beans={MOCK_BEANS}
@@ -168,12 +181,15 @@ describe('StashView', () => {
       />
     );
 
-    const select = screen.getByRole('combobox');
-    fireEvent.change(select, { target: { value: 'natural' } });
-
+    fireEvent.click(screen.getByRole('button', { name: 'Natural' }));
     expect(screen.getByText('Classic House Blend')).toBeDefined();
     expect(screen.queryByText('Worka Sakaro')).toBeNull();
     expect(screen.queryByText('El Paraiso Lychee')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Anaerobic' }));
+    expect(screen.getByText('El Paraiso Lychee')).toBeDefined();
+    expect(screen.queryByText('Classic House Blend')).toBeNull();
+    expect(screen.queryByText('Worka Sakaro')).toBeNull();
   });
 
   it('shows empty state when no beans match filter', () => {
@@ -320,6 +336,8 @@ describe('StashView', () => {
         onSelectBeanForBrew={vi.fn()}
       />
     );
+
+    fireEvent.click(screen.getByRole('tab', { name: /Freezer Vault/i }));
 
     expect(screen.getByText('FROZEN')).toBeDefined();
     expect(screen.getByText(/Frozen at Day 9/i)).toBeDefined();
@@ -614,6 +632,8 @@ describe('StashView', () => {
       />
     );
 
+    fireEvent.click(screen.getByRole('tab', { name: /Archived/i }));
+
     const editBtn = screen.getByRole('button', { name: `Edit ${flaggedBean.name}` });
     fireEvent.click(editBtn);
 
@@ -629,6 +649,8 @@ describe('StashView', () => {
         isArchived: true,
       })
     );
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
   it('prompts confirmation modal before deleting bean and calls onDeleteBean upon confirmation', async () => {
@@ -725,6 +747,8 @@ describe('StashView', () => {
       />
     );
 
+    fireEvent.click(screen.getByRole('tab', { name: /Freezer Vault/i }));
+
     const editBtn = screen.getByRole('button', { name: `Edit ${frozenBean.name}` });
     fireEvent.click(editBtn);
 
@@ -742,6 +766,236 @@ describe('StashView', () => {
     expect(updatedPayload.frozenDate).toBeUndefined();
     expect(updatedPayload.roastDate).not.toBe(fortyDaysAgo);
     expect(new Date(updatedPayload.roastDate).getTime()).toBeGreaterThan(new Date(fortyDaysAgo).getTime());
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('computes CellarSummaryBar metrics strictly from active non-frozen non-archived beans', () => {
+    const peakDate = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const mixedBeans: Bean[] = [
+      { ...MOCK_BEANS[0], id: 'a1', remainingGrams: 120, roastDate: peakDate },
+      { ...MOCK_BEANS[1], id: 'a2', remainingGrams: undefined, bagWeightGrams: 250 },
+      { ...MOCK_BEANS[0], id: 'a3', remainingGrams: 0, bagWeightGrams: 250, roastDate: '2025-01-01' },
+      { ...MOCK_BEANS[0], id: 'f1', isFrozen: true, remainingGrams: 500, roastDate: peakDate },
+      { ...MOCK_BEANS[0], id: 'ar1', isArchived: true, remainingGrams: 300, roastDate: peakDate },
+    ];
+
+    render(
+      <StashView
+        beans={mixedBeans}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    const summary = screen.getByTestId('cellar-summary-bar');
+    expect(summary.getAttribute('aria-label')).toBe(
+      'Cellar summary: 3 active bags, 1 at peak, 370g total stash'
+    );
+  });
+
+  it('partitions beans into shelves and renders shelf-specific empty states', () => {
+    const activeOnly: Bean[] = [MOCK_BEANS[0]];
+    render(
+      <StashView
+        beans={activeOnly}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('Worka Sakaro')).toBeDefined();
+
+    fireEvent.click(screen.getByRole('tab', { name: /Freezer Vault/i }));
+    expect(screen.getByText('Freezer Vault is Empty')).toBeDefined();
+
+    fireEvent.click(screen.getByRole('tab', { name: /Archived/i }));
+    expect(screen.getByText('No Archived Coffees')).toBeDefined();
+  });
+
+  it('renders Cellar is Empty state with CTA when active shelf is empty', () => {
+    render(
+      <StashView
+        beans={[]}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('Cellar is Empty')).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: /Add your first bean/i }));
+    expect(screen.getByRole('dialog')).toBeDefined();
+  });
+
+  it('hides FilterPills when active shelf only has non-mobile or undefined processes', () => {
+    const nonMobileBeans: Bean[] = [
+      { ...MOCK_BEANS[0], id: 'c1', name: 'Carbonic Lot', process: 'carbonic-maceration' },
+      { ...MOCK_BEANS[0], id: 'c2', name: 'Unknown Process Lot', process: undefined },
+    ];
+
+    render(
+      <StashView
+        beans={nonMobileBeans}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    expect(screen.getByRole('tablist', { name: 'Shelf selector' })).toBeDefined();
+    expect(screen.queryByRole('group', { name: 'Filter by process method' })).toBeNull();
+    expect(screen.getByText('Carbonic Lot')).toBeDefined();
+    expect(screen.getByText('Unknown Process Lot')).toBeDefined();
+  });
+
+  it('resets selectedProcess to all when switching to a shelf without that process', () => {
+    const beansAcrossShelves: Bean[] = [
+      { ...MOCK_BEANS[0], id: 'active-washed', name: 'Active Washed', process: 'washed' },
+      { ...MOCK_BEANS[2], id: 'frozen-natural', name: 'Frozen Natural', process: 'natural', isFrozen: true },
+    ];
+
+    render(
+      <StashView
+        beans={beansAcrossShelves}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Washed' }));
+    expect(screen.getByText('Active Washed')).toBeDefined();
+
+    fireEvent.click(screen.getByRole('tab', { name: /Freezer Vault/i }));
+    expect(screen.getByText('Frozen Natural')).toBeDefined();
+    expect(screen.getByRole('button', { name: 'All' }).getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('supports arrow-key focus navigation across shelf tabs and process pills', () => {
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    const activeTab = screen.getByRole('tab', { name: /Active Cellar/i });
+    const frozenTab = screen.getByRole('tab', { name: /Freezer Vault/i });
+    activeTab.focus();
+    fireEvent.keyDown(activeTab, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(frozenTab);
+
+    const allPill = screen.getByRole('button', { name: 'All' });
+    const washedPill = screen.getByRole('button', { name: 'Washed' });
+    allPill.focus();
+    fireEvent.keyDown(allPill, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(washedPill);
+  });
+
+  it('clears search input via clear button and matches flavor notes, farm, and variety', () => {
+    const richBeans: Bean[] = [
+      {
+        ...MOCK_BEANS[0],
+        farm: 'Worka Washing Station',
+        variety: ['Kurume', 'Dega'],
+      },
+      MOCK_BEANS[1],
+    ];
+    render(
+      <StashView
+        beans={richBeans}
+        onAddBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    const searchInput = screen.getByPlaceholderText(/Search by coffee name/i) as HTMLInputElement;
+
+    // Flavor note match
+    fireEvent.change(searchInput, { target: { value: 'Bergamot' } });
+    expect(screen.getByText('Worka Sakaro')).toBeDefined();
+    expect(screen.queryByText('El Paraiso Lychee')).toBeNull();
+
+    // Farm match
+    fireEvent.change(searchInput, { target: { value: 'Worka Washing' } });
+    expect(screen.getByText('Worka Sakaro')).toBeDefined();
+    expect(screen.queryByText('El Paraiso Lychee')).toBeNull();
+
+    // Variety match
+    fireEvent.change(searchInput, { target: { value: 'Kurume' } });
+    expect(screen.getByText('Worka Sakaro')).toBeDefined();
+    expect(screen.queryByText('El Paraiso Lychee')).toBeNull();
+
+    const clearBtn = screen.getByRole('button', { name: 'Clear search' });
+    fireEvent.click(clearBtn);
+    expect(searchInput.value).toBe('');
+    expect(screen.getByText('El Paraiso Lychee')).toBeDefined();
+  });
+
+  it('shows Archive Bean checkbox only in edit mode and moves beans across shelves and summary bar on archive, unarchive, and freeze', async () => {
+    const StatefulStashWrapper = () => {
+      const [items, setItems] = React.useState<Bean[]>([MOCK_BEANS[0], MOCK_BEANS[1]]);
+      return (
+        <StashView
+          beans={items}
+          onAddBean={(b) => setItems((prev) => [b, ...prev])}
+          onUpdateBean={(updated) =>
+            setItems((prev) => prev.map((b) => (b.id === updated.id ? updated : b)))
+          }
+          onSelectBeanForBrew={vi.fn()}
+        />
+      );
+    };
+
+    render(<StatefulStashWrapper />);
+
+    // Initially 2 active bags (MOCK_BEANS[0] at peak, 250g + 200g = 450g)
+    expect(screen.getByTestId('cellar-summary-bar').getAttribute('aria-label')).toBe(
+      'Cellar summary: 2 active bags, 1 at peak, 450g total stash'
+    );
+
+    // Add mode does not render Archive checkbox
+    fireEvent.click(screen.getByRole('button', { name: /ADD BEAN/i }));
+    expect(screen.queryByLabelText(/Archive Bean/i)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /Cancel/i }));
+
+    // Edit Worka Sakaro -> Archive it
+    fireEvent.click(screen.getByRole('button', { name: `Edit ${MOCK_BEANS[0].name}` }));
+    const archiveCheckbox = screen.getByLabelText(/Archive Bean/i) as HTMLInputElement;
+    expect(archiveCheckbox.checked).toBe(false);
+    fireEvent.click(archiveCheckbox);
+    fireEvent.click(screen.getByRole('button', { name: /SAVE CHANGES/i }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+
+    // Leaves Active Cellar & updates summary bar (1 active bag, 0 at peak, 200g)
+    expect(screen.queryByText(MOCK_BEANS[0].name)).toBeNull();
+    expect(screen.getByTestId('cellar-summary-bar').getAttribute('aria-label')).toBe(
+      'Cellar summary: 1 active bags, 0 at peak, 200g total stash'
+    );
+
+    // Appears in Archived shelf; unarchive it back to Active Cellar
+    fireEvent.click(screen.getByRole('tab', { name: /Archived/i }));
+    expect(screen.getByText(MOCK_BEANS[0].name)).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: `Edit ${MOCK_BEANS[0].name}` }));
+    fireEvent.click(screen.getByLabelText(/Archive Bean/i));
+    fireEvent.click(screen.getByRole('button', { name: /SAVE CHANGES/i }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(screen.getByText('No Archived Coffees')).toBeDefined();
+
+    // Return to Active Cellar and freeze El Paraiso Lychee -> moves to Freezer Vault & updates summary bar
+    fireEvent.click(screen.getByRole('tab', { name: /Active Cellar/i }));
+    expect(screen.getByText(MOCK_BEANS[0].name)).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: `Edit ${MOCK_BEANS[1].name}` }));
+    fireEvent.click(screen.getByLabelText(/Freezer Vault Storage/i));
+    fireEvent.click(screen.getByRole('button', { name: /SAVE CHANGES/i }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+
+    expect(screen.queryByText(MOCK_BEANS[1].name)).toBeNull();
+    expect(screen.getByTestId('cellar-summary-bar').getAttribute('aria-label')).toBe(
+      'Cellar summary: 1 active bags, 1 at peak, 250g total stash'
+    );
+    fireEvent.click(screen.getByRole('tab', { name: /Freezer Vault/i }));
+    expect(screen.getByText(MOCK_BEANS[1].name)).toBeDefined();
   });
 });
 

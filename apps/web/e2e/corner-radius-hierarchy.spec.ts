@@ -67,15 +67,21 @@ test.describe("Design System Corner Radius Hierarchy", () => {
     );
   });
 
-  test("Stash: bean cards, modals, nested resting sub-panel, inputs, and static tags match hierarchy", async ({ page }) => {
+  test("Stash: summary bar, shelves, process pills, bean cards, modals, nested resting sub-panel, inputs, and static tags match hierarchy", async ({ page }) => {
     await page.goto("/stash");
 
+    const summaryBar = page.getByTestId("cellar-summary-bar");
     const searchInput = page.getByPlaceholder(/search by coffee name/i);
-    const processSelect = page.getByRole("combobox");
+    const shelfTrack = page.getByTestId("stash-shelf-selector");
+    const activeShelfThumb = page.getByRole("tab", { name: "Active Cellar" });
+    const allProcessPill = page.getByRole("group", { name: "Filter by process method" }).getByRole("button", { name: "All" });
     const editBtn = page.getByRole("button", { name: /^Edit /i }).first();
 
+    await expectBorderRadius(summaryBar, RADIUS_XL, "Stash cellar summary bar");
     await expectBorderRadius(searchInput, RADIUS_LG, "Stash search input");
-    await expectBorderRadius(processSelect, RADIUS_LG, "Stash process select");
+    await expectBorderRadius(shelfTrack, RADIUS_LG, "Stash shelf segmented track");
+    await expectBorderRadius(activeShelfThumb, RADIUS_MD, "Stash Active Cellar segmented thumb");
+    await expectBorderRadius(allProcessPill, RADIUS_LG, "Stash All process filter pill");
     await expectBorderRadius(editBtn, RADIUS_LG, "Stash EDIT button");
 
     const beanCard = page.getByTestId("stash-bean-card").first();

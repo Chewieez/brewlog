@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '@brewlog/ui';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Button, SegmentedControl, FilterPills } from '@brewlog/ui';
 import {
   Bean,
   ProcessMethod,
@@ -7,8 +7,33 @@ import {
   calculateBeanRestingInfo,
   offsetRoastDateForThaw,
 } from '@brewlog/core';
-import { Plus, Search, Star, Calendar, MapPin, Snowflake, X } from 'lucide-react';
+import { Plus, Search, Star, Calendar, MapPin, Snowflake, X, Archive, Coffee } from 'lucide-react';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
+import { CellarSummaryBar } from './CellarSummaryBar';
+
+export type ShelfType = 'active' | 'frozen' | 'archived';
+export type ProcessFilter = 'all' | 'washed' | 'natural' | 'honey' | 'anaerobic';
+
+const SHELVES: { id: ShelfType; label: string }[] = [
+  { id: 'active', label: 'Active Cellar' },
+  { id: 'frozen', label: 'Freezer Vault' },
+  { id: 'archived', label: 'Archived' },
+];
+
+const MOBILE_PROCESS_FILTERS: { id: Exclude<ProcessFilter, 'all'>; label: string }[] = [
+  { id: 'washed', label: 'Washed' },
+  { id: 'natural', label: 'Natural' },
+  { id: 'honey', label: 'Honey' },
+  { id: 'anaerobic', label: 'Anaerobic' },
+];
+
+function matchesProcessFilter(bean: Bean, filter: Exclude<ProcessFilter, 'all'>): boolean {
+  const proc = bean.process?.toLowerCase() ?? '';
+  if (filter === 'anaerobic') {
+    return proc === 'anaerobic' || proc.includes('anaerobic');
+  }
+  return proc === filter;
+}
 
 interface StashViewProps {
   beans: Bean[];
@@ -52,7 +77,8 @@ export const StashView: React.FC<StashViewProps> = ({
   onSelectBeanForBrew,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedProcess, setSelectedProcess] = useState<string>('all');
+  const [activeShelf, setActiveShelf] = useState<ShelfType>('active');
+  const [selectedProcess, setSelectedProcess] = useState<ProcessFilter>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBean, setEditingBean] = useState<Bean | null>(null);
 
@@ -71,6 +97,7 @@ export const StashView: React.FC<StashViewProps> = ({
   const [bagWeightGrams, setBagWeightGrams] = useState<number | ''>(340);
   const [remainingGrams, setRemainingGrams] = useState<number | ''>(340);
   const [isFrozen, setIsFrozen] = useState(false);
+  const [isArchived, setIsArchived] = useState(false);
   const [flavorNotesStr, setFlavorNotesStr] = useState('');
   const [price, setPrice] = useState<number | ''>('');
   const [notes, setNotes] = useState('');
@@ -108,6 +135,7 @@ export const StashView: React.FC<StashViewProps> = ({
     setBagWeightGrams(340);
     setRemainingGrams(340);
     setIsFrozen(false);
+    setIsArchived(false);
     setFlavorNotesStr('');
     setPrice('');
     setNotes('');
@@ -138,6 +166,7 @@ export const StashView: React.FC<StashViewProps> = ({
     setBagWeightGrams(bean.bagWeightGrams ?? 340);
     setRemainingGrams(bean.remainingGrams ?? 340);
     setIsFrozen(Boolean(bean.isFrozen));
+    setIsArchived(Boolean(bean.isArchived));
     setFlavorNotesStr(bean.flavorNotes ? bean.flavorNotes.join(', ') : '');
     setPrice(bean.price ?? '');
     setNotes(bean.notes ?? '');
@@ -149,15 +178,98 @@ export const StashView: React.FC<StashViewProps> = ({
     setRemainingGrams(grams);
   };
 
-  const filteredBeans = beans.filter((b) => {
-    const matchesSearch =
-      b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.roaster.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (b.originCountry || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (b.region || '').toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesProcess = selectedProcess === 'all' || b.process === selectedProcess;
-    return matchesSearch && matchesProcess;
-  });
+  const activeBeans = useMemo(
+    () => beans.filter((b) => !b.isArchived && !b.isFrozen),
+    [beans]
+  );
+
+  const frozenBeans = useMemo(
+    () => beans.filter((b) => !b.isArchived && Boolean(b.isFrozen)),
+    [beans]
+  );
+
+  const archivedBeans = useMemo(
+    () => beans.filter((b) => Boolean(b.isArchived)),
+    [beans]
+  );
+
+  const summaryMetrics = useMemo(() => {
+    const totalBags = activeBeans.length;
+    const peakBags = activeBeans.filter(
+      (b) => calculateBeanRestingInfo(b).status === 'peak'
+    ).length;
+    const totalRemainingGrams = activeBeans.reduce(
+      (sum, b) => sum + (b.remainingGrams ?? b.bagWeightGrams ?? 0),
+      0
+    );
+    return { totalBags, peakBags, totalRemainingGrams };
+  }, [activeBeans]);
+
+  const currentShelfBeans = useMemo(() => {
+    switch (activeShelf) {
+      case 'frozen':
+        return frozenBeans;
+      case 'archived':
+        return archivedBeans;
+      case 'active':
+      default:
+        return activeBeans;
+    }
+  }, [activeShelf, activeBeans, frozenBeans, archivedBeans]);
+
+  const availableProcessOptions = useMemo(() => {
+    const present = MOBILE_PROCESS_FILTERS.filter((proc) =>
+      currentShelfBeans.some((bean) => matchesProcessFilter(bean, proc.id))
+    );
+    return [
+      { value: 'all' as ProcessFilter, label: 'All' },
+      ...present.map((proc) => ({
+        value: proc.id as ProcessFilter,
+        label: proc.label,
+      })),
+    ];
+  }, [currentShelfBeans]);
+
+  useEffect(() => {
+    if (
+      selectedProcess !== 'all' &&
+      !availableProcessOptions.some((opt) => opt.value === selectedProcess)
+    ) {
+      setSelectedProcess('all');
+    }
+  }, [availableProcessOptions, selectedProcess]);
+
+  const filteredBeans = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return currentShelfBeans.filter((b) => {
+      if (selectedProcess !== 'all' && !matchesProcessFilter(b, selectedProcess)) {
+        return false;
+      }
+
+      if (!q) return true;
+
+      const matchesName = b.name.toLowerCase().includes(q);
+      const matchesRoaster = b.roaster.toLowerCase().includes(q);
+      const matchesOrigin = (b.originCountry || '').toLowerCase().includes(q);
+      const matchesRegion = (b.region || '').toLowerCase().includes(q);
+      const matchesFarm = (b.farm || '').toLowerCase().includes(q);
+      const matchesNotes =
+        b.flavorNotes?.some((n) => n.toLowerCase().includes(q)) ?? false;
+      const matchesVariety = Array.isArray(b.variety)
+        ? b.variety.some((v) => v.toLowerCase().includes(q))
+        : false;
+
+      return (
+        matchesName ||
+        matchesRoaster ||
+        matchesOrigin ||
+        matchesRegion ||
+        matchesFarm ||
+        matchesNotes ||
+        matchesVariety
+      );
+    });
+  }, [currentShelfBeans, selectedProcess, searchQuery]);
 
   const handleSubmitBean = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,7 +315,7 @@ export const StashView: React.FC<StashViewProps> = ({
       notes: notes.trim() || undefined,
       rating: editingBean?.rating,
       isFavorite: editingBean?.isFavorite ?? false,
-      isArchived: editingBean?.isArchived ?? false,
+      isArchived,
       createdAt: editingBean ? editingBean.createdAt : new Date().toISOString(),
     };
 
@@ -266,6 +378,83 @@ export const StashView: React.FC<StashViewProps> = ({
     }
   };
 
+  const renderEmptyState = () => {
+    if (searchQuery.trim().length > 0 || selectedProcess !== 'all') {
+      return (
+        <div className="p-8 rounded-xl bg-panel border border-dashed border-border-subtle text-center flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-panel-recessed border border-border-subtle flex items-center justify-center">
+            <Search className="w-5 h-5 text-foreground-muted" />
+          </div>
+          <p className="text-xs text-foreground-muted font-mono">
+            No coffee beans found matching your search.
+          </p>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              setSearchQuery('');
+              setSelectedProcess('all');
+            }}
+            label="CLEAR FILTERS"
+          />
+        </div>
+      );
+    }
+
+    if (activeShelf === 'frozen') {
+      return (
+        <div className="p-8 rounded-xl bg-panel border border-dashed border-border-subtle text-center flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-panel-recessed border border-border-subtle flex items-center justify-center">
+            <Snowflake className="w-5 h-5 text-accent" />
+          </div>
+          <div className="space-y-1">
+            <h2 className="text-sm font-bold text-foreground">Freezer Vault is Empty</h2>
+            <p className="text-xs text-foreground-muted max-w-sm">
+              Freeze coffees at their peak resting window to preserve freshness and halt oxidation.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeShelf === 'archived') {
+      return (
+        <div className="p-8 rounded-xl bg-panel border border-dashed border-border-subtle text-center flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-panel-recessed border border-border-subtle flex items-center justify-center">
+            <Archive className="w-5 h-5 text-foreground-muted" />
+          </div>
+          <div className="space-y-1">
+            <h2 className="text-sm font-bold text-foreground">No Archived Coffees</h2>
+            <p className="text-xs text-foreground-muted max-w-sm">
+              Finished bags and past coffees you archive will be preserved here for reference.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="p-8 rounded-xl bg-panel border border-dashed border-border-subtle text-center flex flex-col items-center gap-3">
+        <div className="w-12 h-12 rounded-full bg-panel-recessed border border-border-subtle flex items-center justify-center">
+          <Coffee className="w-5 h-5 text-accent" />
+        </div>
+        <div className="space-y-1">
+          <h2 className="text-sm font-bold text-foreground">Cellar is Empty</h2>
+          <p className="text-xs text-foreground-muted max-w-sm">
+            Add a bag of coffee to track roast date, resting curve, and remaining gram weight.
+          </p>
+        </div>
+        <Button
+          variant="primary"
+          size="sm"
+          icon={<Plus className="w-4 h-4" />}
+          onClick={handleOpenAddModal}
+          label="ADD YOUR FIRST BEAN"
+        />
+      </div>
+    );
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Top Header */}
@@ -286,38 +475,66 @@ export const StashView: React.FC<StashViewProps> = ({
         />
       </div>
 
-      {/* Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
+      {/* Cellar Metrics Summary */}
+      <CellarSummaryBar
+        totalBags={summaryMetrics.totalBags}
+        peakBags={summaryMetrics.peakBags}
+        totalRemainingGrams={summaryMetrics.totalRemainingGrams}
+      />
+
+      {/* Search, Shelf Selector & Process Filters */}
+      <div className="space-y-3">
+        <div className="relative">
           <Search className="absolute left-3.5 top-3 w-4 h-4 text-foreground-muted" />
           <input
             type="text"
             placeholder="Search by coffee name, roaster, or country..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-panel border border-border-subtle text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent/60 transition-colors"
+            aria-label="Search coffees"
+            className="w-full pl-10 pr-10 py-2.5 rounded-lg bg-panel border border-border-subtle text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent/60 transition-colors"
           />
+          {searchQuery.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              aria-label="Clear search"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
-        <select
-          value={selectedProcess}
-          onChange={(e) => setSelectedProcess(e.target.value)}
-          className="px-3.5 py-2.5 rounded-lg bg-panel border border-border-subtle text-sm text-foreground focus:outline-none focus:border-accent/60 transition-colors cursor-pointer"
-        >
-          <option value="all" className="bg-panel text-foreground">All Processes</option>
-          {PROCESS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value} className="bg-panel text-foreground">
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        <SegmentedControl<ShelfType>
+          fullWidth
+          size="sm"
+          role="tablist"
+          value={activeShelf}
+          onChange={setActiveShelf}
+          ariaLabel="Shelf selector"
+          testID="stash-shelf-selector"
+          options={SHELVES.map((shelf) => ({
+            value: shelf.id,
+            label: shelf.label,
+          }))}
+        />
+
+        {availableProcessOptions.length > 1 && (
+          <FilterPills<ProcessFilter>
+            size="sm"
+            value={selectedProcess}
+            onChange={setSelectedProcess}
+            options={availableProcessOptions}
+            ariaLabel="Filter by process method"
+            testID="stash-process-filters"
+          />
+        )}
       </div>
 
       {/* Beans Grid */}
       {filteredBeans.length === 0 ? (
-        <div className="p-8 rounded-xl bg-panel border border-dashed border-border-subtle text-center text-xs text-foreground-muted font-mono">
-          No coffee beans found matching your search.
-        </div>
+        renderEmptyState()
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredBeans.map((bean) => {
@@ -790,6 +1007,29 @@ export const StashView: React.FC<StashViewProps> = ({
                     </div>
                   </div>
                 </label>
+
+                {editingBean && (
+                  <label htmlFor="add-bean-is-archived" className="flex items-center space-x-3 p-3 rounded-lg bg-panel-recessed border border-border-subtle cursor-pointer hover:border-accent/40 transition-colors">
+                    <input
+                      id="add-bean-is-archived"
+                      type="checkbox"
+                      checked={isArchived}
+                      onChange={(e) => setIsArchived(e.target.checked)}
+                      className="w-4 h-4 rounded text-accent focus:ring-accent bg-panel border-border-subtle"
+                    />
+                    <div className="flex items-center space-x-2">
+                      <Archive className={`w-4 h-4 ${isArchived ? 'text-accent' : 'text-foreground-muted'}`} />
+                      <div>
+                        <span className="block text-xs font-bold text-foreground uppercase font-mono">
+                          Archive Bean
+                        </span>
+                        <span className="block text-[11px] text-foreground-secondary">
+                          Move finished or past coffees out of the active cellar into the Archived shelf.
+                        </span>
+                      </div>
+                    </div>
+                  </label>
+                )}
               </div>
 
               {/* Section 5: Tasting Notes & Price */}
