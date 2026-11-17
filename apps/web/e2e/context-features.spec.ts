@@ -87,25 +87,73 @@ test.describe("Core Web App End-to-End Context Flows", () => {
     }
   });
 
-  test("Stash: adds a new coffee bean and renders it in stash list", async ({ page }) => {
+  test("Stash: adds a new coffee bean, updates summary metrics, filters by process pills, switches shelves, and archives a bean", async ({ page }) => {
     await page.goto("/stash");
     await expect(page.getByRole("heading", { name: /stash/i })).toBeVisible();
+    const summaryBar = page.getByTestId("cellar-summary-bar");
+    await expect(summaryBar).toBeVisible();
+    await expect(summaryBar.getByText("ACTIVE BAGS")).toBeVisible();
+    await expect(summaryBar.getByText("AT PEAK")).toBeVisible();
+    await expect(summaryBar.getByText("TOTAL STASH")).toBeVisible();
+    await expect(summaryBar).toHaveAttribute(
+      "aria-label",
+      "Cellar summary: 1 active bags, 1 at peak, 180g total stash"
+    );
 
     // Open Add Bean modal
     await page.getByRole("button", { name: /add bean/i }).click();
     await expect(page.getByRole("heading", { name: "Add New Whole Bean" })).toBeVisible();
 
-    // Fill form
+    // Fill form (defaults to washed process and 340g remaining)
     await page.locator("#add-bean-roaster").fill("Onyx Coffee Lab");
     await page.locator("#add-bean-name").fill("Tropical Weather");
 
     // Save
     await page.getByRole("button", { name: "SAVE BEAN" }).click();
 
-    // Verify modal closes and item is present in list
+    // Verify modal closes, item is present, and summary bar increments
     await expect(page.getByRole("heading", { name: "Add New Whole Bean" })).not.toBeVisible();
     await expect(page.getByText("Tropical Weather").first()).toBeVisible();
     await expect(page.getByText("Onyx Coffee Lab").first()).toBeVisible();
+    await expect(summaryBar).toHaveAttribute(
+      "aria-label",
+      "Cellar summary: 2 active bags, 1 at peak, 520g total stash"
+    );
+
+    // Dynamic process pills include All, Washed, Anaerobic (not Honey)
+    const filterGroup = page.getByRole("group", { name: "Filter by process method" });
+    await expect(filterGroup.getByRole("button", { name: "All" })).toBeVisible();
+    await expect(filterGroup.getByRole("button", { name: "Washed" })).toBeVisible();
+    await expect(filterGroup.getByRole("button", { name: "Anaerobic" })).toBeVisible();
+    await expect(filterGroup.getByRole("button", { name: "Honey" })).not.toBeVisible();
+
+    await filterGroup.getByRole("button", { name: "Washed" }).click();
+    await expect(page.getByText("Tropical Weather")).toBeVisible();
+    await expect(page.getByText("Worka Sakaro Anaerobic")).not.toBeVisible();
+
+    // Search mismatch triggers CLEAR FILTERS recovery
+    await page.getByLabel("Search coffees").fill("NoSuchLot");
+    await expect(page.getByText(/No coffee beans found matching your search/i)).toBeVisible();
+    await page.getByRole("button", { name: "CLEAR FILTERS" }).click();
+    await expect(page.getByText("Worka Sakaro Anaerobic")).toBeVisible();
+
+    // Switch to Freezer Vault and verify empty state
+    await page.getByRole("tab", { name: "Freezer Vault" }).click();
+    await expect(page.getByText("Freezer Vault is Empty")).toBeVisible();
+
+    // Switch back to Active Cellar, archive Tropical Weather, and verify it moves to Archived and updates summary bar
+    await page.getByRole("tab", { name: "Active Cellar" }).click();
+    await page.getByRole("button", { name: "Edit Tropical Weather" }).click();
+    await page.locator("#add-bean-is-archived").check();
+    await page.getByRole("button", { name: "SAVE CHANGES" }).click();
+
+    await expect(page.getByText("Tropical Weather")).not.toBeVisible();
+    await expect(summaryBar).toHaveAttribute(
+      "aria-label",
+      "Cellar summary: 1 active bags, 1 at peak, 180g total stash"
+    );
+    await page.getByRole("tab", { name: "Archived" }).click();
+    await expect(page.getByText("Tropical Weather")).toBeVisible();
   });
 
   test("Equipment: adds new equipment and verifies card display", async ({ page }) => {

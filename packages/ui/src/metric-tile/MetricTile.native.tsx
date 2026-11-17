@@ -20,6 +20,7 @@ export const MetricTile: React.FC<MetricTileProps> = ({
     isSm ? styles.smValue : isLg ? styles.lgValue : styles.mdValue,
     variant === 'accent' && styles.accentValue,
     variant === 'muted' && styles.mutedValue,
+    variant === 'success' && styles.successValue,
   ];
 
   return (
@@ -59,6 +60,7 @@ const useStyles = makeStyles((colors) => ({
   lgValue: { fontSize: 32 },
   accentValue: { color: colors.accent },
   mutedValue: { color: colors.foregroundMuted },
+  successValue: { color: colors.statusSuccess },
   unit: {
     fontFamily: 'Outfit_300Light',
     fontSize: 14,

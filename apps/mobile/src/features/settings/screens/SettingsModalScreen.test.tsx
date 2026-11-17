@@ -321,7 +321,7 @@ describe('SettingsModalScreen', () => {
     expect(resetToDefaultsMock).toHaveBeenCalled();
   });
 
-  it('exposes accessibilityState selected on active and inactive segmented controls', () => {
+  it('exposes pressed state on active and inactive segmented controls', () => {
     const { getByLabelText } = render(
       <SettingsProvider>
         <SettingsModalScreen />
@@ -329,14 +329,14 @@ describe('SettingsModalScreen', () => {
     );
 
     // Default: metric, celsius, free_brew
-    expect(getByLabelText('Metric grams').getAttribute('aria-selected')).toBe('true');
-    expect(getByLabelText('Imperial ounces').getAttribute('aria-selected')).toBe('false');
+    expect(getByLabelText('Metric grams').getAttribute('aria-pressed')).toBe('true');
+    expect(getByLabelText('Imperial ounces').getAttribute('aria-pressed')).toBe('false');
 
-    expect(getByLabelText('Celsius degrees').getAttribute('aria-selected')).toBe('true');
-    expect(getByLabelText('Fahrenheit degrees').getAttribute('aria-selected')).toBe('false');
+    expect(getByLabelText('Celsius degrees').getAttribute('aria-pressed')).toBe('true');
+    expect(getByLabelText('Fahrenheit degrees').getAttribute('aria-pressed')).toBe('false');
 
-    expect(getByLabelText('Free brew mode').getAttribute('aria-selected')).toBe('true');
-    expect(getByLabelText('Guided recipe mode').getAttribute('aria-selected')).toBe('false');
+    expect(getByLabelText('Free brew mode').getAttribute('aria-pressed')).toBe('true');
+    expect(getByLabelText('Guided recipe mode').getAttribute('aria-pressed')).toBe('false');
   });
 
   it('renders theme preference options and updates theme setting on press', () => {
@@ -358,9 +358,9 @@ describe('SettingsModalScreen', () => {
     const darkBtn = getByLabelText('Dark theme');
     const lightBtn = getByLabelText('Light theme');
 
-    expect(systemBtn.getAttribute('aria-selected')).toBe('true');
-    expect(darkBtn.getAttribute('aria-selected')).toBe('false');
-    expect(lightBtn.getAttribute('aria-selected')).toBe('false');
+    expect(systemBtn.getAttribute('aria-pressed')).toBe('true');
+    expect(darkBtn.getAttribute('aria-pressed')).toBe('false');
+    expect(lightBtn.getAttribute('aria-pressed')).toBe('false');
 
     fireEvent.press(darkBtn);
     expect(Haptics.selectionAsync).toHaveBeenCalled();

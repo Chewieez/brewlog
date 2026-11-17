@@ -19,10 +19,11 @@ export const MetricTile: React.FC<MetricTileProps> = ({
     default: 'text-foreground',
     accent: 'text-accent',
     muted: 'text-foreground-muted',
+    success: 'text-status-success',
   }[variant];
 
   return (
-    <div data-testid={testID} className="flex flex-col">
+    <div data-testid={testID} className="flex flex-col justify-between h-full">
       <span className="text-[10px] font-mono tracking-widest text-foreground-muted uppercase">
         {label}
       </span>
