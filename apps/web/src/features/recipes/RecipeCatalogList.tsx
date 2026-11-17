@@ -71,6 +71,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
             return (
               <div
                 key={r.id}
+                data-testid="recipe-catalog-card"
                 className={`p-4 rounded-xl border transition-all duration-200 relative group overflow-hidden ${
                   isSelected
                     ? 'bg-panel-recessed border-border-active'

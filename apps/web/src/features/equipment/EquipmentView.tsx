@@ -160,6 +160,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
   const renderCard = (item: Equipment) => (
     <div
       key={item.id}
+      data-testid="equipment-card"
       onClick={() => handleOpenEditModal(item)}
       className="relative group p-4 rounded-xl bg-panel border border-border-subtle hover:border-border-active transition-colors shadow-sm cursor-pointer"
     >
@@ -169,12 +170,18 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
         </span>
         <div className="flex items-center space-x-2">
           {item.settingScaleType && (
-            <span className="btn-tactile-secondary px-2 py-0.5 rounded-md text-[10px] font-mono text-foreground-secondary">
+            <span
+              data-testid="equipment-badge"
+              className="btn-tactile-secondary px-2 py-0.5 rounded-md text-[10px] font-mono text-foreground-secondary"
+            >
               {item.settingScaleType}
             </span>
           )}
           {item.subType && (
-            <span className="btn-tactile-secondary px-2 py-0.5 rounded-md text-[10px] font-mono text-foreground-secondary">
+            <span
+              data-testid="equipment-badge"
+              className="btn-tactile-secondary px-2 py-0.5 rounded-md text-[10px] font-mono text-foreground-secondary"
+            >
               {item.subType}
             </span>
           )}
@@ -372,7 +379,10 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
           </div>
 
           {other.length === 0 ? (
-            <div className="p-6 rounded-xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-foreground-muted">
+            <div
+              data-testid="equipment-empty-state"
+              className="p-6 rounded-xl bg-panel/50 border border-dashed border-border-subtle text-center text-xs text-foreground-muted"
+            >
               {searchQuery
                 ? "No other equipment matching your search."
                 : "No other equipment logged yet. Add accessories, WDT tools, or custom gear."}
@@ -398,7 +408,10 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
             }
           }}
         >
-          <div className="w-full max-w-md p-6 rounded-xl bg-panel border border-border-subtle shadow-2xl space-y-4">
+          <div
+            data-testid="equipment-modal"
+            className="w-full max-w-md p-6 rounded-xl bg-panel border border-border-subtle shadow-2xl space-y-4"
+          >
             <div className="flex items-center justify-between pb-1 border-b border-border-subtle">
               <h3 id="equipment-modal-title" className="text-lg font-bold text-foreground">
                 {editingEquipment ? "Edit Equipment" : "Add Equipment"}

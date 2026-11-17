@@ -133,4 +133,17 @@ describe("WebRatioTranslator", () => {
     vi.advanceTimersByTime(2500);
     vi.useRealTimers();
   });
+
+  it("uses rounded-xl container and toggle concentric with rounded-lg inputs inside", () => {
+    render(<WebRatioTranslator currentDose={18} onApplyDose={vi.fn()} />);
+
+    const card = screen.getByTestId("ratio-translator-card");
+    const toggle = screen.getByRole("button", { name: /ratio calculator/i });
+    expect(card.className).toContain("rounded-xl");
+    expect(toggle.className).toContain("rounded-xl");
+
+    fireEvent.click(toggle);
+    expect(toggle.className).toContain("rounded-t-xl");
+    expect(screen.getByLabelText(/source coffee/i).className).toContain("rounded-lg");
+  });
 });

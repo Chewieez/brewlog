@@ -326,6 +326,7 @@ export const StashView: React.FC<StashViewProps> = ({
             return (
               <div
                 key={bean.id}
+                data-testid="stash-bean-card"
                 className="p-5 rounded-xl bg-panel border border-border-subtle hover:border-border-active transition-all duration-200 flex flex-col justify-between group shadow-sm"
               >
                 <div>
@@ -382,7 +383,10 @@ export const StashView: React.FC<StashViewProps> = ({
                   </div>
 
                   {/* Resting Status Badge */}
-                  <div className="mt-4 p-2.5 rounded-lg bg-panel-recessed border border-border-subtle flex items-center justify-between">
+                  <div
+                    data-testid="stash-resting-panel"
+                    className="mt-4 p-2.5 rounded-lg bg-panel-recessed border border-border-subtle flex items-center justify-between"
+                  >
                     <div className="flex items-center space-x-2 tabular-nums text-xs font-mono">
                       {bean.isFrozen ? (
                         <Snowflake className="w-3.5 h-3.5 text-sky-500" />
@@ -405,6 +409,7 @@ export const StashView: React.FC<StashViewProps> = ({
                       </span>
                     </div>
                     <span
+                      data-testid="stash-resting-badge"
                       className={`text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-md ${getRestingStatusBadgeClass(
                         restInfo.status,
                         Boolean(bean.isFrozen),
@@ -478,7 +483,10 @@ export const StashView: React.FC<StashViewProps> = ({
             }
           }}
         >
-          <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 rounded-xl bg-panel border border-border-subtle shadow-2xl space-y-4">
+          <div
+            data-testid="stash-bean-modal"
+            className="w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 rounded-xl bg-panel border border-border-subtle shadow-2xl space-y-4"
+          >
             <div className="flex items-center justify-between pb-2 border-b border-border-subtle sticky top-0 bg-panel z-10">
               <h3 id="add-bean-modal-title" className="text-lg font-bold text-foreground">
                 {editingBean ? 'Edit Coffee Bean' : 'Add New Whole Bean'}

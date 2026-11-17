@@ -232,8 +232,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         )}
 
         {needsEmailConfirmation ? (
-          <div className="p-5 rounded-xl bg-panel border border-border-subtle text-foreground space-y-4 text-center animate-fade-in">
-            <div className="w-12 h-12 rounded-xl bg-panel-recessed border border-border-subtle flex items-center justify-center mx-auto text-accent shadow-sm">
+          <div className="p-5 rounded-lg bg-panel border border-border-subtle text-foreground space-y-4 text-center animate-fade-in">
+            <div className="w-12 h-12 rounded-lg bg-panel-recessed border border-border-subtle flex items-center justify-center mx-auto text-accent shadow-sm">
               <Mail className="w-6 h-6" />
             </div>
 
@@ -277,7 +277,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           </div>
         ) : isUpdatePassword && successMsg ? (
           <div className="py-8 text-center space-y-4 animate-fade-in">
-            <div className="w-14 h-14 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto text-emerald-400 shadow-sm">
+            <div className="w-14 h-14 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto text-emerald-400 shadow-sm">
               <CheckCircle2 className="w-8 h-8" />
             </div>
             <div className="space-y-1">

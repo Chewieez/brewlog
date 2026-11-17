@@ -73,7 +73,10 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
       ];
 
   return (
-    <div className="p-6 rounded-xl bg-panel border border-border-subtle space-y-6">
+    <div
+      data-testid="recipe-detail-pane"
+      className="p-6 rounded-xl bg-panel border border-border-subtle space-y-6"
+    >
       {/* Mobile Back Button */}
       {showMobileBackButton && (
         <div className="lg:hidden pb-2 border-b border-border-subtle">
@@ -215,7 +218,10 @@ export const RecipeDetailPane: React.FC<RecipeDetailPaneProps> = ({
 
       {/* Specifications Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3 rounded-lg bg-panel border border-border-subtle flex flex-col justify-between min-w-0">
+        <div
+          data-testid="recipe-spec-tile"
+          className="p-3 rounded-lg bg-panel border border-border-subtle flex flex-col justify-between min-w-0"
+        >
           <div className="flex items-center justify-between gap-1.5 mb-1.5">
             <span className="text-[10px] text-foreground-secondary uppercase font-mono tracking-wider font-medium truncate">
               Total Water
