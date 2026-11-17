@@ -21,5 +21,8 @@ export { UiShowcase } from './showcase/UiShowcase.web';
 export * from './segmented-control/SegmentedControl.types';
 export { SegmentedControl } from './segmented-control/SegmentedControl.web';
 
+export * from './filter-pills/FilterPills.types';
+export { FilterPills } from './filter-pills/FilterPills.web';
+
 export * from './theme';
 

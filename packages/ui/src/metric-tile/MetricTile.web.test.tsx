@@ -22,4 +22,10 @@ describe('MetricTile (web)', () => {
     const value = screen.getByText('250');
     expect(value.className).toContain('text-accent');
   });
+
+  it('renders success variant in status-success color', () => {
+    render(<MetricTile label="AT PEAK" value={3} variant="success" />);
+    const value = screen.getByText('3');
+    expect(value.className).toContain('text-status-success');
+  });
 });
