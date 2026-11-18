@@ -290,4 +290,62 @@ test.describe("Core Web App End-to-End Context Flows", () => {
       await assertPreviewTiles(`${vp.label} dark+guided`, vp.requireSingleLine);
     }
   });
+
+  test("Recipes & Reviews: FilterPills support keyboard navigation and activation", async ({ page }) => {
+    const verifyFilterBar = async (
+      route: string,
+      testId: string,
+      lastLabel: string
+    ) => {
+      await page.goto(route);
+      const group = page.getByTestId(testId);
+      await expect(group).toBeVisible();
+
+      const allBtn = group.getByRole("button", { name: "All", exact: true });
+      const v60Btn = group.getByRole("button", { name: "V60", exact: true });
+      const lastBtn = group.getByRole("button", { name: lastLabel, exact: true });
+
+      await expect(allBtn).toHaveAttribute("aria-pressed", "true");
+      await allBtn.focus();
+      await expect(allBtn).toBeFocused();
+
+      await page.keyboard.press("ArrowRight");
+      await expect(v60Btn).toBeFocused();
+
+      await page.keyboard.press("End");
+      await expect(lastBtn).toBeFocused();
+
+      await page.keyboard.press("ArrowRight");
+      await expect(allBtn).toBeFocused();
+
+      await page.keyboard.press("ArrowLeft");
+      await expect(lastBtn).toBeFocused();
+
+      await page.keyboard.press("Home");
+      await expect(allBtn).toBeFocused();
+
+      await page.keyboard.press("ArrowRight");
+      await expect(v60Btn).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(v60Btn).toHaveAttribute("aria-pressed", "true");
+      await expect(allBtn).toHaveAttribute("aria-pressed", "false");
+
+      await page.keyboard.press("Home");
+      await expect(allBtn).toBeFocused();
+      await page.keyboard.press("Space");
+      await expect(allBtn).toHaveAttribute("aria-pressed", "true");
+      await expect(v60Btn).toHaveAttribute("aria-pressed", "false");
+
+      await page.keyboard.press("End");
+      await expect(lastBtn).toBeFocused();
+      await page.keyboard.press("Tab");
+      const focusedInsideGroup = await group.evaluate((el) =>
+        el.contains(document.activeElement)
+      );
+      expect(focusedInsideGroup).toBe(false);
+    };
+
+    await verifyFilterBar("/recipes", "recipe-method-filters", "Kalita Wave");
+    await verifyFilterBar("/reviews", "reviews-method-filters", "Other");
+  });
 });
