@@ -456,7 +456,50 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     expect(within(masterFeed).queryByText('Worka Sakaro')).toBeNull();
   });
 
-  it('filters cards by method filter pills', () => {
+  it('filters cards by method filter pills including the Other bucket and updates aria-pressed', () => {
+    const customLog: TastingLog = {
+      ...sampleLog1,
+      id: 'log-custom',
+      brewMethod: 'flair',
+      beanNameSnapshot: 'Flair Lever Shot',
+    };
+
+    render(
+      <ReviewsView
+        logs={[sampleLog1, sampleLog2, customLog]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const filterGroup = screen.getByRole('group', { name: 'Filter reviews by brew method' });
+    expect(filterGroup.getAttribute('data-testid')).toBe('reviews-method-filters');
+
+    const allChip = within(filterGroup).getByRole('button', { name: 'All' });
+    const aeroPressChip = within(filterGroup).getByRole('button', { name: /^AeroPress$/i });
+    const otherChip = within(filterGroup).getByRole('button', { name: 'Other' });
+
+    expect(allChip.getAttribute('aria-pressed')).toBe('true');
+    fireEvent.click(aeroPressChip);
+    expect(aeroPressChip.getAttribute('aria-pressed')).toBe('true');
+    expect(allChip.getAttribute('aria-pressed')).toBe('false');
+
+    const masterFeed = screen.getByTestId('master-feed');
+    expect(within(masterFeed).getByText('El Paraiso')).toBeDefined();
+    expect(within(masterFeed).queryByText('Worka Sakaro')).toBeNull();
+
+    fireEvent.click(otherChip);
+    expect(within(masterFeed).getByText('Flair Lever Shot')).toBeDefined();
+    expect(within(masterFeed).queryByText('El Paraiso')).toBeNull();
+
+    fireEvent.click(allChip);
+    expect(within(masterFeed).getByText('Worka Sakaro')).toBeDefined();
+    expect(within(masterFeed).getByText('El Paraiso')).toBeDefined();
+    expect(within(masterFeed).getByText('Flair Lever Shot')).toBeDefined();
+  });
+
+  it('supports arrow-key focus wrapping and preserves Tab, Enter, and Space on method FilterPills', () => {
     render(
       <ReviewsView
         logs={[sampleLog1, sampleLog2]}
@@ -466,12 +509,32 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
       />
     );
 
-    const aeroPressChip = screen.getByRole('button', { name: /^AeroPress$/i });
-    fireEvent.click(aeroPressChip);
+    const filterGroup = screen.getByTestId('reviews-method-filters');
+    const allChip = within(filterGroup).getByRole('button', { name: 'All' });
+    const v60Chip = within(filterGroup).getByRole('button', { name: 'V60' });
+    const otherChip = within(filterGroup).getByRole('button', { name: 'Other' });
 
-    const masterFeed = screen.getByTestId('master-feed');
-    expect(within(masterFeed).getByText('El Paraiso')).toBeDefined();
-    expect(within(masterFeed).queryByText('Worka Sakaro')).toBeNull();
+    allChip.focus();
+    fireEvent.keyDown(allChip, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(v60Chip);
+
+    fireEvent.keyDown(v60Chip, { key: 'End' });
+    expect(document.activeElement).toBe(otherChip);
+
+    fireEvent.keyDown(otherChip, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(allChip);
+
+    fireEvent.keyDown(allChip, { key: 'ArrowLeft' });
+    expect(document.activeElement).toBe(otherChip);
+
+    fireEvent.keyDown(otherChip, { key: 'Home' });
+    expect(document.activeElement).toBe(allChip);
+
+    for (const key of ['Tab', 'Enter', ' ']) {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      allChip.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(false);
+    }
   });
 
   it('auto-activates create mode when pendingBrewSession is passed', () => {
