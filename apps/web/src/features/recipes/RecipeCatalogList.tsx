@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router';
 import { BrewRecipe } from '@brewlog/core';
+import { FilterPills, type FilterPillsOption } from '@brewlog/ui';
 import { Trash2, Pencil } from 'lucide-react';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 
@@ -14,7 +15,15 @@ export interface RecipeCatalogListProps {
   onDeleteRecipe?: (recipe: BrewRecipe) => void;
 }
 
-const METHODS = ['all', 'v60', 'aeropress', 'flair', 'chemex', 'french-press', 'kalita-wave'] as const;
+const METHOD_FILTER_OPTIONS: FilterPillsOption<string>[] = [
+  { value: 'all', label: 'All' },
+  { value: 'v60', label: 'V60' },
+  { value: 'aeropress', label: 'AeroPress' },
+  { value: 'flair', label: 'Flair' },
+  { value: 'chemex', label: 'Chemex' },
+  { value: 'french-press', label: 'French Press' },
+  { value: 'kalita-wave', label: 'Kalita Wave' },
+];
 
 export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
   recipes,
@@ -37,25 +46,14 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
   return (
     <div className="space-y-4">
       {/* Method Filter Bar */}
-      <div className="flex flex-wrap gap-2">
-        {METHODS.map((method) => {
-          const isSelected = selectedMethodFilter === method;
-          return (
-            <button
-              key={method}
-              type="button"
-              onClick={() => onSelectMethodFilter(method)}
-              className={`h-8 px-3 rounded-lg text-xs font-mono font-semibold uppercase tracking-wider transition-all cursor-pointer border-0 inline-flex items-center justify-center ${
-                isSelected
-                  ? 'btn-tactile-primary'
-                  : 'btn-tactile-secondary text-foreground-muted hover:text-foreground'
-              }`}
-            >
-              {method.replace('-', ' ')}
-            </button>
-          );
-        })}
-      </div>
+      <FilterPills
+        size="sm"
+        value={selectedMethodFilter}
+        onChange={onSelectMethodFilter}
+        options={METHOD_FILTER_OPTIONS}
+        ariaLabel="Filter recipes by brew method"
+        testID="recipe-method-filters"
+      />
 
       {/* Recipe Cards List */}
       <div className="space-y-3">
