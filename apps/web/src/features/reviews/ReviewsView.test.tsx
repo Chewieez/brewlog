@@ -457,16 +457,22 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
   });
 
   it('filters cards by method filter pills including the Other bucket and updates aria-pressed', () => {
+    const flairLog: TastingLog = {
+      ...sampleLog1,
+      id: 'log-flair',
+      brewMethod: 'flair',
+      beanNameSnapshot: 'Flair Lever Shot',
+    };
     const customLog: TastingLog = {
       ...sampleLog1,
       id: 'log-custom',
-      brewMethod: 'flair',
-      beanNameSnapshot: 'Flair Lever Shot',
+      brewMethod: 'custom',
+      beanNameSnapshot: 'Tasting Bowl Cup',
     };
 
     render(
       <ReviewsView
-        logs={[sampleLog1, sampleLog2, customLog]}
+        logs={[sampleLog1, sampleLog2, flairLog, customLog]}
         beans={INITIAL_BEANS}
         equipment={mockEquipment}
         onAddTastingLog={vi.fn()}
@@ -491,12 +497,29 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
 
     fireEvent.click(otherChip);
     expect(within(masterFeed).getByText('Flair Lever Shot')).toBeDefined();
+    expect(within(masterFeed).getByText('Tasting Bowl Cup')).toBeDefined();
     expect(within(masterFeed).queryByText('El Paraiso')).toBeNull();
 
     fireEvent.click(allChip);
     expect(within(masterFeed).getByText('Worka Sakaro')).toBeDefined();
     expect(within(masterFeed).getByText('El Paraiso')).toBeDefined();
     expect(within(masterFeed).getByText('Flair Lever Shot')).toBeDefined();
+    expect(within(masterFeed).getByText('Tasting Bowl Cup')).toBeDefined();
+  });
+
+  it('keeps FilterPills visible when logs is empty', () => {
+    render(
+      <ReviewsView
+        logs={[]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const filterGroup = screen.getByTestId('reviews-method-filters');
+    expect(within(filterGroup).getByRole('button', { name: 'All' })).toBeDefined();
+    expect(screen.getByText(/No cupping logs match your search\./i)).toBeDefined();
   });
 
   it('supports arrow-key focus wrapping and preserves Tab, Enter, and Space on method FilterPills', () => {

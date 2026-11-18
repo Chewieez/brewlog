@@ -123,6 +123,12 @@ const METHOD_FILTER_OPTIONS: FilterPillsOption<ReviewMethodFilter>[] = [
   { value: 'other', label: 'Other' },
 ];
 
+const EXPLICIT_FILTER_METHODS = new Set<string>(
+  METHOD_FILTER_OPTIONS.filter((opt) => opt.value !== 'all' && opt.value !== 'other').map(
+    (opt) => opt.value
+  )
+);
+
 export const ReviewsView: React.FC<ReviewsViewProps> = ({
   logs,
   beans = [],
@@ -495,9 +501,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
       if (filter === 'all') {
         matchesMethod = true;
       } else if (filter === 'other') {
-        matchesMethod = !['v60', 'aeropress', 'chemex', 'espresso', 'french-press', 'kalita-wave'].includes(
-          method
-        );
+        matchesMethod = !EXPLICIT_FILTER_METHODS.has(method);
       } else {
         matchesMethod = method === filter;
       }

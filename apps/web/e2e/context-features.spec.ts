@@ -291,10 +291,11 @@ test.describe("Core Web App End-to-End Context Flows", () => {
     }
   });
 
-  test("Recipes & Reviews: FilterPills support keyboard navigation and activation", async ({ page }) => {
+  test("Recipes, Reviews & Equipment: FilterPills support keyboard navigation and activation", async ({ page }) => {
     const verifyFilterBar = async (
       route: string,
       testId: string,
+      secondLabel: string,
       lastLabel: string
     ) => {
       await page.goto(route);
@@ -302,7 +303,7 @@ test.describe("Core Web App End-to-End Context Flows", () => {
       await expect(group).toBeVisible();
 
       const allBtn = group.getByRole("button", { name: "All", exact: true });
-      const v60Btn = group.getByRole("button", { name: "V60", exact: true });
+      const secondBtn = group.getByRole("button", { name: secondLabel, exact: true });
       const lastBtn = group.getByRole("button", { name: lastLabel, exact: true });
 
       await expect(allBtn).toHaveAttribute("aria-pressed", "true");
@@ -310,7 +311,7 @@ test.describe("Core Web App End-to-End Context Flows", () => {
       await expect(allBtn).toBeFocused();
 
       await page.keyboard.press("ArrowRight");
-      await expect(v60Btn).toBeFocused();
+      await expect(secondBtn).toBeFocused();
 
       await page.keyboard.press("End");
       await expect(lastBtn).toBeFocused();
@@ -325,16 +326,16 @@ test.describe("Core Web App End-to-End Context Flows", () => {
       await expect(allBtn).toBeFocused();
 
       await page.keyboard.press("ArrowRight");
-      await expect(v60Btn).toBeFocused();
+      await expect(secondBtn).toBeFocused();
       await page.keyboard.press("Enter");
-      await expect(v60Btn).toHaveAttribute("aria-pressed", "true");
+      await expect(secondBtn).toHaveAttribute("aria-pressed", "true");
       await expect(allBtn).toHaveAttribute("aria-pressed", "false");
 
       await page.keyboard.press("Home");
       await expect(allBtn).toBeFocused();
       await page.keyboard.press("Space");
       await expect(allBtn).toHaveAttribute("aria-pressed", "true");
-      await expect(v60Btn).toHaveAttribute("aria-pressed", "false");
+      await expect(secondBtn).toHaveAttribute("aria-pressed", "false");
 
       await page.keyboard.press("End");
       await expect(lastBtn).toBeFocused();
@@ -345,7 +346,44 @@ test.describe("Core Web App End-to-End Context Flows", () => {
       expect(focusedInsideGroup).toBe(false);
     };
 
-    await verifyFilterBar("/recipes", "recipe-method-filters", "Kalita Wave");
-    await verifyFilterBar("/reviews", "reviews-method-filters", "Other");
+    await verifyFilterBar("/recipes", "recipe-method-filters", "V60", "Kalita Wave");
+    const initialRecipeCount = await page.getByTestId("recipe-catalog-card").count();
+    expect(initialRecipeCount).toBeGreaterThan(2);
+    const recipesGroup = page.getByTestId("recipe-method-filters");
+    await recipesGroup.getByRole("button", { name: "All", exact: true }).focus();
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("Enter");
+    const v60RecipeCount = await page.getByTestId("recipe-catalog-card").count();
+    expect(v60RecipeCount).toBeGreaterThan(0);
+    expect(v60RecipeCount).toBeLessThan(initialRecipeCount);
+    await page.keyboard.press("Home");
+    await page.keyboard.press("Space");
+    await expect(page.getByTestId("recipe-catalog-card")).toHaveCount(initialRecipeCount);
+
+    await verifyFilterBar("/reviews", "reviews-method-filters", "V60", "Other");
+    const reviewsGroup = page.getByTestId("reviews-method-filters");
+    const masterFeed = page.getByTestId("master-feed");
+    await expect(masterFeed.getByText("Worka Sakaro Anaerobic")).toBeVisible();
+    await reviewsGroup.getByRole("button", { name: "V60", exact: true }).focus();
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("Enter");
+    await expect(masterFeed.getByText("Worka Sakaro Anaerobic")).not.toBeVisible();
+    await expect(masterFeed.getByText("No cupping logs match your search.")).toBeVisible();
+    await page.keyboard.press("Home");
+    await page.keyboard.press("Space");
+    await expect(masterFeed.getByText("Worka Sakaro Anaerobic")).toBeVisible();
+
+    await verifyFilterBar("/equipment", "equipment-category-filters", "Grinders", "Other");
+    const equipmentGroup = page.getByTestId("equipment-category-filters");
+    await expect(page.getByRole("heading", { name: /Grinders/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Brewers & Drippers/i })).toBeVisible();
+    await equipmentGroup.getByRole("button", { name: "All", exact: true }).focus();
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("heading", { name: /Grinders/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Brewers & Drippers/i })).not.toBeVisible();
+    await page.keyboard.press("Home");
+    await page.keyboard.press("Space");
+    await expect(page.getByRole("heading", { name: /Brewers & Drippers/i })).toBeVisible();
   });
 });
