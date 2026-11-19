@@ -90,9 +90,25 @@ describe('RecipeCatalogList', () => {
     expect(onSelectMethod).toHaveBeenCalledWith('v60');
   });
 
-  it('renders FilterPills group with aria-pressed and maps hyphenated method labels to exact slugs', () => {
+  it('renders only active method FilterPills for provided recipes and maps hyphenated labels to exact slugs', () => {
     const onSelectMethod = vi.fn();
-    render(
+    const recipesWithHyphenated: BrewRecipe[] = [
+      ...DEFAULT_PRESET_RECIPES,
+      {
+        ...DEFAULT_PRESET_RECIPES[0],
+        id: 'custom-fp',
+        name: 'Morning French Press',
+        brewMethod: 'french-press',
+      },
+      {
+        ...DEFAULT_PRESET_RECIPES[0],
+        id: 'custom-kw',
+        name: 'Kalita Flat Bed',
+        brewMethod: 'kalita-wave',
+      },
+    ];
+
+    const { rerender } = render(
       <MemoryRouter>
         <RecipeCatalogList
           recipes={DEFAULT_PRESET_RECIPES}
@@ -105,6 +121,25 @@ describe('RecipeCatalogList', () => {
 
     const filterGroup = screen.getByRole('group', { name: 'Filter recipes by brew method' });
     expect(filterGroup.getAttribute('data-testid')).toBe('recipe-method-filters');
+
+    expect(within(filterGroup).getByRole('button', { name: 'All' })).toBeDefined();
+    expect(within(filterGroup).getByRole('button', { name: 'V60' })).toBeDefined();
+    expect(within(filterGroup).getByRole('button', { name: 'AeroPress' })).toBeDefined();
+    expect(within(filterGroup).getByRole('button', { name: 'Flair' })).toBeDefined();
+    expect(within(filterGroup).queryByRole('button', { name: 'Chemex' })).toBeNull();
+    expect(within(filterGroup).queryByRole('button', { name: 'French Press' })).toBeNull();
+    expect(within(filterGroup).queryByRole('button', { name: 'Kalita Wave' })).toBeNull();
+
+    rerender(
+      <MemoryRouter>
+        <RecipeCatalogList
+          recipes={recipesWithHyphenated}
+          activeRecipeId=""
+          selectedMethodFilter="aeropress"
+          onSelectMethodFilter={onSelectMethod}
+        />
+      </MemoryRouter>
+    );
 
     const aeroPressBtn = within(filterGroup).getByRole('button', { name: 'AeroPress' });
     const allBtn = within(filterGroup).getByRole('button', { name: 'All' });
@@ -121,14 +156,29 @@ describe('RecipeCatalogList', () => {
     expect(onSelectMethod).toHaveBeenCalledWith('kalita-wave');
   });
 
-  it('keeps FilterPills visible when recipes is empty and supports keyboard parity', () => {
-    render(
+  it('hides FilterPills when recipes is empty and supports keyboard parity for present methods', () => {
+    const onSelectMethod = vi.fn();
+    const { rerender } = render(
       <MemoryRouter>
         <RecipeCatalogList
           recipes={[]}
           activeRecipeId=""
           selectedMethodFilter="v60"
-          onSelectMethodFilter={vi.fn()}
+          onSelectMethodFilter={onSelectMethod}
+        />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByTestId('recipe-method-filters')).toBeNull();
+    expect(onSelectMethod).toHaveBeenCalledWith('all');
+
+    rerender(
+      <MemoryRouter>
+        <RecipeCatalogList
+          recipes={DEFAULT_PRESET_RECIPES}
+          activeRecipeId=""
+          selectedMethodFilter="all"
+          onSelectMethodFilter={onSelectMethod}
         />
       </MemoryRouter>
     );
@@ -136,22 +186,22 @@ describe('RecipeCatalogList', () => {
     const filterGroup = screen.getByTestId('recipe-method-filters');
     const allBtn = within(filterGroup).getByRole('button', { name: 'All' });
     const v60Btn = within(filterGroup).getByRole('button', { name: 'V60' });
-    const kalitaBtn = within(filterGroup).getByRole('button', { name: 'Kalita Wave' });
+    const flairBtn = within(filterGroup).getByRole('button', { name: 'Flair' });
 
     allBtn.focus();
     fireEvent.keyDown(allBtn, { key: 'ArrowRight' });
     expect(document.activeElement).toBe(v60Btn);
 
     fireEvent.keyDown(v60Btn, { key: 'End' });
-    expect(document.activeElement).toBe(kalitaBtn);
+    expect(document.activeElement).toBe(flairBtn);
 
-    fireEvent.keyDown(kalitaBtn, { key: 'ArrowRight' });
+    fireEvent.keyDown(flairBtn, { key: 'ArrowRight' });
     expect(document.activeElement).toBe(allBtn);
 
     fireEvent.keyDown(allBtn, { key: 'ArrowLeft' });
-    expect(document.activeElement).toBe(kalitaBtn);
+    expect(document.activeElement).toBe(flairBtn);
 
-    fireEvent.keyDown(kalitaBtn, { key: 'Home' });
+    fireEvent.keyDown(flairBtn, { key: 'Home' });
     expect(document.activeElement).toBe(allBtn);
 
     for (const key of ['Tab', 'Enter', ' ']) {

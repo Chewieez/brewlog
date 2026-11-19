@@ -23,7 +23,8 @@ Following Issue #65's introduction of `@brewlog/ui` `FilterPills`, three web fea
 - Replaced `space-y-4` on `master-feed` with `flex flex-col gap-4` so `FilterPills`'s `-m-1` focus-ring clearance does not override Tailwind v4's `:where(...)` margin spacing above the first review card.
 
 ### 2. `RecipeCatalogList.tsx` (`apps/web/src/features/recipes/RecipeCatalogList.tsx`)
-- Replaced `METHODS` (`string[]`) and its inline `<button>` loop with `METHOD_FILTER_OPTIONS: FilterPillsOption<string>[]` and `<FilterPills size="sm" value={selectedMethodFilter} onChange={onSelectMethodFilter} options={METHOD_FILTER_OPTIONS} ariaLabel="Filter recipes by brew method" testID="recipe-method-filters" />`.
+- Replaced `METHODS` (`string[]`) and its inline `<button>` loop with `METHOD_FILTER_OPTIONS: FilterPillsOption<string>[]` and `<FilterPills size="sm" value={effectiveMethodFilter} onChange={onSelectMethodFilter} options={availableMethodOptions} ariaLabel="Filter recipes by brew method" testID="recipe-method-filters" />`.
+- Dynamically filters `availableMethodOptions` to only show brew methods present in `recipes` (plus `All`, hiding the bar when `<= 1` option exists and syncing `onSelectMethodFilter('all')` via `effectiveMethodFilter` when the active method disappears), supporting both known preset/builder methods and fallback formatted custom slugs.
 - Mapped hyphenated method slugs (`'french-press'`, `'kalita-wave'`) to Title Case accessible labels (`'French Press'`, `'Kalita Wave'`) while keeping exact `BrewMethodType` slug values and preserving `RecipeCatalogListProps` (`selectedMethodFilter: string`, `onSelectMethodFilter: (method: string) => void`) for `RecipesRoute.tsx` compatibility.
 - Replaced `space-y-4` on the root catalog container with `flex flex-col gap-4` so wrapped `FilterPills` rows preserve a clean `16px` vertical gap above the first recipe card.
 

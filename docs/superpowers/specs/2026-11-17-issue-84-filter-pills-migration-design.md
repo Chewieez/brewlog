@@ -19,7 +19,7 @@ Issue #65 introduced `@brewlog/ui` `FilterPills` (`packages/ui/src/filter-pills/
   - Keep all existing unit tests and Playwright E2E design token gates (`button-sizing-tokens.spec.ts`, `corner-radius-hierarchy.spec.ts`) green.
 - **Non-Goals:**
   - Do not modify `packages/ui/src/filter-pills/` (`FilterPills.web.tsx`, `FilterPills.native.tsx`, `FilterPills.types.ts`) or add per-screen override props.
-  - Do not migrate `RecipeCatalogList.tsx` or `EquipmentView.tsx` to dynamic active-only pills in this issue (tracked in [#89](https://github.com/Chewieez/brewlog/issues/89)); `ReviewsView.tsx` dynamically shows only methods present in `logs` (plus `All`) and hides the bar when `<= 1` option exists.
+  - Do not migrate `EquipmentView.tsx` or mobile screens to dynamic active-only pills in this issue (tracked in [#89](https://github.com/Chewieez/brewlog/issues/89)); `ReviewsView.tsx` and `RecipeCatalogList.tsx` dynamically show only methods present in their active lists (plus `All`) and hide the bar when `<= 1` option exists.
 - **Anti-Goals:**
   - Do not reintroduce bespoke `<button>` filter loops or per-page CSS overrides for `ReviewsView` (the shared `FilterPills` `font-mono uppercase tracking-wider` typography and `sm:flex-wrap` wrapping are intentional design-system standardization).
   - Do not break existing accessible-name selectors used in E2E and unit tests (`"All"` exact in `corner-radius-hierarchy.spec.ts` on `/reviews` and `/equipment`, `/^all$/i` on `/recipes`, `/^AeroPress$/i` in `ReviewsView.test.tsx`).

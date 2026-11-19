@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router';
 import { BrewRecipe } from '@brewlog/core';
 import { FilterPills, type FilterPillsOption } from '@brewlog/ui';
@@ -23,7 +23,21 @@ const METHOD_FILTER_OPTIONS: FilterPillsOption<string>[] = [
   { value: 'chemex', label: 'Chemex' },
   { value: 'french-press', label: 'French Press' },
   { value: 'kalita-wave', label: 'Kalita Wave' },
+  { value: 'espresso', label: 'Espresso' },
+  { value: 'origami', label: 'Origami' },
+  { value: 'clever-dripper', label: 'Clever Dripper' },
+  { value: 'moka-pot', label: 'Moka Pot' },
+  { value: 'cold-brew', label: 'Cold Brew' },
+  { value: 'custom', label: 'Custom' },
 ];
+
+function formatFallbackMethodLabel(method: string): string {
+  return method
+    .split('-')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
 
 export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
   recipes,
@@ -36,8 +50,38 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
 }) => {
   const [recipeToDelete, setRecipeToDelete] = useState<BrewRecipe | null>(null);
 
+  const availableMethodOptions = useMemo(() => {
+    const presentMethods = new Set<string>(recipes.map((r) => r.brewMethod));
+    const knownOptions = METHOD_FILTER_OPTIONS.filter(
+      (opt) => opt.value !== 'all' && presentMethods.has(opt.value)
+    );
+    const knownValues = new Set(knownOptions.map((opt) => opt.value));
+    const extraOptions: FilterPillsOption<string>[] = Array.from(presentMethods)
+      .filter((method) => Boolean(method) && !knownValues.has(method))
+      .map((method) => ({
+        value: method,
+        label: formatFallbackMethodLabel(method),
+      }));
+
+    return [METHOD_FILTER_OPTIONS[0], ...knownOptions, ...extraOptions];
+  }, [recipes]);
+
+  const effectiveMethodFilter = useMemo(
+    () =>
+      availableMethodOptions.some((opt) => opt.value === selectedMethodFilter)
+        ? selectedMethodFilter
+        : 'all',
+    [availableMethodOptions, selectedMethodFilter]
+  );
+
+  useEffect(() => {
+    if (selectedMethodFilter !== effectiveMethodFilter) {
+      onSelectMethodFilter(effectiveMethodFilter);
+    }
+  }, [selectedMethodFilter, effectiveMethodFilter, onSelectMethodFilter]);
+
   const filteredRecipes = recipes.filter((r) => {
-    return selectedMethodFilter === 'all' || r.brewMethod === selectedMethodFilter;
+    return effectiveMethodFilter === 'all' || r.brewMethod === effectiveMethodFilter;
   });
 
   const isCustomRecipe = (recipe: BrewRecipe) =>
@@ -46,14 +90,16 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
   return (
     <div className="flex flex-col gap-4">
       {/* Method Filter Bar */}
-      <FilterPills
-        size="sm"
-        value={selectedMethodFilter}
-        onChange={onSelectMethodFilter}
-        options={METHOD_FILTER_OPTIONS}
-        ariaLabel="Filter recipes by brew method"
-        testID="recipe-method-filters"
-      />
+      {availableMethodOptions.length > 1 && (
+        <FilterPills
+          size="sm"
+          value={effectiveMethodFilter}
+          onChange={onSelectMethodFilter}
+          options={availableMethodOptions}
+          ariaLabel="Filter recipes by brew method"
+          testID="recipe-method-filters"
+        />
+      )}
 
       {/* Recipe Cards List */}
       <div className="space-y-3">

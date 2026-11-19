@@ -349,9 +349,12 @@ test.describe("Core Web App End-to-End Context Flows", () => {
       expect(focusedInsideGroup).toBe(false);
     };
 
-    await verifyFilterBar("/recipes", "recipe-method-filters", "V60", "Kalita Wave");
+    await verifyFilterBar("/recipes", "recipe-method-filters", "V60", "Flair");
     const recipesGroup = page.getByTestId("recipe-method-filters");
-    const lastRecipePillBox = await recipesGroup.getByRole("button", { name: "Kalita Wave", exact: true }).boundingBox();
+    await expect(recipesGroup.getByRole("button", { name: "Chemex", exact: true })).not.toBeVisible();
+    await expect(recipesGroup.getByRole("button", { name: "French Press", exact: true })).not.toBeVisible();
+    await expect(recipesGroup.getByRole("button", { name: "Kalita Wave", exact: true })).not.toBeVisible();
+    const lastRecipePillBox = await recipesGroup.getByRole("button", { name: "Flair", exact: true }).boundingBox();
     const firstRecipeCardBox = await page.getByTestId("recipe-catalog-card").first().boundingBox();
     expect(lastRecipePillBox).not.toBeNull();
     expect(firstRecipeCardBox).not.toBeNull();
