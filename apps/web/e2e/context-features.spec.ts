@@ -296,9 +296,12 @@ test.describe("Core Web App End-to-End Context Flows", () => {
       route: string,
       testId: string,
       secondLabel: string,
-      lastLabel: string
+      lastLabel: string,
+      skipGoto = false
     ) => {
-      await page.goto(route);
+      if (!skipGoto) {
+        await page.goto(route);
+      }
       const group = page.getByTestId(testId);
       await expect(group).toBeVisible();
 
@@ -347,9 +350,15 @@ test.describe("Core Web App End-to-End Context Flows", () => {
     };
 
     await verifyFilterBar("/recipes", "recipe-method-filters", "V60", "Kalita Wave");
+    const recipesGroup = page.getByTestId("recipe-method-filters");
+    const lastRecipePillBox = await recipesGroup.getByRole("button", { name: "Kalita Wave", exact: true }).boundingBox();
+    const firstRecipeCardBox = await page.getByTestId("recipe-catalog-card").first().boundingBox();
+    expect(lastRecipePillBox).not.toBeNull();
+    expect(firstRecipeCardBox).not.toBeNull();
+    expect(firstRecipeCardBox!.y - (lastRecipePillBox!.y + lastRecipePillBox!.height)).toBeGreaterThanOrEqual(12);
+
     const initialRecipeCount = await page.getByTestId("recipe-catalog-card").count();
     expect(initialRecipeCount).toBeGreaterThan(2);
-    const recipesGroup = page.getByTestId("recipe-method-filters");
     await recipesGroup.getByRole("button", { name: "All", exact: true }).focus();
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("Enter");
@@ -360,27 +369,50 @@ test.describe("Core Web App End-to-End Context Flows", () => {
     await page.keyboard.press("Space");
     await expect(page.getByTestId("recipe-catalog-card")).toHaveCount(initialRecipeCount);
 
-    await verifyFilterBar("/reviews", "reviews-method-filters", "V60", "Other");
+    await page.goto("/reviews");
     const reviewsGroup = page.getByTestId("reviews-method-filters");
     const masterFeed = page.getByTestId("master-feed");
-    await page.getByRole("button", { name: /log review/i }).click();
-    await page.getByTestId("detail-pane").getByRole("combobox").first().selectOption("custom");
-    await page.getByPlaceholder("e.g. Worka Sakaro").fill("Seed Independent AeroPress Lot");
-    await page.getByPlaceholder("e.g. Sey Coffee").fill("Test Roaster");
-    await page.locator("#review-brew-method").selectOption("aeropress");
-    await page.getByRole("button", { name: /save review/i }).first().click();
 
+    const addReviewInSession = async (beanName: string, method: string) => {
+      await page.getByRole("button", { name: /log review/i }).click();
+      await page.getByTestId("detail-pane").getByRole("combobox").first().selectOption("custom");
+      await page.getByPlaceholder("e.g. Worka Sakaro").fill(beanName);
+      await page.getByPlaceholder("e.g. Sey Coffee").fill("Test Roaster");
+      await page.locator("#review-brew-method").selectOption(method);
+      await page.getByRole("button", { name: /save review/i }).first().click();
+    };
+
+    await addReviewInSession("Seed Independent V60 Lot", "v60");
+    await addReviewInSession("Seed Independent AeroPress Lot", "aeropress");
+
+    await expect(masterFeed.getByText("Seed Independent V60 Lot")).toBeVisible();
     await expect(masterFeed.getByText("Seed Independent AeroPress Lot")).toBeVisible();
+    await expect(reviewsGroup.getByRole("button", { name: "V60", exact: true })).toBeVisible();
+    await expect(reviewsGroup.getByRole("button", { name: "AeroPress", exact: true })).toBeVisible();
+    await expect(reviewsGroup.getByRole("button", { name: "Chemex", exact: true })).not.toBeVisible();
+
+    const lastReviewPill = reviewsGroup.locator("button").last();
+    const lastReviewPillLabel = (await lastReviewPill.getAttribute("aria-label")) || "";
+    await verifyFilterBar("/reviews", "reviews-method-filters", "V60", lastReviewPillLabel, true);
+
+    const lastReviewPillBox = await lastReviewPill.boundingBox();
+    const firstReviewCardBox = await masterFeed.locator('[role="button"]').first().boundingBox();
+    expect(lastReviewPillBox).not.toBeNull();
+    expect(firstReviewCardBox).not.toBeNull();
+    expect(firstReviewCardBox!.y - (lastReviewPillBox!.y + lastReviewPillBox!.height)).toBeGreaterThanOrEqual(12);
+
     const totalReviewsCount = await masterFeed.locator('[role="button"]').count();
 
     await reviewsGroup.getByRole("button", { name: "All", exact: true }).focus();
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("Enter");
+    await expect(masterFeed.getByText("Seed Independent V60 Lot")).toBeVisible();
     await expect(masterFeed.getByText("Seed Independent AeroPress Lot")).not.toBeVisible();
 
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("Enter");
     await expect(masterFeed.getByText("Seed Independent AeroPress Lot")).toBeVisible();
+    await expect(masterFeed.getByText("Seed Independent V60 Lot")).not.toBeVisible();
 
     await page.keyboard.press("Home");
     await page.keyboard.press("Space");

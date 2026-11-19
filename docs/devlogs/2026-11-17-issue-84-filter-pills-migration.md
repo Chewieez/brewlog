@@ -18,22 +18,28 @@ Following Issue #65's introduction of `@brewlog/ui` `FilterPills`, three web fea
 ## Architecture & Deliverables
 
 ### 1. `ReviewsView.tsx` (`apps/web/src/features/reviews/ReviewsView.tsx`)
-- Replaced `METHOD_FILTERS` (`{ id, label }`) and its local `<button>` loop with `METHOD_FILTER_OPTIONS: FilterPillsOption<ReviewMethodFilter>[]` and `<FilterPills<ReviewMethodFilter> size="sm" value={selectedMethodFilter} onChange={setSelectedMethodFilter} options={METHOD_FILTER_OPTIONS} ariaLabel="Filter reviews by brew method" testID="reviews-method-filters" />`.
-- Derived `EXPLICIT_FILTER_METHODS` from `METHOD_FILTER_OPTIONS` so `'other'` bucket filtering (`!EXPLICIT_FILTER_METHODS.has(method)`) stays in sync with the declared filter pills.
-- Standardized the bar onto `FilterPills`'s `sm:flex-wrap` wrapping and `p-1 -m-1` focus-ring clearance instead of a horizontally clipped single-row strip.
+- Replaced `METHOD_FILTERS` (`{ id, label }`) and its local `<button>` loop with `METHOD_FILTER_OPTIONS: FilterPillsOption<ReviewMethodFilter>[]` and `<FilterPills<ReviewMethodFilter> size="sm" value={effectiveMethodFilter} onChange={setSelectedMethodFilter} options={availableMethodOptions} ariaLabel="Filter reviews by brew method" testID="reviews-method-filters" />`.
+- Derived `EXPLICIT_FILTER_METHODS` from `METHOD_FILTER_OPTIONS`, extracted `matchesReviewMethodFilter`, and dynamically filtered `availableMethodOptions` to only show brew methods present in `logs` (plus `All`, hiding the bar when `<= 1` option exists and resetting `effectiveMethodFilter` to `'all'` if the selected method disappears).
+- Replaced `space-y-4` on `master-feed` with `flex flex-col gap-4` so `FilterPills`'s `-m-1` focus-ring clearance does not override Tailwind v4's `:where(...)` margin spacing above the first review card.
 
 ### 2. `RecipeCatalogList.tsx` (`apps/web/src/features/recipes/RecipeCatalogList.tsx`)
 - Replaced `METHODS` (`string[]`) and its inline `<button>` loop with `METHOD_FILTER_OPTIONS: FilterPillsOption<string>[]` and `<FilterPills size="sm" value={selectedMethodFilter} onChange={onSelectMethodFilter} options={METHOD_FILTER_OPTIONS} ariaLabel="Filter recipes by brew method" testID="recipe-method-filters" />`.
 - Mapped hyphenated method slugs (`'french-press'`, `'kalita-wave'`) to Title Case accessible labels (`'French Press'`, `'Kalita Wave'`) while keeping exact `BrewMethodType` slug values and preserving `RecipeCatalogListProps` (`selectedMethodFilter: string`, `onSelectMethodFilter: (method: string) => void`) for `RecipesRoute.tsx` compatibility.
+- Replaced `space-y-4` on the root catalog container with `flex flex-col gap-4` so wrapped `FilterPills` rows preserve a clean `16px` vertical gap above the first recipe card.
 
 ### 3. `EquipmentView.tsx` (`apps/web/src/features/equipment/EquipmentView.tsx`)
 - Replaced `CATEGORIES` and its inline `<button>` loop with `CATEGORY_FILTER_OPTIONS: FilterPillsOption<CategoryFilter>[]` and `<FilterPills<CategoryFilter> size="sm" value={selectedCategory} onChange={setSelectedCategory} options={CATEGORY_FILTER_OPTIONS} ariaLabel="Filter equipment by category" testID="equipment-category-filters" />` inside a `lg:shrink-0` wrapper alongside `flex-1 min-w-0` search input.
 
 ### 4. Accessibility & Keyboard Parity Tests
-- Updated `apps/web/src/features/reviews/ReviewsView.test.tsx` to verify `role="group"`, `aria-pressed`, `'other'` bucket (`'flair'` and `'custom'`) and `'all'` reset filtering, empty-list pill visibility, `ArrowLeft`/`ArrowRight`/`Home`/`End` focus wrapping, and non-blocked `Tab`/`Enter`/`Space` keys.
+- Updated `apps/web/src/features/reviews/ReviewsView.test.tsx` to verify `role="group"`, `aria-pressed`, `'other'` bucket (`'flair'` and `'custom'`) and `'all'` reset filtering, hiding unused method pills, hiding `FilterPills` when `logs={[]}`, auto-resetting when the active method disappears, `ArrowLeft`/`ArrowRight`/`Home`/`End` focus wrapping, and non-blocked `Tab`/`Enter`/`Space` keys.
 - Updated `apps/web/src/features/recipes/RecipeCatalogList.test.tsx` to verify `role="group"`, `aria-pressed`, hyphenated slug mapping (`'french-press'`, `'kalita-wave'`), empty-list visibility, and `Tab`/`Enter`/`Space`/`ArrowLeft`/`ArrowRight`/`Home`/`End` keyboard parity.
 - Updated `apps/web/src/features/equipment/EquipmentView.test.tsx` to verify `role="group"`, `aria-pressed`, category filtering/reset, empty-list pill visibility, and `Tab`/`Enter`/`Space`/`ArrowLeft`/`ArrowRight`/`Home`/`End` keyboard parity.
-- Added `"Recipes, Reviews & Equipment: FilterPills support keyboard navigation and activation"` in `apps/web/e2e/context-features.spec.ts` to verify real browser arrow-key wrapping, `Enter`/`Space` selection with DOM filtering assertions, and `Tab` exit on `/recipes`, `/reviews`, and `/equipment`.
+- Added `"Recipes, Reviews & Equipment: FilterPills support keyboard navigation and activation"` in `apps/web/e2e/context-features.spec.ts` to verify real browser arrow-key wrapping, `Enter`/`Space` selection with DOM filtering assertions, `>= 12px` spacing above cards on `/recipes` and `/reviews`, dynamic method pills on `/reviews`, and `Tab` exit across `/recipes`, `/reviews`, and `/equipment`.
+
+### 5. Follow-Up Issues
+- [#87](https://github.com/Chewieez/brewlog/issues/87): Align selected recipe/review card styling and `UserMenu` account dropdown link font.
+- [#88](https://github.com/Chewieez/brewlog/issues/88): Align Review detail, card, and catalog layout order between mobile and web.
+- [#89](https://github.com/Chewieez/brewlog/issues/89): Adopt `@brewlog/ui` `FilterPills` on mobile and show only active filter tags across catalogs.
 
 ---
 

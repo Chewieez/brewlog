@@ -483,8 +483,15 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     expect(filterGroup.getAttribute('data-testid')).toBe('reviews-method-filters');
 
     const allChip = within(filterGroup).getByRole('button', { name: 'All' });
+    const v60Chip = within(filterGroup).getByRole('button', { name: 'V60' });
     const aeroPressChip = within(filterGroup).getByRole('button', { name: /^AeroPress$/i });
     const otherChip = within(filterGroup).getByRole('button', { name: 'Other' });
+
+    expect(v60Chip).toBeDefined();
+    expect(within(filterGroup).queryByRole('button', { name: 'Chemex' })).toBeNull();
+    expect(within(filterGroup).queryByRole('button', { name: 'Espresso' })).toBeNull();
+    expect(within(filterGroup).queryByRole('button', { name: 'French Press' })).toBeNull();
+    expect(within(filterGroup).queryByRole('button', { name: 'Kalita Wave' })).toBeNull();
 
     expect(allChip.getAttribute('aria-pressed')).toBe('true');
     fireEvent.click(aeroPressChip);
@@ -507,8 +514,8 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     expect(within(masterFeed).getByText('Tasting Bowl Cup')).toBeDefined();
   });
 
-  it('keeps FilterPills visible when logs is empty', () => {
-    render(
+  it('hides FilterPills when logs is empty and resets filter when active method disappears', () => {
+    const { rerender } = render(
       <ReviewsView
         logs={[]}
         beans={INITIAL_BEANS}
@@ -517,9 +524,38 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
       />
     );
 
-    const filterGroup = screen.getByTestId('reviews-method-filters');
-    expect(within(filterGroup).getByRole('button', { name: 'All' })).toBeDefined();
+    expect(screen.queryByTestId('reviews-method-filters')).toBeNull();
     expect(screen.getByText(/No cupping logs match your search\./i)).toBeDefined();
+
+    rerender(
+      <ReviewsView
+        logs={[sampleLog1, sampleLog2]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const filterGroup = screen.getByTestId('reviews-method-filters');
+    fireEvent.click(within(filterGroup).getByRole('button', { name: 'AeroPress' }));
+    expect(within(screen.getByTestId('master-feed')).queryByText('Worka Sakaro')).toBeNull();
+
+    // Remove the AeroPress log -> active filter falls back to 'all' and shows Worka Sakaro
+    rerender(
+      <ReviewsView
+        logs={[sampleLog1]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    expect(within(screen.getByTestId('master-feed')).getByText('Worka Sakaro')).toBeDefined();
+    expect(
+      within(screen.getByTestId('reviews-method-filters'))
+        .getByRole('button', { name: 'All' })
+        .getAttribute('aria-pressed')
+    ).toBe('true');
   });
 
   it('supports arrow-key focus wrapping and preserves Tab, Enter, and Space on method FilterPills', () => {
@@ -535,22 +571,22 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     const filterGroup = screen.getByTestId('reviews-method-filters');
     const allChip = within(filterGroup).getByRole('button', { name: 'All' });
     const v60Chip = within(filterGroup).getByRole('button', { name: 'V60' });
-    const otherChip = within(filterGroup).getByRole('button', { name: 'Other' });
+    const aeroPressChip = within(filterGroup).getByRole('button', { name: 'AeroPress' });
 
     allChip.focus();
     fireEvent.keyDown(allChip, { key: 'ArrowRight' });
     expect(document.activeElement).toBe(v60Chip);
 
     fireEvent.keyDown(v60Chip, { key: 'End' });
-    expect(document.activeElement).toBe(otherChip);
+    expect(document.activeElement).toBe(aeroPressChip);
 
-    fireEvent.keyDown(otherChip, { key: 'ArrowRight' });
+    fireEvent.keyDown(aeroPressChip, { key: 'ArrowRight' });
     expect(document.activeElement).toBe(allChip);
 
     fireEvent.keyDown(allChip, { key: 'ArrowLeft' });
-    expect(document.activeElement).toBe(otherChip);
+    expect(document.activeElement).toBe(aeroPressChip);
 
-    fireEvent.keyDown(otherChip, { key: 'Home' });
+    fireEvent.keyDown(aeroPressChip, { key: 'Home' });
     expect(document.activeElement).toBe(allChip);
 
     for (const key of ['Tab', 'Enter', ' ']) {

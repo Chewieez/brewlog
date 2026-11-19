@@ -44,7 +44,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
     !recipe.isPreset && !recipe.id.startsWith('preset-');
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Method Filter Bar */}
       <FilterPills
         size="sm"

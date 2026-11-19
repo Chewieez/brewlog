@@ -129,6 +129,15 @@ const EXPLICIT_FILTER_METHODS = new Set<string>(
   )
 );
 
+function matchesReviewMethodFilter(log: TastingLog, filter: ReviewMethodFilter): boolean {
+  if (filter === 'all') return true;
+  const method = log.brewMethod?.toLowerCase() || '';
+  if (filter === 'other') {
+    return !EXPLICIT_FILTER_METHODS.has(method);
+  }
+  return method === filter;
+}
+
 export const ReviewsView: React.FC<ReviewsViewProps> = ({
   logs,
   beans = [],
@@ -483,6 +492,27 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
     }
   };
 
+  const availableMethodOptions = useMemo(() => {
+    const present = METHOD_FILTER_OPTIONS.filter(
+      (opt) => opt.value !== 'all' && logs.some((log) => matchesReviewMethodFilter(log, opt.value))
+    );
+    return [METHOD_FILTER_OPTIONS[0], ...present];
+  }, [logs]);
+
+  const effectiveMethodFilter: ReviewMethodFilter = useMemo(
+    () =>
+      availableMethodOptions.some((opt) => opt.value === selectedMethodFilter)
+        ? selectedMethodFilter
+        : 'all',
+    [availableMethodOptions, selectedMethodFilter]
+  );
+
+  useEffect(() => {
+    if (selectedMethodFilter !== effectiveMethodFilter) {
+      setSelectedMethodFilter(effectiveMethodFilter);
+    }
+  }, [selectedMethodFilter, effectiveMethodFilter]);
+
   // Filtered reviews for Master feed
   const filteredLogs = useMemo(() => {
     return logs.filter((log) => {
@@ -494,20 +524,9 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
         (log.notes && log.notes.toLowerCase().includes(q)) ||
         (log.flavorTags && log.flavorTags.some((tag) => tag.toLowerCase().includes(q)));
 
-      const method = log.brewMethod?.toLowerCase() || '';
-      let matchesMethod = true;
-
-      if (selectedMethodFilter === 'all') {
-        matchesMethod = true;
-      } else if (selectedMethodFilter === 'other') {
-        matchesMethod = !EXPLICIT_FILTER_METHODS.has(method);
-      } else {
-        matchesMethod = method === selectedMethodFilter;
-      }
-
-      return matchesSearch && matchesMethod;
+      return matchesSearch && matchesReviewMethodFilter(log, effectiveMethodFilter);
     });
-  }, [logs, searchQuery, selectedMethodFilter]);
+  }, [logs, searchQuery, effectiveMethodFilter]);
 
   const activeSelectedLog = useMemo(() => {
     if (!selectedLogId) return logs[0] || null;
@@ -600,7 +619,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
       {/* Master-Detail Split Grid */}
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* LEFT PANE: Master Cupping Feed (38% width) */}
-        <div data-testid="master-feed" className="w-full lg:w-[38%] shrink-0 space-y-4">
+        <div data-testid="master-feed" className="w-full lg:w-[38%] shrink-0 flex flex-col gap-4">
           <div className="flex items-center justify-between text-xs text-foreground-secondary">
             <span className="font-medium tabular-nums">
               {logs.length} {logs.length === 1 ? 'logged review' : 'logged reviews'}
@@ -620,14 +639,16 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
           </div>
 
           {/* Brew Method Filter Chips */}
-          <FilterPills<ReviewMethodFilter>
-            size="sm"
-            value={selectedMethodFilter}
-            onChange={setSelectedMethodFilter}
-            options={METHOD_FILTER_OPTIONS}
-            ariaLabel="Filter reviews by brew method"
-            testID="reviews-method-filters"
-          />
+          {availableMethodOptions.length > 1 && (
+            <FilterPills<ReviewMethodFilter>
+              size="sm"
+              value={effectiveMethodFilter}
+              onChange={setSelectedMethodFilter}
+              options={availableMethodOptions}
+              ariaLabel="Filter reviews by brew method"
+              testID="reviews-method-filters"
+            />
+          )}
 
           {/* Feed Cards List */}
           <div className="space-y-3">
