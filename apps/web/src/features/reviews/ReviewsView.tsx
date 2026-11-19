@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Button } from '@brewlog/ui';
+import { Button, FilterPills, type FilterPillsOption } from '@brewlog/ui';
 import {
   TastingLog,
   CuppingAttributes,
@@ -102,16 +102,41 @@ const BREW_METHODS: { value: BrewMethodType; label: string }[] = [
   { value: 'custom', label: 'Tasting Bowl / Other' },
 ];
 
-const METHOD_FILTERS = [
-  { id: 'all', label: 'All' },
-  { id: 'v60', label: 'V60' },
-  { id: 'aeropress', label: 'AeroPress' },
-  { id: 'chemex', label: 'Chemex' },
-  { id: 'espresso', label: 'Espresso' },
-  { id: 'french-press', label: 'French Press' },
-  { id: 'kalita-wave', label: 'Kalita Wave' },
-  { id: 'other', label: 'Other' },
-] as const;
+type ReviewMethodFilter =
+  | 'all'
+  | 'v60'
+  | 'aeropress'
+  | 'chemex'
+  | 'espresso'
+  | 'french-press'
+  | 'kalita-wave'
+  | 'other';
+
+const METHOD_FILTER_OPTIONS: FilterPillsOption<ReviewMethodFilter>[] = [
+  { value: 'all', label: 'All' },
+  { value: 'v60', label: 'V60' },
+  { value: 'aeropress', label: 'AeroPress' },
+  { value: 'chemex', label: 'Chemex' },
+  { value: 'espresso', label: 'Espresso' },
+  { value: 'french-press', label: 'French Press' },
+  { value: 'kalita-wave', label: 'Kalita Wave' },
+  { value: 'other', label: 'Other' },
+];
+
+const EXPLICIT_FILTER_METHODS = new Set<string>(
+  METHOD_FILTER_OPTIONS.filter((opt) => opt.value !== 'all' && opt.value !== 'other').map(
+    (opt) => opt.value
+  )
+);
+
+function matchesReviewMethodFilter(log: TastingLog, filter: ReviewMethodFilter): boolean {
+  if (filter === 'all') return true;
+  const method = log.brewMethod?.toLowerCase() || '';
+  if (filter === 'other') {
+    return !EXPLICIT_FILTER_METHODS.has(method);
+  }
+  return method === filter;
+}
 
 export const ReviewsView: React.FC<ReviewsViewProps> = ({
   logs,
@@ -140,7 +165,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedMethodFilter, setSelectedMethodFilter] = useState<string>('all');
+  const [selectedMethodFilter, setSelectedMethodFilter] = useState<ReviewMethodFilter>('all');
 
   // Form State
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -467,6 +492,27 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
     }
   };
 
+  const availableMethodOptions = useMemo(() => {
+    const present = METHOD_FILTER_OPTIONS.filter(
+      (opt) => opt.value !== 'all' && logs.some((log) => matchesReviewMethodFilter(log, opt.value))
+    );
+    return [METHOD_FILTER_OPTIONS[0], ...present];
+  }, [logs]);
+
+  const effectiveMethodFilter: ReviewMethodFilter = useMemo(
+    () =>
+      availableMethodOptions.some((opt) => opt.value === selectedMethodFilter)
+        ? selectedMethodFilter
+        : 'all',
+    [availableMethodOptions, selectedMethodFilter]
+  );
+
+  useEffect(() => {
+    if (selectedMethodFilter !== effectiveMethodFilter) {
+      setSelectedMethodFilter(effectiveMethodFilter);
+    }
+  }, [selectedMethodFilter, effectiveMethodFilter]);
+
   // Filtered reviews for Master feed
   const filteredLogs = useMemo(() => {
     return logs.filter((log) => {
@@ -478,23 +524,9 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
         (log.notes && log.notes.toLowerCase().includes(q)) ||
         (log.flavorTags && log.flavorTags.some((tag) => tag.toLowerCase().includes(q)));
 
-      const method = log.brewMethod?.toLowerCase() || '';
-      const filter = selectedMethodFilter.toLowerCase();
-      let matchesMethod = true;
-
-      if (filter === 'all') {
-        matchesMethod = true;
-      } else if (filter === 'other') {
-        matchesMethod = !['v60', 'aeropress', 'chemex', 'espresso', 'french-press', 'kalita-wave'].includes(
-          method
-        );
-      } else {
-        matchesMethod = method === filter;
-      }
-
-      return matchesSearch && matchesMethod;
+      return matchesSearch && matchesReviewMethodFilter(log, effectiveMethodFilter);
     });
-  }, [logs, searchQuery, selectedMethodFilter]);
+  }, [logs, searchQuery, effectiveMethodFilter]);
 
   const activeSelectedLog = useMemo(() => {
     if (!selectedLogId) return logs[0] || null;
@@ -587,7 +619,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
       {/* Master-Detail Split Grid */}
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* LEFT PANE: Master Cupping Feed (38% width) */}
-        <div data-testid="master-feed" className="w-full lg:w-[38%] shrink-0 space-y-4">
+        <div data-testid="master-feed" className="w-full lg:w-[38%] shrink-0 flex flex-col gap-4">
           <div className="flex items-center justify-between text-xs text-foreground-secondary">
             <span className="font-medium tabular-nums">
               {logs.length} {logs.length === 1 ? 'logged review' : 'logged reviews'}
@@ -607,25 +639,16 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
           </div>
 
           {/* Brew Method Filter Chips */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-            {METHOD_FILTERS.map((item) => {
-              const isSelected = selectedMethodFilter === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setSelectedMethodFilter(item.id)}
-                  className={`h-8 px-3 rounded-lg text-xs font-medium cursor-pointer transition-all whitespace-nowrap border-0 inline-flex items-center justify-center ${
-                    isSelected
-                      ? 'btn-tactile-primary'
-                      : 'btn-tactile-secondary text-foreground-muted hover:text-foreground'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
+          {availableMethodOptions.length > 1 && (
+            <FilterPills<ReviewMethodFilter>
+              size="sm"
+              value={effectiveMethodFilter}
+              onChange={setSelectedMethodFilter}
+              options={availableMethodOptions}
+              ariaLabel="Filter reviews by brew method"
+              testID="reviews-method-filters"
+            />
+          )}
 
           {/* Feed Cards List */}
           <div className="space-y-3">

@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { DEFAULT_PRESET_RECIPES, BrewRecipe } from '@brewlog/core';
 import { RecipeCatalogList } from './RecipeCatalogList';
@@ -88,6 +88,127 @@ describe('RecipeCatalogList', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /^v60$/i }));
     expect(onSelectMethod).toHaveBeenCalledWith('v60');
+  });
+
+  it('renders only active method FilterPills for provided recipes and maps hyphenated labels to exact slugs', () => {
+    const onSelectMethod = vi.fn();
+    const recipesWithHyphenated: BrewRecipe[] = [
+      ...DEFAULT_PRESET_RECIPES,
+      {
+        ...DEFAULT_PRESET_RECIPES[0],
+        id: 'custom-fp',
+        name: 'Morning French Press',
+        brewMethod: 'french-press',
+      },
+      {
+        ...DEFAULT_PRESET_RECIPES[0],
+        id: 'custom-kw',
+        name: 'Kalita Flat Bed',
+        brewMethod: 'kalita-wave',
+      },
+    ];
+
+    const { rerender } = render(
+      <MemoryRouter>
+        <RecipeCatalogList
+          recipes={DEFAULT_PRESET_RECIPES}
+          activeRecipeId=""
+          selectedMethodFilter="aeropress"
+          onSelectMethodFilter={onSelectMethod}
+        />
+      </MemoryRouter>
+    );
+
+    const filterGroup = screen.getByRole('group', { name: 'Filter recipes by brew method' });
+    expect(filterGroup.getAttribute('data-testid')).toBe('recipe-method-filters');
+
+    expect(within(filterGroup).getByRole('button', { name: 'All' })).toBeDefined();
+    expect(within(filterGroup).getByRole('button', { name: 'V60' })).toBeDefined();
+    expect(within(filterGroup).getByRole('button', { name: 'AeroPress' })).toBeDefined();
+    expect(within(filterGroup).getByRole('button', { name: 'Flair' })).toBeDefined();
+    expect(within(filterGroup).queryByRole('button', { name: 'Chemex' })).toBeNull();
+    expect(within(filterGroup).queryByRole('button', { name: 'French Press' })).toBeNull();
+    expect(within(filterGroup).queryByRole('button', { name: 'Kalita Wave' })).toBeNull();
+
+    rerender(
+      <MemoryRouter>
+        <RecipeCatalogList
+          recipes={recipesWithHyphenated}
+          activeRecipeId=""
+          selectedMethodFilter="aeropress"
+          onSelectMethodFilter={onSelectMethod}
+        />
+      </MemoryRouter>
+    );
+
+    const aeroPressBtn = within(filterGroup).getByRole('button', { name: 'AeroPress' });
+    const allBtn = within(filterGroup).getByRole('button', { name: 'All' });
+    const frenchPressBtn = within(filterGroup).getByRole('button', { name: 'French Press' });
+    const kalitaBtn = within(filterGroup).getByRole('button', { name: 'Kalita Wave' });
+
+    expect(aeroPressBtn.getAttribute('aria-pressed')).toBe('true');
+    expect(allBtn.getAttribute('aria-pressed')).toBe('false');
+
+    fireEvent.click(frenchPressBtn);
+    expect(onSelectMethod).toHaveBeenCalledWith('french-press');
+
+    fireEvent.click(kalitaBtn);
+    expect(onSelectMethod).toHaveBeenCalledWith('kalita-wave');
+  });
+
+  it('hides FilterPills when recipes is empty and supports keyboard parity for present methods', () => {
+    const onSelectMethod = vi.fn();
+    const { rerender } = render(
+      <MemoryRouter>
+        <RecipeCatalogList
+          recipes={[]}
+          activeRecipeId=""
+          selectedMethodFilter="v60"
+          onSelectMethodFilter={onSelectMethod}
+        />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByTestId('recipe-method-filters')).toBeNull();
+    expect(onSelectMethod).toHaveBeenCalledWith('all');
+
+    rerender(
+      <MemoryRouter>
+        <RecipeCatalogList
+          recipes={DEFAULT_PRESET_RECIPES}
+          activeRecipeId=""
+          selectedMethodFilter="all"
+          onSelectMethodFilter={onSelectMethod}
+        />
+      </MemoryRouter>
+    );
+
+    const filterGroup = screen.getByTestId('recipe-method-filters');
+    const allBtn = within(filterGroup).getByRole('button', { name: 'All' });
+    const v60Btn = within(filterGroup).getByRole('button', { name: 'V60' });
+    const flairBtn = within(filterGroup).getByRole('button', { name: 'Flair' });
+
+    allBtn.focus();
+    fireEvent.keyDown(allBtn, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(v60Btn);
+
+    fireEvent.keyDown(v60Btn, { key: 'End' });
+    expect(document.activeElement).toBe(flairBtn);
+
+    fireEvent.keyDown(flairBtn, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(allBtn);
+
+    fireEvent.keyDown(allBtn, { key: 'ArrowLeft' });
+    expect(document.activeElement).toBe(flairBtn);
+
+    fireEvent.keyDown(flairBtn, { key: 'Home' });
+    expect(document.activeElement).toBe(allBtn);
+
+    for (const key of ['Tab', 'Enter', ' ']) {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      allBtn.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(false);
+    }
   });
 
   it('shows empty message when no recipes match filter', () => {

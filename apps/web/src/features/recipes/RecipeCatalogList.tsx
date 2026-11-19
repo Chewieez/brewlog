@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router';
 import { BrewRecipe } from '@brewlog/core';
+import { FilterPills, type FilterPillsOption } from '@brewlog/ui';
 import { Trash2, Pencil } from 'lucide-react';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 
@@ -14,7 +15,29 @@ export interface RecipeCatalogListProps {
   onDeleteRecipe?: (recipe: BrewRecipe) => void;
 }
 
-const METHODS = ['all', 'v60', 'aeropress', 'flair', 'chemex', 'french-press', 'kalita-wave'] as const;
+const METHOD_FILTER_OPTIONS: FilterPillsOption<string>[] = [
+  { value: 'all', label: 'All' },
+  { value: 'v60', label: 'V60' },
+  { value: 'aeropress', label: 'AeroPress' },
+  { value: 'flair', label: 'Flair' },
+  { value: 'chemex', label: 'Chemex' },
+  { value: 'french-press', label: 'French Press' },
+  { value: 'kalita-wave', label: 'Kalita Wave' },
+  { value: 'espresso', label: 'Espresso' },
+  { value: 'origami', label: 'Origami' },
+  { value: 'clever-dripper', label: 'Clever Dripper' },
+  { value: 'moka-pot', label: 'Moka Pot' },
+  { value: 'cold-brew', label: 'Cold Brew' },
+  { value: 'custom', label: 'Custom' },
+];
+
+function formatFallbackMethodLabel(method: string): string {
+  return method
+    .split('-')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
 
 export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
   recipes,
@@ -27,35 +50,56 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
 }) => {
   const [recipeToDelete, setRecipeToDelete] = useState<BrewRecipe | null>(null);
 
+  const availableMethodOptions = useMemo(() => {
+    const presentMethods = new Set<string>(recipes.map((r) => r.brewMethod));
+    const knownOptions = METHOD_FILTER_OPTIONS.filter(
+      (opt) => opt.value !== 'all' && presentMethods.has(opt.value)
+    );
+    const knownValues = new Set(knownOptions.map((opt) => opt.value));
+    const extraOptions: FilterPillsOption<string>[] = Array.from(presentMethods)
+      .filter((method) => Boolean(method) && !knownValues.has(method))
+      .map((method) => ({
+        value: method,
+        label: formatFallbackMethodLabel(method),
+      }));
+
+    return [METHOD_FILTER_OPTIONS[0], ...knownOptions, ...extraOptions];
+  }, [recipes]);
+
+  const effectiveMethodFilter = useMemo(
+    () =>
+      availableMethodOptions.some((opt) => opt.value === selectedMethodFilter)
+        ? selectedMethodFilter
+        : 'all',
+    [availableMethodOptions, selectedMethodFilter]
+  );
+
+  useEffect(() => {
+    if (selectedMethodFilter !== effectiveMethodFilter) {
+      onSelectMethodFilter(effectiveMethodFilter);
+    }
+  }, [selectedMethodFilter, effectiveMethodFilter, onSelectMethodFilter]);
+
   const filteredRecipes = recipes.filter((r) => {
-    return selectedMethodFilter === 'all' || r.brewMethod === selectedMethodFilter;
+    return effectiveMethodFilter === 'all' || r.brewMethod === effectiveMethodFilter;
   });
 
   const isCustomRecipe = (recipe: BrewRecipe) =>
     !recipe.isPreset && !recipe.id.startsWith('preset-');
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Method Filter Bar */}
-      <div className="flex flex-wrap gap-2">
-        {METHODS.map((method) => {
-          const isSelected = selectedMethodFilter === method;
-          return (
-            <button
-              key={method}
-              type="button"
-              onClick={() => onSelectMethodFilter(method)}
-              className={`h-8 px-3 rounded-lg text-xs font-mono font-semibold uppercase tracking-wider transition-all cursor-pointer border-0 inline-flex items-center justify-center ${
-                isSelected
-                  ? 'btn-tactile-primary'
-                  : 'btn-tactile-secondary text-foreground-muted hover:text-foreground'
-              }`}
-            >
-              {method.replace('-', ' ')}
-            </button>
-          );
-        })}
-      </div>
+      {availableMethodOptions.length > 1 && (
+        <FilterPills
+          size="sm"
+          value={effectiveMethodFilter}
+          onChange={onSelectMethodFilter}
+          options={availableMethodOptions}
+          ariaLabel="Filter recipes by brew method"
+          testID="recipe-method-filters"
+        />
+      )}
 
       {/* Recipe Cards List */}
       <div className="space-y-3">

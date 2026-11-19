@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, waitFor, within } from "@testing-library/react";
 import { EquipmentView } from "./EquipmentView";
 import { Equipment } from "@brewlog/core";
 
@@ -164,10 +164,22 @@ describe("EquipmentView", () => {
     expect(screen.queryByText("Stagg EKG")).toBeNull();
   });
 
-  it("filters equipment by category filter chips", () => {
+  it("filters equipment by category filter pills and updates aria-pressed", () => {
     render(<EquipmentView equipment={MOCK_EQUIPMENT} onAddEquipment={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Brewers" }));
+    const filterGroup = screen.getByRole("group", { name: "Filter equipment by category" });
+    expect(filterGroup.getAttribute("data-testid")).toBe("equipment-category-filters");
+
+    const allChip = within(filterGroup).getByRole("button", { name: "All" });
+    const brewersChip = within(filterGroup).getByRole("button", { name: "Brewers" });
+    const otherChip = within(filterGroup).getByRole("button", { name: "Other" });
+
+    expect(allChip.getAttribute("aria-pressed")).toBe("true");
+    expect(brewersChip.getAttribute("aria-pressed")).toBe("false");
+
+    fireEvent.click(brewersChip);
+    expect(brewersChip.getAttribute("aria-pressed")).toBe("true");
+    expect(allChip.getAttribute("aria-pressed")).toBe("false");
 
     expect(screen.getByText(/Brewers & Drippers \(1\)/i)).toBeDefined();
     expect(screen.getByText("V60 02 Ceramic")).toBeDefined();
@@ -175,19 +187,50 @@ describe("EquipmentView", () => {
     expect(screen.queryByRole("heading", { name: /Precision Scales/i })).toBeNull();
     expect(screen.queryByRole("heading", { name: /Kettles & Water Gear/i })).toBeNull();
     expect(screen.queryByRole("heading", { name: /Other Equipment & Accessories/i })).toBeNull();
-  });
 
-  it("filters equipment by other category", () => {
-    render(<EquipmentView equipment={MOCK_EQUIPMENT} onAddEquipment={vi.fn()} />);
-
-    fireEvent.click(screen.getByRole("button", { name: "Other" }));
-
+    fireEvent.click(otherChip);
+    expect(otherChip.getAttribute("aria-pressed")).toBe("true");
+    expect(brewersChip.getAttribute("aria-pressed")).toBe("false");
     expect(screen.getByText(/Other Equipment & Accessories \(1\)/i)).toBeDefined();
     expect(screen.getByText("Atmos Canister")).toBeDefined();
-    expect(screen.queryByRole("heading", { name: /Grinders/i })).toBeNull();
     expect(screen.queryByRole("heading", { name: /Brewers & Drippers/i })).toBeNull();
-    expect(screen.queryByRole("heading", { name: /Precision Scales/i })).toBeNull();
-    expect(screen.queryByRole("heading", { name: /Kettles & Water Gear/i })).toBeNull();
+
+    fireEvent.click(allChip);
+    expect(allChip.getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByText(/Grinders \(1\)/i)).toBeDefined();
+    expect(screen.getByText(/Brewers & Drippers \(1\)/i)).toBeDefined();
+    expect(screen.getByText(/Other Equipment & Accessories \(1\)/i)).toBeDefined();
+  });
+
+  it("keeps category FilterPills visible when equipment is empty and supports keyboard parity", () => {
+    render(<EquipmentView equipment={[]} onAddEquipment={vi.fn()} />);
+
+    const filterGroup = screen.getByTestId("equipment-category-filters");
+    const allChip = within(filterGroup).getByRole("button", { name: "All" });
+    const grindersChip = within(filterGroup).getByRole("button", { name: "Grinders" });
+    const otherChip = within(filterGroup).getByRole("button", { name: "Other" });
+
+    allChip.focus();
+    fireEvent.keyDown(allChip, { key: "ArrowRight" });
+    expect(document.activeElement).toBe(grindersChip);
+
+    fireEvent.keyDown(grindersChip, { key: "End" });
+    expect(document.activeElement).toBe(otherChip);
+
+    fireEvent.keyDown(otherChip, { key: "ArrowRight" });
+    expect(document.activeElement).toBe(allChip);
+
+    fireEvent.keyDown(allChip, { key: "ArrowLeft" });
+    expect(document.activeElement).toBe(otherChip);
+
+    fireEvent.keyDown(otherChip, { key: "Home" });
+    expect(document.activeElement).toBe(allChip);
+
+    for (const key of ["Tab", "Enter", " "]) {
+      const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+      allChip.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(false);
+    }
   });
 
   it("opens edit modal on card click and calls onUpdateEquipment on save", async () => {

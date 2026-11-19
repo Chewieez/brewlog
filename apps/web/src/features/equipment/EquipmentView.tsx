@@ -1,23 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "@brewlog/ui";
+import { Button, FilterPills, type FilterPillsOption } from "@brewlog/ui";
 import { Equipment, EquipmentType, GrinderSettingScale } from "@brewlog/core";
 import { Sliders, Plus, Coffee, Scale, Flame, Trash2, Search, X, Star, Layers } from "lucide-react";
 import { ConfirmationModal } from "../../components/shared/ConfirmationModal";
 
 export type CategoryFilter = "all" | EquipmentType;
 
-interface CategoryOption {
-  id: CategoryFilter;
-  label: string;
-}
-
-const CATEGORIES: CategoryOption[] = [
-  { id: "all", label: "All" },
-  { id: "grinder", label: "Grinders" },
-  { id: "brewer", label: "Brewers" },
-  { id: "scale", label: "Scales" },
-  { id: "kettle", label: "Kettles" },
-  { id: "other", label: "Other" },
+const CATEGORY_FILTER_OPTIONS: FilterPillsOption<CategoryFilter>[] = [
+  { value: "all", label: "All" },
+  { value: "grinder", label: "Grinders" },
+  { value: "brewer", label: "Brewers" },
+  { value: "scale", label: "Scales" },
+  { value: "kettle", label: "Kettles" },
+  { value: "other", label: "Other" },
 ];
 
 interface EquipmentViewProps {
@@ -243,8 +238,8 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       </div>
 
       {/* Search & Category Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
+      <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3.5 top-3 w-4 h-4 text-foreground-muted" />
           <input
             type="text"
@@ -265,24 +260,15 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
           ) : null}
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-          {CATEGORIES.map((cat) => {
-            const isSelected = selectedCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`h-8 px-3 rounded-lg text-xs font-mono uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap border-0 inline-flex items-center justify-center ${
-                  isSelected
-                    ? "btn-tactile-primary"
-                    : "btn-tactile-secondary text-foreground-muted hover:text-foreground"
-                }`}
-              >
-                {cat.label}
-              </button>
-            );
-          })}
+        <div className="lg:shrink-0">
+          <FilterPills<CategoryFilter>
+            size="sm"
+            value={selectedCategory}
+            onChange={setSelectedCategory}
+            options={CATEGORY_FILTER_OPTIONS}
+            ariaLabel="Filter equipment by category"
+            testID="equipment-category-filters"
+          />
         </div>
       </div>
 
