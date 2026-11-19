@@ -363,15 +363,29 @@ test.describe("Core Web App End-to-End Context Flows", () => {
     await verifyFilterBar("/reviews", "reviews-method-filters", "V60", "Other");
     const reviewsGroup = page.getByTestId("reviews-method-filters");
     const masterFeed = page.getByTestId("master-feed");
-    await expect(masterFeed.getByText("Worka Sakaro Anaerobic")).toBeVisible();
-    await reviewsGroup.getByRole("button", { name: "V60", exact: true }).focus();
+    await page.getByRole("button", { name: /log review/i }).click();
+    await page.getByTestId("detail-pane").getByRole("combobox").first().selectOption("custom");
+    await page.getByPlaceholder("e.g. Worka Sakaro").fill("Seed Independent AeroPress Lot");
+    await page.getByPlaceholder("e.g. Sey Coffee").fill("Test Roaster");
+    await page.locator("#review-brew-method").selectOption("aeropress");
+    await page.getByRole("button", { name: /save review/i }).first().click();
+
+    await expect(masterFeed.getByText("Seed Independent AeroPress Lot")).toBeVisible();
+    const totalReviewsCount = await masterFeed.locator('[role="button"]').count();
+
+    await reviewsGroup.getByRole("button", { name: "All", exact: true }).focus();
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("Enter");
-    await expect(masterFeed.getByText("Worka Sakaro Anaerobic")).not.toBeVisible();
-    await expect(masterFeed.getByText("No cupping logs match your search.")).toBeVisible();
+    await expect(masterFeed.getByText("Seed Independent AeroPress Lot")).not.toBeVisible();
+
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("Enter");
+    await expect(masterFeed.getByText("Seed Independent AeroPress Lot")).toBeVisible();
+
     await page.keyboard.press("Home");
     await page.keyboard.press("Space");
-    await expect(masterFeed.getByText("Worka Sakaro Anaerobic")).toBeVisible();
+    await expect(masterFeed.getByText("Seed Independent AeroPress Lot")).toBeVisible();
+    await expect(masterFeed.locator('[role="button"]')).toHaveCount(totalReviewsCount);
 
     await verifyFilterBar("/equipment", "equipment-category-filters", "Grinders", "Other");
     const equipmentGroup = page.getByTestId("equipment-category-filters");

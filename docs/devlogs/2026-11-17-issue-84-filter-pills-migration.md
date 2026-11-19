@@ -45,5 +45,5 @@ Following Issue #65's introduction of `@brewlog/ui` `FilterPills`, three web fea
   - `@brewlog/supabase`: 4 files, 29 tests passed
   - `@brewlog/ui`: 14 files, 81 tests passed
   - `@brewlog/mobile`: 59 files, 510 tests passed
-  - `@brewlog/web`: 29 files, 295 tests passed (including 25 tests in `ReviewsView.test.tsx`, 10 tests in `RecipeCatalogList.test.tsx`, and `EquipmentView.test.tsx`)
+  - `@brewlog/web`: 29 files, 295 tests passed (including 25 tests in `ReviewsView.test.tsx`, 10 tests in `RecipeCatalogList.test.tsx`, and 11 tests in `EquipmentView.test.tsx`)
 - **Playwright E2E (`npm run test:e2e --workspace=@brewlog/web`)**: 19/19 passed, including `button-sizing-tokens.spec.ts`, `corner-radius-hierarchy.spec.ts`, `context-features.spec.ts`, and `smoke.spec.ts`.

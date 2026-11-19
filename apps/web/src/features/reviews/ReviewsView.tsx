@@ -495,15 +495,14 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
         (log.flavorTags && log.flavorTags.some((tag) => tag.toLowerCase().includes(q)));
 
       const method = log.brewMethod?.toLowerCase() || '';
-      const filter = selectedMethodFilter.toLowerCase();
       let matchesMethod = true;
 
-      if (filter === 'all') {
+      if (selectedMethodFilter === 'all') {
         matchesMethod = true;
-      } else if (filter === 'other') {
+      } else if (selectedMethodFilter === 'other') {
         matchesMethod = !EXPLICIT_FILTER_METHODS.has(method);
       } else {
-        matchesMethod = method === filter;
+        matchesMethod = method === selectedMethodFilter;
       }
 
       return matchesSearch && matchesMethod;
