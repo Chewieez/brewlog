@@ -429,4 +429,11 @@ describe('TimerScreen - Cold Start Mode Hydration', () => {
     // Explicit free_brew param is preserved
     expect(freeBrewTab.getAttribute('aria-pressed')).toBe('true');
   });
+
+  it('renders Timer title in TabScreenHeader without an in-screen ProfileHeaderButton', () => {
+    const { getByText, queryByLabelText } = render(<TimerScreen />);
+
+    expect(getByText('Timer')).toBeDefined();
+    expect(queryByLabelText('Account profile')).toBeNull();
+  });
 });

@@ -5,7 +5,9 @@ import { render, fireEvent, cleanup } from '@testing-library/react';
 import { DEFAULT_PRESET_RECIPES } from '@brewlog/core';
 
 vi.mock('react-native', () => ({
-  View: ({ children, style, ...props }: any) => <div {...props}>{children}</div>,
+  View: ({ children, style, testID, ...props }: any) => (
+    <div data-testid={testID} {...props}>{children}</div>
+  ),
   Text: ({ children, style, numberOfLines, ...props }: any) => <span {...props}>{children}</span>,
   ScrollView: ({
     children,
@@ -117,5 +119,14 @@ describe('RecipesCatalogScreen', () => {
 
     expect(getByText('No Recipes Found')).toBeDefined();
     expect(getByText('No recipes match the selected brew method filter.')).toBeDefined();
+  });
+
+  it('renders Recipes title and NEW RECIPE inline without an in-screen ProfileHeaderButton', () => {
+    const { getByTestId, queryByLabelText } = render(<RecipesCatalogScreen />);
+
+    const titleRow = getByTestId('tab-screen-header-title-row');
+    expect(titleRow.textContent).toContain('Recipes');
+    expect(titleRow.textContent).toContain('NEW RECIPE');
+    expect(queryByLabelText('Account profile')).toBeNull();
   });
 });

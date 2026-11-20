@@ -7,8 +7,8 @@ import { Equipment } from '@brewlog/core';
 import { AuthModalContext } from '../../auth/AuthModalContext';
 
 vi.mock('react-native', () => ({
-  View: ({ children, style: _style, accessibilityRole, accessibilityLabel, ...props }: any) => (
-    <div role={accessibilityRole} aria-label={accessibilityLabel} {...props}>
+  View: ({ children, style: _style, testID, accessibilityRole, accessibilityLabel, ...props }: any) => (
+    <div data-testid={testID} role={accessibilityRole} aria-label={accessibilityLabel} {...props}>
       {children}
     </div>
   ),
@@ -261,12 +261,11 @@ describe('EquipmentCatalogScreen', () => {
     });
   });
 
-  it('triggers openAuthSheet when ProfileHeaderButton in header is tapped', () => {
-    const mockOpenAuthSheet = vi.fn();
-    const { getByRole } = render(
+  it('renders Equipment title and ADD EQUIPMENT inline without an in-screen ProfileHeaderButton', () => {
+    const { getByTestId, queryByRole } = render(
       <AuthModalContext.Provider
         value={{
-          openAuthSheet: mockOpenAuthSheet,
+          openAuthSheet: vi.fn(),
           closeAuthSheet: vi.fn(),
           isAuthSheetVisible: false,
         }}
@@ -275,7 +274,9 @@ describe('EquipmentCatalogScreen', () => {
       </AuthModalContext.Provider>
     );
 
-    fireEvent.click(getByRole('button', { name: 'Account profile' }));
-    expect(mockOpenAuthSheet).toHaveBeenCalledTimes(1);
+    const titleRow = getByTestId('tab-screen-header-title-row');
+    expect(titleRow.textContent).toContain('Equipment');
+    expect(titleRow.textContent).toContain('ADD EQUIPMENT');
+    expect(queryByRole('button', { name: 'Account profile' })).toBeNull();
   });
 });

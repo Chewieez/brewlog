@@ -23,8 +23,7 @@ import { FONTS } from '../../../theme/fonts';
 import { useEquipment } from '../EquipmentContext';
 import { EquipmentCard } from '../components/EquipmentCard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAuthModal } from '../../auth/AuthModalContext';
-import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
+import { TabScreenHeader } from '../../../components/navigation/TabScreenHeader';
 import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
 
 export type CategoryFilter = 'all' | 'grinder' | 'brewer' | 'scale' | 'kettle' | 'other';
@@ -48,7 +47,6 @@ export const EquipmentCatalogScreen: React.FC = () => {
   const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { openAuthSheet } = useAuthModal();
   const scrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
   useScrollToTop(scrollRef as any);
   const {
@@ -176,33 +174,14 @@ export const EquipmentCatalogScreen: React.FC = () => {
         keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
-        <View
-          style={[
-            styles.headerContainer,
-            { paddingTop: Math.max(insets.top, 16) },
-          ]}
-        >
-          <View style={styles.titleRow}>
-            <View style={styles.titleTextContainer}>
-              <Text style={styles.headerTitle}>Equipment</Text>
-              <Text style={styles.headerSubtitle}>
-                Manage your grinders, brewers, scales, and kettles.
-              </Text>
-            </View>
-            <ProfileHeaderButton onPress={openAuthSheet} />
-          </View>
-
-          <View style={styles.actionRow}>
-            <Pressable
-              onPress={handleAddEquipment}
-              style={styles.addButton}
-              accessibilityRole="button"
-              accessibilityLabel="Add new equipment"
-            >
-              <Plus size={16} color={colors.canvas} />
-              <Text style={styles.addButtonText}>ADD EQUIPMENT</Text>
-            </Pressable>
-          </View>
+        <View style={styles.headerContainer}>
+          <TabScreenHeader
+            title="Equipment"
+            subtitle="Manage your grinders, brewers, scales, and kettles."
+            actionLabel="ADD EQUIPMENT"
+            onActionPress={handleAddEquipment}
+            actionAccessibilityLabel="Add new equipment"
+          />
 
           {/* Search Bar */}
           <View style={styles.searchBar}>
@@ -361,49 +340,9 @@ const useStyles = makeStyles((colors) => ({
   scrollContent: {},
   headerContainer: {
     paddingHorizontal: 16,
+    paddingTop: 16,
     paddingBottom: 8,
     gap: 14,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  titleTextContainer: {
-    flex: 1,
-    marginRight: 12,
-  },
-  headerTitle: {
-    fontFamily: FONTS.displaySemiBold,
-    fontSize: 26,
-    color: colors.textPrimary,
-  },
-  headerSubtitle: {
-    fontFamily: FONTS.bodyRegular,
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: colors.accent,
-    minHeight: 44,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    justifyContent: 'center',
-  },
-  addButtonText: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 11,
-    color: colors.canvas,
-    letterSpacing: 1,
   },
   searchBar: {
     flexDirection: 'row',

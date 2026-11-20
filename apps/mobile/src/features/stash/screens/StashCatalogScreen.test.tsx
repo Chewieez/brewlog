@@ -41,17 +41,19 @@ vi.mock('react-native', () => ({
   View: ({
     children,
     style: _style,
+    testID,
     accessibilityRole,
     accessibilityLabel,
     ...props
   }: {
     children?: React.ReactNode;
     style?: unknown;
+    testID?: string;
     accessibilityRole?: string;
     accessibilityLabel?: string;
     [key: string]: unknown;
   }) => (
-    <div role={accessibilityRole} aria-label={accessibilityLabel} {...props}>
+    <div data-testid={testID} role={accessibilityRole} aria-label={accessibilityLabel} {...props}>
       {children}
     </div>
   ),
@@ -441,5 +443,18 @@ describe('StashCatalogScreen', () => {
     );
 
     expect(getByRole('summary')).toBeTruthy();
+  });
+
+  it('renders Stash title and ADD BEAN inline without an in-screen ProfileHeaderButton', () => {
+    const { getByTestId, queryByLabelText } = render(
+      <StashContext.Provider value={mockValue}>
+        <StashCatalogScreen />
+      </StashContext.Provider>
+    );
+
+    const titleRow = getByTestId('tab-screen-header-title-row');
+    expect(titleRow.textContent).toContain('Stash');
+    expect(titleRow.textContent).toContain('ADD BEAN');
+    expect(queryByLabelText('Account profile')).toBeNull();
   });
 });

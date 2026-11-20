@@ -97,17 +97,19 @@ vi.mock('react-native', () => ({
   View: ({
     children,
     style,
+    testID,
     accessibilityRole,
     accessibilityLabel,
     ...props
   }: {
     children?: React.ReactNode;
     style?: unknown;
+    testID?: string;
     accessibilityRole?: string;
     accessibilityLabel?: string;
     [key: string]: unknown;
   }) => (
-    <div role={accessibilityRole} aria-label={accessibilityLabel} {...props}>
+    <div data-testid={testID} role={accessibilityRole} aria-label={accessibilityLabel} {...props}>
       {children}
     </div>
   ),
@@ -376,5 +378,14 @@ describe('ReviewsCatalogScreen', () => {
     const hitSlop = JSON.parse(espressoChip.getAttribute('data-hitslop') || '{}');
     expect(hitSlop.top).toBe(6);
     expect(hitSlop.bottom).toBe(6);
+  });
+
+  it('renders Reviews title and ADD REVIEW inline without an in-screen ProfileHeaderButton', () => {
+    const { getByTestId, queryByLabelText } = render(<ReviewsCatalogScreen />);
+
+    const titleRow = getByTestId('tab-screen-header-title-row');
+    expect(titleRow.textContent).toContain('Reviews');
+    expect(titleRow.textContent).toContain('ADD REVIEW');
+    expect(queryByLabelText('Account profile')).toBeNull();
   });
 });
