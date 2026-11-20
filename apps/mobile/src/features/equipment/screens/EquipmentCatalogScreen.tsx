@@ -177,7 +177,6 @@ export const EquipmentCatalogScreen: React.FC = () => {
         <View style={styles.headerContainer}>
           <TabScreenHeader
             title="Equipment"
-            subtitle="Manage your grinders, brewers, scales, and kettles."
             actionLabel="ADD EQUIPMENT"
             onActionPress={handleAddEquipment}
             actionAccessibilityLabel="Add new equipment"

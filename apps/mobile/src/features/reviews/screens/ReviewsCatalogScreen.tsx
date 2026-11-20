@@ -150,7 +150,6 @@ export const ReviewsCatalogScreen: React.FC = () => {
     <View style={styles.headerContainer}>
       <TabScreenHeader
         title="Reviews"
-        subtitle="SCA scores, flavor profiles & sensory logs"
         actionLabel="ADD REVIEW"
         onActionPress={handleAddReview}
         actionAccessibilityLabel="Add Review"

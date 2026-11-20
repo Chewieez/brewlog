@@ -132,8 +132,10 @@ describe("TabScreenHeader", () => {
       getByTestId("tab-screen-header-title-row").getAttribute("data-style")
     );
     expect(titleRowStyle).toMatchObject({
+      minHeight: 44,
       flexDirection: "row",
       alignItems: "center",
+      alignContent: "center",
       justifyContent: "space-between",
       flexWrap: "wrap",
     });

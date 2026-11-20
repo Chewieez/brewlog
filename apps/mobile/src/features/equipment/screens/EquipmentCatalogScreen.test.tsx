@@ -176,7 +176,6 @@ describe('EquipmentCatalogScreen', () => {
     const { getByText, getByRole } = render(<EquipmentCatalogScreen />);
 
     expect(getByText('Equipment')).toBeDefined();
-    expect(getByText('Manage your grinders, brewers, scales, and kettles.')).toBeDefined();
     expect(getByRole('button', { name: 'Add new equipment' })).toBeDefined();
   });
 

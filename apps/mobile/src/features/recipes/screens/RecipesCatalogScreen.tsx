@@ -51,7 +51,6 @@ export const RecipesCatalogScreen: React.FC = () => {
         <View style={styles.header}>
           <TabScreenHeader
             title="Recipes"
-            subtitle="Specialty brew guides alongside your custom recipes."
             actionLabel="NEW RECIPE"
             onActionPress={handleCreateNew}
             actionAccessibilityLabel="Create new custom recipe"

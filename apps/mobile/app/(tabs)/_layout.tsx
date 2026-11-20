@@ -35,7 +35,7 @@ export default function TabLayout() {
           tabBar={(props) => <FloatingPillTabBar {...props} />}
           screenOptions={{
             headerShown: false,
-            animation: 'shift',
+            animation: 'none',
             tabBarStyle: {
               position: 'absolute',
               backgroundColor: 'transparent',

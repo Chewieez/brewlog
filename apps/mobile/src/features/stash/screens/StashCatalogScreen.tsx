@@ -263,7 +263,6 @@ export const StashCatalogScreen: React.FC = () => {
     <View style={styles.headerContainer}>
       <TabScreenHeader
         title="Stash"
-        subtitle="Manage roast dates, resting curves, and freezer storage."
         actionLabel="ADD BEAN"
         onActionPress={handleAddBag}
         actionAccessibilityLabel="Add new bean to stash"

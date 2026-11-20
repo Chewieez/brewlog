@@ -56,10 +56,13 @@ export const TabScreenHeader: React.FC<TabScreenHeaderProps> = ({
 const useStyles = makeStyles((colors) => ({
   container: {
     gap: 4,
+    paddingBottom: 6,
   },
   titleRow: {
+    minHeight: 44,
     flexDirection: "row",
     alignItems: "center",
+    alignContent: "center",
     justifyContent: "space-between",
     flexWrap: "wrap",
     columnGap: 12,
