@@ -2,6 +2,11 @@
 import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, fireEvent, cleanup, within } from "@testing-library/react";
+import {
+  ThemeProvider,
+  TACTILE_DARK_THEME,
+  CRISP_STUDIO_LIGHT_THEME,
+} from "@brewlog/ui";
 
 vi.mock("react-native", () => ({
   View: ({ children, style, testID, accessibilityRole, ...props }: any) => (
@@ -146,7 +151,67 @@ describe("TabScreenHeader", () => {
     expect(buttonStyle).toMatchObject({
       minHeight: 44,
       flexShrink: 0,
+      maxWidth: "100%",
       marginLeft: "auto",
     });
+
+    const buttonTextStyle = flattenStyle(
+      within(getByRole("button", { name: "Add new equipment" }))
+        .getByText("ADD EQUIPMENT")
+        .getAttribute("data-style")
+    );
+    expect(buttonTextStyle).toMatchObject({
+      flexShrink: 1,
+    });
+  });
+
+  it("resolves dark and light theme tokens from @brewlog/ui", () => {
+    const { getByRole, getByText, rerender } = render(
+      <ThemeProvider theme={TACTILE_DARK_THEME}>
+        <TabScreenHeader
+          title="Recipes"
+          subtitle="Specialty brew guides"
+          actionLabel="NEW RECIPE"
+          onActionPress={vi.fn()}
+          actionAccessibilityLabel="Create new custom recipe"
+        />
+      </ThemeProvider>
+    );
+
+    expect(
+      flattenStyle(getByRole("heading", { name: "Recipes" }).getAttribute("data-style"))
+    ).toMatchObject({ color: TACTILE_DARK_THEME.colors.foreground });
+    expect(
+      flattenStyle(getByText("Specialty brew guides").getAttribute("data-style"))
+    ).toMatchObject({ color: TACTILE_DARK_THEME.colors.foregroundSecondary });
+    expect(
+      flattenStyle(
+        getByRole("button", { name: "Create new custom recipe" }).getAttribute("data-style")
+      )
+    ).toMatchObject({ backgroundColor: TACTILE_DARK_THEME.colors.accent });
+
+    rerender(
+      <ThemeProvider theme={CRISP_STUDIO_LIGHT_THEME}>
+        <TabScreenHeader
+          title="Recipes"
+          subtitle="Specialty brew guides"
+          actionLabel="NEW RECIPE"
+          onActionPress={vi.fn()}
+          actionAccessibilityLabel="Create new custom recipe"
+        />
+      </ThemeProvider>
+    );
+
+    expect(
+      flattenStyle(getByRole("heading", { name: "Recipes" }).getAttribute("data-style"))
+    ).toMatchObject({ color: CRISP_STUDIO_LIGHT_THEME.colors.foreground });
+    expect(
+      flattenStyle(getByText("Specialty brew guides").getAttribute("data-style"))
+    ).toMatchObject({ color: CRISP_STUDIO_LIGHT_THEME.colors.foregroundSecondary });
+    expect(
+      flattenStyle(
+        getByRole("button", { name: "Create new custom recipe" }).getAttribute("data-style")
+      )
+    ).toMatchObject({ backgroundColor: CRISP_STUDIO_LIGHT_THEME.colors.accent });
   });
 });

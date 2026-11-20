@@ -51,60 +51,60 @@ export default function TabLayoutIOS() {
         <TopAppHeader onProfilePress={openAuthSheet} />
         <View style={styles.tabsContainer}>
           <NativeTabs
-        blurEffect={isDark ? 'dark' : 'systemMaterialLight'}
-        tintColor={colors.accent}
-        iconColor={{
-          default: colors.foregroundSecondary,
-          selected: colors.accent,
-        }}
-        labelStyle={{
-          default: {
-            color: colors.foregroundSecondary,
-          },
-          selected: {
-            color: colors.accent,
-          },
-        }}
-      >
-        <NativeTabs.Trigger name="index">
-          <NativeTabs.Trigger.Label>Timer</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon
-            src={require('../../assets/tabs/timer.png')}
-            renderingMode="template"
-          />
-        </NativeTabs.Trigger>
+            blurEffect={isDark ? 'dark' : 'systemMaterialLight'}
+            tintColor={colors.accent}
+            iconColor={{
+              default: colors.foregroundSecondary,
+              selected: colors.accent,
+            }}
+            labelStyle={{
+              default: {
+                color: colors.foregroundSecondary,
+              },
+              selected: {
+                color: colors.accent,
+              },
+            }}
+          >
+            <NativeTabs.Trigger name="index">
+              <NativeTabs.Trigger.Label>Timer</NativeTabs.Trigger.Label>
+              <NativeTabs.Trigger.Icon
+                src={require('../../assets/tabs/timer.png')}
+                renderingMode="template"
+              />
+            </NativeTabs.Trigger>
 
-        <NativeTabs.Trigger name="stash">
-          <NativeTabs.Trigger.Label>Stash</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon
-            src={require('../../assets/tabs/stash.png')}
-            renderingMode="template"
-          />
-        </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="stash">
+              <NativeTabs.Trigger.Label>Stash</NativeTabs.Trigger.Label>
+              <NativeTabs.Trigger.Icon
+                src={require('../../assets/tabs/stash.png')}
+                renderingMode="template"
+              />
+            </NativeTabs.Trigger>
 
-        <NativeTabs.Trigger name="recipes">
-          <NativeTabs.Trigger.Label>Recipes</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon
-            src={require('../../assets/tabs/recipes.png')}
-            renderingMode="template"
-          />
-        </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="recipes">
+              <NativeTabs.Trigger.Label>Recipes</NativeTabs.Trigger.Label>
+              <NativeTabs.Trigger.Icon
+                src={require('../../assets/tabs/recipes.png')}
+                renderingMode="template"
+              />
+            </NativeTabs.Trigger>
 
-        <NativeTabs.Trigger name="equipment">
-          <NativeTabs.Trigger.Label>Equipment</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon
-            src={require('../../assets/tabs/equipment.png')}
-            renderingMode="template"
-          />
-        </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="equipment">
+              <NativeTabs.Trigger.Label>Equipment</NativeTabs.Trigger.Label>
+              <NativeTabs.Trigger.Icon
+                src={require('../../assets/tabs/equipment.png')}
+                renderingMode="template"
+              />
+            </NativeTabs.Trigger>
 
-        <NativeTabs.Trigger name="reviews">
-          <NativeTabs.Trigger.Label>Reviews</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon
-            src={require('../../assets/tabs/reviews.png')}
-            renderingMode="template"
-          />
-        </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="reviews">
+              <NativeTabs.Trigger.Label>Reviews</NativeTabs.Trigger.Label>
+              <NativeTabs.Trigger.Icon
+                src={require('../../assets/tabs/reviews.png')}
+                renderingMode="template"
+              />
+            </NativeTabs.Trigger>
           </NativeTabs>
         </View>
       </View>

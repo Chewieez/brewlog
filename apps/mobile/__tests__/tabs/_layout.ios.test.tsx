@@ -48,7 +48,7 @@ vi.mock("../../src/features/auth/AuthContext", () => ({
 
 vi.mock("react-native", () => ({
   View: ({ children, style, testID, ...props }: any) => (
-    <div data-testid={testID} {...props}>
+    <div data-testid={testID} data-style={JSON.stringify(style)} {...props}>
       {children}
     </div>
   ),
@@ -238,9 +238,18 @@ describe("TabLayoutIOS Integration", () => {
   });
 
   it("renders static TopAppHeader with BrewLog and navigates to /auth/sheet when Account profile is tapped", () => {
-    const { getByText, getByLabelText } = render(<TabLayoutIOS />);
+    const { container, getByText, getByLabelText } = render(<TabLayoutIOS />);
 
     expect(getByText("BrewLog")).toBeDefined();
+    const rootStyle = JSON.parse(
+      (container.firstElementChild as HTMLElement)?.getAttribute("data-style") || "[]"
+    );
+    expect(rootStyle).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ flex: 1 }),
+        expect.objectContaining({ backgroundColor: "#0e0d0c" }),
+      ])
+    );
 
     fireEvent.click(getByLabelText("Account profile"));
     fireEvent.click(getByLabelText("Account profile"));

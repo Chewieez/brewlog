@@ -48,7 +48,6 @@ vi.mock('react-native-safe-area-context', () => ({
 
 vi.mock('lucide-react-native', () => ({
   Plus: () => null,
-  User: () => null,
 }));
 
 const mockPush = vi.fn();

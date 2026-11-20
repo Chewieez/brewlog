@@ -68,7 +68,7 @@ const useStyles = makeStyles((colors) => ({
   title: {
     fontSize: 26,
     fontFamily: FONTS.displaySemiBold,
-    color: colors.textPrimary,
+    color: colors.foreground,
     flexShrink: 1,
   },
   actionButton: {
@@ -81,6 +81,7 @@ const useStyles = makeStyles((colors) => ({
     paddingHorizontal: 12,
     borderRadius: 8,
     flexShrink: 0,
+    maxWidth: "100%",
     marginLeft: "auto",
   },
   actionButtonPressed: {
@@ -91,10 +92,11 @@ const useStyles = makeStyles((colors) => ({
     fontSize: 11,
     color: colors.canvas,
     letterSpacing: 1,
+    flexShrink: 1,
   },
   subtitle: {
     fontSize: 13,
     fontFamily: FONTS.bodyRegular,
-    color: colors.textSecondary,
+    color: colors.foregroundSecondary,
   },
 }));

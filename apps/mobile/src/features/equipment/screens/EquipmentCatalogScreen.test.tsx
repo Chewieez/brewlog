@@ -4,11 +4,16 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { EquipmentCatalogScreen } from './EquipmentCatalogScreen';
 import { Equipment } from '@brewlog/core';
-import { AuthModalContext } from '../../auth/AuthModalContext';
 
 vi.mock('react-native', () => ({
-  View: ({ children, style: _style, testID, accessibilityRole, accessibilityLabel, ...props }: any) => (
-    <div data-testid={testID} role={accessibilityRole} aria-label={accessibilityLabel} {...props}>
+  View: ({ children, style, testID, accessibilityRole, accessibilityLabel, ...props }: any) => (
+    <div
+      data-testid={testID}
+      data-style={JSON.stringify(style)}
+      role={accessibilityRole}
+      aria-label={accessibilityLabel}
+      {...props}
+    >
       {children}
     </div>
   ),
@@ -68,7 +73,7 @@ vi.mock('react-native', () => ({
 }));
 
 vi.mock('react-native-safe-area-context', () => ({
-  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+  useSafeAreaInsets: () => ({ top: 59, bottom: 34, left: 0, right: 0 }),
 }));
 
 vi.mock('lucide-react-native', () => ({
@@ -81,7 +86,6 @@ vi.mock('lucide-react-native', () => ({
   Flame: () => null,
   Star: () => null,
   Layers: () => null,
-  User: () => null,
 }));
 
 const mockPush = vi.fn();
@@ -261,22 +265,17 @@ describe('EquipmentCatalogScreen', () => {
     });
   });
 
-  it('renders Equipment title and ADD EQUIPMENT inline without an in-screen ProfileHeaderButton', () => {
-    const { getByTestId, queryByRole } = render(
-      <AuthModalContext.Provider
-        value={{
-          openAuthSheet: vi.fn(),
-          closeAuthSheet: vi.fn(),
-          isAuthSheetVisible: false,
-        }}
-      >
-        <EquipmentCatalogScreen />
-      </AuthModalContext.Provider>
-    );
+  it('renders Equipment title and ADD EQUIPMENT inline without ProfileHeaderButton or top inset padding', () => {
+    const { getByTestId, queryByRole } = render(<EquipmentCatalogScreen />);
 
     const titleRow = getByTestId('tab-screen-header-title-row');
     expect(titleRow.textContent).toContain('Equipment');
     expect(titleRow.textContent).toContain('ADD EQUIPMENT');
     expect(queryByRole('button', { name: 'Account profile' })).toBeNull();
+
+    // Header wrapper uses fixed paddingTop: 16 rather than insets.top (59)
+    const headerWrapper = titleRow.parentElement?.parentElement;
+    const headerStyle = JSON.parse(headerWrapper?.getAttribute('data-style') || '{}');
+    expect(headerStyle.paddingTop).toBe(16);
   });
 });

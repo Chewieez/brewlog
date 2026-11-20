@@ -17,7 +17,7 @@ import {
   Flame,
   Layers,
 } from 'lucide-react-native';
-import { Equipment, EquipmentType } from '@brewlog/core';
+import { Equipment } from '@brewlog/core';
 import { makeStyles, useTheme } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { useEquipment } from '../EquipmentContext';
