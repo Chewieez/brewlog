@@ -33,7 +33,44 @@ const {
   };
 });
 
+vi.mock("react-native-safe-area-context", () => ({
+  useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }),
+}));
+
+vi.mock("lucide-react-native", () => ({
+  Coffee: () => null,
+  User: () => null,
+}));
+
+vi.mock("../../src/features/auth/AuthContext", () => ({
+  useOptionalAuth: () => null,
+}));
+
 vi.mock("react-native", () => ({
+  View: ({ children, style, testID, ...props }: any) => (
+    <div data-testid={testID} {...props}>
+      {children}
+    </div>
+  ),
+  Text: ({ children, style, ...props }: any) => <span {...props}>{children}</span>,
+  Pressable: ({
+    children,
+    onPress,
+    accessibilityLabel,
+    accessibilityRole,
+    style,
+    ...props
+  }: any) => (
+    <button
+      type="button"
+      onClick={onPress}
+      role={accessibilityRole}
+      aria-label={accessibilityLabel}
+      {...props}
+    >
+      {typeof children === "function" ? children({ pressed: false }) : children}
+    </button>
+  ),
   Keyboard: {
     dismiss: mockKeyboardDismiss,
     addListener: vi.fn(() => ({ remove: vi.fn() })),
@@ -198,5 +235,18 @@ describe("TabLayoutIOS Integration", () => {
     expect(Keyboard.dismiss).toHaveBeenCalledTimes(1);
     expect(mockDismiss).not.toHaveBeenCalled();
     expect(mockBack).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders static TopAppHeader with BrewLog and navigates to /auth/sheet when Account profile is tapped", () => {
+    const { getByText, getByLabelText } = render(<TabLayoutIOS />);
+
+    expect(getByText("BrewLog")).toBeDefined();
+
+    fireEvent.click(getByLabelText("Account profile"));
+    fireEvent.click(getByLabelText("Account profile"));
+
+    expect(Keyboard.dismiss).toHaveBeenCalled();
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledWith("/auth/sheet");
   });
 });

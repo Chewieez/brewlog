@@ -1,11 +1,14 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, Keyboard } from 'react-native';
 import { Tabs } from 'expo-router';
+import { useTheme } from '@brewlog/ui';
 import { AuthSheet } from '../../src/features/auth/AuthSheet';
 import { FloatingPillTabBar } from '../../src/components/navigation/FloatingPillTabBar';
+import { TopAppHeader } from '../../src/components/navigation/TopAppHeader';
 import { AuthModalContext } from '../../src/features/auth/AuthModalContext';
 
 export default function TabLayout() {
+  const { colors } = useTheme();
   const [authSheetVisible, setAuthSheetVisible] = useState(false);
 
   const openAuthSheet = useCallback(() => {
@@ -26,7 +29,8 @@ export default function TabLayout() {
         isAuthSheetVisible: authSheetVisible,
       }}
     >
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.canvas }]}>
+        <TopAppHeader onProfilePress={openAuthSheet} />
         <Tabs
           tabBar={(props) => <FloatingPillTabBar {...props} />}
           screenOptions={{

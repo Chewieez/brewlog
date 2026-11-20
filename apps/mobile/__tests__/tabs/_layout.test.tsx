@@ -335,12 +335,40 @@ describe("TabLayout Integration", () => {
     expect(queryByTestId("auth-sheet")).toBeNull();
     expect(Keyboard.dismiss).toHaveBeenCalled();
   });
+
+  it("renders static TopAppHeader with BrewLog and opens AuthSheet when Account profile is tapped", () => {
+    const { getByText, getByLabelText, queryByTestId } = render(
+      <AuthProvider>
+        <TabLayout />
+      </AuthProvider>
+    );
+
+    expect(getByText("BrewLog")).toBeDefined();
+    expect(queryByTestId("auth-sheet")).toBeNull();
+
+    vi.mocked(Keyboard.dismiss).mockClear();
+    fireEvent.click(getByLabelText("Account profile"));
+
+    expect(queryByTestId("auth-sheet")).not.toBeNull();
+    expect(Keyboard.dismiss).toHaveBeenCalled();
+  });
 });
 
 describe("TabLayoutIOS", () => {
   afterEach(() => {
     cleanup();
     mockNativeTabs.mockClear();
+  });
+
+  it("renders static TopAppHeader with BrewLog and Account profile button", () => {
+    const { getByText, getByLabelText } = render(
+      <AuthProvider>
+        <TabLayoutIOS />
+      </AuthProvider>
+    );
+
+    expect(getByText("BrewLog")).toBeDefined();
+    expect(getByLabelText("Account profile")).toBeDefined();
   });
 
   it("configures NativeTabs on iOS with accent selected color and foregroundSecondary default color for both icons and labels", () => {

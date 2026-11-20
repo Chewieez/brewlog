@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { Keyboard } from 'react-native';
+import { Keyboard, View, StyleSheet } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { NativeTabs } from 'expo-router/native-tabs';
 import { useTheme } from '@brewlog/ui';
+import { TopAppHeader } from '../../src/components/navigation/TopAppHeader';
 import { AuthModalContext } from '../../src/features/auth/AuthModalContext';
 
 export default function TabLayoutIOS() {
@@ -46,7 +47,10 @@ export default function TabLayoutIOS() {
         isAuthSheetVisible,
       }}
     >
-      <NativeTabs
+      <View style={[styles.container, { backgroundColor: colors.canvas }]}>
+        <TopAppHeader onProfilePress={openAuthSheet} />
+        <View style={styles.tabsContainer}>
+          <NativeTabs
         blurEffect={isDark ? 'dark' : 'systemMaterialLight'}
         tintColor={colors.accent}
         iconColor={{
@@ -101,7 +105,18 @@ export default function TabLayoutIOS() {
             renderingMode="template"
           />
         </NativeTabs.Trigger>
-      </NativeTabs>
+          </NativeTabs>
+        </View>
+      </View>
     </AuthModalContext.Provider>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  tabsContainer: {
+    flex: 1,
+  },
+});
