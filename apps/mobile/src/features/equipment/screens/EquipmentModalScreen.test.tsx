@@ -165,7 +165,7 @@ describe('EquipmentModalScreen', () => {
     cleanup();
   });
 
-  it('renders NEW EQUIPMENT when no id param is provided', () => {
+  it('renders New Equipment when no id param is provided', () => {
     const mockContext = createMockContext();
     const { getByText } = render(
       <EquipmentContext.Provider value={mockContext}>
@@ -173,12 +173,12 @@ describe('EquipmentModalScreen', () => {
       </EquipmentContext.Provider>
     );
 
-    expect(getByText('NEW EQUIPMENT')).toBeDefined();
+    expect(getByText('New Equipment')).toBeDefined();
     expect(getByText('BRAND NAME *')).toBeDefined();
     expect(getByText('MODEL NAME *')).toBeDefined();
   });
 
-  it('renders EDIT EQUIPMENT and pre-fills form when id param matches existing equipment', () => {
+  it('renders Edit Equipment and pre-fills form when id param matches existing equipment', () => {
     mockParams = { id: 'eq-edit-1' };
     const mockContext = createMockContext();
     const { getByText, getByDisplayValue } = render(
@@ -187,7 +187,7 @@ describe('EquipmentModalScreen', () => {
       </EquipmentContext.Provider>
     );
 
-    expect(getByText('EDIT EQUIPMENT')).toBeDefined();
+    expect(getByText('Edit Equipment')).toBeDefined();
     expect(getByDisplayValue('Fellow')).toBeDefined();
     expect(getByDisplayValue('Ode Gen 2')).toBeDefined();
     expect(getByDisplayValue('flat-burr')).toBeDefined();
@@ -366,8 +366,8 @@ describe('EquipmentModalScreen', () => {
     );
 
     expect(getByTestId('equipment-modal-loading')).toBeDefined();
-    expect(queryByText('NEW EQUIPMENT')).toBeNull();
-    expect(queryByText('EDIT EQUIPMENT')).toBeNull();
+    expect(queryByText('New Equipment')).toBeNull();
+    expect(queryByText('Edit Equipment')).toBeNull();
   });
 
   it('supports creating and saving equipment with type other', async () => {

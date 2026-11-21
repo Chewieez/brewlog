@@ -532,13 +532,13 @@ describe('BeanModalScreen', () => {
     expect(mockContext.addBean).not.toHaveBeenCalled();
   });
 
-  it('renders NEW BEAN header in create mode and EDIT BEAN header in edit mode', () => {
+  it('renders New Bean header in create mode and Edit Bean header in edit mode', () => {
     const { getByText, unmount } = render(
       <StashContext.Provider value={mockContext}>
         <BeanModalScreen />
       </StashContext.Provider>
     );
-    expect(getByText('NEW BEAN')).toBeTruthy();
+    expect(getByText('New Bean')).toBeTruthy();
     unmount();
 
     mockSearchParams = { id: 'bean-existing-1' };
@@ -547,7 +547,7 @@ describe('BeanModalScreen', () => {
         <BeanModalScreen />
       </StashContext.Provider>
     );
-    expect(editRender.getByText('EDIT BEAN')).toBeTruthy();
+    expect(editRender.getByText('Edit Bean')).toBeTruthy();
   });
 
   it('handles save error and falls back to default message if not an Error instance', async () => {

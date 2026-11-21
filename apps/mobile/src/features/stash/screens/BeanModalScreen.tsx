@@ -344,7 +344,7 @@ export const BeanModalScreen: React.FC<BeanModalScreenProps> = ({ beanId }) => {
           </Pressable>
 
           <Text style={styles.navTitle}>
-            {isEditMode ? 'EDIT BEAN' : 'NEW BEAN'}
+            {isEditMode ? 'Edit Bean' : 'New Bean'}
           </Text>
 
           <Pressable

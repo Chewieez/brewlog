@@ -267,7 +267,7 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
           </Pressable>
 
           <Text style={styles.navTitle}>
-            {isEditMode ? 'EDIT EQUIPMENT' : 'NEW EQUIPMENT'}
+            {isEditMode ? 'Edit Equipment' : 'New Equipment'}
           </Text>
 
           <Pressable
