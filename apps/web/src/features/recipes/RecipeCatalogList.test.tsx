@@ -32,8 +32,9 @@ describe('RecipeCatalogList', () => {
 
     const card = screen.getAllByTestId('recipe-catalog-card')[0];
     expect(card.className).toContain('transition-[border-color,background-color,transform]');
-    expect(card.className).toContain('active:scale-[0.99]');
-    expect(card.className).toContain('motion-reduce:active:scale-100');
+    expect(card.className).toContain('has-[a:active]:scale-[0.99]');
+    expect(card.className).toContain('motion-reduce:has-[a:active]:scale-100');
+    expect(card.className).not.toContain(' active:scale-[0.99]');
   });
 
   it('filters recipes by selected method', () => {
@@ -302,6 +303,7 @@ describe('RecipeCatalogList', () => {
     fireEvent.click(clearButton);
 
     expect(searchInput.value).toBe('');
+    expect(document.activeElement).toBe(searchInput);
     expect(screen.getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
     expect(screen.getByText(DEFAULT_PRESET_RECIPES[1].name)).toBeDefined();
   });
@@ -321,6 +323,7 @@ describe('RecipeCatalogList', () => {
     const searchInput = screen.getByLabelText('Search recipes') as HTMLInputElement;
     fireEvent.change(searchInput, { target: { value: 'AeroPress' } });
 
+    expect(screen.getByTestId('recipe-search-empty-state')).toBeDefined();
     expect(screen.getByText('No recipes match your search.')).toBeDefined();
     const filterGroup = screen.getByTestId('recipe-method-filters');
     expect(within(filterGroup).getByRole('button', { name: 'V60' }).getAttribute('aria-pressed')).toBe('true');
@@ -329,6 +332,7 @@ describe('RecipeCatalogList', () => {
     fireEvent.click(clearSearchBtn);
 
     expect(searchInput.value).toBe('');
+    expect(document.activeElement).toBe(searchInput);
     expect(screen.getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
     expect(screen.queryByText(DEFAULT_PRESET_RECIPES[2].name)).toBeNull();
   });

@@ -5,7 +5,7 @@ import type { BrewRecipe } from "./types";
  * description, and brew method (both raw slug and space-normalized).
  */
 export function matchesRecipeSearch(recipe: BrewRecipe, query: string): boolean {
-  const q = query.trim().toLowerCase();
+  const q = query.trim().replace(/\s+/g, " ").toLowerCase();
   if (!q) {
     return true;
   }

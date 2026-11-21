@@ -113,8 +113,10 @@ test.describe("Design System Corner Radius Hierarchy", () => {
     await expectBorderRadius(allFilterChip, RADIUS_LG, "Recipes All filter chip");
 
     await searchInput.fill("__no_matching_recipe__");
+    const searchEmptyCard = page.getByTestId("recipe-search-empty-state");
     const inlineClearBtn = page.getByRole("button", { name: "Clear search", exact: true });
     const clearSearchBtn = page.getByRole("button", { name: "CLEAR SEARCH", exact: true });
+    await expectBorderRadius(searchEmptyCard, RADIUS_XL, "Recipes search empty state container");
     await expectBorderRadius(inlineClearBtn, RADIUS_LG, "Recipes inline Clear search button");
     await expectBorderRadius(clearSearchBtn, RADIUS_LG, "Recipes CLEAR SEARCH button");
     await clearSearchBtn.click();

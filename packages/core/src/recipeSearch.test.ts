@@ -51,6 +51,8 @@ describe("matchesRecipeSearch", () => {
     expect(matchesRecipeSearch(frenchPressRecipe, "french-press")).toBe(true);
     expect(matchesRecipeSearch(frenchPressRecipe, "french press")).toBe(true);
     expect(matchesRecipeSearch(frenchPressRecipe, "FRENCH PRESS")).toBe(true);
+    expect(matchesRecipeSearch(frenchPressRecipe, "french   press")).toBe(true);
+    expect(matchesRecipeSearch(BASE_RECIPE, "james   hoffmann")).toBe(true);
 
     const kalitaRecipe: BrewRecipe = {
       ...BASE_RECIPE,

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link } from 'react-router';
 import { BrewRecipe, matchesRecipeSearch } from '@brewlog/core';
 import { Button, FilterPills, type FilterPillsOption } from '@brewlog/ui';
@@ -50,6 +50,12 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [recipeToDelete, setRecipeToDelete] = useState<BrewRecipe | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    searchInputRef.current?.focus();
+  };
 
   const availableMethodOptions = useMemo(() => {
     const presentMethods = new Set<string>(recipes.map((r) => r.brewMethod));
@@ -106,6 +112,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
           className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted"
         />
         <input
+          ref={searchInputRef}
           type="text"
           placeholder="Search name, author, method..."
           value={searchQuery}
@@ -116,7 +123,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
         {searchQuery.length > 0 && (
           <button
             type="button"
-            onClick={() => setSearchQuery('')}
+            onClick={handleClearSearch}
             aria-label="Clear search"
             className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
@@ -140,7 +147,10 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
       {/* Recipe Cards List */}
       <div className="space-y-3">
         {isSearchEmpty ? (
-          <div className="p-8 rounded-xl bg-panel border border-dashed border-border-subtle text-center flex flex-col items-center gap-3">
+          <div
+            data-testid="recipe-search-empty-state"
+            className="p-8 rounded-xl bg-panel border border-dashed border-border-subtle text-center flex flex-col items-center gap-3"
+          >
             <div className="w-12 h-12 rounded-full bg-panel-recessed border border-border-subtle flex items-center justify-center">
               <Search className="w-5 h-5 text-foreground-muted" />
             </div>
@@ -148,7 +158,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => setSearchQuery('')}
+              onClick={handleClearSearch}
               label="CLEAR SEARCH"
             />
           </div>
@@ -165,7 +175,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
               <div
                 key={r.id}
                 data-testid="recipe-catalog-card"
-                className={`p-4 rounded-xl border transition-[border-color,background-color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.99] motion-reduce:transition-colors motion-reduce:active:scale-100 relative group overflow-hidden ${
+                className={`p-4 rounded-xl border transition-[border-color,background-color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] has-[a:active]:scale-[0.99] motion-reduce:transition-colors motion-reduce:has-[a:active]:scale-100 relative group overflow-hidden ${
                   isSelected
                     ? 'bg-panel-recessed border-border-active'
                     : 'bg-panel border-border-subtle hover:border-border-active hover:bg-panel-recessed/40'
