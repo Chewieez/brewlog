@@ -103,6 +103,7 @@ vi.mock('react-native', () => ({
     placeholder,
     onChangeText,
     onEndEditing,
+    onBlur,
     accessibilityLabel,
     keyboardType: _keyboardType,
     multiline: _multiline,
@@ -117,7 +118,10 @@ vi.mock('react-native', () => ({
       placeholder={placeholder}
       aria-label={accessibilityLabel}
       onChange={(e) => onChangeText?.(e.target.value)}
-      onBlur={(e) => onEndEditing?.({ nativeEvent: { text: e.target.value } })}
+      onBlur={(e) => {
+        onEndEditing?.({ nativeEvent: { text: e.target.value } });
+        onBlur?.(e);
+      }}
       {...props}
     />
   ),
@@ -173,6 +177,9 @@ const mockContext = {
   loading: false,
   activeTimerRecipe: DEFAULT_PRESET_RECIPES[0],
   activeTimerDose: 15,
+  isBrewActive: false,
+  setIsBrewActive: vi.fn(),
+  timerResetTrigger: 0,
   addRecipe: mockAddRecipe,
   updateRecipe: mockUpdateRecipe,
   deleteRecipe: vi.fn(),
@@ -797,5 +804,72 @@ describe('RecipeBuilderScreen', () => {
     expect(getByText('SELECT GRINDER')).toBeDefined();
     expect(getByLabelText('Select Fellow Ode Gen 2')).toBeDefined();
     expect(getByLabelText('Select Comandante C40 MK4')).toBeDefined();
+  });
+
+  it('generates RFC 4122 UUID for newly added recipe stage', async () => {
+    const { getByText, getByPlaceholderText } = render(<RecipeBuilderScreen />);
+
+    fireEvent.change(getByPlaceholderText('e.g. My Morning V60'), {
+      target: { value: 'UUID Stage Test' },
+    });
+    fireEvent.click(getByText('ADD STAGE'));
+    fireEvent.click(getByText('SAVE'));
+
+    await waitFor(() => {
+      expect(mockAddRecipe).toHaveBeenCalled();
+    });
+
+    const passedStages = mockAddRecipe.mock.calls[0][0].stages;
+    expect(passedStages).toHaveLength(4);
+    expect(passedStages[3].id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    );
+  });
+
+  it('preserves decimal inputs and avoids snap-to-zero on stage numeric fields', () => {
+    const { getByLabelText } = render(<RecipeBuilderScreen />);
+
+    const waterInput = getByLabelText('Stage 1 target water weight in grams') as HTMLInputElement;
+    const durationInput = getByLabelText('Stage 1 duration in seconds') as HTMLInputElement;
+
+    expect(waterInput.value).toBe('50');
+
+    fireEvent.change(waterInput, { target: { value: '50.' } });
+    expect(waterInput.value).toBe('50.');
+
+    fireEvent.change(waterInput, { target: { value: '50.5' } });
+    expect(waterInput.value).toBe('50.5');
+
+    fireEvent.change(waterInput, { target: { value: '' } });
+    expect(waterInput.value).toBe('');
+
+    fireEvent.blur(waterInput);
+    expect(waterInput.value).toBe('50.5');
+
+    fireEvent.change(durationInput, { target: { value: '' } });
+    expect(durationInput.value).toBe('');
+
+    fireEvent.blur(durationInput);
+    expect(durationInput.value).toBe('45');
+  });
+
+  it('automatically pivots preset editId into duplicate mode and calls addRecipe on save', async () => {
+    mockParams = { editId: DEFAULT_PRESET_RECIPES[0].id };
+    const { getByText, getByDisplayValue } = render(<RecipeBuilderScreen />);
+
+    expect(getByText('Duplicate Recipe')).toBeDefined();
+    expect(getByDisplayValue(`${DEFAULT_PRESET_RECIPES[0].name} (Copy)`)).toBeDefined();
+
+    fireEvent.click(getByText('SAVE'));
+
+    await waitFor(() => {
+      expect(mockAddRecipe).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: `${DEFAULT_PRESET_RECIPES[0].name} (Copy)`,
+        })
+      );
+      expect(mockUpdateRecipe).not.toHaveBeenCalled();
+    });
+    expect(mockReplace).toHaveBeenCalledWith('/recipe/new-rec-1');
   });
 });

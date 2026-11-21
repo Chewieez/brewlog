@@ -1,5 +1,5 @@
-import React, { useState, useContext } from 'react';
-import { View, Text, ScrollView, Pressable, Alert } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, ScrollView, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Play, Copy, Edit2, Trash2 } from 'lucide-react-native';
 import {
@@ -28,15 +28,21 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
   const styles = useStyles();
   const { colors } = useTheme();
   const router = useRouter();
-  const { recipes, deleteRecipe, setActiveTimerRecipe } = useRecipes();
+  const { recipes, deleteRecipe, setActiveTimerRecipe, isBrewActive, loading } = useRecipes();
   const equipmentContext = useOptionalEquipment?.() ?? useContext(EquipmentContext);
   const settingsContext = useOptionalSettings?.();
   const settings = settingsContext?.settings ?? DEFAULT_USER_SETTINGS;
 
   const recipe = recipes.find((r) => r.id === recipeId);
   const [customDose, setCustomDose] = useState<number>(
-    recipe ? Math.round(recipe.coffeeDoseGrams) : 15
+    recipe ? recipe.coffeeDoseGrams : 15
   );
+
+  useEffect(() => {
+    if (recipe) {
+      setCustomDose(recipe.coffeeDoseGrams);
+    }
+  }, [recipe?.coffeeDoseGrams]);
 
   const userGrinders = propEquipment
     ? propEquipment.filter((e) => e.type === 'grinder')
@@ -47,6 +53,14 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
     if (!grinder) return [];
     return [{ setting, grinder }];
   });
+
+  if (loading && !recipe) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.accent} testID="recipe-detail-loading" />
+      </View>
+    );
+  }
 
   if (!recipe) {
     return (
@@ -63,8 +77,28 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
   const isCustom = !recipe.isPreset && !recipe.id.startsWith('preset-');
 
   const handleBrew = () => {
-    setActiveTimerRecipe(scaledRecipe, customDose);
-    router.replace({ pathname: '/(tabs)', params: { mode: 'recipe' } });
+    const doBrew = () => {
+      setActiveTimerRecipe(scaledRecipe, customDose);
+      router.replace({ pathname: '/(tabs)', params: { mode: 'recipe' } });
+    };
+
+    if (isBrewActive) {
+      Alert.alert(
+        'Switch Recipe?',
+        'A brew is currently in progress. Switching recipes will reset your timer.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Reset & Switch',
+            style: 'destructive',
+            onPress: doBrew,
+          },
+        ]
+      );
+      return;
+    }
+
+    doBrew();
   };
 
   const handleDuplicate = () => {
@@ -149,7 +183,7 @@ export const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
 
       <DoseRescaler
         currentDose={customDose}
-        baseDose={Math.round(recipe.coffeeDoseGrams)}
+        baseDose={recipe.coffeeDoseGrams}
         onDoseChange={setCustomDose}
       />
 
@@ -232,6 +266,12 @@ const useStyles = makeStyles((colors) => ({
     padding: 16,
     gap: 16,
     paddingBottom: 40,
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: colors.canvas,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   notFoundContainer: {
     flex: 1,

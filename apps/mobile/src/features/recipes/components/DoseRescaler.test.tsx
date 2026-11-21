@@ -113,4 +113,25 @@ describe('DoseRescaler', () => {
     fireEvent.click(getByLabelText('Decrease dose by 1 gram'));
     expect(onDoseChange).toHaveBeenCalledWith(1);
   });
+
+  it('reverts invalid or out-of-bounds input to currentDose on blur', () => {
+    const onDoseChange = vi.fn();
+    const { getByLabelText } = render(
+      <DoseRescaler currentDose={15} baseDose={15} onDoseChange={onDoseChange} />
+    );
+
+    const input = getByLabelText('Target coffee dose in grams') as HTMLInputElement;
+    expect(input.value).toBe('15');
+
+    fireEvent.change(input, { target: { value: '999' } });
+    fireEvent.blur(input);
+
+    expect(onDoseChange).not.toHaveBeenCalledWith(999);
+    expect(input.value).toBe('15');
+
+    fireEvent.change(input, { target: { value: 'abc' } });
+    fireEvent.blur(input);
+
+    expect(input.value).toBe('15');
+  });
 });

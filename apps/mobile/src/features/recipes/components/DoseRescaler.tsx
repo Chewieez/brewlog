@@ -24,15 +24,36 @@ export const DoseRescaler: React.FC<DoseRescalerProps> = ({
 }) => {
   const styles = useStyles();
   const { colors } = useTheme();
+  const [doseText, setDoseText] = React.useState<string>(String(currentDose));
+
+  React.useEffect(() => {
+    if (parseFloat(doseText) !== currentDose) {
+      setDoseText(String(currentDose));
+    }
+  }, [currentDose]);
+
   const handleStep = (delta: number) => {
     const next = Math.max(1, Math.min(100, Math.round((currentDose + delta) * 10) / 10));
     onDoseChange(next);
   };
 
-  const handleTextCommit = (val: string) => {
+  const handleTextChange = (val: string) => {
+    setDoseText(val);
     const parsed = parseFloat(val);
     if (!isNaN(parsed) && parsed >= 1 && parsed <= 100) {
       onDoseChange(Math.round(parsed * 10) / 10);
+    }
+  };
+
+  const handleTextCommit = (val?: string) => {
+    const textToCommit = val !== undefined ? val : doseText;
+    const parsed = parseFloat(textToCommit);
+    if (!isNaN(parsed) && parsed >= 1 && parsed <= 100) {
+      const rounded = Math.round(parsed * 10) / 10;
+      setDoseText(String(rounded));
+      onDoseChange(rounded);
+    } else {
+      setDoseText(String(currentDose));
     }
   };
 
@@ -63,9 +84,12 @@ export const DoseRescaler: React.FC<DoseRescalerProps> = ({
 
         <View style={styles.doseInputWrapper}>
           <TextInput
-            defaultValue={String(currentDose)}
-            key={String(currentDose)}
-            onEndEditing={(e) => handleTextCommit(e.nativeEvent.text)}
+            value={doseText}
+            onChangeText={handleTextChange}
+            onBlur={(e: any) =>
+              handleTextCommit(e?.nativeEvent?.text ?? e?.target?.value ?? doseText)
+            }
+            onEndEditing={(e) => handleTextCommit(e?.nativeEvent?.text ?? doseText)}
             keyboardType="decimal-pad"
             style={styles.doseInput}
             accessibilityLabel="Target coffee dose in grams"

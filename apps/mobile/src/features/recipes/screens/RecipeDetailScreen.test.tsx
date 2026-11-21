@@ -53,7 +53,7 @@ vi.mock('react-native', () => ({
       {...props}
     />
   ),
-  ActivityIndicator: () => null,
+  ActivityIndicator: ({ testID, ...props }: any) => <div data-testid={testID} {...props} />,
   Alert: {
     alert: vi.fn(),
   },
@@ -126,6 +126,9 @@ const mockContext = {
   loading: false,
   activeTimerRecipe: DEFAULT_PRESET_RECIPES[0],
   activeTimerDose: 15,
+  isBrewActive: false,
+  setIsBrewActive: vi.fn(),
+  timerResetTrigger: 0,
   addRecipe: vi.fn(),
   updateRecipe: vi.fn(),
   deleteRecipe: mockDeleteRecipe,
@@ -141,6 +144,8 @@ describe('RecipeDetailScreen', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockContext.recipes = [...DEFAULT_PRESET_RECIPES];
+    mockContext.isBrewActive = false;
+    mockContext.loading = false;
   });
 
   afterEach(() => {
@@ -383,6 +388,95 @@ describe('RecipeDetailScreen', () => {
       }),
       expect.any(Number)
     );
+  });
+
+  it('prompts confirmation alert when Brew With This Recipe is clicked while a brew is actively ticking', () => {
+    mockContext.isBrewActive = true;
+    const alertSpy = vi.spyOn(Alert, 'alert');
+
+    const { getByText } = render(<RecipeDetailScreen recipeId={DEFAULT_PRESET_RECIPES[0].id} />);
+    fireEvent.click(getByText('BREW WITH THIS RECIPE'));
+
+    expect(alertSpy).toHaveBeenCalledWith(
+      'Switch Recipe?',
+      'A brew is currently in progress. Switching recipes will reset your timer.',
+      expect.any(Array)
+    );
+
+    expect(mockSetActiveTimerRecipe).not.toHaveBeenCalled();
+    expect(mockReplace).not.toHaveBeenCalled();
+
+    const buttons = alertSpy.mock.calls[0][2] as any[];
+    const switchBtn = buttons.find((b) => b.text === 'Reset & Switch');
+    switchBtn.onPress();
+
+    expect(mockSetActiveTimerRecipe).toHaveBeenCalledWith(
+      DEFAULT_PRESET_RECIPES[0],
+      DEFAULT_PRESET_RECIPES[0].coffeeDoseGrams
+    );
+    expect(mockReplace).toHaveBeenCalledWith({ pathname: '/(tabs)', params: { mode: 'recipe' } });
+  });
+
+  it('synchronizes customDose when recipe coffeeDoseGrams changes', () => {
+    const customRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      id: 'local-rec-update-dose',
+      isPreset: false,
+      coffeeDoseGrams: 15,
+      waterAmountGrams: 250,
+      ratio: 16.67,
+    };
+    mockContext.recipes = [customRecipe, ...DEFAULT_PRESET_RECIPES];
+
+    const { getByDisplayValue, rerender } = render(
+      <RecipeDetailScreen recipeId="local-rec-update-dose" />
+    );
+
+    expect(getByDisplayValue('15')).toBeDefined();
+
+    const updatedRecipe = {
+      ...customRecipe,
+      coffeeDoseGrams: 22,
+      waterAmountGrams: 366.7,
+    };
+    mockContext.recipes = [updatedRecipe, ...DEFAULT_PRESET_RECIPES];
+
+    rerender(<RecipeDetailScreen recipeId="local-rec-update-dose" />);
+
+    expect(getByDisplayValue('22')).toBeDefined();
+  });
+
+  it('preserves decimal doses without forced rounding to integers', () => {
+    const decimalRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      id: 'local-rec-decimal-dose',
+      isPreset: false,
+      coffeeDoseGrams: 15.5,
+      waterAmountGrams: 258.4,
+      ratio: 16.67,
+    };
+    mockContext.recipes = [decimalRecipe, ...DEFAULT_PRESET_RECIPES];
+
+    const { getByDisplayValue, getByLabelText, getByText } = render(
+      <RecipeDetailScreen recipeId="local-rec-decimal-dose" />
+    );
+
+    expect(getByDisplayValue('15.5')).toBeDefined();
+
+    fireEvent.click(getByLabelText('Standard (18g)'));
+    expect(getByDisplayValue('18')).toBeDefined();
+
+    expect(getByText('Reset (15.5g)')).toBeDefined();
+  });
+
+  it('renders ActivityIndicator loading state during hydration when recipe is not yet loaded', () => {
+    mockContext.loading = true;
+    const { getByTestId, queryByText } = render(
+      <RecipeDetailScreen recipeId="local-rec-unhydrated" />
+    );
+
+    expect(getByTestId('recipe-detail-loading')).toBeDefined();
+    expect(queryByText('Recipe Not Found')).toBeNull();
   });
 });
 
