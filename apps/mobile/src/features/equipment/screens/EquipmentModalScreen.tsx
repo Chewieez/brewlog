@@ -404,7 +404,8 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
           <Pressable
             onPress={() => setIsFavorite(!isFavorite)}
             style={styles.favoriteRow}
-            accessibilityRole="button"
+            accessibilityRole="switch"
+            accessibilityState={{ checked: isFavorite }}
             accessibilityLabel={isFavorite ? 'Unmark Favorite' : 'Mark as Favorite'}
           >
             <View style={styles.favoriteLabelContainer}>
@@ -413,29 +414,14 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
                 color={isFavorite ? colors.accent : colors.textMuted}
                 fill={isFavorite ? colors.accent : 'none'}
               />
-              <Text style={styles.favoriteLabel}>Mark as Favorite Gear</Text>
-            </View>
-            <View
-              style={[
-                styles.togglePill,
-                isFavorite ? styles.togglePillActive : styles.togglePillInactive,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.togglePillText,
-                  isFavorite ? styles.togglePillTextActive : styles.togglePillTextInactive,
-                ]}
-              >
-                {isFavorite ? 'FAVORITE' : 'OFF'}
-              </Text>
+              <Text style={styles.favoriteLabel}>MARK AS FAVORITE GEAR</Text>
             </View>
           </Pressable>
         </View>
 
         {/* Notes */}
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionHeader}>NOTES & CALIBRATION</Text>
+          <Text style={styles.sectionHeader}>NOTES</Text>
           <TextInput
             value={notes}
             onChangeText={setNotes}
@@ -678,14 +664,9 @@ const useStyles = makeStyles((colors) => ({
   favoriteRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.panelRecessed,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    borderRadius: 6,
-    paddingHorizontal: 12,
     minHeight: 44,
-    marginTop: 8,
+    paddingVertical: 4,
+    marginTop: 4,
   },
   favoriteLabelContainer: {
     flexDirection: 'row',
@@ -693,34 +674,10 @@ const useStyles = makeStyles((colors) => ({
     gap: 8,
   },
   favoriteLabel: {
-    fontFamily: FONTS.sansMedium,
-    fontSize: 13,
-    color: colors.textPrimary,
-  },
-  togglePill: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 4,
-    borderWidth: 1,
-  },
-  togglePillActive: {
-    backgroundColor: `${colors.accent}26`,
-    borderColor: colors.accent,
-  },
-  togglePillInactive: {
-    backgroundColor: colors.panel,
-    borderColor: colors.borderSubtle,
-  },
-  togglePillText: {
     fontFamily: FONTS.monoBold,
-    fontSize: 10,
+    fontSize: 12,
+    color: colors.textPrimary,
     letterSpacing: 0.5,
-  },
-  togglePillTextActive: {
-    color: colors.accent,
-  },
-  togglePillTextInactive: {
-    color: colors.textMuted,
   },
   deleteSection: {
     marginTop: 8,

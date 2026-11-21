@@ -51,10 +51,19 @@ vi.mock('react-native', () => ({
   ),
   Text: ({
     children,
-    style: _style,
+    style,
     numberOfLines: _numberOfLines,
     ...props
-  }: any) => <span {...props}>{children}</span>,
+  }: any) => {
+    const flatStyle = Array.isArray(style)
+      ? Object.assign({}, ...style.flat(Infinity).filter(Boolean))
+      : style;
+    return (
+      <span data-font={flatStyle?.fontFamily} {...props}>
+        {children}
+      </span>
+    );
+  },
   TextInput: ({
     value,
     onChangeText,
@@ -90,6 +99,7 @@ vi.mock('react-native', () => ({
       role={accessibilityRole || 'button'}
       aria-label={accessibilityLabel}
       aria-selected={accessibilityState?.selected}
+      aria-checked={accessibilityState?.checked}
       {...props}
     >
       {typeof children === 'function' ? children({ pressed: false }) : children}
@@ -176,6 +186,7 @@ describe('EquipmentModalScreen', () => {
     expect(getByText('New Equipment')).toBeDefined();
     expect(getByText('BRAND NAME *')).toBeDefined();
     expect(getByText('MODEL NAME *')).toBeDefined();
+    expect(getByText('NOTES')).toBeDefined();
   });
 
   it('renders Edit Equipment and pre-fills form when id param matches existing equipment', () => {
@@ -408,6 +419,31 @@ describe('EquipmentModalScreen', () => {
 
     expect(mockBack).not.toHaveBeenCalled();
     expect(mockReplace).toHaveBeenCalledWith('/(tabs)/equipment');
+  });
+
+  it('renders MARK AS FAVORITE GEAR with monoBold font and toggles without OFF/FAVORITE pill', () => {
+    const mockContext = createMockContext();
+    const { getByText, getByRole, queryByText } = render(
+      <EquipmentContext.Provider value={mockContext}>
+        <EquipmentModalScreen />
+      </EquipmentContext.Provider>
+    );
+
+    const favoriteLabel = getByText('MARK AS FAVORITE GEAR');
+    expect(favoriteLabel).toBeDefined();
+    expect(favoriteLabel.getAttribute('data-font')).toBe('JetBrainsMono_700Bold');
+    expect(queryByText('OFF')).toBeNull();
+    expect(queryByText('FAVORITE')).toBeNull();
+
+    const favoriteToggle = getByRole('switch', { name: 'Mark as Favorite' });
+    expect(favoriteToggle.getAttribute('aria-checked')).toBe('false');
+
+    rtlFireEvent.click(favoriteToggle);
+    expect(
+      getByRole('switch', { name: 'Unmark Favorite' }).getAttribute('aria-checked')
+    ).toBe('true');
+    expect(queryByText('FAVORITE')).toBeNull();
+    expect(queryByText('OFF')).toBeNull();
   });
 });
 
