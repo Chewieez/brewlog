@@ -225,10 +225,14 @@ describe('RecipeCatalogList', () => {
 
     expect(screen.getByText(/no recipes found for this brew method/i)).toBeDefined();
     expect(screen.queryByRole('button', { name: 'CLEAR SEARCH' })).toBeNull();
+
+    fireEvent.change(screen.getByLabelText('Search recipes'), { target: { value: 'v60' } });
+    expect(screen.getByText(/no recipes found for this brew method/i)).toBeDefined();
+    expect(screen.queryByRole('button', { name: 'CLEAR SEARCH' })).toBeNull();
   });
 
   it('renders search input above method filters and filters by name, author, description, and brewMethod', () => {
-    render(
+    const { container } = render(
       <MemoryRouter>
         <RecipeCatalogList
           recipes={DEFAULT_PRESET_RECIPES}
@@ -241,6 +245,10 @@ describe('RecipeCatalogList', () => {
 
     const searchInput = screen.getByLabelText('Search recipes') as HTMLInputElement;
     expect(searchInput).toBeDefined();
+
+    const searchIcon = container.querySelector('svg[aria-hidden="true"]');
+    expect(searchIcon).not.toBeNull();
+    expect(searchIcon?.getAttribute('class')).toContain('pointer-events-none');
 
     // Filter by author
     fireEvent.change(searchInput, { target: { value: 'Hoffmann' } });

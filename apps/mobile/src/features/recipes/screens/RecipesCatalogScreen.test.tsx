@@ -155,9 +155,16 @@ describe('RecipesCatalogScreen', () => {
       ...mockRecipesContext,
       recipes: [],
     };
-    const { getByText, queryByTestId, queryByLabelText } = render(<RecipesCatalogScreen />);
+    const { getByLabelText, getByText, queryByTestId, queryByLabelText } = render(
+      <RecipesCatalogScreen />
+    );
 
     expect(queryByTestId('recipe-method-filters')).toBeNull();
+    expect(getByText('No Recipes Found')).toBeDefined();
+    expect(getByText('No recipes match the selected brew method filter.')).toBeDefined();
+    expect(queryByLabelText('Clear search input')).toBeNull();
+
+    fireEvent.change(getByLabelText('Search recipes'), { target: { value: 'v60' } });
     expect(getByText('No Recipes Found')).toBeDefined();
     expect(getByText('No recipes match the selected brew method filter.')).toBeDefined();
     expect(queryByLabelText('Clear search input')).toBeNull();

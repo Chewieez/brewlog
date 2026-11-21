@@ -76,5 +76,12 @@ describe("matchesRecipeSearch", () => {
     expect(matchesRecipeSearch(minimalCustomRecipe, "daily")).toBe(true);
     expect(matchesRecipeSearch(minimalCustomRecipe, "aeropress")).toBe(true);
     expect(matchesRecipeSearch(minimalCustomRecipe, "nonexistent")).toBe(false);
+
+    const malformedRecipe = {
+      ...minimalCustomRecipe,
+      name: undefined as unknown as string,
+    };
+    expect(matchesRecipeSearch(malformedRecipe, "aeropress")).toBe(true);
+    expect(matchesRecipeSearch(malformedRecipe, "nonexistent")).toBe(false);
   });
 });

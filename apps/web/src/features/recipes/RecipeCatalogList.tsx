@@ -101,7 +101,10 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
     <div className="flex flex-col gap-4">
       {/* Search Bar */}
       <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted" />
+        <Search
+          aria-hidden="true"
+          className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted"
+        />
         <input
           type="text"
           placeholder="Search name, author, method..."

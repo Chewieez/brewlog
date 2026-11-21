@@ -14,7 +14,7 @@ export function matchesRecipeSearch(recipe: BrewRecipe, query: string): boolean 
   const spacedMethod = rawMethod.replace(/-/g, " ");
 
   return (
-    recipe.name.toLowerCase().includes(q) ||
+    (recipe.name ?? "").toLowerCase().includes(q) ||
     (recipe.author ?? "").toLowerCase().includes(q) ||
     (recipe.description ?? "").toLowerCase().includes(q) ||
     rawMethod.includes(q) ||
