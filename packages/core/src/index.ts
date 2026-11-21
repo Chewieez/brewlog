@@ -5,4 +5,5 @@ export * from "./presets";
 export * from "./restingUtils";
 export * from "./conversions";
 export * from "./telemetry";
+export * from "./recipeSearch";
 
