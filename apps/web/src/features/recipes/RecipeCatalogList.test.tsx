@@ -224,6 +224,100 @@ describe('RecipeCatalogList', () => {
     );
 
     expect(screen.getByText(/no recipes found for this brew method/i)).toBeDefined();
+    expect(screen.queryByRole('button', { name: 'CLEAR SEARCH' })).toBeNull();
+  });
+
+  it('renders search input above method filters and filters by name, author, description, and brewMethod', () => {
+    render(
+      <MemoryRouter>
+        <RecipeCatalogList
+          recipes={DEFAULT_PRESET_RECIPES}
+          activeRecipeId=""
+          selectedMethodFilter="all"
+          onSelectMethodFilter={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+
+    const searchInput = screen.getByLabelText('Search recipes') as HTMLInputElement;
+    expect(searchInput).toBeDefined();
+
+    // Filter by author
+    fireEvent.change(searchInput, { target: { value: 'Hoffmann' } });
+    expect(screen.getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
+    expect(screen.queryByText(DEFAULT_PRESET_RECIPES[1].name)).toBeNull();
+    expect(screen.queryByText(DEFAULT_PRESET_RECIPES[2].name)).toBeNull();
+    // FilterPills stay visible using all recipes
+    expect(screen.getByTestId('recipe-method-filters')).toBeDefined();
+
+    // Filter by description
+    fireEvent.change(searchInput, { target: { value: 'World Brewers Cup' } });
+    expect(screen.getByText(DEFAULT_PRESET_RECIPES[1].name)).toBeDefined();
+    expect(screen.queryByText(DEFAULT_PRESET_RECIPES[0].name)).toBeNull();
+
+    // Filter by brewMethod / name
+    fireEvent.change(searchInput, { target: { value: 'aeropress' } });
+    expect(screen.getByText(DEFAULT_PRESET_RECIPES[2].name)).toBeDefined();
+    expect(screen.queryByText(DEFAULT_PRESET_RECIPES[0].name)).toBeNull();
+
+    // Whitespace-only query shows all recipes
+    fireEvent.change(searchInput, { target: { value: '   ' } });
+    expect(screen.getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
+    expect(screen.getByText(DEFAULT_PRESET_RECIPES[1].name)).toBeDefined();
+    expect(screen.getByText(DEFAULT_PRESET_RECIPES[2].name)).toBeDefined();
+  });
+
+  it('shows and triggers the clear search button inside the input', () => {
+    render(
+      <MemoryRouter>
+        <RecipeCatalogList
+          recipes={DEFAULT_PRESET_RECIPES}
+          activeRecipeId=""
+          selectedMethodFilter="all"
+          onSelectMethodFilter={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+
+    const searchInput = screen.getByLabelText('Search recipes') as HTMLInputElement;
+    expect(screen.queryByLabelText('Clear search')).toBeNull();
+
+    fireEvent.change(searchInput, { target: { value: 'Kasuya' } });
+    expect(screen.queryByText(DEFAULT_PRESET_RECIPES[0].name)).toBeNull();
+
+    const clearButton = screen.getByLabelText('Clear search');
+    fireEvent.click(clearButton);
+
+    expect(searchInput.value).toBe('');
+    expect(screen.getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
+    expect(screen.getByText(DEFAULT_PRESET_RECIPES[1].name)).toBeDefined();
+  });
+
+  it('combines search query with selectedMethodFilter and preserves method filter on CLEAR SEARCH', () => {
+    render(
+      <MemoryRouter>
+        <RecipeCatalogList
+          recipes={DEFAULT_PRESET_RECIPES}
+          activeRecipeId=""
+          selectedMethodFilter="v60"
+          onSelectMethodFilter={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+
+    const searchInput = screen.getByLabelText('Search recipes') as HTMLInputElement;
+    fireEvent.change(searchInput, { target: { value: 'AeroPress' } });
+
+    expect(screen.getByText('No recipes match your search.')).toBeDefined();
+    const filterGroup = screen.getByTestId('recipe-method-filters');
+    expect(within(filterGroup).getByRole('button', { name: 'V60' }).getAttribute('aria-pressed')).toBe('true');
+
+    const clearSearchBtn = screen.getByRole('button', { name: 'CLEAR SEARCH' });
+    fireEvent.click(clearSearchBtn);
+
+    expect(searchInput.value).toBe('');
+    expect(screen.getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
+    expect(screen.queryByText(DEFAULT_PRESET_RECIPES[2].name)).toBeNull();
   });
 
   it('renders custom badge and delete button for custom recipes, and prompts confirmation before deleting', () => {

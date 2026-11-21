@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router';
-import { BrewRecipe } from '@brewlog/core';
-import { FilterPills, type FilterPillsOption } from '@brewlog/ui';
-import { Trash2, Pencil } from 'lucide-react';
+import { BrewRecipe, matchesRecipeSearch } from '@brewlog/core';
+import { Button, FilterPills, type FilterPillsOption } from '@brewlog/ui';
+import { Search, X, Trash2, Pencil } from 'lucide-react';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 
 export interface RecipeCatalogListProps {
@@ -48,6 +48,7 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
   onEditRecipe,
   onDeleteRecipe,
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
   const [recipeToDelete, setRecipeToDelete] = useState<BrewRecipe | null>(null);
 
   const availableMethodOptions = useMemo(() => {
@@ -80,15 +81,47 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
     }
   }, [selectedMethodFilter, effectiveMethodFilter, onSelectMethodFilter]);
 
-  const filteredRecipes = recipes.filter((r) => {
-    return effectiveMethodFilter === 'all' || r.brewMethod === effectiveMethodFilter;
-  });
+  const filteredRecipes = useMemo(
+    () =>
+      recipes.filter((r) => {
+        const matchesMethod =
+          effectiveMethodFilter === 'all' || r.brewMethod === effectiveMethodFilter;
+        return matchesMethod && matchesRecipeSearch(r, searchQuery);
+      }),
+    [recipes, effectiveMethodFilter, searchQuery]
+  );
 
   const isCustomRecipe = (recipe: BrewRecipe) =>
     !recipe.isPreset && !recipe.id.startsWith('preset-');
 
+  const isSearchEmpty =
+    recipes.length > 0 && filteredRecipes.length === 0 && searchQuery.trim().length > 0;
+
   return (
     <div className="flex flex-col gap-4">
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted" />
+        <input
+          type="text"
+          placeholder="Search name, author, method..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="Search recipes"
+          className="w-full pl-10 pr-10 py-2.5 rounded-lg bg-panel border border-border-subtle text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent/60 transition-colors"
+        />
+        {searchQuery.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setSearchQuery('')}
+            aria-label="Clear search"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+
       {/* Method Filter Bar */}
       {availableMethodOptions.length > 1 && (
         <FilterPills
@@ -103,7 +136,20 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
 
       {/* Recipe Cards List */}
       <div className="space-y-3">
-        {filteredRecipes.length === 0 ? (
+        {isSearchEmpty ? (
+          <div className="p-8 rounded-xl bg-panel border border-dashed border-border-subtle text-center flex flex-col items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-panel-recessed border border-border-subtle flex items-center justify-center">
+              <Search className="w-5 h-5 text-foreground-muted" />
+            </div>
+            <p className="text-xs text-foreground-muted">No recipes match your search.</p>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setSearchQuery('')}
+              label="CLEAR SEARCH"
+            />
+          </div>
+        ) : filteredRecipes.length === 0 ? (
           <div className="p-8 rounded-xl bg-panel border border-dashed border-border-subtle text-center text-xs text-foreground-muted">
             No recipes found for this brew method.
           </div>
