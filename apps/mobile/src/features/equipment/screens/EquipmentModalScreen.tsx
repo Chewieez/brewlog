@@ -406,7 +406,7 @@ const EquipmentModalForm: React.FC<EquipmentModalFormProps> = ({ id, sourceItem 
             style={styles.favoriteRow}
             accessibilityRole="switch"
             accessibilityState={{ checked: isFavorite }}
-            accessibilityLabel={isFavorite ? 'Unmark Favorite' : 'Mark as Favorite'}
+            accessibilityLabel="Mark as favorite gear"
           >
             <View style={styles.favoriteLabelContainer}>
               <Star

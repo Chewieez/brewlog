@@ -435,12 +435,12 @@ describe('EquipmentModalScreen', () => {
     expect(queryByText('OFF')).toBeNull();
     expect(queryByText('FAVORITE')).toBeNull();
 
-    const favoriteToggle = getByRole('switch', { name: 'Mark as Favorite' });
+    const favoriteToggle = getByRole('switch', { name: 'Mark as favorite gear' });
     expect(favoriteToggle.getAttribute('aria-checked')).toBe('false');
 
     rtlFireEvent.click(favoriteToggle);
     expect(
-      getByRole('switch', { name: 'Unmark Favorite' }).getAttribute('aria-checked')
+      getByRole('switch', { name: 'Mark as favorite gear' }).getAttribute('aria-checked')
     ).toBe('true');
     expect(queryByText('FAVORITE')).toBeNull();
     expect(queryByText('OFF')).toBeNull();
