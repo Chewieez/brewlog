@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { Keyboard } from 'react-native';
+import { Keyboard, View, StyleSheet } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { NativeTabs } from 'expo-router/native-tabs';
 import { useTheme } from '@brewlog/ui';
+import { TopAppHeader } from '../../src/components/navigation/TopAppHeader';
 import { AuthModalContext } from '../../src/features/auth/AuthModalContext';
 
 export default function TabLayoutIOS() {
@@ -46,62 +47,76 @@ export default function TabLayoutIOS() {
         isAuthSheetVisible,
       }}
     >
-      <NativeTabs
-        blurEffect={isDark ? 'dark' : 'systemMaterialLight'}
-        tintColor={colors.accent}
-        iconColor={{
-          default: colors.foregroundSecondary,
-          selected: colors.accent,
-        }}
-        labelStyle={{
-          default: {
-            color: colors.foregroundSecondary,
-          },
-          selected: {
-            color: colors.accent,
-          },
-        }}
-      >
-        <NativeTabs.Trigger name="index">
-          <NativeTabs.Trigger.Label>Timer</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon
-            src={require('../../assets/tabs/timer.png')}
-            renderingMode="template"
-          />
-        </NativeTabs.Trigger>
+      <View style={[styles.container, { backgroundColor: colors.canvas }]}>
+        <TopAppHeader onProfilePress={openAuthSheet} />
+        <View style={styles.tabsContainer}>
+          <NativeTabs
+            blurEffect={isDark ? 'dark' : 'systemMaterialLight'}
+            tintColor={colors.accent}
+            iconColor={{
+              default: colors.foregroundSecondary,
+              selected: colors.accent,
+            }}
+            labelStyle={{
+              default: {
+                color: colors.foregroundSecondary,
+              },
+              selected: {
+                color: colors.accent,
+              },
+            }}
+          >
+            <NativeTabs.Trigger name="index">
+              <NativeTabs.Trigger.Label>Timer</NativeTabs.Trigger.Label>
+              <NativeTabs.Trigger.Icon
+                src={require('../../assets/tabs/timer.png')}
+                renderingMode="template"
+              />
+            </NativeTabs.Trigger>
 
-        <NativeTabs.Trigger name="stash">
-          <NativeTabs.Trigger.Label>Stash</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon
-            src={require('../../assets/tabs/stash.png')}
-            renderingMode="template"
-          />
-        </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="stash">
+              <NativeTabs.Trigger.Label>Stash</NativeTabs.Trigger.Label>
+              <NativeTabs.Trigger.Icon
+                src={require('../../assets/tabs/stash.png')}
+                renderingMode="template"
+              />
+            </NativeTabs.Trigger>
 
-        <NativeTabs.Trigger name="recipes">
-          <NativeTabs.Trigger.Label>Recipes</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon
-            src={require('../../assets/tabs/recipes.png')}
-            renderingMode="template"
-          />
-        </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="recipes">
+              <NativeTabs.Trigger.Label>Recipes</NativeTabs.Trigger.Label>
+              <NativeTabs.Trigger.Icon
+                src={require('../../assets/tabs/recipes.png')}
+                renderingMode="template"
+              />
+            </NativeTabs.Trigger>
 
-        <NativeTabs.Trigger name="equipment">
-          <NativeTabs.Trigger.Label>Equipment</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon
-            src={require('../../assets/tabs/equipment.png')}
-            renderingMode="template"
-          />
-        </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="equipment">
+              <NativeTabs.Trigger.Label>Equipment</NativeTabs.Trigger.Label>
+              <NativeTabs.Trigger.Icon
+                src={require('../../assets/tabs/equipment.png')}
+                renderingMode="template"
+              />
+            </NativeTabs.Trigger>
 
-        <NativeTabs.Trigger name="reviews">
-          <NativeTabs.Trigger.Label>Reviews</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon
-            src={require('../../assets/tabs/reviews.png')}
-            renderingMode="template"
-          />
-        </NativeTabs.Trigger>
-      </NativeTabs>
+            <NativeTabs.Trigger name="reviews">
+              <NativeTabs.Trigger.Label>Reviews</NativeTabs.Trigger.Label>
+              <NativeTabs.Trigger.Icon
+                src={require('../../assets/tabs/reviews.png')}
+                renderingMode="template"
+              />
+            </NativeTabs.Trigger>
+          </NativeTabs>
+        </View>
+      </View>
     </AuthModalContext.Provider>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  tabsContainer: {
+    flex: 1,
+  },
+});

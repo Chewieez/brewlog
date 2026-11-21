@@ -16,8 +16,7 @@ import { useReviews } from '../ReviewsContext';
 import { ReviewsSummaryBar } from '../components/ReviewsSummaryBar';
 import { ReviewCard } from '../components/ReviewCard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAuthModal } from '../../auth/AuthModalContext';
-import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
+import { TabScreenHeader } from '../../../components/navigation/TabScreenHeader';
 import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
 
 export type MethodFilter = 'all' | 'v60' | 'espresso' | 'aeropress' | 'french-press' | 'chemex' | 'pour-over' | 'cold-brew';
@@ -50,7 +49,6 @@ export const ReviewsCatalogScreen: React.FC = () => {
   const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { openAuthSheet } = useAuthModal();
   const { reviews } = useReviews();
   const flatListRef = useRef<FlatList<TastingLog>>(null);
   useScrollToTop(flatListRef);
@@ -149,36 +147,13 @@ export const ReviewsCatalogScreen: React.FC = () => {
   }, [reviews, searchQuery, selectedMethod, selectedRating]);
 
   const renderHeader = () => (
-    <View
-      style={[
-        styles.headerContainer,
-        { paddingTop: Math.max(insets.top, 16) },
-      ]}
-    >
-      {/* Title & Profile Row */}
-      <View style={styles.titleRow}>
-        <View style={styles.titleCol}>
-          <Text style={styles.title}>Reviews</Text>
-          <Text style={styles.subtitle}>
-            SCA scores, flavor profiles & sensory logs
-          </Text>
-        </View>
-        <ProfileHeaderButton onPress={openAuthSheet} />
-      </View>
-
-      {/* Action Button Row */}
-      <View style={styles.actionRow}>
-        <Pressable
-          style={styles.addButton}
-          onPress={handleAddReview}
-          accessibilityRole="button"
-          accessibilityLabel="Add Review"
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Plus size={16} color={colors.canvas} />
-          <Text style={styles.addButtonText}>ADD REVIEW</Text>
-        </Pressable>
-      </View>
+    <View style={styles.headerContainer}>
+      <TabScreenHeader
+        title="Reviews"
+        actionLabel="ADD REVIEW"
+        onActionPress={handleAddReview}
+        actionAccessibilityLabel="Add Review"
+      />
 
       {/* Summary Metrics Bar */}
       <ReviewsSummaryBar
@@ -341,49 +316,9 @@ const useStyles = makeStyles((colors) => ({
     gap: 12,
   },
   headerContainer: {
+    paddingTop: 16,
     gap: 14,
     marginBottom: 8,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 12,
-  },
-  titleCol: {
-    flex: 1,
-  },
-  title: {
-    fontFamily: FONTS.displaySemiBold,
-    fontSize: 26,
-    color: colors.textPrimary,
-  },
-  subtitle: {
-    fontFamily: FONTS.bodyRegular,
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: colors.accent,
-    borderRadius: 6,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    minHeight: 44,
-  },
-  addButtonText: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 12,
-    color: colors.canvas,
-    letterSpacing: 1,
   },
   searchBar: {
     flexDirection: 'row',

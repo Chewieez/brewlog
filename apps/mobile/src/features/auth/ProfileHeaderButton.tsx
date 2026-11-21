@@ -62,7 +62,6 @@ const useStyles = makeStyles((colors) => ({
     minHeight: 44,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 8,
   },
   pressed: {
     opacity: 0.7,

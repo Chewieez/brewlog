@@ -18,8 +18,7 @@ import { BeanCard } from '../components/BeanCard';
 import { CellarSummaryBar } from '../components/CellarSummaryBar';
 import { calculateBeanRestingInfo } from '../utils/restingUtils';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAuthModal } from '../../auth/AuthModalContext';
-import { ProfileHeaderButton } from '../../auth/ProfileHeaderButton';
+import { TabScreenHeader } from '../../../components/navigation/TabScreenHeader';
 import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
 
 export type ShelfType = 'active' | 'frozen' | 'archived';
@@ -54,7 +53,6 @@ export const StashCatalogScreen: React.FC = () => {
   const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { openAuthSheet } = useAuthModal();
   const flatListRef = useRef<FlatList<Bean>>(null);
   useScrollToTop(flatListRef);
   const {
@@ -262,35 +260,13 @@ export const StashCatalogScreen: React.FC = () => {
   };
 
   const renderHeader = () => (
-    <View
-      style={[
-        styles.headerContainer,
-        { paddingTop: Math.max(insets.top, 16) },
-      ]}
-    >
-      {/* Top Title & Profile Row */}
-      <View style={styles.titleRow}>
-        <View style={styles.titleTextContainer}>
-          <Text style={styles.headerTitle}>Stash</Text>
-          <Text style={styles.headerSubtitle}>
-            Manage roast dates, resting curves, and freezer storage.
-          </Text>
-        </View>
-        <ProfileHeaderButton onPress={openAuthSheet} />
-      </View>
-
-      {/* Screen Action Button */}
-      <View style={styles.actionRow}>
-        <Pressable
-          onPress={handleAddBag}
-          style={styles.addButton}
-          accessibilityRole="button"
-          accessibilityLabel="Add new bean to stash"
-        >
-          <Plus size={16} color={colors.canvas} />
-          <Text style={styles.addButtonText}>ADD BEAN</Text>
-        </Pressable>
-      </View>
+    <View style={styles.headerContainer}>
+      <TabScreenHeader
+        title="Stash"
+        actionLabel="ADD BEAN"
+        onActionPress={handleAddBag}
+        actionAccessibilityLabel="Add new bean to stash"
+      />
 
       {/* Summary Chassis Bar */}
       <View style={styles.summaryBarWrapper}>
@@ -412,48 +388,6 @@ const useStyles = makeStyles((colors) => ({
     paddingTop: 16,
     paddingBottom: 8,
     gap: 14,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  titleTextContainer: {
-    flex: 1,
-    marginRight: 12,
-  },
-  headerTitle: {
-    fontFamily: FONTS.displaySemiBold,
-    fontSize: 26,
-    color: colors.textPrimary,
-  },
-  headerSubtitle: {
-    fontFamily: FONTS.bodyRegular,
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: colors.accent,
-    minHeight: 44,
-    minWidth: 84,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    justifyContent: 'center',
-  },
-  addButtonText: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 11,
-    color: colors.canvas,
-    letterSpacing: 1,
   },
   summaryBarWrapper: {
     marginTop: 2,

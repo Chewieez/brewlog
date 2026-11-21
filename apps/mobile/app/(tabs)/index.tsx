@@ -31,8 +31,7 @@ import { FONTS } from '../../src/theme/fonts';
 import { mobileFeedback } from '../../src/lib/mobileFeedback';
 import { buildTimerReviewParams } from '../../src/features/timer/buildTimerReviewParams';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAuthModal } from '../../src/features/auth/AuthModalContext';
-import { ProfileHeaderButton } from '../../src/features/auth/ProfileHeaderButton';
+import { TabScreenHeader } from '../../src/components/navigation/TabScreenHeader';
 import { getTabScreenBottomPadding } from '../../src/components/navigation/tabBarConstants';
 
 export default function TimerScreen() {
@@ -40,7 +39,6 @@ export default function TimerScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { openAuthSheet } = useAuthModal();
   const scrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
   useScrollToTop(scrollRef as any);
   const params = useLocalSearchParams<{ mode?: string }>();
@@ -279,18 +277,8 @@ export default function TimerScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Top In-Screen Header */}
-        <View
-          style={[
-            styles.headerContainer,
-            { paddingTop: Math.max(insets.top, 16) },
-          ]}
-        >
-          <View style={styles.titleRow}>
-            <View style={styles.headerTitleContainer}>
-              <Text style={styles.title}>Timer</Text>
-            </View>
-            <ProfileHeaderButton onPress={openAuthSheet} />
-          </View>
+        <View style={styles.headerContainer}>
+          <TabScreenHeader title="Timer" />
         </View>
 
       {/* Top Segmented Mode Switcher */}
@@ -453,21 +441,8 @@ const useStyles = makeStyles((colors) => ({
   contentContainer: {},
   headerContainer: {
     paddingHorizontal: 16,
+    paddingTop: 16,
     paddingBottom: 8,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-  },
-  headerTitleContainer: {
-    flex: 1,
-    marginRight: 12,
-  },
-  title: {
-    fontFamily: FONTS.displaySemiBold,
-    fontSize: 26,
-    color: colors.textPrimary,
   },
   modeToggleContainer: {
     marginHorizontal: 16,
