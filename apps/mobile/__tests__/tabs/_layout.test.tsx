@@ -17,6 +17,7 @@ vi.mock("react-native", () => ({
   View: ({ children, style, testID, accessibilityViewIsModal, ...props }: any) => (
     <div
       data-testid={testID}
+      data-style={JSON.stringify(style)}
       data-accessibility-view-is-modal={accessibilityViewIsModal ? "true" : undefined}
       {...props}
     >
@@ -235,9 +236,12 @@ vi.mock("expo-router", () => {
       canGoBack: vi.fn(() => false),
     }),
     Tabs: Object.assign(
-      ({ children }: any) => {
+      ({ children, screenOptions }: any) => {
         return (
-          <div data-testid="tabs-mock">
+          <div
+            data-testid="tabs-mock"
+            data-animation={screenOptions?.animation}
+          >
             {children}
           </div>
         );
@@ -337,13 +341,23 @@ describe("TabLayout Integration", () => {
   });
 
   it("renders static TopAppHeader with BrewLog and opens AuthSheet when Account profile is tapped", () => {
-    const { getByText, getByLabelText, queryByTestId } = render(
+    const { container, getByText, getByLabelText, getByTestId, queryByTestId } = render(
       <AuthProvider>
         <TabLayout />
       </AuthProvider>
     );
 
     expect(getByText("BrewLog")).toBeDefined();
+    expect(getByTestId("tabs-mock").getAttribute("data-animation")).toBe("none");
+    const rootStyle = JSON.parse(
+      (container.firstElementChild as HTMLElement)?.getAttribute("data-style") || "[]"
+    );
+    expect(rootStyle).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ flex: 1 }),
+        expect.objectContaining({ backgroundColor: "#0e0d0c" }),
+      ])
+    );
     expect(queryByTestId("auth-sheet")).toBeNull();
 
     vi.mocked(Keyboard.dismiss).mockClear();

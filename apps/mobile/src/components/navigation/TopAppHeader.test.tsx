@@ -33,10 +33,11 @@ vi.mock("react-native", () => ({
       {children}
     </div>
   ),
-  Text: ({ children, style, accessibilityRole, ...props }: any) => (
+  Text: ({ children, style, accessibilityRole, numberOfLines, ...props }: any) => (
     <span
       role={accessibilityRole === "header" ? "heading" : accessibilityRole}
       data-style={JSON.stringify(style)}
+      data-number-of-lines={numberOfLines}
       {...props}
     >
       {children}
@@ -149,7 +150,7 @@ describe("TopAppHeader", () => {
   });
 
   it("resolves dark and light theme tokens from @brewlog/ui", () => {
-    const { getByTestId, rerender } = render(
+    const { getByTestId, getByRole, rerender } = render(
       <ThemeProvider theme={TACTILE_DARK_THEME}>
         <TopAppHeader onProfilePress={vi.fn()} />
       </ThemeProvider>
@@ -160,6 +161,21 @@ describe("TopAppHeader", () => {
       borderBottomWidth: 1,
       borderBottomColor: TACTILE_DARK_THEME.colors.borderSubtle,
     });
+    expect(
+      flattenStyle(getByTestId("top-app-header-brand-icon").getAttribute("data-style"))
+    ).toMatchObject({
+      backgroundColor: TACTILE_DARK_THEME.colors.panel,
+      borderColor: TACTILE_DARK_THEME.colors.borderSubtle,
+    });
+    expect(getByTestId("coffee-brand-icon").getAttribute("data-color")).toBe(
+      TACTILE_DARK_THEME.colors.accent
+    );
+    const titleEl = getByRole("heading", { name: "BrewLog" });
+    expect(flattenStyle(titleEl.getAttribute("data-style"))).toMatchObject({
+      color: TACTILE_DARK_THEME.colors.foreground,
+      flexShrink: 1,
+    });
+    expect(titleEl.getAttribute("data-number-of-lines")).toBe("1");
 
     rerender(
       <ThemeProvider theme={CRISP_STUDIO_LIGHT_THEME}>
@@ -171,6 +187,20 @@ describe("TopAppHeader", () => {
       backgroundColor: CRISP_STUDIO_LIGHT_THEME.colors.canvas,
       borderBottomWidth: 1,
       borderBottomColor: CRISP_STUDIO_LIGHT_THEME.colors.borderSubtle,
+    });
+    expect(
+      flattenStyle(getByTestId("top-app-header-brand-icon").getAttribute("data-style"))
+    ).toMatchObject({
+      backgroundColor: CRISP_STUDIO_LIGHT_THEME.colors.panel,
+      borderColor: CRISP_STUDIO_LIGHT_THEME.colors.borderSubtle,
+    });
+    expect(getByTestId("coffee-brand-icon").getAttribute("data-color")).toBe(
+      CRISP_STUDIO_LIGHT_THEME.colors.accent
+    );
+    expect(
+      flattenStyle(getByRole("heading", { name: "BrewLog" }).getAttribute("data-style"))
+    ).toMatchObject({
+      color: CRISP_STUDIO_LIGHT_THEME.colors.foreground,
     });
   });
 });

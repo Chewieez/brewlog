@@ -25,7 +25,11 @@ export const TopAppHeader: React.FC<TopAppHeaderProps> = ({ onProfilePress }) =>
           <View testID="top-app-header-brand-icon" style={styles.brandIconBadge}>
             <Coffee size={16} color={colors.accent} />
           </View>
-          <Text accessibilityRole="header" style={styles.brandTitle}>
+          <Text
+            accessibilityRole="header"
+            numberOfLines={1}
+            style={styles.brandTitle}
+          >
             BrewLog
           </Text>
         </View>
@@ -49,11 +53,13 @@ const useStyles = makeStyles((colors) => ({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 12,
   },
   brandRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    flexShrink: 1,
   },
   brandIconBadge: {
     width: 32,
@@ -70,5 +76,6 @@ const useStyles = makeStyles((colors) => ({
     fontSize: 18,
     letterSpacing: -0.3,
     color: colors.foreground,
+    flexShrink: 1,
   },
 }));
