@@ -66,12 +66,16 @@ vi.mock('expo-router', () => ({
   useScrollToTop: vi.fn(),
 }));
 
+const mockSetIsBrewActive = vi.fn();
+
 vi.mock('../../src/features/recipes/RecipeContext', () => ({
   useRecipes: () => {
     const [activeTimerRecipe, setActiveRecipe] = React.useState(DEFAULT_PRESET_RECIPES[0]);
     const [activeTimerDose, setActiveDose] = React.useState(
       DEFAULT_PRESET_RECIPES[0].coffeeDoseGrams
     );
+    const [isBrewActive, setIsBrewActive] = React.useState(false);
+    const [timerResetTrigger, setTimerResetTrigger] = React.useState(0);
     return {
       recipes: DEFAULT_PRESET_RECIPES,
       customRecipes: [],
@@ -79,9 +83,18 @@ vi.mock('../../src/features/recipes/RecipeContext', () => ({
       loading: false,
       activeTimerRecipe,
       activeTimerDose,
-      setActiveTimerRecipe: (recipe: any, dose?: number) => {
+      isBrewActive,
+      setIsBrewActive: (val: boolean) => {
+        setIsBrewActive(val);
+        mockSetIsBrewActive(val);
+      },
+      timerResetTrigger,
+      setActiveTimerRecipe: (recipe: any, dose?: number, options?: { skipReset?: boolean }) => {
         setActiveRecipe(recipe);
         setActiveDose(dose !== undefined && dose > 0 ? dose : recipe.coffeeDoseGrams);
+        if (!options?.skipReset) {
+          setTimerResetTrigger((prev) => prev + 1);
+        }
       },
     };
   },
@@ -435,5 +448,15 @@ describe('TimerScreen - Cold Start Mode Hydration', () => {
 
     expect(getByText('Timer')).toBeDefined();
     expect(queryByLabelText('Account profile')).toBeNull();
+  });
+
+  it('cleans up and resets isBrewActive to false on unmount', () => {
+    const { unmount } = render(<TimerScreen />);
+    expect(mockSetIsBrewActive).toHaveBeenCalledWith(false);
+
+    mockSetIsBrewActive.mockClear();
+    unmount();
+
+    expect(mockSetIsBrewActive).toHaveBeenCalledWith(false);
   });
 });

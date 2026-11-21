@@ -25,6 +25,7 @@ import {
   BrewMethodType,
   StageType,
   BrewStage,
+  DEFAULT_PRESET_RECIPES,
   calculateWaterAmount,
   calculateRatio,
   Equipment,
@@ -95,6 +96,201 @@ const DEFAULT_STAGES: BrewStage[] = [
   },
 ];
 
+function generateStageId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `new-stage-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+interface StageCardItemProps {
+  stage: BrewStage;
+  index: number;
+  totalStages: number;
+  onUpdate: (patch: Partial<BrewStage>) => void;
+  onRemove: () => void;
+  onMove: (delta: number) => void;
+}
+
+const StageCardItem: React.FC<StageCardItemProps> = ({
+  stage,
+  index,
+  totalStages,
+  onUpdate,
+  onRemove,
+  onMove,
+}) => {
+  const styles = useStyles();
+  const { colors } = useTheme();
+  const [durationText, setDurationText] = useState<string>(String(stage.durationSeconds));
+  const [waterText, setWaterText] = useState<string>(String(stage.targetWaterWeightGrams));
+
+  useEffect(() => {
+    if (
+      parseInt(durationText, 10) !== stage.durationSeconds &&
+      (durationText !== '' || stage.durationSeconds !== 0)
+    ) {
+      setDurationText(String(stage.durationSeconds));
+    }
+  }, [stage.durationSeconds]);
+
+  useEffect(() => {
+    if (
+      parseFloat(waterText) !== stage.targetWaterWeightGrams &&
+      (waterText !== '' || stage.targetWaterWeightGrams !== 0)
+    ) {
+      setWaterText(String(stage.targetWaterWeightGrams));
+    }
+  }, [stage.targetWaterWeightGrams]);
+
+  const handleDurationChange = (val: string) => {
+    setDurationText(val);
+    const parsed = parseInt(val, 10);
+    if (!isNaN(parsed) && parsed >= 0) {
+      onUpdate({ durationSeconds: parsed });
+    }
+  };
+
+  const handleDurationBlur = () => {
+    if (durationText.trim() === '' || isNaN(parseInt(durationText, 10))) {
+      setDurationText(String(stage.durationSeconds));
+    }
+  };
+
+  const handleWaterChange = (val: string) => {
+    setWaterText(val);
+    const parsed = parseFloat(val);
+    if (!isNaN(parsed) && parsed >= 0) {
+      onUpdate({ targetWaterWeightGrams: parsed });
+    }
+  };
+
+  const handleWaterBlur = () => {
+    if (waterText.trim() === '' || isNaN(parseFloat(waterText))) {
+      setWaterText(String(stage.targetWaterWeightGrams));
+    }
+  };
+
+  return (
+    <View style={styles.stageEditorCard}>
+      <View style={styles.stageEditorHeader}>
+        <Text style={styles.stageNumber}>Step {index + 1} ({stage.startSecond}s)</Text>
+        <View style={styles.stageActionIcons}>
+          <Pressable
+            onPress={() => onMove(-1)}
+            disabled={index === 0}
+            style={[styles.miniButton, index === 0 && styles.miniButtonDisabled]}
+            accessibilityRole="button"
+            accessibilityLabel={`Move stage ${index + 1} up`}
+          >
+            <ChevronUp size={16} color={index === 0 ? colors.textMuted : colors.textPrimary} />
+          </Pressable>
+          <Pressable
+            onPress={() => onMove(1)}
+            disabled={index === totalStages - 1}
+            style={[styles.miniButton, index === totalStages - 1 && styles.miniButtonDisabled]}
+            accessibilityRole="button"
+            accessibilityLabel={`Move stage ${index + 1} down`}
+          >
+            <ChevronDown
+              size={16}
+              color={index === totalStages - 1 ? colors.textMuted : colors.textPrimary}
+            />
+          </Pressable>
+          <Pressable
+            onPress={onRemove}
+            style={styles.miniButton}
+            accessibilityRole="button"
+            accessibilityLabel={`Remove stage ${index + 1}`}
+          >
+            <Trash2 size={16} color={colors.statusError} />
+          </Pressable>
+        </View>
+      </View>
+
+      <TextInput
+        value={stage.name}
+        onChangeText={(val) => onUpdate({ name: val })}
+        placeholder="e.g. Bloom"
+        placeholderTextColor={colors.textMuted}
+        numberOfLines={1}
+        style={styles.textInput}
+        accessibilityLabel={`Stage ${index + 1} name`}
+      />
+
+      <Text style={styles.fieldLabel}>STAGE TYPE</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.stageTypeRow}
+      >
+        {STAGE_TYPES.map((stType) => {
+          const isTypeSelected = stage.stageType === stType.value;
+          return (
+            <Pressable
+              key={stType.value}
+              onPress={() => onUpdate({ stageType: stType.value })}
+              style={[
+                styles.stageTypePill,
+                isTypeSelected ? styles.stageTypePillActive : styles.stageTypePillInactive,
+              ]}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isTypeSelected }}
+              accessibilityLabel={`Step ${index + 1} stage type ${stType.label}`}
+            >
+              <Text
+                style={[
+                  styles.stageTypePillText,
+                  isTypeSelected ? styles.stageTypePillTextActive : styles.stageTypePillTextInactive,
+                ]}
+              >
+                {stType.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+
+      <View style={styles.row}>
+        <View style={styles.halfField}>
+          <Text style={styles.fieldLabel}>DURATION (SEC)</Text>
+          <TextInput
+            value={durationText}
+            onChangeText={handleDurationChange}
+            onBlur={handleDurationBlur}
+            keyboardType="number-pad"
+            numberOfLines={1}
+            style={styles.textInput}
+            accessibilityLabel={`Stage ${index + 1} duration in seconds`}
+          />
+        </View>
+        <View style={styles.halfField}>
+          <Text style={styles.fieldLabel}>TARGET WATER (G)</Text>
+          <TextInput
+            value={waterText}
+            onChangeText={handleWaterChange}
+            onBlur={handleWaterBlur}
+            keyboardType="decimal-pad"
+            numberOfLines={1}
+            style={styles.textInput}
+            accessibilityLabel={`Stage ${index + 1} target water weight in grams`}
+          />
+        </View>
+      </View>
+
+      <TextInput
+        value={stage.instruction}
+        onChangeText={(val) => onUpdate({ instruction: val })}
+        placeholder="Pour technique, notes..."
+        placeholderTextColor={colors.textMuted}
+        numberOfLines={1}
+        style={styles.textInput}
+        accessibilityLabel={`Stage ${index + 1} instruction`}
+      />
+    </View>
+  );
+};
+
 export const RecipeBuilderScreen: React.FC = () => {
   const styles = useStyles();
   const { colors } = useTheme();
@@ -128,10 +324,16 @@ export const RecipeBuilderScreen: React.FC = () => {
     ];
   }, [contextGrinders, locallyAddedGrinders]);
 
-  const sourceRecipe = editId
-    ? recipes.find((r) => r.id === editId)
-    : duplicateId
-    ? recipes.find((r) => r.id === duplicateId)
+  const isPresetId = Boolean(
+    editId && (editId.startsWith('preset-') || DEFAULT_PRESET_RECIPES.some((p) => p.id === editId))
+  );
+  const effectiveEditId = isPresetId ? undefined : editId;
+  const effectiveDuplicateId = duplicateId || (isPresetId ? editId : undefined);
+
+  const sourceRecipe = effectiveEditId
+    ? recipes.find((r) => r.id === effectiveEditId)
+    : effectiveDuplicateId
+    ? recipes.find((r) => r.id === effectiveDuplicateId)
     : null;
 
   const parsedParamStages = React.useMemo(() => {
@@ -161,7 +363,7 @@ export const RecipeBuilderScreen: React.FC = () => {
 
   const [name, setName] = useState<string>(
     sourceRecipe
-      ? duplicateId
+      ? effectiveDuplicateId
         ? `${sourceRecipe.name} (Copy)`
         : sourceRecipe.name
       : ''
@@ -235,7 +437,7 @@ export const RecipeBuilderScreen: React.FC = () => {
   const initialValues = useMemo(
     () => ({
       name: sourceRecipe
-        ? duplicateId
+        ? effectiveDuplicateId
           ? `${sourceRecipe.name} (Copy)`
           : sourceRecipe.name
         : '',
@@ -283,7 +485,7 @@ export const RecipeBuilderScreen: React.FC = () => {
       ),
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sourceRecipe?.id, duplicateId]
+    [sourceRecipe?.id, effectiveDuplicateId]
   );
 
   const isDirty =
@@ -323,7 +525,7 @@ export const RecipeBuilderScreen: React.FC = () => {
   const handleAddStage = () => {
     const nextIdx = stages.length + 1;
     const newStage: BrewStage = {
-      id: `new-stage-${Date.now()}`,
+      id: generateStageId(),
       name: `Stage ${nextIdx}`,
       stageType: 'pour',
       startSecond: 0,
@@ -481,8 +683,8 @@ export const RecipeBuilderScreen: React.FC = () => {
     };
 
     try {
-      if (editId) {
-        await updateRecipe(editId, payload);
+      if (effectiveEditId) {
+        await updateRecipe(effectiveEditId, payload);
         dismissModal();
       } else {
         const created = await addRecipe(payload);
@@ -533,7 +735,7 @@ export const RecipeBuilderScreen: React.FC = () => {
             <X size={20} color={colors.textSecondary} />
           </Pressable>
           <Text style={styles.navTitle}>
-            {editId ? 'Edit Recipe' : duplicateId ? 'Duplicate Recipe' : 'New Recipe'}
+            {effectiveEditId ? 'Edit Recipe' : effectiveDuplicateId ? 'Duplicate Recipe' : 'New Recipe'}
           </Text>
           <Pressable
             onPress={handleSave}
@@ -927,117 +1129,15 @@ export const RecipeBuilderScreen: React.FC = () => {
         </View>
 
         {stages.map((st, idx) => (
-          <View key={st.id || idx} style={styles.stageEditorCard}>
-            <View style={styles.stageEditorHeader}>
-              <Text style={styles.stageNumber}>Step {idx + 1} ({st.startSecond}s)</Text>
-              <View style={styles.stageActionIcons}>
-                <Pressable
-                  onPress={() => handleMoveStage(idx, -1)}
-                  disabled={idx === 0}
-                  style={[styles.miniButton, idx === 0 && styles.miniButtonDisabled]}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Move stage ${idx + 1} up`}
-                >
-                  <ChevronUp size={16} color={idx === 0 ? colors.textMuted : colors.textPrimary} />
-                </Pressable>
-                <Pressable
-                  onPress={() => handleMoveStage(idx, 1)}
-                  disabled={idx === stages.length - 1}
-                  style={[styles.miniButton, idx === stages.length - 1 && styles.miniButtonDisabled]}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Move stage ${idx + 1} down`}
-                >
-                  <ChevronDown size={16} color={idx === stages.length - 1 ? colors.textMuted : colors.textPrimary} />
-                </Pressable>
-                <Pressable
-                  onPress={() => handleRemoveStage(idx)}
-                  style={styles.miniButton}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Remove stage ${idx + 1}`}
-                >
-                  <Trash2 size={16} color={colors.statusError} />
-                </Pressable>
-              </View>
-            </View>
-
-            <TextInput
-              value={st.name}
-              onChangeText={(val) => handleUpdateStage(idx, { name: val })}
-              placeholder="e.g. Bloom"
-              placeholderTextColor={colors.textMuted}
-              numberOfLines={1}
-              style={styles.textInput}
-            />
-
-            <Text style={styles.fieldLabel}>STAGE TYPE</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.stageTypeRow}
-            >
-              {STAGE_TYPES.map((stType) => {
-                const isTypeSelected = st.stageType === stType.value;
-                return (
-                  <Pressable
-                    key={stType.value}
-                    onPress={() => handleUpdateStage(idx, { stageType: stType.value })}
-                    style={[
-                      styles.stageTypePill,
-                      isTypeSelected ? styles.stageTypePillActive : styles.stageTypePillInactive,
-                    ]}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: isTypeSelected }}
-                    accessibilityLabel={`Step ${idx + 1} stage type ${stType.label}`}
-                  >
-                    <Text
-                      style={[
-                        styles.stageTypePillText,
-                        isTypeSelected ? styles.stageTypePillTextActive : styles.stageTypePillTextInactive,
-                      ]}
-                    >
-                      {stType.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-
-            <View style={styles.row}>
-              <View style={styles.halfField}>
-                <Text style={styles.fieldLabel}>DURATION (SEC)</Text>
-                <TextInput
-                  value={String(st.durationSeconds)}
-                  onChangeText={(val) =>
-                    handleUpdateStage(idx, { durationSeconds: parseInt(val, 10) || 0 })
-                  }
-                  keyboardType="number-pad"
-                  numberOfLines={1}
-                  style={styles.textInput}
-                />
-              </View>
-              <View style={styles.halfField}>
-                <Text style={styles.fieldLabel}>TARGET WATER (G)</Text>
-                <TextInput
-                  value={String(st.targetWaterWeightGrams)}
-                  onChangeText={(val) =>
-                    handleUpdateStage(idx, { targetWaterWeightGrams: parseFloat(val) || 0 })
-                  }
-                  keyboardType="decimal-pad"
-                  numberOfLines={1}
-                  style={styles.textInput}
-                />
-              </View>
-            </View>
-
-            <TextInput
-              value={st.instruction}
-              onChangeText={(val) => handleUpdateStage(idx, { instruction: val })}
-              placeholder="Pour technique, notes..."
-              placeholderTextColor={colors.textMuted}
-              numberOfLines={1}
-              style={styles.textInput}
-            />
-          </View>
+          <StageCardItem
+            key={st.id || idx}
+            stage={st}
+            index={idx}
+            totalStages={stages.length}
+            onUpdate={(patch) => handleUpdateStage(idx, patch)}
+            onRemove={() => handleRemoveStage(idx)}
+            onMove={(delta) => handleMoveStage(idx, delta)}
+          />
         ))}
 
         <Pressable onPress={handleAddStage} style={styles.addStageButton} accessibilityRole="button" accessibilityLabel="Add Brew Stage">

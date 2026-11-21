@@ -42,7 +42,13 @@ export default function TimerScreen() {
   const scrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
   useScrollToTop(scrollRef as any);
   const params = useLocalSearchParams<{ mode?: string }>();
-  const { activeTimerRecipe, activeTimerDose, setActiveTimerRecipe } = useRecipes();
+  const {
+    activeTimerRecipe,
+    activeTimerDose,
+    setActiveTimerRecipe,
+    setIsBrewActive,
+    timerResetTrigger,
+  } = useRecipes();
 
   const settingsContext = useOptionalSettings();
   const settings = settingsContext?.settings ?? DEFAULT_USER_SETTINGS;
@@ -114,6 +120,24 @@ export default function TimerScreen() {
     setIsFreeBrewFinished(false);
   }, [baseReset]);
 
+  const isBrewActive = isRunning || (elapsedSeconds > 0 && !isFinished);
+
+  useEffect(() => {
+    setIsBrewActive?.(isBrewActive);
+    return () => {
+      setIsBrewActive?.(false);
+    };
+  }, [isBrewActive, setIsBrewActive]);
+
+  const isFirstResetRender = useRef(true);
+  useEffect(() => {
+    if (isFirstResetRender.current) {
+      isFirstResetRender.current = false;
+      return;
+    }
+    reset();
+  }, [timerResetTrigger, reset]);
+
   useEffect(() => {
     if (!isFinished) {
       setIsDeducted(false);
@@ -183,9 +207,9 @@ export default function TimerScreen() {
       } else {
         if (newRatio !== undefined || newWater !== undefined) {
           const scaled = rescaleRecipeDose(activeTimerRecipe, roundedDose, newRatio, newWater);
-          setActiveTimerRecipe(scaled, roundedDose);
+          setActiveTimerRecipe(scaled, roundedDose, { skipReset: true });
         } else {
-          setActiveTimerRecipe(activeTimerRecipe, roundedDose);
+          setActiveTimerRecipe(activeTimerRecipe, roundedDose, { skipReset: true });
         }
       }
     }
@@ -202,7 +226,7 @@ export default function TimerScreen() {
       } else {
         const newDose = calculateCoffeeDose(roundedWater, activeRecipe.ratio);
         const scaled = rescaleRecipeDose(activeTimerRecipe, newDose, activeRecipe.ratio, roundedWater);
-        setActiveTimerRecipe(scaled, newDose);
+        setActiveTimerRecipe(scaled, newDose, { skipReset: true });
       }
     }
   };

@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter, useScrollToTop } from 'expo-router';
 import { BrewRecipe } from '@brewlog/core';
-import { makeStyles } from '@brewlog/ui';
+import { makeStyles, useTheme } from '@brewlog/ui';
 import { useRecipes } from '../RecipeContext';
 import { MethodFilterBar } from '../components/MethodFilterBar';
 import { RecipeCard } from '../components/RecipeCard';
@@ -13,9 +13,10 @@ import { getTabScreenBottomPadding } from '../../../components/navigation/tabBar
 
 export const RecipesCatalogScreen: React.FC = () => {
   const styles = useStyles();
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { recipes } = useRecipes();
+  const { recipes, loading } = useRecipes();
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
   const scrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
   useScrollToTop(scrollRef as any);
@@ -64,7 +65,12 @@ export const RecipesCatalogScreen: React.FC = () => {
         />
 
         <View style={styles.listContainer}>
-          {filteredRecipes.length === 0 ? (
+          {loading &&
+          (recipes.length === 0 || (selectedFilter === 'custom' && filteredRecipes.length === 0)) ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={colors.accent} testID="recipe-catalog-loading" />
+            </View>
+          ) : filteredRecipes.length === 0 ? (
             <View style={styles.emptyCard}>
               <Text style={styles.emptyTitle}>No Recipes Found</Text>
               <Text style={styles.emptySubtitle}>
@@ -121,5 +127,10 @@ const useStyles = makeStyles((colors) => ({
     fontSize: 13,
     color: colors.textMuted,
     textAlign: 'center',
+  },
+  loadingContainer: {
+    padding: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 }));

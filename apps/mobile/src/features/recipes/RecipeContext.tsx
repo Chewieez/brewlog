@@ -9,7 +9,7 @@ import React, {
   ReactNode,
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BrewRecipe, DEFAULT_PRESET_RECIPES, rescaleRecipeDose } from '@brewlog/core';
+import { BrewRecipe, BrewStage, DEFAULT_PRESET_RECIPES, rescaleRecipeDose } from '@brewlog/core';
 import {
   mapRecipeRowToDomain,
   mapRecipeDomainToInsert,
@@ -64,6 +64,14 @@ async function persistSavedActiveRecipe(recipeId: string, dose?: number): Promis
   }
 }
 
+function generateLocalId(prefix?: string): string {
+  const uuid =
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  return prefix ? `${prefix}${uuid}` : uuid;
+}
+
 export interface RecipeContextValue {
   recipes: BrewRecipe[];
   customRecipes: BrewRecipe[];
@@ -71,10 +79,17 @@ export interface RecipeContextValue {
   loading: boolean;
   activeTimerRecipe: BrewRecipe;
   activeTimerDose: number;
+  isBrewActive?: boolean;
+  setIsBrewActive?: (active: boolean) => void;
+  timerResetTrigger?: number;
   addRecipe: (recipe: Omit<BrewRecipe, 'id' | 'createdAt'>) => Promise<BrewRecipe>;
   updateRecipe: (id: string, updates: Partial<BrewRecipe>) => Promise<BrewRecipe>;
   deleteRecipe: (id: string) => Promise<void>;
-  setActiveTimerRecipe: (recipe: BrewRecipe, dose?: number) => void;
+  setActiveTimerRecipe: (
+    recipe: BrewRecipe,
+    dose?: number,
+    options?: { skipReset?: boolean }
+  ) => void;
   refreshRecipes: () => Promise<void>;
 }
 
@@ -113,6 +128,8 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [activeTimerDose, setActiveTimerDose] = useState<number>(
     DEFAULT_PRESET_RECIPES[0].coffeeDoseGrams
   );
+  const [isBrewActive, setIsBrewActive] = useState<boolean>(false);
+  const [timerResetTrigger, setTimerResetTrigger] = useState<number>(0);
 
   const pendingSavedRecipeRef = useRef<SavedActiveRecipe | null>(null);
   const activeRecipeSetByUserRef = useRef<boolean>(false);
@@ -178,16 +195,21 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
               .single();
 
             if (!recErr && recData) {
-              syncedIds.add(item.id);
+              let stagesSuccess = true;
               if (item.stages && item.stages.length > 0) {
                 const stagePayloads = item.stages.map((stage, idx) =>
                   mapRecipeStageDomainToInsert(stage, recData.id, idx)
                 );
                 const { error: stageErr } = await supabase.from('recipe_stages').insert(stagePayloads);
                 if (stageErr) {
+                  stagesSuccess = false;
                   console.error('Failed to sync offline recipe stages:', item.name, stageErr);
                   captureSyncError('recipes', 'insert', stageErr, item.id);
                 }
+              }
+
+              if (stagesSuccess) {
+                syncedIds.add(item.id);
               }
             } else if (recErr) {
               console.error('Failed to sync offline recipe:', item.name, recErr);
@@ -210,9 +232,16 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         console.error('fetchRecipes error:', error);
         captureSyncError('recipes', 'fetch', error);
       } else if (data) {
-        const mapped: BrewRecipe[] = data.map((row: any) =>
-          mapRecipeRowToDomain(row, row.recipe_stages || [])
-        );
+        const mapped: BrewRecipe[] = data.map((row: any) => {
+          const domainRecipe = mapRecipeRowToDomain(row, row.recipe_stages || []);
+          if (!domainRecipe.stages || domainRecipe.stages.length === 0) {
+            const localMatch = local.find((l) => l.id === domainRecipe.id);
+            if (localMatch && localMatch.stages && localMatch.stages.length > 0) {
+              domainRecipe.stages = localMatch.stages;
+            }
+          }
+          return domainRecipe;
+        });
         const remainingUnsynced = local.filter(
           (r) => r.id.startsWith('local-rec-') && !syncedIds.has(r.id)
         );
@@ -245,10 +274,10 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const addRecipe = useCallback(
     async (newRecipe: Omit<BrewRecipe, 'id' | 'createdAt'>): Promise<BrewRecipe> => {
-      const localId = `local-rec-${Date.now()}`;
-      const stagesWithIds = (newRecipe.stages || []).map((stage, index) => ({
+      const localId = generateLocalId('local-rec-');
+      const stagesWithIds: BrewStage[] = (newRecipe.stages || []).map((stage) => ({
         ...stage,
-        id: stage.id || `local-stage-${Date.now()}-${index}`,
+        id: stage.id || generateLocalId(),
       }));
 
       const fallback: BrewRecipe = {
@@ -292,12 +321,22 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             .from('recipe_stages')
             .insert(stageInserts)
             .select();
-          if (stageError) {
-            console.error('addRecipe stages error:', stageError);
-            captureSyncError('recipes', 'insert', stageError, fallback.id);
-          } else if (stageData) {
-            createdStages = stageData;
+          if (stageError || !stageData || stageData.length === 0) {
+            if (stageError) {
+              console.error('addRecipe stages error:', stageError);
+              captureSyncError('recipes', 'insert', stageError, fallback.id);
+            }
+            try {
+              await supabase.from('recipes').delete().eq('id', recData.id);
+            } catch (cleanupErr) {
+              console.error('Failed to clean up orphaned recipe row:', cleanupErr);
+            }
+            const nextRecipes = [fallback, ...customRecipes];
+            setCustomRecipes(nextRecipes);
+            await persistCachedRecipes(nextRecipes);
+            return fallback;
           }
+          createdStages = stageData;
         }
 
         const created = mapRecipeRowToDomain(recData, createdStages);
@@ -321,8 +360,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     async (id: string, updates: Partial<BrewRecipe>): Promise<BrewRecipe> => {
       if (id.startsWith('preset-') || DEFAULT_PRESET_RECIPES.some((p) => p.id === id)) {
         console.warn('Cannot edit built-in preset recipe:', id);
-        const existing = DEFAULT_PRESET_RECIPES.find((p) => p.id === id);
-        return existing!;
+        throw new Error(`Cannot edit built-in preset recipe: ${id}`);
       }
 
       const existing = customRecipes.find((r) => r.id === id);
@@ -392,6 +430,7 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         const fallback = DEFAULT_PRESET_RECIPES[0];
         setActiveTimerRecipeState(fallback);
         setActiveTimerDose(fallback.coffeeDoseGrams);
+        setTimerResetTrigger((prev) => prev + 1);
         persistSavedActiveRecipe(fallback.id, fallback.coffeeDoseGrams);
       }
 
@@ -411,14 +450,20 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     [user, customRecipes, activeTimerRecipe.id]
   );
 
-  const setActiveTimerRecipe = useCallback((recipe: BrewRecipe, dose?: number) => {
-    activeRecipeSetByUserRef.current = true;
-    pendingSavedRecipeRef.current = null;
-    setActiveTimerRecipeState(recipe);
-    const targetDose = dose !== undefined && dose > 0 ? dose : recipe.coffeeDoseGrams;
-    setActiveTimerDose(targetDose);
-    persistSavedActiveRecipe(recipe.id, targetDose);
-  }, []);
+  const setActiveTimerRecipe = useCallback(
+    (recipe: BrewRecipe, dose?: number, options?: { skipReset?: boolean }) => {
+      activeRecipeSetByUserRef.current = true;
+      pendingSavedRecipeRef.current = null;
+      setActiveTimerRecipeState(recipe);
+      const targetDose = dose !== undefined && dose > 0 ? dose : recipe.coffeeDoseGrams;
+      setActiveTimerDose(targetDose);
+      if (!options?.skipReset) {
+        setTimerResetTrigger((prev) => prev + 1);
+      }
+      persistSavedActiveRecipe(recipe.id, targetDose);
+    },
+    []
+  );
 
   const recipes = useMemo(
     () => [...customRecipes, ...DEFAULT_PRESET_RECIPES],
@@ -433,6 +478,9 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       loading,
       activeTimerRecipe,
       activeTimerDose,
+      isBrewActive,
+      setIsBrewActive,
+      timerResetTrigger,
       addRecipe,
       updateRecipe,
       deleteRecipe,
@@ -445,6 +493,8 @@ export const RecipeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       loading,
       activeTimerRecipe,
       activeTimerDose,
+      isBrewActive,
+      timerResetTrigger,
       addRecipe,
       updateRecipe,
       deleteRecipe,

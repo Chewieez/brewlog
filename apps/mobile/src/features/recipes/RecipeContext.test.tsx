@@ -134,6 +134,10 @@ describe('RecipeContext', () => {
     });
 
     expect(result.current.recipes.some((r) => r.id === presetId)).toBe(true);
+
+    await expect(
+      result.current.updateRecipe(presetId, { name: 'Mutated V60' })
+    ).rejects.toThrow(`Cannot edit built-in preset recipe: ${presetId}`);
   });
 
   it('deletes custom recipe and removes from AsyncStorage', async () => {
@@ -178,6 +182,28 @@ describe('RecipeContext', () => {
 
     expect(result.current.activeTimerRecipe.id).toBe(testRecipe.id);
     expect(result.current.activeTimerDose).toBe(20);
+    expect(result.current.timerResetTrigger).toBe(1);
+
+    act(() => {
+      result.current.setActiveTimerRecipe(testRecipe, 22, { skipReset: true });
+    });
+
+    expect(result.current.activeTimerDose).toBe(22);
+    expect(result.current.timerResetTrigger).toBe(1);
+  });
+
+  it('updates isBrewActive state via setIsBrewActive', async () => {
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.isBrewActive).toBe(false);
+
+    act(() => {
+      result.current.setIsBrewActive?.(true);
+    });
+
+    expect(result.current.isBrewActive).toBe(true);
   });
 
   it('syncs offline recipes and fetches cloud recipes when authenticated', async () => {
@@ -642,6 +668,281 @@ describe('RecipeContext', () => {
       grinderId: 'grinder-primary',
       setting: '4.2',
     });
+  });
+
+  it('preserves authored stages locally in addRecipe if cloud stage insertion fails or returns empty', async () => {
+    mockAuthUser = mockUser;
+
+    const mockRecipeInsert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: {
+            id: 'cloud-rec-partial-id',
+            user_id: mockUser.id,
+            name: 'Partial Cloud Recipe',
+            brew_method: 'v60',
+            coffee_dose_grams: 15,
+            water_amount_grams: 250,
+            ratio: 16.67,
+            total_time_seconds: 150,
+            is_preset: false,
+            created_at: new Date().toISOString(),
+          },
+          error: null,
+        }),
+      }),
+    });
+
+    const mockRecipeDeleteEq = vi.fn().mockResolvedValue({ error: null });
+    const mockRecipeDelete = vi.fn().mockReturnValue({ eq: mockRecipeDeleteEq });
+
+    const mockStageInsert = vi.fn().mockReturnValue({
+      select: vi.fn().mockResolvedValue({
+        data: null,
+        error: new Error('Stage network timeout'),
+      }),
+    });
+
+    mockSupabaseFrom.mockImplementation((table: string) => {
+      if (table === 'recipes') {
+        return {
+          insert: mockRecipeInsert,
+          delete: mockRecipeDelete,
+        };
+      }
+      if (table === 'recipe_stages') {
+        return { insert: mockStageInsert };
+      }
+      return {};
+    });
+
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    const createdRecipe = await act(async () => {
+      return await result.current.addRecipe({
+        name: 'Partial Cloud Recipe',
+        brewMethod: 'v60',
+        description: 'Partial cloud description',
+        coffeeDoseGrams: 15,
+        waterAmountGrams: 250,
+        ratio: 16.67,
+        grindSize: 'Medium',
+        waterTempCelsius: 93,
+        totalTimeSeconds: 150,
+        stages: [
+          {
+            id: 's-partial-1',
+            name: 'Bloom',
+            stageType: 'bloom',
+            startSecond: 0,
+            durationSeconds: 45,
+            targetWaterWeightGrams: 50,
+            instruction: 'Pour 50g water',
+          },
+        ],
+      });
+    });
+
+    expect(createdRecipe).toBeDefined();
+    expect(createdRecipe.id).toMatch(/^local-rec-/);
+    expect(createdRecipe.stages).toHaveLength(1);
+    expect(createdRecipe.stages[0].name).toBe('Bloom');
+    expect(createdRecipe.stages[0].targetWaterWeightGrams).toBe(50);
+
+    expect(mockRecipeDelete).toHaveBeenCalled();
+    expect(mockRecipeDeleteEq).toHaveBeenCalledWith('id', 'cloud-rec-partial-id');
+
+    expect(result.current.customRecipes[0].stages).toHaveLength(1);
+    expect(result.current.customRecipes[0].stages[0].name).toBe('Bloom');
+  });
+
+  it('preserves local stages in fetchRecipes if cloud returns recipe with empty stages', async () => {
+    mockAuthUser = mockUser;
+
+    const localRecipeWithStages: BrewRecipe = {
+      id: 'cloud-rec-empty-stages-in-db',
+      name: 'Stages Lost In Cloud',
+      brewMethod: 'v60',
+      description: 'Stages intact locally',
+      coffeeDoseGrams: 15,
+      waterAmountGrams: 250,
+      ratio: 16.67,
+      grindSize: 'Medium',
+      waterTempCelsius: 92,
+      totalTimeSeconds: 150,
+      stages: [
+        {
+          id: 'local-stage-kept',
+          name: 'Preserved Bloom',
+          stageType: 'bloom',
+          startSecond: 0,
+          durationSeconds: 45,
+          targetWaterWeightGrams: 50,
+          instruction: 'Preserve this stage',
+        },
+      ],
+      isPreset: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    await AsyncStorage.setItem(
+      '@brewlog/custom_recipes',
+      JSON.stringify([localRecipeWithStages])
+    );
+
+    const mockOrder = vi.fn().mockResolvedValue({
+      data: [
+        {
+          id: 'cloud-rec-empty-stages-in-db',
+          user_id: mockUser.id,
+          name: 'Stages Lost In Cloud',
+          brew_method: 'v60',
+          recommended_brewer_id: null,
+          recommended_grinder_id: null,
+          description: 'Stages intact locally',
+          author: null,
+          coffee_dose_grams: 15,
+          water_amount_grams: 250,
+          ratio: 16.67,
+          grind_size: 'Medium',
+          water_temp_celsius: 92,
+          total_time_seconds: 150,
+          is_preset: false,
+          is_favorite: false,
+          notes: null,
+          created_at: new Date().toISOString(),
+          recipe_stages: [],
+        },
+      ],
+      error: null,
+    });
+
+    const mockSelect = vi.fn().mockReturnValue({ order: mockOrder });
+    mockSupabaseFrom.mockImplementation((table: string) => {
+      if (table === 'recipes') {
+        return { select: mockSelect };
+      }
+      return {};
+    });
+
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.customRecipes).toHaveLength(1);
+    expect(result.current.customRecipes[0].id).toBe('cloud-rec-empty-stages-in-db');
+    expect(result.current.customRecipes[0].stages).toHaveLength(1);
+    expect(result.current.customRecipes[0].stages[0].name).toBe('Preserved Bloom');
+  });
+
+  it('increments timerResetTrigger when active recipe is deleted', async () => {
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    let created: BrewRecipe | null = null;
+    await act(async () => {
+      created = await result.current.addRecipe({
+        name: 'Recipe To Be Active And Deleted',
+        brewMethod: 'aeropress',
+        coffeeDoseGrams: 18,
+        waterAmountGrams: 220,
+        ratio: 12.22,
+        grindSize: 'Fine',
+        waterTempCelsius: 85,
+        totalTimeSeconds: 120,
+        description: 'Test active deletion',
+        stages: [],
+      });
+    });
+
+    act(() => {
+      result.current.setActiveTimerRecipe(created!, 18);
+    });
+
+    const initialResetTrigger = result.current.timerResetTrigger ?? 0;
+
+    await act(async () => {
+      await result.current.deleteRecipe(created!.id);
+    });
+
+    expect(result.current.activeTimerRecipe.id).toBe(DEFAULT_PRESET_RECIPES[0].id);
+    expect(result.current.timerResetTrigger).toBeGreaterThan(initialResetTrigger);
+  });
+
+  it('does not mark recipe as synced in fetchRecipes if stage insertion fails, retaining local recipe and stages', async () => {
+    mockAuthUser = mockUser;
+
+    const offlineRecipeWithStages: BrewRecipe = {
+      id: 'local-rec-stages-fail',
+      name: 'Unsynced Stage Recipe',
+      brewMethod: 'v60',
+      description: 'Stages will fail insertion',
+      coffeeDoseGrams: 15,
+      waterAmountGrams: 250,
+      ratio: 16.67,
+      grindSize: 'Medium',
+      waterTempCelsius: 92,
+      totalTimeSeconds: 180,
+      stages: [
+        {
+          id: 'local-stage-1',
+          name: 'Bloom 1',
+          stageType: 'bloom',
+          startSecond: 0,
+          durationSeconds: 30,
+          targetWaterWeightGrams: 45,
+          instruction: 'Initial wet',
+        },
+      ],
+      isPreset: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    await AsyncStorage.setItem(
+      '@brewlog/custom_recipes',
+      JSON.stringify([offlineRecipeWithStages])
+    );
+
+    const mockRecipeInsert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: { id: 'cloud-rec-with-failed-stages', user_id: mockUser.id },
+          error: null,
+        }),
+      }),
+    });
+
+    const mockStageInsert = vi.fn().mockResolvedValue({
+      error: new Error('Database constraint violation on stage'),
+    });
+
+    const mockOrder = vi.fn().mockResolvedValue({
+      data: [],
+      error: null,
+    });
+
+    const mockSelect = vi.fn().mockReturnValue({ order: mockOrder });
+
+    mockSupabaseFrom.mockImplementation((table: string) => {
+      if (table === 'recipes') {
+        return {
+          insert: mockRecipeInsert,
+          select: mockSelect,
+        };
+      }
+      if (table === 'recipe_stages') {
+        return { insert: mockStageInsert };
+      }
+      return {};
+    });
+
+    const { result } = renderHook(() => useRecipes(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.customRecipes.some((r) => r.id === 'local-rec-stages-fail')).toBe(true);
+    const retained = result.current.customRecipes.find((r) => r.id === 'local-rec-stages-fail');
+    expect(retained?.stages).toHaveLength(1);
+    expect(retained?.stages[0].name).toBe('Bloom 1');
   });
 });
 

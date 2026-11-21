@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import React from 'react';
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { DEFAULT_PRESET_RECIPES } from '@brewlog/core';
 
@@ -37,6 +37,7 @@ vi.mock('react-native', () => ({
       {typeof children === 'function' ? children({ pressed: false }) : children}
     </button>
   ),
+  ActivityIndicator: ({ testID, ...props }: any) => <div data-testid={testID} {...props} />,
   StyleSheet: {
     create: (styles: any) => styles,
   },
@@ -77,6 +78,12 @@ vi.mock('../RecipeContext', () => ({
 import { RecipesCatalogScreen } from './RecipesCatalogScreen';
 
 describe('RecipesCatalogScreen', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRecipesContext.loading = false;
+    mockRecipesContext.recipes = DEFAULT_PRESET_RECIPES;
+  });
+
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
@@ -127,5 +134,14 @@ describe('RecipesCatalogScreen', () => {
     expect(titleRow.textContent).toContain('Recipes');
     expect(titleRow.textContent).toContain('NEW RECIPE');
     expect(queryByLabelText('Account profile')).toBeNull();
+  });
+
+  it('renders ActivityIndicator loading state when recipes are hydrating', () => {
+    mockRecipesContext.loading = true;
+    mockRecipesContext.recipes = [];
+    const { getByTestId, queryByText } = render(<RecipesCatalogScreen />);
+
+    expect(getByTestId('recipe-catalog-loading')).toBeDefined();
+    expect(queryByText('No Recipes Found')).toBeNull();
   });
 });
