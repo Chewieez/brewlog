@@ -29,6 +29,11 @@ describe('RecipeCatalogList', () => {
     });
     expect(link).toBeDefined();
     expect(link.getAttribute('href')).toBe(`/recipes/${DEFAULT_PRESET_RECIPES[0].id}`);
+
+    const card = screen.getAllByTestId('recipe-catalog-card')[0];
+    expect(card.className).toContain('transition-[border-color,background-color,transform]');
+    expect(card.className).toContain('active:scale-[0.99]');
+    expect(card.className).toContain('motion-reduce:active:scale-100');
   });
 
   it('filters recipes by selected method', () => {

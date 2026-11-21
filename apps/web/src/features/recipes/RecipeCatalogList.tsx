@@ -165,10 +165,10 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
               <div
                 key={r.id}
                 data-testid="recipe-catalog-card"
-                className={`p-4 rounded-xl border transition-all duration-200 relative group overflow-hidden ${
+                className={`p-4 rounded-xl border transition-[border-color,background-color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.99] motion-reduce:transition-colors motion-reduce:active:scale-100 relative group overflow-hidden ${
                   isSelected
                     ? 'bg-panel-recessed border-border-active'
-                    : 'bg-panel border-border-subtle hover:border-border-active'
+                    : 'bg-panel border-border-subtle hover:border-border-active hover:bg-panel-recessed/40'
                 }`}
               >
                 {/* Active Copper Indicator */}

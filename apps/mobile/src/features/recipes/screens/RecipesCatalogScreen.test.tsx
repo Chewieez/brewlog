@@ -46,6 +46,9 @@ vi.mock('react-native', () => ({
   Pressable: ({
     children,
     onPress,
+    onPressIn,
+    onPressOut,
+    pressRetentionOffset,
     accessibilityLabel,
     accessibilityRole,
     accessibilityState,
@@ -56,6 +59,8 @@ vi.mock('react-native', () => ({
     <button
       type="button"
       onClick={onPress}
+      onMouseDown={onPressIn}
+      onMouseUp={onPressOut}
       role={accessibilityRole}
       aria-label={accessibilityLabel}
       aria-selected={accessibilityState?.selected}
@@ -68,6 +73,18 @@ vi.mock('react-native', () => ({
   StyleSheet: {
     create: (styles: any) => styles,
   },
+}));
+
+vi.mock('react-native-reanimated', () => ({
+  default: {
+    View: ({ children, style, testID, ...props }: any) => (
+      <div data-testid={testID} {...props}>
+        {children}
+      </div>
+    ),
+  },
+  cubicBezier: () => 'cubic-bezier(0.23, 1, 0.32, 1)',
+  useReducedMotion: () => false,
 }));
 
 vi.mock('react-native-safe-area-context', () => ({

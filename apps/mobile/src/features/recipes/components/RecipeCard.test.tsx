@@ -10,6 +10,9 @@ vi.mock('react-native', () => ({
   Pressable: ({
     children,
     onPress,
+    onPressIn,
+    onPressOut,
+    pressRetentionOffset,
     accessibilityLabel,
     accessibilityRole,
     style,
@@ -18,6 +21,8 @@ vi.mock('react-native', () => ({
     <button
       type="button"
       onClick={onPress}
+      onMouseDown={onPressIn}
+      onMouseUp={onPressOut}
       role={accessibilityRole}
       aria-label={accessibilityLabel}
       {...props}
@@ -30,10 +35,42 @@ vi.mock('react-native', () => ({
   },
 }));
 
+const flattenStyle = (style: any): Record<string, any> => {
+  if (!style) return {};
+  return Array.isArray(style)
+    ? Object.assign({}, ...style.flat(Infinity).filter(Boolean))
+    : { ...style };
+};
+
+let mockReducedMotion = false;
+
+vi.mock('react-native-reanimated', () => ({
+  default: {
+    View: ({ children, style, testID, ...props }: any) => {
+      const flat = flattenStyle(style);
+      return (
+        <div
+          data-testid={testID}
+          data-bg={flat.backgroundColor}
+          data-border={flat.borderColor}
+          data-scale={flat.transform?.[0]?.scale}
+          data-transition={Array.isArray(flat.transitionProperty) ? flat.transitionProperty.join(',') : flat.transitionProperty}
+          {...props}
+        >
+          {children}
+        </div>
+      );
+    },
+  },
+  cubicBezier: () => 'cubic-bezier(0.23, 1, 0.32, 1)',
+  useReducedMotion: () => mockReducedMotion,
+}));
+
 import { RecipeCard } from './RecipeCard';
 
 describe('RecipeCard', () => {
   afterEach(() => {
+    mockReducedMotion = false;
     cleanup();
   });
 
@@ -69,5 +106,38 @@ describe('RecipeCard', () => {
 
     fireEvent.click(getByText(recipe.name));
     expect(onPress).toHaveBeenCalledWith(recipe);
+  });
+
+  it('applies pressed background, border, and 0.99 scale transition on press-in and respects reduced motion', () => {
+    const recipe = DEFAULT_PRESET_RECIPES[0];
+    const { getByRole, getByTestId, rerender } = render(
+      <RecipeCard recipe={recipe} onPress={vi.fn()} />
+    );
+
+    const cardSurface = getByTestId('recipe-card-surface');
+    expect(cardSurface.getAttribute('data-transition')).toBe(
+      'backgroundColor,borderColor,transform'
+    );
+    expect(cardSurface.getAttribute('data-scale')).toBe('1');
+    const restingBg = cardSurface.getAttribute('data-bg');
+    const restingBorder = cardSurface.getAttribute('data-border');
+
+    const button = getByRole('button', { name: `View recipe ${recipe.name}` });
+    fireEvent.mouseDown(button);
+    expect(cardSurface.getAttribute('data-bg')).not.toBe(restingBg);
+    expect(cardSurface.getAttribute('data-border')).not.toBe(restingBorder);
+    expect(cardSurface.getAttribute('data-border')).not.toBe('#d97736');
+    expect(cardSurface.getAttribute('data-scale')).toBe('0.99');
+
+    fireEvent.mouseUp(button);
+    expect(cardSurface.getAttribute('data-bg')).toBe(restingBg);
+    expect(cardSurface.getAttribute('data-border')).toBe(restingBorder);
+    expect(cardSurface.getAttribute('data-scale')).toBe('1');
+
+    mockReducedMotion = true;
+    rerender(<RecipeCard recipe={recipe} onPress={vi.fn()} />);
+    fireEvent.mouseDown(button);
+    expect(cardSurface.getAttribute('data-bg')).not.toBe(restingBg);
+    expect(cardSurface.getAttribute('data-scale')).toBe('1');
   });
 });
