@@ -73,6 +73,8 @@ vi.mock('react-native', () => ({
   ScrollView: ({
     children,
     style: _style,
+    testID,
+    accessibilityLabel,
     horizontal: _horizontal,
     showsHorizontalScrollIndicator: _showsHorizontalScrollIndicator,
     contentContainerStyle: _contentContainerStyle,
@@ -80,12 +82,16 @@ vi.mock('react-native', () => ({
   }: {
     children?: React.ReactNode;
     style?: unknown;
+    testID?: string;
+    accessibilityLabel?: string;
     horizontal?: boolean;
     showsHorizontalScrollIndicator?: boolean;
     contentContainerStyle?: unknown;
     [key: string]: unknown;
   }) => (
-    <div {...props}>{children}</div>
+    <div data-testid={testID} aria-label={accessibilityLabel} {...props}>
+      {children}
+    </div>
   ),
   Pressable: ({
     children,
@@ -373,6 +379,91 @@ describe('StashCatalogScreen', () => {
     fireEvent.press(getByText('All'));
     expect(getByText('Worka')).toBeTruthy();
     expect(getByText('Southern Weather')).toBeTruthy();
+  });
+
+  it('renders only processes present on the active shelf and matches anaerobic sub-processes', () => {
+    const anaerobicBean: Bean = {
+      id: 'b-5',
+      roaster: 'Dak',
+      name: 'Milky Cake',
+      originCountry: 'Colombia',
+      process: 'anaerobic-natural',
+      bagWeightGrams: 250,
+      remainingGrams: 250,
+      flavorNotes: ['Cardamom'],
+      createdAt: '2026-09-03T00:00:00Z',
+    };
+
+    const { getByTestId, getByText, queryByText } = render(
+      <StashContext.Provider
+        value={{
+          ...mockValue,
+          activeBeans: [mockBeans[0], anaerobicBean],
+        }}
+      >
+        <StashCatalogScreen />
+      </StashContext.Provider>
+    );
+
+    expect(getByTestId('stash-process-filters')).toBeTruthy();
+    expect(getByText('All')).toBeTruthy();
+    expect(getByText('Washed')).toBeTruthy();
+    expect(getByText('Anaerobic')).toBeTruthy();
+    expect(queryByText('Natural')).toBeNull();
+    expect(queryByText('Honey')).toBeNull();
+
+    fireEvent.press(getByText('Anaerobic'));
+    expect(getByText('Milky Cake')).toBeTruthy();
+    expect(queryByText('Worka')).toBeNull();
+  });
+
+  it('hides process FilterPills when active shelf has no matching processes', () => {
+    const { queryByTestId } = render(
+      <StashContext.Provider
+        value={{
+          ...mockValue,
+          activeBeans: [],
+        }}
+      >
+        <StashCatalogScreen />
+      </StashContext.Provider>
+    );
+
+    expect(queryByTestId('stash-process-filters')).toBeNull();
+  });
+
+  it('resets selected process to all when switching to a shelf without that process', () => {
+    const naturalActiveBean: Bean = {
+      id: 'b-4',
+      roaster: 'Onyx',
+      name: 'Southern Weather',
+      originCountry: 'Colombia',
+      process: 'natural',
+      bagWeightGrams: 300,
+      remainingGrams: 150,
+      flavorNotes: [],
+      createdAt: '2026-09-02T00:00:00Z',
+    };
+
+    const { getByText, queryByText } = render(
+      <StashContext.Provider
+        value={{
+          ...mockValue,
+          activeBeans: [mockBeans[0], naturalActiveBean],
+        }}
+      >
+        <StashCatalogScreen />
+      </StashContext.Provider>
+    );
+
+    fireEvent.press(getByText('Natural'));
+    expect(getByText('Southern Weather')).toBeTruthy();
+    expect(queryByText('Worka')).toBeNull();
+
+    // Switch to Archived shelf (which only has a honey-process bean)
+    fireEvent.press(getByText('Archived'));
+    expect(getByText('Caballero')).toBeTruthy();
+    expect(queryByText('Natural')).toBeNull();
   });
 
   it('navigates to /stash/modal when ADD BEAN button is pressed', () => {

@@ -1,13 +1,29 @@
-import React, { useMemo } from 'react';
-import { ScrollView, Pressable, Text } from 'react-native';
+import React, { useEffect, useMemo } from 'react';
+import { View } from 'react-native';
 import { BrewRecipe } from '@brewlog/core';
-import { makeStyles } from '@brewlog/ui';
-import { FONTS } from '../../../theme/fonts';
+import { FilterPills, type FilterPillsOption, makeStyles } from '@brewlog/ui';
 
 export interface MethodFilterBarProps {
   recipes: BrewRecipe[];
   selectedMethod: string;
   onSelectMethod: (method: string) => void;
+}
+
+export const isCustomRecipe = (recipe: BrewRecipe): boolean =>
+  !recipe.isPreset && !recipe.id.startsWith('preset-');
+
+export function resolveEffectiveRecipeFilter(
+  recipes: BrewRecipe[],
+  selectedFilter: string
+): string {
+  const normalized = selectedFilter.toLowerCase();
+  if (normalized === 'all') return 'all';
+  if (normalized === 'custom') {
+    return recipes.some(isCustomRecipe) ? 'custom' : 'all';
+  }
+  return recipes.some((r) => (r.brewMethod?.toLowerCase() ?? '') === normalized)
+    ? normalized
+    : 'all';
 }
 
 export const MethodFilterBar: React.FC<MethodFilterBarProps> = ({
@@ -16,74 +32,73 @@ export const MethodFilterBar: React.FC<MethodFilterBarProps> = ({
   onSelectMethod,
 }) => {
   const styles = useStyles();
-  const pills = useMemo(() => {
-    const methods = Array.from(new Set(recipes.map((r) => r.brewMethod.toLowerCase())));
-    return ['all', 'custom', ...methods.filter((m) => m !== 'custom')];
+
+  const options = useMemo<FilterPillsOption<string>[]>(() => {
+    const hasCustomRecipes = recipes.some(isCustomRecipe);
+    const methods = Array.from(
+      new Set(
+        recipes
+          .map((r) => r.brewMethod?.toLowerCase() ?? '')
+          .filter((m) => Boolean(m) && m !== 'custom')
+      )
+    );
+
+    const items: FilterPillsOption<string>[] = [
+      { value: 'all', label: 'ALL', accessibilityLabel: 'Filter by all' },
+    ];
+
+    if (hasCustomRecipes) {
+      items.push({
+        value: 'custom',
+        label: 'CUSTOM',
+        accessibilityLabel: 'Filter by custom',
+      });
+    }
+
+    for (const method of methods) {
+      items.push({
+        value: method,
+        label: method.toUpperCase().replace(/-/g, ' '),
+        accessibilityLabel: `Filter by ${method}`,
+      });
+    }
+
+    return items;
   }, [recipes]);
 
+  const normalizedSelected = selectedMethod.toLowerCase();
+  const effectiveMethod = useMemo(
+    () => resolveEffectiveRecipeFilter(recipes, selectedMethod),
+    [recipes, selectedMethod]
+  );
+
+  useEffect(() => {
+    if (normalizedSelected !== effectiveMethod) {
+      onSelectMethod(effectiveMethod);
+    }
+  }, [normalizedSelected, effectiveMethod, onSelectMethod]);
+
+  if (options.length <= 1) {
+    return null;
+  }
+
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.container}
-    >
-      {pills.map((method) => {
-        const isSelected = selectedMethod.toLowerCase() === method.toLowerCase();
-        return (
-          <Pressable
-            key={method}
-            onPress={() => onSelectMethod(method)}
-            style={[styles.pill, isSelected ? styles.pillActive : styles.pillInactive]}
-            accessibilityRole="button"
-            accessibilityState={{ selected: isSelected }}
-            accessibilityLabel={`Filter by ${method}`}
-          >
-            <Text
-              style={[
-                styles.pillText,
-                isSelected ? styles.pillTextActive : styles.pillTextInactive,
-              ]}
-            >
-              {method.toUpperCase().replace('-', ' ')}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
+    <View style={styles.container}>
+      <FilterPills
+        size="sm"
+        value={effectiveMethod}
+        onChange={onSelectMethod}
+        options={options}
+        ariaLabel="Filter recipes by brew method"
+        testID="recipe-method-filters"
+      />
+    </View>
   );
 };
 
-const useStyles = makeStyles((colors) => ({
+const useStyles = makeStyles(() => ({
   container: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    gap: 8,
-  },
-  pill: {
-    paddingHorizontal: 14,
-    minHeight: 44,
-    borderRadius: 8,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pillActive: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accent,
-  },
-  pillInactive: {
-    backgroundColor: colors.panel,
-    borderColor: colors.borderSubtle,
-  },
-  pillText: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 11,
-    letterSpacing: 1,
-  },
-  pillTextActive: {
-    color: colors.canvas,
-  },
-  pillTextInactive: {
-    color: colors.textMuted,
   },
 }));
