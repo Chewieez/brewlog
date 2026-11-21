@@ -272,4 +272,33 @@ describe('RecipesCatalogScreen', () => {
     expect(getByTestId('recipe-catalog-loading')).toBeDefined();
     expect(queryByText('No Recipes Found')).toBeNull();
   });
+
+  it('shows search empty state and CLEAR SEARCH instead of loading spinner when custom recipes are loaded and search matches none', () => {
+    const customRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      id: 'custom-1',
+      name: 'My Custom Pour',
+      isPreset: false,
+    };
+    activeRecipesContext = {
+      ...mockRecipesContext,
+      loading: true,
+      recipes: [...DEFAULT_PRESET_RECIPES, customRecipe],
+      customRecipes: [customRecipe],
+    };
+
+    const { getByLabelText, getByText, queryByTestId } = render(<RecipesCatalogScreen />);
+
+    fireEvent.click(getByLabelText('Filter by custom'));
+    const searchInput = getByLabelText('Search recipes') as HTMLInputElement;
+    fireEvent.change(searchInput, { target: { value: 'Nonexistent' } });
+
+    expect(queryByTestId('recipe-catalog-loading')).toBeNull();
+    expect(getByText('No Recipes Found')).toBeDefined();
+    expect(getByText('No recipes match your search query.')).toBeDefined();
+
+    fireEvent.click(getByLabelText('Clear search input'));
+    expect(searchInput.value).toBe('');
+    expect(getByText('My Custom Pour')).toBeDefined();
+  });
 });

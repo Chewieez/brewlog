@@ -36,6 +36,6 @@ Stash, Equipment, and Reviews catalogs on both web and mobile already provided k
   - `@brewlog/core`: 7 files, 94/94 passed (`recipeSearch.test.ts` 5/5)
   - `@brewlog/supabase`: 4 files, 29/29 passed
   - `@brewlog/ui`: 14 files, 81/81 passed
-  - `@brewlog/mobile`: 61 files, 556/556 passed (`RecipesCatalogScreen.test.tsx` 11/11)
+  - `@brewlog/mobile`: 61 files, 557/557 passed (`RecipesCatalogScreen.test.tsx` 12/12)
   - `@brewlog/web`: 29 files, 300/300 passed (`RecipeCatalogList.test.tsx` 13/13)
 - Playwright E2E (`npm run test:e2e`): 19/19 passed (8.8s), including `e2e/button-sizing-tokens.spec.ts` and `e2e/corner-radius-hierarchy.spec.ts`.

@@ -113,7 +113,7 @@ export const RecipesCatalogScreen: React.FC = () => {
 
         <View style={styles.listContainer}>
           {loading &&
-          (recipes.length === 0 || (selectedFilter === 'custom' && filteredRecipes.length === 0)) ? (
+          (recipes.length === 0 || (selectedFilter === 'custom' && !recipes.some(isCustomRecipe))) ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={colors.accent} testID="recipe-catalog-loading" />
             </View>
