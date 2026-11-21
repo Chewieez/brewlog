@@ -2,7 +2,7 @@
 import React from 'react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
-import { DEFAULT_PRESET_RECIPES } from '@brewlog/core';
+import { DEFAULT_PRESET_RECIPES, type BrewRecipe } from '@brewlog/core';
 
 vi.mock('react-native', () => ({
   View: ({ children, style, testID, ...props }: any) => (
@@ -12,11 +12,17 @@ vi.mock('react-native', () => ({
   ScrollView: ({
     children,
     style,
+    testID,
+    accessibilityLabel,
     horizontal,
     showsHorizontalScrollIndicator,
     contentContainerStyle,
     ...props
-  }: any) => <div {...props}>{children}</div>,
+  }: any) => (
+    <div data-testid={testID} aria-label={accessibilityLabel} {...props}>
+      {children}
+    </div>
+  ),
   Pressable: ({
     children,
     onPress,
@@ -58,7 +64,7 @@ vi.mock('expo-router', () => ({
 
 const mockRecipesContext = {
   recipes: DEFAULT_PRESET_RECIPES,
-  customRecipes: [],
+  customRecipes: [] as BrewRecipe[],
   presets: DEFAULT_PRESET_RECIPES,
   loading: false,
   activeTimerRecipe: DEFAULT_PRESET_RECIPES[0],
@@ -70,8 +76,10 @@ const mockRecipesContext = {
   refreshRecipes: vi.fn(),
 };
 
+let activeRecipesContext = mockRecipesContext;
+
 vi.mock('../RecipeContext', () => ({
-  useRecipes: () => mockRecipesContext,
+  useRecipes: () => activeRecipesContext,
 }));
 
 import { RecipesCatalogScreen } from './RecipesCatalogScreen';
@@ -80,6 +88,7 @@ describe('RecipesCatalogScreen', () => {
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+    activeRecipesContext = mockRecipesContext;
   });
 
   it('renders header, filter bar, and recipe cards', () => {
@@ -111,13 +120,44 @@ describe('RecipesCatalogScreen', () => {
     expect(queryByText(DEFAULT_PRESET_RECIPES[0].name)).toBeNull();
   });
 
-  it('displays empty state card when filter matches no recipes', () => {
-    const { getByLabelText, getByText } = render(<RecipesCatalogScreen />);
-    // Filter by custom recipes when there are none
-    fireEvent.click(getByLabelText('Filter by custom'));
+  it('displays empty state card and hides filter bar when there are no recipes', () => {
+    activeRecipesContext = {
+      ...mockRecipesContext,
+      recipes: [],
+    };
+    const { getByText, queryByTestId } = render(<RecipesCatalogScreen />);
 
+    expect(queryByTestId('recipe-method-filters')).toBeNull();
     expect(getByText('No Recipes Found')).toBeDefined();
     expect(getByText('No recipes match the selected brew method filter.')).toBeDefined();
+  });
+
+  it('filters by custom recipes when present and resets to all if custom recipes disappear', () => {
+    const customRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      id: 'custom-1',
+      name: 'My Custom Pour',
+      isPreset: false,
+    };
+    activeRecipesContext = {
+      ...mockRecipesContext,
+      recipes: [...DEFAULT_PRESET_RECIPES, customRecipe],
+      customRecipes: [customRecipe],
+    };
+
+    const { getByLabelText, getByText, queryByText, queryByLabelText, rerender } = render(
+      <RecipesCatalogScreen />
+    );
+
+    fireEvent.click(getByLabelText('Filter by custom'));
+    expect(getByText('My Custom Pour')).toBeDefined();
+    expect(queryByText(DEFAULT_PRESET_RECIPES[0].name)).toBeNull();
+
+    activeRecipesContext = mockRecipesContext;
+    rerender(<RecipesCatalogScreen />);
+
+    expect(queryByLabelText('Filter by custom')).toBeNull();
+    expect(getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
   });
 
   it('renders Recipes title and NEW RECIPE inline without an in-screen ProfileHeaderButton', () => {

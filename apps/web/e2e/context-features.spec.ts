@@ -422,8 +422,12 @@ test.describe("Core Web App End-to-End Context Flows", () => {
     await expect(masterFeed.getByText("Seed Independent AeroPress Lot")).toBeVisible();
     await expect(masterFeed.locator('[role="button"]')).toHaveCount(totalReviewsCount);
 
-    await verifyFilterBar("/equipment", "equipment-category-filters", "Grinders", "Other");
+    await page.goto("/equipment");
     const equipmentGroup = page.getByTestId("equipment-category-filters");
+    await expect(equipmentGroup).toBeVisible();
+    const lastEquipmentPill = equipmentGroup.locator("button").last();
+    const lastEquipmentPillLabel = (await lastEquipmentPill.getAttribute("aria-label")) || "";
+    await verifyFilterBar("/equipment", "equipment-category-filters", "Grinders", lastEquipmentPillLabel, true);
     await expect(page.getByRole("heading", { name: /Grinders/i })).toBeVisible();
     await expect(page.getByRole("heading", { name: /Brewers & Drippers/i })).toBeVisible();
     await equipmentGroup.getByRole("button", { name: "All", exact: true }).focus();

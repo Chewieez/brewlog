@@ -1,17 +1,22 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import {
   View,
   Text,
   TextInput,
   Pressable,
   FlatList,
-  ScrollView,
   ListRenderItemInfo,
 } from 'react-native';
 import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus, Search, X, Bean as BeanIcon, Archive, Snowflake } from 'lucide-react-native';
 import { Bean } from '@brewlog/core';
-import { makeStyles, useTheme, SegmentedControl } from '@brewlog/ui';
+import {
+  makeStyles,
+  useTheme,
+  SegmentedControl,
+  FilterPills,
+  type FilterPillsOption,
+} from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { useStash } from '../StashContext';
 import { BeanCard } from '../components/BeanCard';
@@ -35,18 +40,23 @@ const SHELVES: ShelfOption[] = [
   { id: 'archived', label: 'Archived' },
 ];
 
-interface ProcessOption {
-  id: ProcessFilter;
-  label: string;
-}
-
-const PROCESS_OPTIONS: ProcessOption[] = [
-  { id: 'all', label: 'All' },
+const PROCESS_FILTER_OPTIONS: { id: Exclude<ProcessFilter, 'all'>; label: string }[] = [
   { id: 'washed', label: 'Washed' },
   { id: 'natural', label: 'Natural' },
   { id: 'honey', label: 'Honey' },
   { id: 'anaerobic', label: 'Anaerobic' },
 ];
+
+function matchesProcessFilter(
+  bean: Bean,
+  filter: Exclude<ProcessFilter, 'all'>
+): boolean {
+  const proc = bean.process?.toLowerCase() ?? '';
+  if (filter === 'anaerobic') {
+    return proc === 'anaerobic' || proc.includes('anaerobic');
+  }
+  return proc === filter;
+}
 
 export const StashCatalogScreen: React.FC = () => {
   const styles = useStyles();
@@ -93,18 +103,40 @@ export const StashCatalogScreen: React.FC = () => {
     }
   }, [activeShelf, activeBeans, frozenBeans, archivedBeans]);
 
+  const availableProcessOptions = useMemo<FilterPillsOption<ProcessFilter>[]>(() => {
+    const present = PROCESS_FILTER_OPTIONS.filter((proc) =>
+      currentShelfBeans.some((bean) => matchesProcessFilter(bean, proc.id))
+    );
+    return [
+      { value: 'all', label: 'All', accessibilityLabel: 'Filter by All' },
+      ...present.map((proc) => ({
+        value: proc.id as ProcessFilter,
+        label: proc.label,
+        accessibilityLabel: `Filter by ${proc.label}`,
+      })),
+    ];
+  }, [currentShelfBeans]);
+
+  const effectiveProcess: ProcessFilter = useMemo(
+    () =>
+      availableProcessOptions.some((opt) => opt.value === selectedProcess)
+        ? selectedProcess
+        : 'all',
+    [availableProcessOptions, selectedProcess]
+  );
+
+  useEffect(() => {
+    if (selectedProcess !== effectiveProcess) {
+      setSelectedProcess(effectiveProcess);
+    }
+  }, [selectedProcess, effectiveProcess]);
+
   // 3. Filter by process and search query
   const filteredBeans = useMemo(() => {
     return currentShelfBeans.filter((bean) => {
       // Process filter
-      if (selectedProcess !== 'all') {
-        const beanProcess = bean.process?.toLowerCase() ?? '';
-        if (
-          beanProcess !== selectedProcess &&
-          !beanProcess.includes(selectedProcess)
-        ) {
-          return false;
-        }
+      if (effectiveProcess !== 'all' && !matchesProcessFilter(bean, effectiveProcess)) {
+        return false;
       }
 
       // Search query filter
@@ -139,7 +171,7 @@ export const StashCatalogScreen: React.FC = () => {
 
       return true;
     });
-  }, [currentShelfBeans, selectedProcess, searchQuery]);
+  }, [currentShelfBeans, effectiveProcess, searchQuery]);
 
   // Handlers
   const handleAddBag = useCallback(() => {
@@ -319,41 +351,16 @@ export const StashCatalogScreen: React.FC = () => {
       />
 
       {/* Process Filter Horizontal Chips */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.processFilterScroll}
-      >
-        {PROCESS_OPTIONS.map((proc) => {
-          const isSelected = selectedProcess === proc.id;
-          return (
-            <Pressable
-              key={proc.id}
-              onPress={() => setSelectedProcess(proc.id)}
-              style={[
-                styles.processChip,
-                isSelected
-                  ? styles.processChipActive
-                  : styles.processChipInactive,
-              ]}
-              accessibilityRole="button"
-              accessibilityState={{ selected: isSelected }}
-              accessibilityLabel={`Filter by ${proc.label}`}
-            >
-              <Text
-                style={[
-                  styles.processChipText,
-                  isSelected
-                    ? styles.processChipTextActive
-                    : styles.processChipTextInactive,
-                ]}
-              >
-                {proc.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+      {availableProcessOptions.length > 1 ? (
+        <FilterPills<ProcessFilter>
+          size="sm"
+          value={effectiveProcess}
+          onChange={setSelectedProcess}
+          options={availableProcessOptions}
+          ariaLabel="Filter by process method"
+          testID="stash-process-filters"
+        />
+      ) : null}
     </View>
   );
 
@@ -419,38 +426,6 @@ const useStyles = makeStyles((colors) => ({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: -8,
-  },
-  processFilterScroll: {
-    gap: 8,
-    paddingVertical: 2,
-  },
-  processChip: {
-    minHeight: 44,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  processChipActive: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accent,
-  },
-  processChipInactive: {
-    backgroundColor: colors.panel,
-    borderColor: colors.borderSubtle,
-  },
-  processChipText: {
-    fontFamily: FONTS.monoRegular,
-    fontSize: 11,
-    letterSpacing: 0.5,
-  },
-  processChipTextActive: {
-    fontFamily: FONTS.monoBold,
-    color: colors.canvas,
-  },
-  processChipTextInactive: {
-    color: colors.textSecondary,
   },
   cardWrapper: {
     paddingHorizontal: 16,

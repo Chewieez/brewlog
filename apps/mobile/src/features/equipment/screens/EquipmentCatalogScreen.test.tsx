@@ -41,12 +41,18 @@ vi.mock('react-native', () => ({
   ScrollView: ({
     children,
     style: _style,
+    testID,
+    accessibilityLabel,
     horizontal: _horizontal,
     showsHorizontalScrollIndicator: _showsHorizontalScrollIndicator,
     contentContainerStyle: _contentContainerStyle,
     keyboardShouldPersistTaps: _keyboardShouldPersistTaps,
     ...props
-  }: any) => <div {...props}>{children}</div>,
+  }: any) => (
+    <div data-testid={testID} aria-label={accessibilityLabel} {...props}>
+      {children}
+    </div>
+  ),
   Pressable: ({
     children,
     onPress,
@@ -245,6 +251,65 @@ describe('EquipmentCatalogScreen', () => {
     expect(getByText('Other Equipment & Accessories (1)')).toBeDefined();
     expect(getByText('Atmos Canister')).toBeDefined();
     expect(queryByText('NO EQUIPMENT FOUND')).toBeNull();
+  });
+
+  it('renders only category pills present in equipment and hides bar when empty', () => {
+    activeEquipmentContext = {
+      ...mockEquipmentContext,
+      equipment: [mockItems[0], mockItems[4]],
+      grinders: [mockItems[0]],
+      brewers: [],
+      scales: [],
+      kettles: [],
+      other: [mockItems[4]],
+    };
+    const { getByTestId, getByRole, queryByRole, queryByTestId, rerender } = render(
+      <EquipmentCatalogScreen />
+    );
+
+    expect(getByTestId('equipment-category-filters')).toBeDefined();
+    expect(getByRole('button', { name: 'Filter by All' })).toBeDefined();
+    expect(getByRole('button', { name: 'Filter by Grinders' })).toBeDefined();
+    expect(getByRole('button', { name: 'Filter by Other' })).toBeDefined();
+    expect(queryByRole('button', { name: 'Filter by Brewers' })).toBeNull();
+    expect(queryByRole('button', { name: 'Filter by Scales' })).toBeNull();
+    expect(queryByRole('button', { name: 'Filter by Kettles' })).toBeNull();
+
+    activeEquipmentContext = {
+      ...mockEquipmentContext,
+      equipment: [],
+      grinders: [],
+      brewers: [],
+      scales: [],
+      kettles: [],
+      other: [],
+    };
+    rerender(<EquipmentCatalogScreen />);
+    expect(queryByTestId('equipment-category-filters')).toBeNull();
+  });
+
+  it('resets selected category to all when its last item is removed', () => {
+    const { getByRole, getByText, queryByRole, rerender } = render(
+      <EquipmentCatalogScreen />
+    );
+
+    fireEvent.click(getByRole('button', { name: 'Filter by Grinders' }));
+    expect(getByText('Grinders (1)')).toBeDefined();
+
+    activeEquipmentContext = {
+      ...mockEquipmentContext,
+      equipment: [mockItems[1]],
+      grinders: [],
+      brewers: [mockItems[1]],
+      scales: [],
+      kettles: [],
+      other: [],
+    };
+    rerender(<EquipmentCatalogScreen />);
+
+    expect(queryByRole('button', { name: 'Filter by Grinders' })).toBeNull();
+    expect(getByText('Brewers & Drippers (1)')).toBeDefined();
+    expect(getByText('V60 02 Plastic')).toBeDefined();
   });
 
   it('navigates to /equipment/modal when ADD EQUIPMENT button is tapped', () => {

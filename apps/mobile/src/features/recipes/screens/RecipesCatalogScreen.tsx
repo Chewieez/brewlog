@@ -20,15 +20,28 @@ export const RecipesCatalogScreen: React.FC = () => {
   const scrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
   useScrollToTop(scrollRef as any);
 
+  const effectiveFilter = useMemo(() => {
+    const normalized = selectedFilter.toLowerCase();
+    if (normalized === 'all') return 'all';
+    if (normalized === 'custom') {
+      return recipes.some((r) => !r.isPreset && !r.id.startsWith('preset-'))
+        ? 'custom'
+        : 'all';
+    }
+    return recipes.some((r) => r.brewMethod.toLowerCase() === normalized)
+      ? normalized
+      : 'all';
+  }, [recipes, selectedFilter]);
+
   const filteredRecipes = useMemo(() => {
-    if (selectedFilter === 'all') return recipes;
-    if (selectedFilter === 'custom') {
+    if (effectiveFilter === 'all') return recipes;
+    if (effectiveFilter === 'custom') {
       return recipes.filter((r) => !r.isPreset && !r.id.startsWith('preset-'));
     }
     return recipes.filter(
-      (r) => r.brewMethod.toLowerCase() === selectedFilter.toLowerCase()
+      (r) => r.brewMethod.toLowerCase() === effectiveFilter.toLowerCase()
     );
-  }, [recipes, selectedFilter]);
+  }, [recipes, effectiveFilter]);
 
   const handleSelectRecipe = (recipe: BrewRecipe) => {
     router.push(`/recipe/${recipe.id}`);

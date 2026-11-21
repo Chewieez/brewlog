@@ -202,8 +202,8 @@ describe("EquipmentView", () => {
     expect(screen.getByText(/Other Equipment & Accessories \(1\)/i)).toBeDefined();
   });
 
-  it("keeps category FilterPills visible when equipment is empty and supports keyboard parity", () => {
-    render(<EquipmentView equipment={[]} onAddEquipment={vi.fn()} />);
+  it("supports keyboard parity on category FilterPills", () => {
+    render(<EquipmentView equipment={MOCK_EQUIPMENT} onAddEquipment={vi.fn()} />);
 
     const filterGroup = screen.getByTestId("equipment-category-filters");
     const allChip = within(filterGroup).getByRole("button", { name: "All" });
@@ -231,6 +231,52 @@ describe("EquipmentView", () => {
       allChip.dispatchEvent(event);
       expect(event.defaultPrevented).toBe(false);
     }
+  });
+
+  it("hides category FilterPills when equipment is empty and shows only present categories", () => {
+    const { rerender } = render(<EquipmentView equipment={[]} onAddEquipment={vi.fn()} />);
+    expect(screen.queryByTestId("equipment-category-filters")).toBeNull();
+
+    rerender(
+      <EquipmentView
+        equipment={[MOCK_EQUIPMENT[0], MOCK_EQUIPMENT[1]]}
+        onAddEquipment={vi.fn()}
+      />
+    );
+
+    const filterGroup = screen.getByTestId("equipment-category-filters");
+    expect(within(filterGroup).getByRole("button", { name: "All" })).toBeDefined();
+    expect(within(filterGroup).getByRole("button", { name: "Grinders" })).toBeDefined();
+    expect(within(filterGroup).getByRole("button", { name: "Brewers" })).toBeDefined();
+    expect(within(filterGroup).queryByRole("button", { name: "Scales" })).toBeNull();
+    expect(within(filterGroup).queryByRole("button", { name: "Kettles" })).toBeNull();
+    expect(within(filterGroup).queryByRole("button", { name: "Other" })).toBeNull();
+  });
+
+  it("resets active category filter to all when selected category disappears", () => {
+    const { rerender } = render(
+      <EquipmentView
+        equipment={[MOCK_EQUIPMENT[0], MOCK_EQUIPMENT[1]]}
+        onAddEquipment={vi.fn()}
+      />
+    );
+
+    const filterGroup = screen.getByTestId("equipment-category-filters");
+    fireEvent.click(within(filterGroup).getByRole("button", { name: "Brewers" }));
+    expect(screen.queryByRole("heading", { name: /Grinders/i })).toBeNull();
+    expect(screen.getByText("V60 02 Ceramic")).toBeDefined();
+
+    rerender(
+      <EquipmentView equipment={[MOCK_EQUIPMENT[0]]} onAddEquipment={vi.fn()} />
+    );
+
+    expect(screen.getByText(/Grinders \(1\)/i)).toBeDefined();
+    expect(screen.getByText("Ode Gen 2")).toBeDefined();
+    expect(
+      within(screen.getByTestId("equipment-category-filters")).queryByRole("button", {
+        name: "Brewers",
+      })
+    ).toBeNull();
   });
 
   it("opens edit modal on card click and calls onUpdateEquipment on save", async () => {

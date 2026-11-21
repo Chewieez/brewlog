@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Button, FilterPills, type FilterPillsOption } from "@brewlog/ui";
 import { Equipment, EquipmentType, GrinderSettingScale } from "@brewlog/core";
 import { Sliders, Plus, Coffee, Scale, Flame, Trash2, Search, X, Star, Layers } from "lucide-react";
@@ -100,6 +100,27 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       return matchBrand || matchModel || matchSubType || matchNotes;
     });
   };
+
+  const availableCategoryOptions = useMemo(() => {
+    const present = CATEGORY_FILTER_OPTIONS.filter(
+      (opt) => opt.value !== "all" && equipment.some((item) => item.type === opt.value)
+    );
+    return [CATEGORY_FILTER_OPTIONS[0], ...present];
+  }, [equipment]);
+
+  const effectiveCategory: CategoryFilter = useMemo(
+    () =>
+      availableCategoryOptions.some((opt) => opt.value === selectedCategory)
+        ? selectedCategory
+        : "all",
+    [availableCategoryOptions, selectedCategory]
+  );
+
+  useEffect(() => {
+    if (selectedCategory !== effectiveCategory) {
+      setSelectedCategory(effectiveCategory);
+    }
+  }, [selectedCategory, effectiveCategory]);
 
   const filteredEquipment = filterItems(equipment);
   const grinders = filteredEquipment.filter((e) => e.type === "grinder");
@@ -260,20 +281,22 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
           ) : null}
         </div>
 
-        <div className="lg:shrink-0">
-          <FilterPills<CategoryFilter>
-            size="sm"
-            value={selectedCategory}
-            onChange={setSelectedCategory}
-            options={CATEGORY_FILTER_OPTIONS}
-            ariaLabel="Filter equipment by category"
-            testID="equipment-category-filters"
-          />
-        </div>
+        {availableCategoryOptions.length > 1 && (
+          <div className="lg:shrink-0">
+            <FilterPills<CategoryFilter>
+              size="sm"
+              value={effectiveCategory}
+              onChange={setSelectedCategory}
+              options={availableCategoryOptions}
+              ariaLabel="Filter equipment by category"
+              testID="equipment-category-filters"
+            />
+          </div>
+        )}
       </div>
 
       {/* Grinders Section */}
-      {(selectedCategory === "all" || selectedCategory === "grinder") && (
+      {(effectiveCategory === "all" || effectiveCategory === "grinder") && (
         <div>
           <div className="flex items-center space-x-2 mb-4">
             <Sliders className="w-5 h-5 text-accent" />
@@ -293,7 +316,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       )}
 
       {/* Brewers Section */}
-      {(selectedCategory === "all" || selectedCategory === "brewer") && (
+      {(effectiveCategory === "all" || effectiveCategory === "brewer") && (
         <div>
           <div className="flex items-center space-x-2 mb-4">
             <Coffee className="w-5 h-5 text-accent" />
@@ -313,7 +336,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       )}
 
       {/* Scales Section */}
-      {(selectedCategory === "all" || selectedCategory === "scale") && (
+      {(effectiveCategory === "all" || effectiveCategory === "scale") && (
         <div>
           <div className="flex items-center space-x-2 mb-4">
             <Scale className="w-5 h-5 text-accent" />
@@ -335,7 +358,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       )}
 
       {/* Kettles Section */}
-      {(selectedCategory === "all" || selectedCategory === "kettle") && (
+      {(effectiveCategory === "all" || effectiveCategory === "kettle") && (
         <div>
           <div className="flex items-center space-x-2 mb-4">
             <Flame className="w-5 h-5 text-accent" />
@@ -357,7 +380,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       )}
 
       {/* Other Equipment Section */}
-      {(selectedCategory === "all" || selectedCategory === "other") && (
+      {(effectiveCategory === "all" || effectiveCategory === "other") && (
         <div>
           <div className="flex items-center space-x-2 mb-4">
             <Layers className="w-5 h-5 text-accent" />

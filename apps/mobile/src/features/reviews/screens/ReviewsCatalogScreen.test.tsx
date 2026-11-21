@@ -163,33 +163,47 @@ vi.mock('react-native', () => ({
     onPress?: (e?: any) => void;
     accessibilityLabel?: string;
     accessibilityRole?: string;
-    accessibilityState?: unknown;
+    accessibilityState?: { selected?: boolean; disabled?: boolean };
     style?: unknown;
     disabled?: boolean;
     hitSlop?: unknown;
     [key: string]: unknown;
-  }) => (
-    <div
-      role={accessibilityRole || 'button'}
-      aria-label={accessibilityLabel}
-      data-hitslop={JSON.stringify(hitSlop)}
-      onClick={(e) => {
-        onPress?.(e);
-      }}
-      {...props}
-    >
-      {typeof children === 'function' ? children({ pressed: false }) : children}
-    </div>
-  ),
+  }) => {
+    const resolvedStyle =
+      typeof style === 'function' ? style({ pressed: false }) : style;
+    return (
+      <div
+        role={accessibilityRole || 'button'}
+        aria-label={accessibilityLabel}
+        aria-selected={accessibilityState?.selected}
+        data-style={JSON.stringify(resolvedStyle)}
+        data-hitslop={JSON.stringify(hitSlop)}
+        onClick={(e) => {
+          onPress?.(e);
+        }}
+        {...props}
+      >
+        {typeof children === 'function' ? children({ pressed: false }) : children}
+      </div>
+    );
+  },
   ScrollView: ({
     children,
     style,
+    testID,
+    accessibilityLabel,
     ...props
   }: {
     children?: React.ReactNode;
     style?: unknown;
+    testID?: string;
+    accessibilityLabel?: string;
     [key: string]: unknown;
-  }) => <div {...props}>{children}</div>,
+  }) => (
+    <div data-testid={testID} aria-label={accessibilityLabel} {...props}>
+      {children}
+    </div>
+  ),
   FlatList: ({
     data,
     renderItem,
@@ -371,13 +385,86 @@ describe('ReviewsCatalogScreen', () => {
     expect(getByText('87.3')).toBeTruthy();
   });
 
-  it('provides >= 44pt touch target with hitSlop vertical padding of 6 on filter chips', () => {
-    const { getByRole } = render(<ReviewsCatalogScreen />);
+  it('renders method and rating filter bars via @brewlog/ui FilterPills', () => {
+    const { getByRole, getByTestId } = render(<ReviewsCatalogScreen />);
 
+    expect(getByTestId('reviews-method-filters')).toBeTruthy();
+    expect(getByTestId('reviews-rating-filters')).toBeTruthy();
     const espressoChip = getByRole('button', { name: 'Filter by method Espresso' });
-    const hitSlop = JSON.parse(espressoChip.getAttribute('data-hitslop') || '{}');
-    expect(hitSlop.top).toBe(6);
-    expect(hitSlop.bottom).toBe(6);
+    expect(espressoChip).toBeTruthy();
+  });
+
+  it('shows only brew methods present in reviews and formats unlisted methods', () => {
+    currentReviews = [
+      ...mockReviews,
+      {
+        ...mockReviews[0],
+        id: 'rev-3',
+        beanNameSnapshot: 'Kalita Lot',
+        brewMethod: 'kalita-wave',
+      },
+      {
+        ...mockReviews[0],
+        id: 'rev-4',
+        beanNameSnapshot: 'Origami Lot',
+        brewMethod: 'origami-dripper' as TastingLog['brewMethod'],
+      },
+    ];
+
+    const { getByRole, queryByRole, getByText, queryByText } = render(
+      <ReviewsCatalogScreen />
+    );
+
+    expect(getByRole('button', { name: 'Filter by method V60' })).toBeTruthy();
+    expect(getByRole('button', { name: 'Filter by method Espresso' })).toBeTruthy();
+    expect(getByRole('button', { name: 'Filter by method Kalita Wave' })).toBeTruthy();
+    expect(getByRole('button', { name: 'Filter by method Origami Dripper' })).toBeTruthy();
+    expect(queryByRole('button', { name: 'Filter by method Chemex' })).toBeNull();
+    expect(queryByRole('button', { name: 'Filter by method AeroPress' })).toBeNull();
+
+    fireEvent.click(getByRole('button', { name: 'Filter by method Origami Dripper' }));
+    expect(getByText('Origami Lot')).toBeTruthy();
+    expect(queryByText('Southern Weather')).toBeNull();
+  });
+
+  it('hides method and rating FilterPills when no options match', () => {
+    currentReviews = [];
+    const { queryByTestId, rerender } = render(<ReviewsCatalogScreen />);
+    expect(queryByTestId('reviews-method-filters')).toBeNull();
+    expect(queryByTestId('reviews-rating-filters')).toBeNull();
+
+    currentReviews = [
+      {
+        ...mockReviews[0],
+        id: 'rev-low',
+        rating: 3,
+      },
+    ];
+    rerender(<ReviewsCatalogScreen />);
+    expect(queryByTestId('reviews-method-filters')).toBeTruthy();
+    expect(queryByTestId('reviews-rating-filters')).toBeNull();
+  });
+
+  it('resets method and rating filters to all when selected options disappear', () => {
+    const { getByRole, getByText, queryByRole, rerender } = render(
+      <ReviewsCatalogScreen />
+    );
+
+    fireEvent.click(getByRole('button', { name: 'Filter by method Espresso' }));
+    expect(getByText('Southern Weather')).toBeTruthy();
+
+    // Remove espresso review -> should reset method filter to all and show V60 review
+    currentReviews = [mockReviews[0]];
+    rerender(<ReviewsCatalogScreen />);
+    expect(queryByRole('button', { name: 'Filter by method Espresso' })).toBeNull();
+    expect(getByText('Worka Sakaro Anaerobic')).toBeTruthy();
+
+    // Select 5 Stars, then replace with only a 4-star review -> should reset rating filter
+    fireEvent.click(getByRole('button', { name: 'Filter by rating 5 Stars' }));
+    currentReviews = [mockReviews[1]];
+    rerender(<ReviewsCatalogScreen />);
+    expect(queryByRole('button', { name: 'Filter by rating 5 Stars' })).toBeNull();
+    expect(getByText('Southern Weather')).toBeTruthy();
   });
 
   it('renders Reviews title and ADD REVIEW inline without an in-screen ProfileHeaderButton', () => {
