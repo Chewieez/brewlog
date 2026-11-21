@@ -17,24 +17,50 @@ vi.mock('react-native', () => ({
     horizontal,
     showsHorizontalScrollIndicator,
     contentContainerStyle,
+    keyboardShouldPersistTaps,
     ...props
   }: any) => (
     <div data-testid={testID} aria-label={accessibilityLabel} {...props}>
       {children}
     </div>
   ),
+  TextInput: ({
+    value,
+    onChangeText,
+    placeholder,
+    accessibilityLabel,
+    placeholderTextColor,
+    returnKeyType,
+    style,
+    ...props
+  }: any) => (
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChangeText?.(e.target.value)}
+      placeholder={placeholder}
+      aria-label={accessibilityLabel}
+      {...props}
+    />
+  ),
   Pressable: ({
     children,
     onPress,
+    onPressIn,
+    onPressOut,
+    pressRetentionOffset,
     accessibilityLabel,
     accessibilityRole,
     accessibilityState,
+    hitSlop,
     style,
     ...props
   }: any) => (
     <button
       type="button"
       onClick={onPress}
+      onMouseDown={onPressIn}
+      onMouseUp={onPressOut}
       role={accessibilityRole}
       aria-label={accessibilityLabel}
       aria-selected={accessibilityState?.selected}
@@ -49,12 +75,26 @@ vi.mock('react-native', () => ({
   },
 }));
 
+vi.mock('react-native-reanimated', () => ({
+  default: {
+    View: ({ children, style, testID, ...props }: any) => (
+      <div data-testid={testID} {...props}>
+        {children}
+      </div>
+    ),
+  },
+  cubicBezier: () => 'cubic-bezier(0.23, 1, 0.32, 1)',
+  useReducedMotion: () => false,
+}));
+
 vi.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }));
 
 vi.mock('lucide-react-native', () => ({
   Plus: () => null,
+  Search: () => null,
+  X: () => null,
 }));
 
 const mockPush = vi.fn();
@@ -132,11 +172,83 @@ describe('RecipesCatalogScreen', () => {
       ...mockRecipesContext,
       recipes: [],
     };
-    const { getByText, queryByTestId } = render(<RecipesCatalogScreen />);
+    const { getByLabelText, getByText, queryByTestId, queryByLabelText } = render(
+      <RecipesCatalogScreen />
+    );
 
     expect(queryByTestId('recipe-method-filters')).toBeNull();
     expect(getByText('No Recipes Found')).toBeDefined();
     expect(getByText('No recipes match the selected brew method filter.')).toBeDefined();
+    expect(queryByLabelText('Clear search input')).toBeNull();
+
+    fireEvent.change(getByLabelText('Search recipes'), { target: { value: 'v60' } });
+    expect(getByText('No Recipes Found')).toBeDefined();
+    expect(getByText('No recipes match the selected brew method filter.')).toBeDefined();
+    expect(queryByLabelText('Clear search input')).toBeNull();
+  });
+
+  it('filters recipes by search query across name, author, description, and brewMethod', () => {
+    const { getByLabelText, getByText, queryByText, getByTestId } = render(<RecipesCatalogScreen />);
+
+    const searchInput = getByLabelText('Search recipes') as HTMLInputElement;
+
+    // Author match
+    fireEvent.change(searchInput, { target: { value: 'Hoffmann' } });
+    expect(getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
+    expect(queryByText(DEFAULT_PRESET_RECIPES[1].name)).toBeNull();
+    expect(queryByText(DEFAULT_PRESET_RECIPES[2].name)).toBeNull();
+    expect(getByTestId('recipe-method-filters')).toBeDefined();
+
+    // Description match
+    fireEvent.change(searchInput, { target: { value: 'World Brewers Cup' } });
+    expect(getByText(DEFAULT_PRESET_RECIPES[1].name)).toBeDefined();
+    expect(queryByText(DEFAULT_PRESET_RECIPES[0].name)).toBeNull();
+
+    // Brew method match
+    fireEvent.change(searchInput, { target: { value: 'aeropress' } });
+    expect(getByText(DEFAULT_PRESET_RECIPES[2].name)).toBeDefined();
+    expect(queryByText(DEFAULT_PRESET_RECIPES[0].name)).toBeNull();
+
+    // Whitespace-only query shows all recipes
+    fireEvent.change(searchInput, { target: { value: '   ' } });
+    expect(getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
+    expect(getByText(DEFAULT_PRESET_RECIPES[1].name)).toBeDefined();
+    expect(getByText(DEFAULT_PRESET_RECIPES[2].name)).toBeDefined();
+  });
+
+  it('clears search text via the inline clear button', () => {
+    const { getByLabelText, queryByLabelText, getByText, queryByText } = render(
+      <RecipesCatalogScreen />
+    );
+
+    const searchInput = getByLabelText('Search recipes') as HTMLInputElement;
+    expect(queryByLabelText('Clear search text')).toBeNull();
+
+    fireEvent.change(searchInput, { target: { value: 'Kasuya' } });
+    expect(queryByText(DEFAULT_PRESET_RECIPES[0].name)).toBeNull();
+
+    fireEvent.click(getByLabelText('Clear search text'));
+    expect(searchInput.value).toBe('');
+    expect(getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
+    expect(getByText(DEFAULT_PRESET_RECIPES[1].name)).toBeDefined();
+  });
+
+  it('combines method filter with search query and recovers via CLEAR SEARCH while keeping method filter', () => {
+    const { getByLabelText, getByText, queryByText } = render(<RecipesCatalogScreen />);
+
+    fireEvent.click(getByLabelText('Filter by v60'));
+    const searchInput = getByLabelText('Search recipes') as HTMLInputElement;
+    fireEvent.change(searchInput, { target: { value: 'AeroPress' } });
+
+    expect(getByText('No Recipes Found')).toBeDefined();
+    expect(getByText('No recipes match your search query.')).toBeDefined();
+    expect(getByText('CLEAR SEARCH')).toBeDefined();
+
+    fireEvent.click(getByLabelText('Clear search input'));
+
+    expect(searchInput.value).toBe('');
+    expect(getByText(DEFAULT_PRESET_RECIPES[0].name)).toBeDefined();
+    expect(queryByText(DEFAULT_PRESET_RECIPES[2].name)).toBeNull();
   });
 
   it('filters by custom recipes when present and resets to all if custom recipes disappear', () => {
@@ -183,5 +295,34 @@ describe('RecipesCatalogScreen', () => {
 
     expect(getByTestId('recipe-catalog-loading')).toBeDefined();
     expect(queryByText('No Recipes Found')).toBeNull();
+  });
+
+  it('shows search empty state and CLEAR SEARCH instead of loading spinner when custom recipes are loaded and search matches none', () => {
+    const customRecipe = {
+      ...DEFAULT_PRESET_RECIPES[0],
+      id: 'custom-1',
+      name: 'My Custom Pour',
+      isPreset: false,
+    };
+    activeRecipesContext = {
+      ...mockRecipesContext,
+      loading: true,
+      recipes: [...DEFAULT_PRESET_RECIPES, customRecipe],
+      customRecipes: [customRecipe],
+    };
+
+    const { getByLabelText, getByText, queryByTestId } = render(<RecipesCatalogScreen />);
+
+    fireEvent.click(getByLabelText('Filter by custom'));
+    const searchInput = getByLabelText('Search recipes') as HTMLInputElement;
+    fireEvent.change(searchInput, { target: { value: 'Nonexistent' } });
+
+    expect(queryByTestId('recipe-catalog-loading')).toBeNull();
+    expect(getByText('No Recipes Found')).toBeDefined();
+    expect(getByText('No recipes match your search query.')).toBeDefined();
+
+    fireEvent.click(getByLabelText('Clear search input'));
+    expect(searchInput.value).toBe('');
+    expect(getByText('My Custom Pour')).toBeDefined();
   });
 });

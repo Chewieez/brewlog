@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
+import Animated, { cubicBezier, useReducedMotion } from 'react-native-reanimated';
 import { BrewRecipe } from '@brewlog/core';
 import { makeStyles } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
+
+const CSS_EASE_OUT = cubicBezier(0.23, 1, 0.32, 1);
 
 export interface RecipeCardProps {
   recipe: BrewRecipe;
@@ -11,6 +14,8 @@ export interface RecipeCardProps {
 
 export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onPress }) => {
   const styles = useStyles();
+  const reducedMotion = useReducedMotion();
+  const [isPressed, setIsPressed] = useState(false);
   const isCustom = !recipe.isPreset && !recipe.id.startsWith('preset-');
   const minutes = Math.floor(recipe.totalTimeSeconds / 60);
   const seconds = recipe.totalTimeSeconds % 60;
@@ -19,10 +24,20 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onPress }) => {
   return (
     <Pressable
       onPress={() => onPress(recipe)}
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+      onPressIn={() => setIsPressed(true)}
+      onPressOut={() => setIsPressed(false)}
+      pressRetentionOffset={{ top: 12, bottom: 12, left: 12, right: 12 }}
       accessibilityRole="button"
       accessibilityLabel={`View recipe ${recipe.name}`}
     >
+      <Animated.View
+        testID="recipe-card-surface"
+        style={[
+          styles.card,
+          isPressed && styles.cardPressed,
+          isPressed && !reducedMotion && styles.cardPressedScale,
+        ]}
+      >
       <View style={styles.headerRow}>
         <View style={styles.badgeGroup}>
           <View style={styles.methodBadge}>
@@ -70,6 +85,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onPress }) => {
           <Text style={styles.metricValue}>{timeFormatted}</Text>
         </View>
       </View>
+      </Animated.View>
     </Pressable>
   );
 };
@@ -83,10 +99,17 @@ const useStyles = makeStyles((colors) => ({
     padding: 16,
     gap: 12,
     minHeight: 44,
+    transform: [{ scale: 1 }],
+    transitionProperty: ['backgroundColor', 'borderColor', 'transform'],
+    transitionDuration: '120ms',
+    transitionTimingFunction: CSS_EASE_OUT,
   },
   cardPressed: {
-    opacity: 0.85,
-    borderColor: colors.accent,
+    backgroundColor: colors.panelRecessed,
+    borderColor: colors.borderActive,
+  },
+  cardPressedScale: {
+    transform: [{ scale: 0.99 }],
   },
   headerRow: {
     flexDirection: 'row',
