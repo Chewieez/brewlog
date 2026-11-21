@@ -120,7 +120,7 @@ export const ReviewsCatalogScreen: React.FC = () => {
 
   const availableMethodOptions = useMemo<FilterPillsOption<string>[]>(() => {
     const presentMethods = new Set<string>(
-      reviews.map((r) => r.brewMethod.toLowerCase()).filter(Boolean)
+      reviews.map((r) => r.brewMethod?.toLowerCase() ?? '').filter(Boolean)
     );
     const knownOptions: FilterPillsOption<string>[] = KNOWN_METHOD_OPTIONS.filter(
       (opt) => presentMethods.has(opt.id)
@@ -223,7 +223,7 @@ export const ReviewsCatalogScreen: React.FC = () => {
 
       // Method match
       if (effectiveMethod !== 'all') {
-        if (r.brewMethod.toLowerCase() !== effectiveMethod.toLowerCase()) {
+        if ((r.brewMethod?.toLowerCase() ?? '') !== effectiveMethod.toLowerCase()) {
           return false;
         }
       }

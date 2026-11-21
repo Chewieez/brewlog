@@ -9,8 +9,22 @@ export interface MethodFilterBarProps {
   onSelectMethod: (method: string) => void;
 }
 
-const isCustomRecipe = (recipe: BrewRecipe) =>
+export const isCustomRecipe = (recipe: BrewRecipe): boolean =>
   !recipe.isPreset && !recipe.id.startsWith('preset-');
+
+export function resolveEffectiveRecipeFilter(
+  recipes: BrewRecipe[],
+  selectedFilter: string
+): string {
+  const normalized = selectedFilter.toLowerCase();
+  if (normalized === 'all') return 'all';
+  if (normalized === 'custom') {
+    return recipes.some(isCustomRecipe) ? 'custom' : 'all';
+  }
+  return recipes.some((r) => (r.brewMethod?.toLowerCase() ?? '') === normalized)
+    ? normalized
+    : 'all';
+}
 
 export const MethodFilterBar: React.FC<MethodFilterBarProps> = ({
   recipes,
@@ -24,7 +38,7 @@ export const MethodFilterBar: React.FC<MethodFilterBarProps> = ({
     const methods = Array.from(
       new Set(
         recipes
-          .map((r) => r.brewMethod.toLowerCase())
+          .map((r) => r.brewMethod?.toLowerCase() ?? '')
           .filter((m) => Boolean(m) && m !== 'custom')
       )
     );
@@ -54,11 +68,8 @@ export const MethodFilterBar: React.FC<MethodFilterBarProps> = ({
 
   const normalizedSelected = selectedMethod.toLowerCase();
   const effectiveMethod = useMemo(
-    () =>
-      options.some((opt) => opt.value === normalizedSelected)
-        ? normalizedSelected
-        : 'all',
-    [options, normalizedSelected]
+    () => resolveEffectiveRecipeFilter(recipes, selectedMethod),
+    [recipes, selectedMethod]
   );
 
   useEffect(() => {

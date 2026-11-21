@@ -2,6 +2,7 @@
 
 **Date:** 2026-11-20
 **Issue:** [#89](https://github.com/Chewieez/brewlog/issues/89)
+**PR:** [#93](https://github.com/Chewieez/brewlog/pull/93)
 **Design Spec:** [`docs/superpowers/specs/2026-11-20-filter-pills-adoption-design.md`](../superpowers/specs/2026-11-20-filter-pills-adoption-design.md)
 **Implementation Plan:** [`docs/superpowers/plans/2026-11-20-filter-pills-adoption.md`](../superpowers/plans/2026-11-20-filter-pills-adoption.md)
 

@@ -4,7 +4,11 @@ import { useRouter, useScrollToTop } from 'expo-router';
 import { BrewRecipe } from '@brewlog/core';
 import { makeStyles } from '@brewlog/ui';
 import { useRecipes } from '../RecipeContext';
-import { MethodFilterBar } from '../components/MethodFilterBar';
+import {
+  MethodFilterBar,
+  isCustomRecipe,
+  resolveEffectiveRecipeFilter,
+} from '../components/MethodFilterBar';
 import { RecipeCard } from '../components/RecipeCard';
 import { FONTS } from '../../../theme/fonts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,26 +24,18 @@ export const RecipesCatalogScreen: React.FC = () => {
   const scrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
   useScrollToTop(scrollRef as any);
 
-  const effectiveFilter = useMemo(() => {
-    const normalized = selectedFilter.toLowerCase();
-    if (normalized === 'all') return 'all';
-    if (normalized === 'custom') {
-      return recipes.some((r) => !r.isPreset && !r.id.startsWith('preset-'))
-        ? 'custom'
-        : 'all';
-    }
-    return recipes.some((r) => r.brewMethod.toLowerCase() === normalized)
-      ? normalized
-      : 'all';
-  }, [recipes, selectedFilter]);
+  const effectiveFilter = useMemo(
+    () => resolveEffectiveRecipeFilter(recipes, selectedFilter),
+    [recipes, selectedFilter]
+  );
 
   const filteredRecipes = useMemo(() => {
     if (effectiveFilter === 'all') return recipes;
     if (effectiveFilter === 'custom') {
-      return recipes.filter((r) => !r.isPreset && !r.id.startsWith('preset-'));
+      return recipes.filter(isCustomRecipe);
     }
     return recipes.filter(
-      (r) => r.brewMethod.toLowerCase() === effectiveFilter.toLowerCase()
+      (r) => (r.brewMethod?.toLowerCase() ?? '') === effectiveFilter.toLowerCase()
     );
   }, [recipes, effectiveFilter]);
 

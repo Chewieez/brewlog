@@ -425,6 +425,7 @@ test.describe("Core Web App End-to-End Context Flows", () => {
     await page.goto("/equipment");
     const equipmentGroup = page.getByTestId("equipment-category-filters");
     await expect(equipmentGroup).toBeVisible();
+    await expect(equipmentGroup.getByRole("button", { name: "Other", exact: true })).not.toBeVisible();
     const lastEquipmentPill = equipmentGroup.locator("button").last();
     const lastEquipmentPillLabel = (await lastEquipmentPill.getAttribute("aria-label")) || "";
     await verifyFilterBar("/equipment", "equipment-category-filters", "Grinders", lastEquipmentPillLabel, true);
