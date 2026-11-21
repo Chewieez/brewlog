@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -18,7 +18,7 @@ import {
   Layers,
 } from 'lucide-react-native';
 import { Equipment } from '@brewlog/core';
-import { makeStyles, useTheme } from '@brewlog/ui';
+import { makeStyles, useTheme, FilterPills, type FilterPillsOption } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { useEquipment } from '../EquipmentContext';
 import { EquipmentCard } from '../components/EquipmentCard';
@@ -83,12 +83,40 @@ export const EquipmentCatalogScreen: React.FC = () => {
   const filteredKettles = useMemo(() => filterItems(kettles), [filterItems, kettles]);
   const filteredOther = useMemo(() => filterItems(other), [filterItems, other]);
 
+  const availableCategoryOptions = useMemo<FilterPillsOption<CategoryFilter>[]>(() => {
+    const present = CATEGORIES.filter(
+      (cat) => cat.id !== 'all' && equipment.some((item) => item.type === cat.id)
+    );
+    return [
+      { value: 'all', label: 'All', accessibilityLabel: 'Filter by All' },
+      ...present.map((cat) => ({
+        value: cat.id,
+        label: cat.label,
+        accessibilityLabel: `Filter by ${cat.label}`,
+      })),
+    ];
+  }, [equipment]);
+
+  const effectiveCategory: CategoryFilter = useMemo(
+    () =>
+      availableCategoryOptions.some((opt) => opt.value === selectedCategory)
+        ? selectedCategory
+        : 'all',
+    [availableCategoryOptions, selectedCategory]
+  );
+
+  useEffect(() => {
+    if (selectedCategory !== effectiveCategory) {
+      setSelectedCategory(effectiveCategory);
+    }
+  }, [selectedCategory, effectiveCategory]);
+
   const totalFilteredCount = useMemo(() => {
-    if (selectedCategory === 'grinder') return filteredGrinders.length;
-    if (selectedCategory === 'brewer') return filteredBrewers.length;
-    if (selectedCategory === 'scale') return filteredScales.length;
-    if (selectedCategory === 'kettle') return filteredKettles.length;
-    if (selectedCategory === 'other') return filteredOther.length;
+    if (effectiveCategory === 'grinder') return filteredGrinders.length;
+    if (effectiveCategory === 'brewer') return filteredBrewers.length;
+    if (effectiveCategory === 'scale') return filteredScales.length;
+    if (effectiveCategory === 'kettle') return filteredKettles.length;
+    if (effectiveCategory === 'other') return filteredOther.length;
     return (
       filteredGrinders.length +
       filteredBrewers.length +
@@ -97,7 +125,7 @@ export const EquipmentCatalogScreen: React.FC = () => {
       filteredOther.length
     );
   }, [
-    selectedCategory,
+    effectiveCategory,
     filteredGrinders.length,
     filteredBrewers.length,
     filteredScales.length,
@@ -208,41 +236,16 @@ export const EquipmentCatalogScreen: React.FC = () => {
           </View>
 
           {/* Category Filter Chips */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoryFilterScroll}
-          >
-            {CATEGORIES.map((cat) => {
-              const isSelected = selectedCategory === cat.id;
-              return (
-                <Pressable
-                  key={cat.id}
-                  onPress={() => setSelectedCategory(cat.id)}
-                  style={[
-                    styles.categoryChip,
-                    isSelected
-                      ? styles.categoryChipActive
-                      : styles.categoryChipInactive,
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: isSelected }}
-                  accessibilityLabel={`Filter by ${cat.label}`}
-                >
-                  <Text
-                    style={[
-                      styles.categoryChipText,
-                      isSelected
-                        ? styles.categoryChipTextActive
-                        : styles.categoryChipTextInactive,
-                    ]}
-                  >
-                    {cat.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
+          {availableCategoryOptions.length > 1 ? (
+            <FilterPills<CategoryFilter>
+              size="sm"
+              value={effectiveCategory}
+              onChange={setSelectedCategory}
+              options={availableCategoryOptions}
+              ariaLabel="Filter equipment by category"
+              testID="equipment-category-filters"
+            />
+          ) : null}
         </View>
 
         {/* Catalog Body */}
@@ -285,7 +288,7 @@ export const EquipmentCatalogScreen: React.FC = () => {
           </View>
         ) : (
           <View style={styles.sectionsWrapper}>
-            {(selectedCategory === 'all' || selectedCategory === 'grinder') &&
+            {(effectiveCategory === 'all' || effectiveCategory === 'grinder') &&
               renderSection(
                 'Grinders',
                 filteredGrinders,
@@ -293,7 +296,7 @@ export const EquipmentCatalogScreen: React.FC = () => {
                 'No grinders logged yet.'
               )}
 
-            {(selectedCategory === 'all' || selectedCategory === 'brewer') &&
+            {(effectiveCategory === 'all' || effectiveCategory === 'brewer') &&
               renderSection(
                 'Brewers & Drippers',
                 filteredBrewers,
@@ -301,7 +304,7 @@ export const EquipmentCatalogScreen: React.FC = () => {
                 'No brewers logged yet.'
               )}
 
-            {(selectedCategory === 'all' || selectedCategory === 'scale') &&
+            {(effectiveCategory === 'all' || effectiveCategory === 'scale') &&
               renderSection(
                 'Precision Scales',
                 filteredScales,
@@ -309,7 +312,7 @@ export const EquipmentCatalogScreen: React.FC = () => {
                 'No scales logged yet. Add your brew scale to track 0.1g dose.'
               )}
 
-            {(selectedCategory === 'all' || selectedCategory === 'kettle') &&
+            {(effectiveCategory === 'all' || effectiveCategory === 'kettle') &&
               renderSection(
                 'Kettles & Water Gear',
                 filteredKettles,
@@ -317,7 +320,7 @@ export const EquipmentCatalogScreen: React.FC = () => {
                 'No kettles logged yet. Add your gooseneck kettle.'
               )}
 
-            {(selectedCategory === 'all' || selectedCategory === 'other') &&
+            {(effectiveCategory === 'all' || effectiveCategory === 'other') &&
               renderSection(
                 'Other Equipment & Accessories',
                 filteredOther,
@@ -370,38 +373,6 @@ const useStyles = makeStyles((colors) => ({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: -8,
-  },
-  categoryFilterScroll: {
-    gap: 8,
-    paddingVertical: 2,
-  },
-  categoryChip: {
-    minHeight: 44,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  categoryChipActive: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accent,
-  },
-  categoryChipInactive: {
-    backgroundColor: colors.panel,
-    borderColor: colors.borderSubtle,
-  },
-  categoryChipText: {
-    fontFamily: FONTS.monoRegular,
-    fontSize: 11,
-    letterSpacing: 0.5,
-  },
-  categoryChipTextActive: {
-    fontFamily: FONTS.monoBold,
-    color: colors.canvas,
-  },
-  categoryChipTextInactive: {
-    color: colors.textSecondary,
   },
   sectionsWrapper: {
     paddingHorizontal: 16,

@@ -1,16 +1,15 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import {
   View,
   Text,
   TextInput,
   Pressable,
   FlatList,
-  ScrollView,
 } from 'react-native';
 import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus, Search, X } from 'lucide-react-native';
 import { TastingLog } from '@brewlog/core';
-import { makeStyles, useTheme } from '@brewlog/ui';
+import { makeStyles, useTheme, FilterPills, type FilterPillsOption } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { useReviews } from '../ReviewsContext';
 import { ReviewsSummaryBar } from '../components/ReviewsSummaryBar';
@@ -19,7 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TabScreenHeader } from '../../../components/navigation/TabScreenHeader';
 import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
 
-export type MethodFilter = 'all' | 'v60' | 'espresso' | 'aeropress' | 'french-press' | 'chemex' | 'pour-over' | 'cold-brew';
+export type MethodFilter = string;
 export type RatingFilter = 'all' | '5' | '4+';
 
 interface FilterOption<T> {
@@ -27,22 +26,26 @@ interface FilterOption<T> {
   label: string;
 }
 
-const METHOD_OPTIONS: FilterOption<MethodFilter>[] = [
-  { id: 'all', label: 'All Methods' },
+const KNOWN_METHOD_OPTIONS: FilterOption<string>[] = [
   { id: 'v60', label: 'V60' },
   { id: 'espresso', label: 'Espresso' },
   { id: 'aeropress', label: 'AeroPress' },
   { id: 'french-press', label: 'French Press' },
   { id: 'chemex', label: 'Chemex' },
+  { id: 'kalita-wave', label: 'Kalita Wave' },
   { id: 'pour-over', label: 'Pour Over' },
   { id: 'cold-brew', label: 'Cold Brew' },
+  { id: 'flair', label: 'Flair' },
+  { id: 'custom', label: 'Custom' },
 ];
 
-const RATING_OPTIONS: FilterOption<RatingFilter>[] = [
-  { id: 'all', label: 'All Ratings' },
-  { id: '5', label: '5 Stars' },
-  { id: '4+', label: '4+ Stars' },
-];
+function formatFallbackMethodLabel(method: string): string {
+  return method
+    .split('-')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
 
 export const ReviewsCatalogScreen: React.FC = () => {
   const styles = useStyles();
@@ -115,6 +118,93 @@ export const ReviewsCatalogScreen: React.FC = () => {
     return { total, avgScaScore, topFlavor };
   }, [reviews]);
 
+  const availableMethodOptions = useMemo<FilterPillsOption<string>[]>(() => {
+    const presentMethods = new Set<string>(
+      reviews.map((r) => r.brewMethod.toLowerCase()).filter(Boolean)
+    );
+    const knownOptions: FilterPillsOption<string>[] = KNOWN_METHOD_OPTIONS.filter(
+      (opt) => presentMethods.has(opt.id)
+    ).map((opt) => ({
+      value: opt.id,
+      label: opt.label,
+      accessibilityLabel: `Filter by method ${opt.label}`,
+    }));
+    const knownIds = new Set(knownOptions.map((opt) => opt.value));
+    const extraOptions: FilterPillsOption<string>[] = Array.from(presentMethods)
+      .filter((method) => !knownIds.has(method))
+      .map((method) => {
+        const label = formatFallbackMethodLabel(method);
+        return {
+          value: method,
+          label,
+          accessibilityLabel: `Filter by method ${label}`,
+        };
+      });
+
+    return [
+      {
+        value: 'all',
+        label: 'All Methods',
+        accessibilityLabel: 'Filter by method All Methods',
+      },
+      ...knownOptions,
+      ...extraOptions,
+    ];
+  }, [reviews]);
+
+  const effectiveMethod = useMemo(
+    () =>
+      availableMethodOptions.some((opt) => opt.value === selectedMethod)
+        ? selectedMethod
+        : 'all',
+    [availableMethodOptions, selectedMethod]
+  );
+
+  useEffect(() => {
+    if (selectedMethod !== effectiveMethod) {
+      setSelectedMethod(effectiveMethod);
+    }
+  }, [selectedMethod, effectiveMethod]);
+
+  const availableRatingOptions = useMemo<FilterPillsOption<RatingFilter>[]>(() => {
+    const options: FilterPillsOption<RatingFilter>[] = [
+      {
+        value: 'all',
+        label: 'All Ratings',
+        accessibilityLabel: 'Filter by rating All Ratings',
+      },
+    ];
+    if (reviews.some((r) => r.rating >= 5)) {
+      options.push({
+        value: '5',
+        label: '5 Stars',
+        accessibilityLabel: 'Filter by rating 5 Stars',
+      });
+    }
+    if (reviews.some((r) => r.rating >= 4)) {
+      options.push({
+        value: '4+',
+        label: '4+ Stars',
+        accessibilityLabel: 'Filter by rating 4+ Stars',
+      });
+    }
+    return options;
+  }, [reviews]);
+
+  const effectiveRating: RatingFilter = useMemo(
+    () =>
+      availableRatingOptions.some((opt) => opt.value === selectedRating)
+        ? selectedRating
+        : 'all',
+    [availableRatingOptions, selectedRating]
+  );
+
+  useEffect(() => {
+    if (selectedRating !== effectiveRating) {
+      setSelectedRating(effectiveRating);
+    }
+  }, [selectedRating, effectiveRating]);
+
   // Filter reviews
   const filteredReviews = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -132,19 +222,19 @@ export const ReviewsCatalogScreen: React.FC = () => {
       }
 
       // Method match
-      if (selectedMethod !== 'all') {
-        if (r.brewMethod.toLowerCase() !== selectedMethod.toLowerCase()) {
+      if (effectiveMethod !== 'all') {
+        if (r.brewMethod.toLowerCase() !== effectiveMethod.toLowerCase()) {
           return false;
         }
       }
 
       // Rating match
-      if (selectedRating === '5' && r.rating < 5) return false;
-      if (selectedRating === '4+' && r.rating < 4) return false;
+      if (effectiveRating === '5' && r.rating < 5) return false;
+      if (effectiveRating === '4+' && r.rating < 4) return false;
 
       return true;
     });
-  }, [reviews, searchQuery, selectedMethod, selectedRating]);
+  }, [reviews, searchQuery, effectiveMethod, effectiveRating]);
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
@@ -187,60 +277,28 @@ export const ReviewsCatalogScreen: React.FC = () => {
       </View>
 
       {/* Method Filter Scrollable Row */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filterChipsRow}
-      >
-        {METHOD_OPTIONS.map((opt) => {
-          const isActive = selectedMethod === opt.id;
-          return (
-            <Pressable
-              key={`method-${opt.id}`}
-              style={[styles.filterChip, isActive && styles.filterChipActive]}
-              onPress={() => setSelectedMethod(opt.id)}
-              accessibilityRole="button"
-              accessibilityLabel={`Filter by method ${opt.label}`}
-              hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
-            >
-              <Text
-                style={[
-                  styles.filterChipText,
-                  isActive && styles.filterChipTextActive,
-                ]}
-              >
-                {opt.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+      {availableMethodOptions.length > 1 ? (
+        <FilterPills
+          size="sm"
+          value={effectiveMethod}
+          onChange={setSelectedMethod}
+          options={availableMethodOptions}
+          ariaLabel="Filter reviews by brew method"
+          testID="reviews-method-filters"
+        />
+      ) : null}
 
       {/* Rating Filter Row */}
-      <View style={styles.ratingChipsRow}>
-        {RATING_OPTIONS.map((opt) => {
-          const isActive = selectedRating === opt.id;
-          return (
-            <Pressable
-              key={`rating-${opt.id}`}
-              style={[styles.filterChip, isActive && styles.filterChipActive]}
-              onPress={() => setSelectedRating(opt.id)}
-              accessibilityRole="button"
-              accessibilityLabel={`Filter by rating ${opt.label}`}
-              hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
-            >
-              <Text
-                style={[
-                  styles.filterChipText,
-                  isActive && styles.filterChipTextActive,
-                ]}
-              >
-                {opt.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      {availableRatingOptions.length > 1 ? (
+        <FilterPills<RatingFilter>
+          size="sm"
+          value={effectiveRating}
+          onChange={setSelectedRating}
+          options={availableRatingOptions}
+          ariaLabel="Filter reviews by rating"
+          testID="reviews-rating-filters"
+        />
+      ) : null}
     </View>
   );
 
@@ -342,41 +400,6 @@ const useStyles = makeStyles((colors) => ({
   },
   clearSearchBtn: {
     padding: 4,
-  },
-  filterChipsRow: {
-    flexDirection: 'row',
-    gap: 8,
-    paddingVertical: 2,
-  },
-  ratingChipsRow: {
-    flexDirection: 'row',
-    gap: 8,
-    flexWrap: 'wrap',
-  },
-  filterChip: {
-    backgroundColor: colors.panelRecessed,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    borderRadius: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    minHeight: 34,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  filterChipActive: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accent,
-  },
-  filterChipText: {
-    fontFamily: FONTS.monoMedium,
-    fontSize: 11,
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-  },
-  filterChipTextActive: {
-    color: colors.canvas,
-    fontFamily: FONTS.monoBold,
   },
   cardWrapper: {
     marginBottom: 10,
