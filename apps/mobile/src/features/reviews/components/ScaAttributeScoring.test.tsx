@@ -177,4 +177,42 @@ describe('ScaAttributeScoring', () => {
       overall: 0,
     });
   });
+
+  it('hides summary hero when hideSummaryHero is true while keeping all 10 attributes', () => {
+    const { queryByText, getByText } = render(
+      <ScaAttributeScoring
+        scores={defaultScores}
+        onChange={vi.fn()}
+        readOnly={true}
+        hideSummaryHero={true}
+      />
+    );
+
+    expect(queryByText('SCA SENSORY TOTAL')).toBeNull();
+    expect(queryByText('84.0')).toBeNull();
+    expect(getByText('Fragrance / Aroma')).toBeTruthy();
+    expect(getByText('Overall')).toBeTruthy();
+  });
+
+  it('uses canonical Commercial tier label for scores below 80', () => {
+    const lowScores: CuppingAttributes = {
+      ...defaultScores,
+      fragranceAroma: 6.0,
+      flavor: 6.0,
+      aftertaste: 6.0,
+      acidity: 6.0,
+      body: 6.0,
+      balance: 6.0,
+      uniformity: 8.0,
+      cleanCup: 8.0,
+      sweetness: 8.0,
+      overall: 6.0,
+    };
+
+    const { getByText } = render(
+      <ScaAttributeScoring scores={lowScores} onChange={vi.fn()} />
+    );
+
+    expect(getByText(/Commercial/i)).toBeTruthy();
+  });
 });

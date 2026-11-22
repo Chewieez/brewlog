@@ -4,6 +4,8 @@ import { Minus, Plus } from 'lucide-react-native';
 import {
   CuppingAttributes,
   calculateScaScore,
+  getScaTierInfo,
+  ScaTierKey,
 } from '@brewlog/core';
 import { makeStyles, useTheme, ThemeTokens } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
@@ -12,6 +14,7 @@ export interface ScaAttributeScoringProps {
   scores: CuppingAttributes;
   onChange: (scores: CuppingAttributes) => void;
   readOnly?: boolean;
+  hideSummaryHero?: boolean;
 }
 
 interface AttributeDef {
@@ -59,17 +62,26 @@ export const CLEAR_SCORES: CuppingAttributes = {
   overall: 0,
 };
 
+const TIER_COLOR_KEYS: Record<ScaTierKey, keyof ThemeTokens['colors']> = {
+  outstanding: 'statusSuccess',
+  excellent: 'statusWarning',
+  'very-good': 'statusInfo',
+  commercial: 'textMuted',
+};
+
 function getClassification(score: number, colors: ThemeTokens['colors']): { label: string; color: string } {
-  if (score >= 90) return { label: 'Outstanding (Specialty)', color: colors.accent };
-  if (score >= 85) return { label: 'Excellent (Specialty)', color: colors.statusSuccess };
-  if (score >= 80) return { label: 'Very Good (Specialty)', color: colors.accentHover };
-  return { label: 'Below Specialty', color: colors.textMuted };
+  const tier = getScaTierInfo(score);
+  return {
+    label: `${tier.label} (SCA)`,
+    color: colors[TIER_COLOR_KEYS[tier.key]],
+  };
 }
 
 export const ScaAttributeScoring: React.FC<ScaAttributeScoringProps> = ({
   scores,
   onChange,
   readOnly = false,
+  hideSummaryHero = false,
 }) => {
   const styles = useStyles();
   const { colors } = useTheme();
@@ -89,15 +101,17 @@ export const ScaAttributeScoring: React.FC<ScaAttributeScoringProps> = ({
   return (
     <View style={styles.container}>
       {/* Live Score Hero */}
-      <View style={styles.heroChassis}>
-        <View>
-          <Text style={styles.heroEyebrow}>SCA SENSORY TOTAL</Text>
-          <Text style={[styles.heroBadge, { color: classification.color }]}>
-            {classification.label}
-          </Text>
+      {!hideSummaryHero && (
+        <View style={styles.heroChassis}>
+          <View>
+            <Text style={styles.heroEyebrow}>SCA SENSORY TOTAL</Text>
+            <Text style={[styles.heroBadge, { color: classification.color }]}>
+              {classification.label}
+            </Text>
+          </View>
+          <Text style={styles.heroScore}>{totalScore.toFixed(1)}</Text>
         </View>
-        <Text style={styles.heroScore}>{totalScore.toFixed(1)}</Text>
-      </View>
+      )}
 
       {/* Presets Row */}
       {!readOnly && (

@@ -513,3 +513,7 @@ export const useRecipes = (): RecipeContextValue => {
   }
   return context;
 };
+
+export const useOptionalRecipes = (): RecipeContextValue | null => {
+  return useContext(RecipeContext);
+};
