@@ -127,11 +127,10 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
     <div className="animate-fade-in text-foreground font-sans pb-8">
       {/* Header & Action Bar */}
       <div className="sticky top-0 z-20 bg-canvas pb-6">
-        <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="min-w-0 flex-1">
+        <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-sm space-y-3">
           <div
             data-testid="detail-header-meta-row"
-            className="flex items-center justify-between gap-3 mb-1.5"
+            className="flex items-center justify-between gap-3"
           >
             <span
               data-testid="method-badge"
@@ -143,43 +142,47 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
               {formatDate(log.brewDate)}
             </span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            {beanName}
-          </h1>
-          <p className="text-sm font-medium text-foreground-secondary mt-0.5">
-            {roaster}
-          </p>
-        </div>
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-2 flex-wrap shrink-0">
-          {onBrewAgain && (
-            <button
-              onClick={() => onBrewAgain(log)}
-              className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold rounded-lg btn-tactile-primary cursor-pointer border-0"
-              title="Transfer coffee and specs to Brew Timer"
-            >
-              <Play className="w-3.5 h-3.5 fill-current" />
-              Brew Again
-            </button>
-          )}
-          <button
-            onClick={() => onEdit(log)}
-            className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-lg btn-tactile-secondary text-foreground-muted hover:text-foreground cursor-pointer border-0"
-          >
-            <Edit3 className="w-3.5 h-3.5" />
-            Edit
-          </button>
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-lg btn-tactile-secondary text-rose-400 hover:text-rose-300 cursor-pointer border-0"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            Delete
-          </button>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                {beanName}
+              </h1>
+              <p className="text-sm font-medium text-foreground-secondary mt-0.5">
+                {roaster}
+              </p>
+            </div>
+
+            {/* Action Controls */}
+            <div className="flex items-center gap-2 flex-wrap shrink-0">
+              {onBrewAgain && (
+                <button
+                  onClick={() => onBrewAgain(log)}
+                  className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold rounded-lg btn-tactile-primary cursor-pointer border-0"
+                  title="Transfer coffee and specs to Brew Timer"
+                >
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  Brew Again
+                </button>
+              )}
+              <button
+                onClick={() => onEdit(log)}
+                className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-lg btn-tactile-secondary text-foreground-muted hover:text-foreground cursor-pointer border-0"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                Edit
+              </button>
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-lg btn-tactile-secondary text-rose-400 hover:text-rose-300 cursor-pointer border-0"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
     <div className="space-y-6">
       {/* Hero Score Banner */}
