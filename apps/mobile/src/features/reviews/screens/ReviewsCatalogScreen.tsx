@@ -8,44 +8,26 @@ import {
 } from 'react-native';
 import { useRouter, useScrollToTop } from 'expo-router';
 import { Plus, Search, X } from 'lucide-react-native';
-import { TastingLog } from '@brewlog/core';
+import {
+  TastingLog,
+  getAvailableReviewMethodOptions,
+  matchesReviewMethodFilter,
+  getAvailableRatingFilterOptions,
+  matchesReviewRatingFilter,
+  matchesReviewSearch,
+  type ReviewMethodFilter,
+  type ReviewRatingFilter,
+} from '@brewlog/core';
 import { makeStyles, useTheme, FilterPills, type FilterPillsOption } from '@brewlog/ui';
 import { FONTS } from '../../../theme/fonts';
 import { useReviews } from '../ReviewsContext';
-import { ReviewsSummaryBar } from '../components/ReviewsSummaryBar';
 import { ReviewCard } from '../components/ReviewCard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TabScreenHeader } from '../../../components/navigation/TabScreenHeader';
 import { getTabScreenBottomPadding } from '../../../components/navigation/tabBarConstants';
 
-export type MethodFilter = string;
-export type RatingFilter = 'all' | '5' | '4+';
-
-interface FilterOption<T> {
-  id: T;
-  label: string;
-}
-
-const KNOWN_METHOD_OPTIONS: FilterOption<string>[] = [
-  { id: 'v60', label: 'V60' },
-  { id: 'espresso', label: 'Espresso' },
-  { id: 'aeropress', label: 'AeroPress' },
-  { id: 'french-press', label: 'French Press' },
-  { id: 'chemex', label: 'Chemex' },
-  { id: 'kalita-wave', label: 'Kalita Wave' },
-  { id: 'pour-over', label: 'Pour Over' },
-  { id: 'cold-brew', label: 'Cold Brew' },
-  { id: 'flair', label: 'Flair' },
-  { id: 'custom', label: 'Custom' },
-];
-
-function formatFallbackMethodLabel(method: string): string {
-  return method
-    .split('-')
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
+export type MethodFilter = ReviewMethodFilter;
+export type RatingFilter = ReviewRatingFilter;
 
 export const ReviewsCatalogScreen: React.FC = () => {
   const styles = useStyles();
@@ -80,76 +62,12 @@ export const ReviewsCatalogScreen: React.FC = () => {
     setSelectedRating('all');
   }, []);
 
-  // Compute metrics for summary bar
-  const summaryMetrics = useMemo(() => {
-    const total = reviews.length;
-    if (total === 0) {
-      return { total: 0, avgScaScore: 0, topFlavor: '--' };
-    }
-
-    const scoredReviews = reviews.filter(
-      (r) => (Number(r.calculatedScaScore) || 0) > 0
-    );
-    const avgScaScore =
-      scoredReviews.length > 0
-        ? scoredReviews.reduce((sum, r) => sum + Number(r.calculatedScaScore), 0) /
-          scoredReviews.length
-        : 0;
-
-    // Count flavor tags
-    const tagCounts = new Map<string, number>();
-    for (const r of reviews) {
-      if (r.flavorTags) {
-        for (const tag of r.flavorTags) {
-          tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
-        }
-      }
-    }
-
-    let topFlavor = '--';
-    let maxCount = 0;
-    for (const [tag, count] of tagCounts.entries()) {
-      if (count > maxCount) {
-        maxCount = count;
-        topFlavor = tag;
-      }
-    }
-
-    return { total, avgScaScore, topFlavor };
-  }, [reviews]);
-
   const availableMethodOptions = useMemo<FilterPillsOption<string>[]>(() => {
-    const presentMethods = new Set<string>(
-      reviews.map((r) => r.brewMethod?.toLowerCase() ?? '').filter(Boolean)
-    );
-    const knownOptions: FilterPillsOption<string>[] = KNOWN_METHOD_OPTIONS.filter(
-      (opt) => presentMethods.has(opt.id)
-    ).map((opt) => ({
-      value: opt.id,
+    return getAvailableReviewMethodOptions(reviews).map((opt) => ({
+      value: opt.value,
       label: opt.label,
       accessibilityLabel: `Filter by method ${opt.label}`,
     }));
-    const knownIds = new Set(knownOptions.map((opt) => opt.value));
-    const extraOptions: FilterPillsOption<string>[] = Array.from(presentMethods)
-      .filter((method) => !knownIds.has(method))
-      .map((method) => {
-        const label = formatFallbackMethodLabel(method);
-        return {
-          value: method,
-          label,
-          accessibilityLabel: `Filter by method ${label}`,
-        };
-      });
-
-    return [
-      {
-        value: 'all',
-        label: 'All Methods',
-        accessibilityLabel: 'Filter by method All Methods',
-      },
-      ...knownOptions,
-      ...extraOptions,
-    ];
   }, [reviews]);
 
   const effectiveMethod = useMemo(
@@ -167,28 +85,11 @@ export const ReviewsCatalogScreen: React.FC = () => {
   }, [selectedMethod, effectiveMethod]);
 
   const availableRatingOptions = useMemo<FilterPillsOption<RatingFilter>[]>(() => {
-    const options: FilterPillsOption<RatingFilter>[] = [
-      {
-        value: 'all',
-        label: 'All Ratings',
-        accessibilityLabel: 'Filter by rating All Ratings',
-      },
-    ];
-    if (reviews.some((r) => r.rating >= 5)) {
-      options.push({
-        value: '5',
-        label: '5 Stars',
-        accessibilityLabel: 'Filter by rating 5 Stars',
-      });
-    }
-    if (reviews.some((r) => r.rating >= 4)) {
-      options.push({
-        value: '4+',
-        label: '4+ Stars',
-        accessibilityLabel: 'Filter by rating 4+ Stars',
-      });
-    }
-    return options;
+    return getAvailableRatingFilterOptions(reviews).map((opt) => ({
+      value: opt.value,
+      label: opt.label,
+      accessibilityLabel: `Filter by rating ${opt.label}`,
+    }));
   }, [reviews]);
 
   const effectiveRating: RatingFilter = useMemo(
@@ -207,33 +108,12 @@ export const ReviewsCatalogScreen: React.FC = () => {
 
   // Filter reviews
   const filteredReviews = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-
-    return reviews.filter((r) => {
-      // Search text match
-      if (q) {
-        const matchCoffee = r.beanNameSnapshot.toLowerCase().includes(q);
-        const matchRoaster = r.roasterSnapshot.toLowerCase().includes(q);
-        const matchNotes = r.notes?.toLowerCase().includes(q) ?? false;
-        const matchTags = r.flavorTags?.some((t) => t.toLowerCase().includes(q)) ?? false;
-        if (!matchCoffee && !matchRoaster && !matchNotes && !matchTags) {
-          return false;
-        }
-      }
-
-      // Method match
-      if (effectiveMethod !== 'all') {
-        if ((r.brewMethod?.toLowerCase() ?? '') !== effectiveMethod.toLowerCase()) {
-          return false;
-        }
-      }
-
-      // Rating match
-      if (effectiveRating === '5' && r.rating < 5) return false;
-      if (effectiveRating === '4+' && r.rating < 4) return false;
-
-      return true;
-    });
+    return reviews.filter(
+      (r) =>
+        matchesReviewSearch(r, searchQuery) &&
+        matchesReviewMethodFilter(r, effectiveMethod) &&
+        matchesReviewRatingFilter(r, effectiveRating)
+    );
   }, [reviews, searchQuery, effectiveMethod, effectiveRating]);
 
   const renderHeader = () => (
@@ -243,13 +123,6 @@ export const ReviewsCatalogScreen: React.FC = () => {
         actionLabel="ADD REVIEW"
         onActionPress={handleAddReview}
         actionAccessibilityLabel="Add Review"
-      />
-
-      {/* Summary Metrics Bar */}
-      <ReviewsSummaryBar
-        totalReviews={summaryMetrics.total}
-        averageScaScore={summaryMetrics.avgScaScore}
-        topFlavorNote={summaryMetrics.topFlavor}
       />
 
       {/* Search Input */}
