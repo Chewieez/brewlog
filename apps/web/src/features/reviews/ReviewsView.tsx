@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Button, FilterPills, type FilterPillsOption } from '@brewlog/ui';
+import { Button, FilterPills } from '@brewlog/ui';
 import {
   TastingLog,
   CuppingAttributes,
@@ -9,7 +9,13 @@ import {
   Equipment,
   BrewRecipe,
   BrewMethodType,
-  formatDisplayDate,
+  getAvailableReviewMethodOptions,
+  matchesReviewMethodFilter,
+  getAvailableRatingFilterOptions,
+  matchesReviewRatingFilter,
+  matchesReviewSearch,
+  type ReviewMethodFilter,
+  type ReviewRatingFilter,
 } from '@brewlog/core';
 import { useSettings } from '../settings/SettingsContext';
 import {
@@ -32,6 +38,7 @@ import {
 } from 'lucide-react';
 import { ScaFlavorWheelSvg } from './ScaFlavorWheelSvg';
 import { ReviewDetailPane, getScaTier } from './ReviewDetailPane';
+import { ReviewCard } from './ReviewCard';
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
   'Fruity': Cherry,
@@ -102,42 +109,6 @@ const BREW_METHODS: { value: BrewMethodType; label: string }[] = [
   { value: 'custom', label: 'Tasting Bowl / Other' },
 ];
 
-type ReviewMethodFilter =
-  | 'all'
-  | 'v60'
-  | 'aeropress'
-  | 'chemex'
-  | 'espresso'
-  | 'french-press'
-  | 'kalita-wave'
-  | 'other';
-
-const METHOD_FILTER_OPTIONS: FilterPillsOption<ReviewMethodFilter>[] = [
-  { value: 'all', label: 'All' },
-  { value: 'v60', label: 'V60' },
-  { value: 'aeropress', label: 'AeroPress' },
-  { value: 'chemex', label: 'Chemex' },
-  { value: 'espresso', label: 'Espresso' },
-  { value: 'french-press', label: 'French Press' },
-  { value: 'kalita-wave', label: 'Kalita Wave' },
-  { value: 'other', label: 'Other' },
-];
-
-const EXPLICIT_FILTER_METHODS = new Set<string>(
-  METHOD_FILTER_OPTIONS.filter((opt) => opt.value !== 'all' && opt.value !== 'other').map(
-    (opt) => opt.value
-  )
-);
-
-function matchesReviewMethodFilter(log: TastingLog, filter: ReviewMethodFilter): boolean {
-  if (filter === 'all') return true;
-  const method = log.brewMethod?.toLowerCase() || '';
-  if (filter === 'other') {
-    return !EXPLICIT_FILTER_METHODS.has(method);
-  }
-  return method === filter;
-}
-
 export const ReviewsView: React.FC<ReviewsViewProps> = ({
   logs,
   beans = [],
@@ -166,6 +137,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMethodFilter, setSelectedMethodFilter] = useState<ReviewMethodFilter>('all');
+  const [selectedRatingFilter, setSelectedRatingFilter] = useState<ReviewRatingFilter>('all');
 
   // Form State
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -492,12 +464,10 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
     }
   };
 
-  const availableMethodOptions = useMemo(() => {
-    const present = METHOD_FILTER_OPTIONS.filter(
-      (opt) => opt.value !== 'all' && logs.some((log) => matchesReviewMethodFilter(log, opt.value))
-    );
-    return [METHOD_FILTER_OPTIONS[0], ...present];
-  }, [logs]);
+  const availableMethodOptions = useMemo(
+    () => getAvailableReviewMethodOptions(logs),
+    [logs]
+  );
 
   const effectiveMethodFilter: ReviewMethodFilter = useMemo(
     () =>
@@ -513,20 +483,34 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
     }
   }, [selectedMethodFilter, effectiveMethodFilter]);
 
+  const availableRatingOptions = useMemo(
+    () => getAvailableRatingFilterOptions(logs),
+    [logs]
+  );
+
+  const effectiveRatingFilter: ReviewRatingFilter = useMemo(
+    () =>
+      availableRatingOptions.some((opt) => opt.value === selectedRatingFilter)
+        ? selectedRatingFilter
+        : 'all',
+    [availableRatingOptions, selectedRatingFilter]
+  );
+
+  useEffect(() => {
+    if (selectedRatingFilter !== effectiveRatingFilter) {
+      setSelectedRatingFilter(effectiveRatingFilter);
+    }
+  }, [selectedRatingFilter, effectiveRatingFilter]);
+
   // Filtered reviews for Master feed
   const filteredLogs = useMemo(() => {
-    return logs.filter((log) => {
-      const q = searchQuery.toLowerCase().trim();
-      const matchesSearch =
-        q === '' ||
-        (log.beanNameSnapshot && log.beanNameSnapshot.toLowerCase().includes(q)) ||
-        (log.roasterSnapshot && log.roasterSnapshot.toLowerCase().includes(q)) ||
-        (log.notes && log.notes.toLowerCase().includes(q)) ||
-        (log.flavorTags && log.flavorTags.some((tag) => tag.toLowerCase().includes(q)));
-
-      return matchesSearch && matchesReviewMethodFilter(log, effectiveMethodFilter);
-    });
-  }, [logs, searchQuery, effectiveMethodFilter]);
+    return logs.filter(
+      (log) =>
+        matchesReviewSearch(log, searchQuery) &&
+        matchesReviewMethodFilter(log, effectiveMethodFilter) &&
+        matchesReviewRatingFilter(log, effectiveRatingFilter)
+    );
+  }, [logs, searchQuery, effectiveMethodFilter, effectiveRatingFilter]);
 
   const activeSelectedLog = useMemo(() => {
     if (!selectedLogId) return logs[0] || null;
@@ -537,23 +521,10 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
     return mode === 'edit' && editingLogId ? logs.find((l) => l.id === editingLogId) : undefined;
   }, [logs, mode, editingLogId]);
 
-  const formatBrewTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    if (mins > 0) {
-      return `${mins}m ${secs.toString().padStart(2, '0')}s`;
-    }
-    return `${secs}s`;
-  };
-
-  const formatDate = (dateStr: string) => {
-    try {
-      const d = new Date(dateStr);
-      if (isNaN(d.getTime())) return dateStr;
-      return formatDisplayDate(dateStr, dateFormat);
-    } catch {
-      return dateStr;
-    }
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setSelectedMethodFilter('all');
+    setSelectedRatingFilter('all');
   };
 
   return (
@@ -634,8 +605,18 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
               placeholder="Search coffee, roaster, tags..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 rounded-lg bg-panel border border-border-subtle text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent"
+              className="w-full pl-9 pr-10 py-2 rounded-lg bg-panel border border-border-subtle text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent"
             />
+            {searchQuery.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg inline-flex items-center justify-center text-foreground-secondary hover:text-foreground cursor-pointer border-0"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
           {/* Brew Method Filter Chips */}
@@ -650,109 +631,51 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
             />
           )}
 
+          {/* Rating Filter Chips */}
+          {availableRatingOptions.length > 1 && (
+            <FilterPills<ReviewRatingFilter>
+              size="sm"
+              value={effectiveRatingFilter}
+              onChange={setSelectedRatingFilter}
+              options={availableRatingOptions}
+              ariaLabel="Filter reviews by rating"
+              testID="reviews-rating-filters"
+            />
+          )}
+
           {/* Feed Cards List */}
           <div className="space-y-3">
             {filteredLogs.length === 0 ? (
-              <div className="p-8 rounded-xl bg-panel border border-border-subtle text-center text-foreground-secondary text-xs">
-                No cupping logs match your search.
-              </div>
+              logs.length === 0 ? (
+                <div className="p-8 rounded-xl bg-panel border border-border-subtle text-center text-foreground-secondary text-xs">
+                  No cupping logs match your search.
+                </div>
+              ) : (
+                <div className="p-8 rounded-xl bg-panel border border-border-subtle text-center flex flex-col items-center gap-3">
+                  <p className="text-xs text-foreground-secondary">
+                    No reviews match your filters.
+                  </p>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleClearFilters}
+                    label="CLEAR FILTERS"
+                  />
+                </div>
+              )
             ) : (
-              filteredLogs.map((log) => {
-                const isSelected = mode === 'view' && activeSelectedLog?.id === log.id;
-                const tier = getScaTier(log.calculatedScaScore);
-
-                return (
-                  <div
-                    key={log.id}
-                    onClick={() => {
-                      setSelectedLogId(log.id);
-                      setMode('view');
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        if (e.key === ' ') {
-                          e.preventDefault();
-                        }
-                        setSelectedLogId(log.id);
-                        setMode('view');
-                      }
-                    }}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all text-left relative ${
-                      isSelected
-                        ? 'bg-panel-recessed border-accent shadow-sm border-l-4 border-l-accent'
-                        : 'bg-panel border-border-subtle hover:border-border-active'
-                    }`}
-                  >
-                    {/* Header: Star Rating & SCA Tier Badge */}
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                        <span className="text-xs font-semibold text-foreground-secondary tabular-nums">
-                          {log.rating || '—'}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-semibold text-foreground tabular-nums">
-                          {log.calculatedScaScore.toFixed(1)}
-                        </span>
-                        <span
-                          className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border ${tier.classes}`}
-                        >
-                          {tier.label}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Coffee Name & Roaster */}
-                    <h2 className="text-sm font-bold text-foreground leading-snug">
-                      {log.beanNameSnapshot}
-                    </h2>
-                    <p className="text-xs text-foreground-secondary mt-0.5">
-                      {log.roasterSnapshot}
-                    </p>
-
-                    {/* Sensory Badges */}
-                    {log.flavorTags && log.flavorTags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2.5">
-                        {log.flavorTags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="px-2 py-0.5 rounded-md text-[11px] font-sans font-medium bg-accent/10 text-accent border border-accent/20"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                        {log.flavorTags.length > 3 && (
-                          <span className="px-1.5 py-0.5 rounded-md text-[10px] text-foreground-secondary">
-                            +{log.flavorTags.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Telemetry Footer */}
-                    <div className="flex items-center justify-between text-[11px] text-foreground-secondary mt-3 pt-2 border-t border-border-subtle/60">
-                      <div className="flex items-center gap-2">
-                        <span className="uppercase font-mono text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-md badge-artisan border">
-                          {log.brewMethod}
-                        </span>
-                        <span>•</span>
-                        <span className="tabular-nums">
-                          {log.coffeeDoseGrams}g:{log.waterAmountGrams}g
-                        </span>
-                        <span>•</span>
-                        <span className="tabular-nums">
-                          {formatBrewTime(log.actualTimeSeconds)}
-                        </span>
-                      </div>
-                      <span className="tabular-nums">{formatDate(log.brewDate)}</span>
-                    </div>
-                  </div>
-                );
-              })
+              filteredLogs.map((log) => (
+                <ReviewCard
+                  key={log.id}
+                  log={log}
+                  isSelected={mode === 'view' && activeSelectedLog?.id === log.id}
+                  dateFormat={dateFormat}
+                  onSelect={(selected) => {
+                    setSelectedLogId(selected.id);
+                    setMode('view');
+                  }}
+                />
+              ))
             )}
           </div>
         </div>

@@ -84,6 +84,22 @@ describe('ReviewDetailPane component', () => {
     expect(heroContainer.className).toContain('whitespace-nowrap');
   });
 
+  it('places Would Brew Again in the hero score banner rather than the header method/date row', () => {
+    render(
+      <ReviewDetailPane
+        log={mockLog}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+      />
+    );
+
+    const headerMetaRow = screen.getByTestId('detail-header-meta-row');
+    const heroBanner = screen.getByTestId('hero-score-banner');
+
+    expect(headerMetaRow.textContent).not.toContain('Would Brew Again');
+    expect(heroBanner.textContent).toContain('Would Brew Again');
+  });
+
   it('renders 10-attribute score breakdown meter bars', () => {
     render(
       <ReviewDetailPane

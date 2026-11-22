@@ -128,22 +128,20 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
       {/* Header & Action Bar */}
       <div className="sticky top-0 z-20 bg-canvas pb-6">
         <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+        <div className="min-w-0 flex-1">
+          <div
+            data-testid="detail-header-meta-row"
+            className="flex items-center justify-between gap-3 mb-1.5"
+          >
             <span
               data-testid="method-badge"
               className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider badge-artisan border"
             >
               {log.brewMethod}
             </span>
-            <span className="text-xs text-foreground-secondary">
+            <span className="text-xs text-foreground-secondary tabular-nums">
               {formatDate(log.brewDate)}
             </span>
-            {log.wouldBrewAgain && (
-              <span className="inline-flex items-center gap-1 text-xs text-emerald-900 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 px-2.5 py-0.5 rounded-md font-medium">
-                <CheckCircle2 className="w-3 h-3" /> Would Brew Again
-              </span>
-            )}
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             {beanName}
@@ -154,7 +152,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap shrink-0">
           {onBrewAgain && (
             <button
               onClick={() => onBrewAgain(log)}
@@ -185,7 +183,10 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
 
     <div className="space-y-6">
       {/* Hero Score Banner */}
-      <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div
+        data-testid="hero-score-banner"
+        className="bg-panel rounded-xl p-5 border border-border-subtle shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div
           data-testid="hero-score-badge"
           className="whitespace-nowrap flex items-center gap-3"
@@ -202,21 +203,28 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           </span>
         </div>
 
-        {/* 5-Star Rating Preview */}
-        <div className="flex items-center gap-1">
-          {[1, 2, 3, 4, 5].map((s) => (
-            <Star
-              key={s}
-              className={`w-4 h-4 ${
-                s <= (log.rating || 0)
-                  ? 'fill-amber-400 text-amber-400'
-                  : 'text-border-subtle dark:text-zinc-700'
-              }`}
-            />
-          ))}
-          <span className="text-xs text-foreground-secondary ml-1 tabular-nums font-medium">
-            ({log.rating || 0}/5)
-          </span>
+        {/* 5-Star Rating & Would Brew Again */}
+        <div className="flex flex-col sm:items-end gap-1.5">
+          <div className="flex items-center gap-1">
+            {[1, 2, 3, 4, 5].map((s) => (
+              <Star
+                key={s}
+                className={`w-4 h-4 ${
+                  s <= (log.rating || 0)
+                    ? 'fill-amber-400 text-amber-400'
+                    : 'text-border-subtle dark:text-zinc-700'
+                }`}
+              />
+            ))}
+            <span className="text-xs text-foreground-secondary ml-1 tabular-nums font-medium">
+              ({log.rating || 0}/5)
+            </span>
+          </div>
+          {log.wouldBrewAgain && (
+            <span className="inline-flex items-center gap-1 text-xs text-emerald-900 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 px-2.5 py-0.5 rounded-md font-medium w-fit">
+              <CheckCircle2 className="w-3 h-3" /> Would Brew Again
+            </span>
+          )}
         </div>
       </div>
 
