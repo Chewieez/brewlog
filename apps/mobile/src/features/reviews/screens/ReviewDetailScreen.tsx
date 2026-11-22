@@ -207,7 +207,10 @@ export const ReviewDetailScreen: React.FC = () => {
       <View style={styles.reviewSheet}>
         {/* 1. Header */}
         <View testID="detail-header-card" style={styles.headerBlock}>
+          <Text style={styles.coffeeTitle}>{beanName}</Text>
           <View style={styles.heroMetaRow}>
+            <Text style={styles.roasterSubtitle}>{roaster}</Text>
+            <Text style={styles.metaDot}>•</Text>
             <Text style={styles.methodMetaText}>
               {review.brewMethod.toUpperCase()}
             </Text>
@@ -217,11 +220,6 @@ export const ReviewDetailScreen: React.FC = () => {
                 <Text style={styles.dateText}>{formattedDate}</Text>
               </>
             ) : null}
-          </View>
-
-          <View style={styles.titleSection}>
-            <Text style={styles.coffeeTitle}>{beanName}</Text>
-            <Text style={styles.roasterSubtitle}>{roaster}</Text>
           </View>
         </View>
 
@@ -491,10 +489,11 @@ const useStyles = makeStyles((colors) => ({
     gap: 16,
   },
   headerBlock: {
-    gap: 6,
+    gap: 4,
   },
   heroMetaRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     gap: 6,
   },

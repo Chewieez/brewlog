@@ -132,27 +132,26 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
         {/* Header & Action Bar */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="min-w-0">
-            <div
-              data-testid="detail-header-meta-row"
-              className="flex items-center gap-2 text-xs text-foreground-secondary mb-1.5"
-            >
-              <span
-                data-testid="method-badge"
-                className="font-medium uppercase tracking-wider"
-              >
-                {log.brewMethod}
-              </span>
-              <span aria-hidden="true">•</span>
-              <span className="tabular-nums">
-                {formatDate(log.brewDate)}
-              </span>
-            </div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
               {beanName}
             </h1>
-            <p className="text-sm font-medium text-foreground-secondary mt-0.5">
-              {roaster}
-            </p>
+            <div
+              data-testid="detail-header-meta-row"
+              className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-foreground-secondary mt-1"
+            >
+              <span className="font-medium">{roaster}</span>
+              <span aria-hidden="true" className="text-foreground-muted">•</span>
+              <span
+                data-testid="method-badge"
+                className="text-xs font-medium uppercase tracking-wider text-foreground-muted"
+              >
+                {log.brewMethod}
+              </span>
+              <span aria-hidden="true" className="text-foreground-muted">•</span>
+              <span className="text-xs text-foreground-muted tabular-nums">
+                {formatDate(log.brewDate)}
+              </span>
+            </div>
           </div>
 
           {/* Action Controls */}
