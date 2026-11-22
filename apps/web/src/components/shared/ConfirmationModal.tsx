@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import { Button } from '@brewlog/ui';
+import { AlertTriangle } from 'lucide-react';
+import { ModalShell } from './ModalShell';
 
 export interface ConfirmationModalProps {
   isOpen: boolean;
@@ -8,6 +10,8 @@ export interface ConfirmationModalProps {
   confirmLabel?: string;
   cancelLabel?: string;
   variant?: 'danger' | 'primary';
+  titleId?: string;
+  headingLevel?: 2 | 3;
   onClose: () => void;
   onConfirm: () => void;
 }
@@ -19,6 +23,8 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
   variant = 'danger',
+  titleId = 'confirmation-modal-title',
+  headingLevel = 3,
   onClose,
   onConfirm,
 }) => {
@@ -33,31 +39,20 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirmation-modal-title"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
-    >
-      <div className="w-full max-w-sm p-6 rounded-xl bg-panel border border-border-subtle shadow-2xl space-y-4">
-        <h3
-          id="confirmation-modal-title"
-          className="text-base font-bold text-foreground tracking-tight font-mono"
-        >
-          {title}
-        </h3>
-        <p className="text-xs text-foreground-secondary leading-relaxed">
-          {message}
-        </p>
-        <div className="flex justify-end space-x-3 pt-2">
+    <ModalShell
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      titleId={titleId}
+      headingLevel={headingLevel}
+      icon={<AlertTriangle className="w-5 h-5" />}
+      iconTone={variant === 'danger' ? 'danger' : 'accent'}
+      closeButtonLabel="Close dialog"
+      maxWidthClassName="max-w-md"
+      testIdPrefix="confirmation-modal"
+      footer={
+        <>
           <Button
             type="button"
             variant="secondary"
@@ -72,9 +67,10 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             onClick={onConfirm}
             label={confirmLabel}
           />
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    >
+      <div className="text-sm text-foreground-secondary leading-relaxed">{message}</div>
+    </ModalShell>
   );
 };
-

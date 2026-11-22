@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@brewlog/ui';
 import { TastingLog, Bean, Equipment, formatDisplayDate, getScaTierInfo, ScaTierKey } from '@brewlog/core';
 import { useSettings } from '../settings/SettingsContext';
@@ -8,10 +8,10 @@ import {
   Trash2,
   Play,
   CheckCircle2,
-  AlertTriangle,
   Tag,
   PieChart,
 } from 'lucide-react';
+import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
 import { ScaFlavorWheelSvg } from './ScaFlavorWheelSvg';
 
 export interface ReviewDetailPaneProps {
@@ -65,17 +65,6 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
 
   const [sensoryTab, setSensoryTab] = useState<'descriptors' | 'wheel'>('descriptors');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-  useEffect(() => {
-    if (!showDeleteModal) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setShowDeleteModal(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showDeleteModal]);
 
   // Bean resolution
   const matchedBean = log.beanId ? beans.find((b) => b.id === log.beanId) : undefined;
@@ -419,46 +408,26 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
       </div>
 
       {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fade-in">
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="delete-dialog-title"
-            className="bg-panel border border-border-subtle rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl"
-          >
-            <div className="flex items-center gap-3 text-rose-400">
-              <AlertTriangle className="w-6 h-6 shrink-0" />
-              <h2 id="delete-dialog-title" className="text-lg font-bold text-foreground">
-                Delete Tasting Log
-              </h2>
-            </div>
-            <p className="text-sm text-foreground-secondary">
-              Are you sure you want to delete this tasting log for{' '}
-              <strong className="text-foreground">{beanName}</strong>? This action cannot be undone.
-            </p>
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <Button
-                type="button"
-                variant="secondary"
-                size="md"
-                onClick={() => setShowDeleteModal(false)}
-                label="Cancel"
-              />
-              <Button
-                type="button"
-                variant="danger"
-                size="md"
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  onDelete(log);
-                }}
-                label="Confirm Delete"
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        title="Delete Tasting Log"
+        titleId="delete-dialog-title"
+        headingLevel={2}
+        message={
+          <>
+            Are you sure you want to delete this tasting log for{' '}
+            <strong className="text-foreground">{beanName}</strong>? This action cannot be undone.
+          </>
+        }
+        confirmLabel="Confirm Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          setShowDeleteModal(false);
+          onDelete(log);
+        }}
+      />
     </div>
   );
 };

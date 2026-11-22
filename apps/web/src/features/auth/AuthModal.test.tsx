@@ -88,4 +88,21 @@ describe('AuthModal', () => {
     expect(iconWell?.className).toContain('rounded-lg');
     expect(iconWell?.className).not.toContain('rounded-xl');
   });
+
+  it('renders AuthModal with the shared pinned header and footer shell', () => {
+    render(<AuthModal isOpen={true} onClose={mockClose} />);
+
+    const modal = screen.getByTestId('auth-modal');
+    const header = screen.getByTestId('auth-modal-header');
+    const body = screen.getByTestId('auth-modal-body');
+    const footer = screen.getByTestId('auth-modal-footer');
+
+    expect(modal.className).toContain('flex-col');
+    expect(modal.className).toContain('overflow-hidden');
+    expect(header.className).toContain('shrink-0');
+    expect(header.contains(screen.getByRole('heading', { name: 'Sign In to BrewLog' }))).toBe(true);
+    expect(header.contains(screen.getByRole('button', { name: /close authentication modal/i }))).toBe(true);
+    expect(body.className).toContain('overflow-y-auto');
+    expect(footer.className).toContain('shrink-0');
+  });
 });

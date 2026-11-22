@@ -13,7 +13,6 @@ import {
 import { useAuth } from "../auth/AuthContext";
 import { useEquipment } from "../equipment/EquipmentContext";
 import {
-  X,
   Plus,
   Trash2,
   ArrowUp,
@@ -24,6 +23,7 @@ import {
   Droplets,
   Coffee,
 } from "lucide-react";
+import { ModalShell } from "../../components/shared/ModalShell";
 
 interface RecipeBuilderModalProps {
   isOpen: boolean;
@@ -435,65 +435,52 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="recipe-builder-title"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div
-        data-testid="recipe-builder-modal"
-        className="w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden rounded-xl bg-panel border border-border-subtle shadow-2xl"
-      >
-        {/* Header */}
-        <div
-          data-testid="recipe-builder-header"
-          className="shrink-0 flex items-center justify-between px-6 py-5 border-b border-border-subtle bg-panel"
-        >
-          <div className="flex items-center space-x-2.5">
-            <div className="p-2 rounded-lg bg-panel-recessed border border-border-subtle text-accent">
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <div>
-              <h2
-                id="recipe-builder-title"
-                className="text-xl font-bold tracking-tight text-foreground"
-              >
-                {initialRecipe ? "Edit Recipe" : "Create New Custom Recipe"}
-              </h2>
-              <p className="text-xs text-foreground-secondary mt-0.5">
-                {initialRecipe
-                  ? "Update brew parameters, ratio, and multi-stage pour timeline."
-                  : "Design custom brew profiles with multi-stage pour timelines."}
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer"
-            aria-label="Close modal"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {validationError && (
-          <div className="shrink-0 mx-6 mt-4 p-3.5 rounded-lg bg-red-500/10 border border-red-500/25 text-red-300 text-xs flex items-start space-x-2.5">
+    <ModalShell
+      isOpen={isOpen}
+      onClose={onClose}
+      title={initialRecipe ? "Edit Recipe" : "Create New Custom Recipe"}
+      subtitle={
+        initialRecipe
+          ? "Update brew parameters, ratio, and multi-stage pour timeline."
+          : "Design custom brew profiles with multi-stage pour timelines."
+      }
+      icon={<BookOpen className="w-5 h-5" />}
+      titleId="recipe-builder-title"
+      headingLevel={2}
+      closeButtonLabel="Close modal"
+      maxWidthClassName="max-w-3xl"
+      bodyClassName="space-y-6"
+      testIdPrefix="recipe-builder"
+      modalTestId="recipe-builder-modal"
+      onSubmit={handleSubmit}
+      alert={
+        validationError ? (
+          <div className="p-3.5 rounded-lg bg-red-500/10 border border-red-500/25 text-red-300 text-xs flex items-start space-x-2.5">
             <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-400" />
             <span>{validationError}</span>
           </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="flex-1 min-h-0 flex flex-col">
-          <div
-            data-testid="recipe-builder-body"
-            className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-6"
-          >
+        ) : undefined
+      }
+      footer={
+        <>
+          <Button
+            type="button"
+            variant="secondary"
+            size="md"
+            onClick={onClose}
+            label="CANCEL"
+          />
+          <Button
+            type="submit"
+            variant="primary"
+            size="md"
+            disabled={isSaving}
+            loading={isSaving}
+            label={isSaving ? "SAVING..." : initialRecipe ? "SAVE CHANGES" : "SAVE RECIPE"}
+          />
+        </>
+      }
+    >
           {/* Section 1: Metadata */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-accent flex items-center space-x-1.5">
@@ -1141,32 +1128,7 @@ export const RecipeBuilderModal: React.FC<RecipeBuilderModalProps> = ({
               ))}
             </div>
           </div>
-          </div>
-
-          {/* Footer Actions */}
-          <div
-            data-testid="recipe-builder-footer"
-            className="shrink-0 flex items-center justify-end space-x-3 px-6 py-4 border-t border-border-subtle bg-panel"
-          >
-            <Button
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={onClose}
-              label="CANCEL"
-            />
-            <Button
-              type="submit"
-              variant="primary"
-              size="md"
-              disabled={isSaving}
-              loading={isSaving}
-              label={isSaving ? "SAVING..." : initialRecipe ? "SAVE CHANGES" : "SAVE RECIPE"}
-            />
-          </div>
-        </form>
-      </div>
-    </div>
+    </ModalShell>
   );
 };
 
