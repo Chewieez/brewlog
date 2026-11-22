@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@brewlog/ui';
-import { TastingLog, Bean, Equipment, formatDisplayDate } from '@brewlog/core';
+import { TastingLog, Bean, Equipment, formatDisplayDate, getScaTierInfo, ScaTierKey } from '@brewlog/core';
 import { useSettings } from '../settings/SettingsContext';
 import {
   Star,
@@ -23,28 +23,19 @@ export interface ReviewDetailPaneProps {
   onBrewAgain?: (log: TastingLog) => void;
 }
 
+const SCA_TIER_CLASSES: Record<ScaTierKey, string> = {
+  outstanding: 'text-emerald-900 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800',
+  excellent: 'text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 border-amber-300 dark:border-amber-800',
+  'very-good': 'text-blue-900 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/60 border-blue-300 dark:border-blue-800',
+  commercial: 'text-stone-800 dark:text-stone-400 bg-stone-100 dark:bg-stone-900/60 border-stone-300 dark:border-stone-800',
+};
+
 export const getScaTier = (score: number) => {
-  if (score >= 90.0) {
-    return {
-      label: 'Outstanding',
-      classes: 'text-emerald-900 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800',
-    };
-  }
-  if (score >= 85.0) {
-    return {
-      label: 'Excellent',
-      classes: 'text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 border-amber-300 dark:border-amber-800',
-    };
-  }
-  if (score >= 80.0) {
-    return {
-      label: 'Very Good',
-      classes: 'text-blue-900 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/60 border-blue-300 dark:border-blue-800',
-    };
-  }
+  const info = getScaTierInfo(score);
   return {
-    label: 'Commercial',
-    classes: 'text-stone-800 dark:text-stone-400 bg-stone-100 dark:bg-stone-900/60 border-stone-300 dark:border-stone-800',
+    key: info.key,
+    label: info.label,
+    classes: SCA_TIER_CLASSES[info.key],
   };
 };
 
