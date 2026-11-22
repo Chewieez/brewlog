@@ -203,202 +203,206 @@ export const ReviewDetailScreen: React.FC = () => {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      {/* 1. Header Card */}
-      <View testID="detail-header-card" style={styles.heroCard}>
-        <View style={styles.heroMetaRow}>
-          <View style={styles.methodBadge}>
-            <Text style={styles.methodBadgeText}>
+      {/* Unified Review Sheet */}
+      <View style={styles.reviewSheet}>
+        {/* 1. Header */}
+        <View testID="detail-header-card" style={styles.headerBlock}>
+          <View style={styles.heroMetaRow}>
+            <Text style={styles.methodMetaText}>
               {review.brewMethod.toUpperCase()}
             </Text>
-          </View>
-          {formattedDate ? (
-            <Text style={styles.dateText}>{formattedDate}</Text>
-          ) : null}
-        </View>
-
-        <View style={styles.titleSection}>
-          <Text style={styles.coffeeTitle}>{beanName}</Text>
-          <Text style={styles.roasterSubtitle}>{roaster}</Text>
-        </View>
-      </View>
-
-      {/* Brew Again Primary CTA */}
-      <Pressable
-        testID="detail-brew-again-button"
-        style={({ pressed }) => [styles.brewAgainButton, pressed && styles.brewAgainPressed]}
-        onPress={handleBrewAgain}
-        accessibilityRole="button"
-        accessibilityLabel="Brew Again"
-      >
-        <Play size={16} color={colors.canvas} fill={colors.canvas} />
-        <Text style={styles.brewAgainButtonText}>BREW AGAIN</Text>
-      </Pressable>
-
-      {/* 2. Hero Score Banner */}
-      <View testID="detail-hero-score" style={styles.sectionChassis}>
-        <View style={styles.scoreBannerRow}>
-          <View style={styles.scoreCluster}>
-            <Text style={styles.scoreNumber}>{scaScore.toFixed(1)}</Text>
-            <Text style={styles.scoreDenominator}>/ 100</Text>
-            <View style={styles.scoreDivider} />
-            <View
-              style={[
-                styles.tierBadge,
-                {
-                  borderColor: `${tierColor}55`,
-                  backgroundColor: `${tierColor}18`,
-                },
-              ]}
-            >
-              <Text style={[styles.tierBadgeText, { color: tierColor }]}>
-                {tier.label} (SCA)
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.ratingCluster}>
-            <View style={styles.ratingRow}>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={`detail-star-${star}`}
-                  size={16}
-                  color={star <= (review.rating || 0) ? colors.accent : colors.textMuted}
-                  fill={star <= (review.rating || 0) ? colors.accent : 'none'}
-                />
-              ))}
-              <Text style={styles.ratingFraction}>({review.rating || 0}/5)</Text>
-            </View>
-
-            {review.wouldBrewAgain && (
-              <View
-                style={[
-                  styles.wouldBrewPill,
-                  {
-                    borderColor: `${colors.statusSuccess}55`,
-                    backgroundColor: `${colors.statusSuccess}18`,
-                  },
-                ]}
-              >
-                <CheckCircle2 size={12} color={colors.statusSuccess} />
-                <Text style={[styles.wouldBrewPillText, { color: colors.statusSuccess }]}>
-                  Would Brew Again
-                </Text>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
-
-      {/* 3. Sensory Profile (Descriptors / Wheel) */}
-      <View testID="detail-sensory-profile" style={styles.sectionChassis}>
-        <Text style={styles.sectionEyebrow}>SENSORY PROFILE</Text>
-        <SegmentedControl<'descriptors' | 'wheel'>
-          size="sm"
-          fullWidth
-          value={sensoryTab}
-          onChange={setSensoryTab}
-          ariaLabel="Sensory profile view mode"
-          options={[
-            { value: 'descriptors', label: 'Descriptors' },
-            { value: 'wheel', label: 'Wheel' },
-          ]}
-        />
-
-        {sensoryTab === 'descriptors' ? (
-          review.flavorTags && review.flavorTags.length > 0 ? (
-            <View style={styles.tagsContainer}>
-              {review.flavorTags.map((tag) => (
-                <View key={`detail-tag-${tag}`} style={styles.tagChip}>
-                  <Text style={styles.tagChipText}>{tag}</Text>
-                </View>
-              ))}
-            </View>
-          ) : (
-            <Text style={styles.emptyDescriptorsText}>
-              No flavor descriptors recorded for this brew.
-            </Text>
-          )
-        ) : (
-          <ScaFlavorWheelSvg
-            selectedTags={review.flavorTags || []}
-            onToggleTag={() => {}}
-            readOnly={true}
-          />
-        )}
-      </View>
-
-      {/* 4. 10-Attribute SCA Score Matrix */}
-      <View testID="detail-score-matrix" style={styles.sectionChassis}>
-        <Text style={styles.sectionEyebrow}>10-ATTRIBUTE SCA SCORE MATRIX</Text>
-        <ScaAttributeScoring
-          scores={review.scores}
-          onChange={() => {}}
-          readOnly={true}
-          hideSummaryHero={true}
-        />
-      </View>
-
-      {/* 5. Brew Parameters & Equipment */}
-      <View testID="detail-brew-specs" style={styles.sectionChassis}>
-        <Text style={styles.sectionEyebrow}>BREW PARAMETERS & EQUIPMENT</Text>
-
-        <View style={styles.specsGrid}>
-          <View style={styles.specTile}>
-            <Text style={styles.paramLabel}>DOSE</Text>
-            <Text style={styles.specValue}>{review.coffeeDoseGrams}g</Text>
-          </View>
-          <View style={styles.specTile}>
-            <Text style={styles.paramLabel}>WATER</Text>
-            <Text style={styles.specValue}>{review.waterAmountGrams}g</Text>
-          </View>
-          <View style={styles.specTile}>
-            <Text style={styles.paramLabel}>RATIO</Text>
-            <Text style={styles.specValue}>{ratio}</Text>
-          </View>
-          <View style={styles.specTile}>
-            <Text style={styles.paramLabel}>ACTUAL TIME</Text>
-            <Text style={styles.specValue}>{formattedTime}</Text>
-          </View>
-        </View>
-
-        <View style={styles.equipmentRow}>
-          <View style={styles.equipmentCol}>
-            <Text style={styles.paramLabel}>GRINDER & SETTING</Text>
-            <Text style={styles.paramValue}>
-              {review.grinderSnapshot || 'Not specified'}
-            </Text>
-            {review.grindSetting ? (
-              <Text style={styles.paramSubValue}>
-                Setting: {review.grindSetting}
-              </Text>
+            {formattedDate ? (
+              <>
+                <Text style={styles.metaDot}>•</Text>
+                <Text style={styles.dateText}>{formattedDate}</Text>
+              </>
             ) : null}
           </View>
 
-          <View style={styles.equipmentCol}>
-            <Text style={styles.paramLabel}>BREWER</Text>
-            <Text style={styles.paramValue}>
-              {review.brewerSnapshot || 'Not specified'}
-            </Text>
-          </View>
-
-          <View style={styles.equipmentCol}>
-            <Text style={styles.paramLabel}>WATER TEMPERATURE</Text>
-            <Text style={styles.paramValue}>
-              {review.waterTempCelsius ? `${review.waterTempCelsius}°C` : 'Not recorded'}
-            </Text>
+          <View style={styles.titleSection}>
+            <Text style={styles.coffeeTitle}>{beanName}</Text>
+            <Text style={styles.roasterSubtitle}>{roaster}</Text>
           </View>
         </View>
+
+        {/* Brew Again Primary CTA */}
+        <Pressable
+          testID="detail-brew-again-button"
+          style={({ pressed }) => [styles.brewAgainButton, pressed && styles.brewAgainPressed]}
+          onPress={handleBrewAgain}
+          accessibilityRole="button"
+          accessibilityLabel="Brew Again"
+        >
+          <Play size={16} color={colors.canvas} fill={colors.canvas} />
+          <Text style={styles.brewAgainButtonText}>BREW AGAIN</Text>
+        </Pressable>
+
+        {/* 2. Hero Score Banner (recessed focal strip inside unified sheet) */}
+        <View testID="detail-hero-score" style={styles.heroScoreStrip}>
+          <View style={styles.scoreBannerRow}>
+            <View style={styles.scoreCluster}>
+              <Text style={styles.scoreNumber}>{scaScore.toFixed(1)}</Text>
+              <Text style={styles.scoreDenominator}>/ 100</Text>
+              <View style={styles.scoreDivider} />
+              <View
+                style={[
+                  styles.tierBadge,
+                  {
+                    borderColor: `${tierColor}55`,
+                    backgroundColor: `${tierColor}18`,
+                  },
+                ]}
+              >
+                <Text style={[styles.tierBadgeText, { color: tierColor }]}>
+                  {tier.label} (SCA)
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.ratingCluster}>
+              <View style={styles.ratingRow}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={`detail-star-${star}`}
+                    size={16}
+                    color={star <= (review.rating || 0) ? colors.accent : colors.textMuted}
+                    fill={star <= (review.rating || 0) ? colors.accent : 'none'}
+                  />
+                ))}
+                <Text style={styles.ratingFraction}>({review.rating || 0}/5)</Text>
+              </View>
+
+              {review.wouldBrewAgain && (
+                <View
+                  style={[
+                    styles.wouldBrewPill,
+                    {
+                      borderColor: `${colors.statusSuccess}55`,
+                      backgroundColor: `${colors.statusSuccess}18`,
+                    },
+                  ]}
+                >
+                  <CheckCircle2 size={12} color={colors.statusSuccess} />
+                  <Text style={[styles.wouldBrewPillText, { color: colors.statusSuccess }]}>
+                    Would Brew Again
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        </View>
+
+        {/* 3. Sensory Profile (Descriptors / Wheel) */}
+        <View testID="detail-sensory-profile" style={styles.sectionBlock}>
+          <Text style={styles.sectionEyebrow}>SENSORY PROFILE</Text>
+          <SegmentedControl<'descriptors' | 'wheel'>
+            size="sm"
+            fullWidth
+            value={sensoryTab}
+            onChange={setSensoryTab}
+            ariaLabel="Sensory profile view mode"
+            options={[
+              { value: 'descriptors', label: 'Descriptors' },
+              { value: 'wheel', label: 'Wheel' },
+            ]}
+          />
+
+          {sensoryTab === 'descriptors' ? (
+            review.flavorTags && review.flavorTags.length > 0 ? (
+              <View style={styles.tagsContainer}>
+                {review.flavorTags.map((tag) => (
+                  <View key={`detail-tag-${tag}`} style={styles.tagChip}>
+                    <Text style={styles.tagChipText}>{tag}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.emptyDescriptorsText}>
+                No flavor descriptors recorded for this brew.
+              </Text>
+            )
+          ) : (
+            <ScaFlavorWheelSvg
+              selectedTags={review.flavorTags || []}
+              onToggleTag={() => {}}
+              readOnly={true}
+            />
+          )}
+        </View>
+
+        {/* 4. 10-Attribute SCA Score Matrix */}
+        <View testID="detail-score-matrix" style={styles.sectionBlock}>
+          <Text style={styles.sectionEyebrow}>10-ATTRIBUTE SCA SCORE MATRIX</Text>
+          <ScaAttributeScoring
+            scores={review.scores}
+            onChange={() => {}}
+            readOnly={true}
+            hideSummaryHero={true}
+          />
+        </View>
+
+        {/* 5. Brew Parameters & Equipment */}
+        <View testID="detail-brew-specs" style={styles.sectionBlock}>
+          <Text style={styles.sectionEyebrow}>BREW PARAMETERS & EQUIPMENT</Text>
+
+          <View style={styles.specsGrid}>
+            <View style={styles.specTile}>
+              <Text style={styles.paramLabel}>DOSE</Text>
+              <Text style={styles.specValue}>{review.coffeeDoseGrams}g</Text>
+            </View>
+            <View style={styles.specTile}>
+              <Text style={styles.paramLabel}>WATER</Text>
+              <Text style={styles.specValue}>{review.waterAmountGrams}g</Text>
+            </View>
+            <View style={styles.specTile}>
+              <Text style={styles.paramLabel}>RATIO</Text>
+              <Text style={styles.specValue}>{ratio}</Text>
+            </View>
+            <View style={styles.specTile}>
+              <Text style={styles.paramLabel}>ACTUAL TIME</Text>
+              <Text style={styles.specValue}>{formattedTime}</Text>
+            </View>
+          </View>
+
+          <View style={styles.equipmentRow}>
+            <View style={styles.equipmentCol}>
+              <Text style={styles.paramLabel}>GRINDER & SETTING</Text>
+              <Text style={styles.paramValue}>
+                {review.grinderSnapshot || 'Not specified'}
+              </Text>
+              {review.grindSetting ? (
+                <Text style={styles.paramSubValue}>
+                  Setting: {review.grindSetting}
+                </Text>
+              ) : null}
+            </View>
+
+            <View style={styles.equipmentCol}>
+              <Text style={styles.paramLabel}>BREWER</Text>
+              <Text style={styles.paramValue}>
+                {review.brewerSnapshot || 'Not specified'}
+              </Text>
+            </View>
+
+            <View style={styles.equipmentCol}>
+              <Text style={styles.paramLabel}>WATER TEMPERATURE</Text>
+              <Text style={styles.paramValue}>
+                {review.waterTempCelsius ? `${review.waterTempCelsius}°C` : 'Not recorded'}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* 6. Cupper's Tasting Notes */}
+        {review.notes ? (
+          <View testID="detail-tasting-notes" style={styles.sectionBlock}>
+            <Text style={styles.sectionEyebrow}>CUPPER'S TASTING NOTES</Text>
+            <View style={styles.notesQuoteBox}>
+              <Text style={styles.notesText}>"{review.notes}"</Text>
+            </View>
+          </View>
+        ) : null}
       </View>
-
-      {/* 6. Cupper's Tasting Notes */}
-      {review.notes ? (
-        <View testID="detail-tasting-notes" style={styles.sectionChassis}>
-          <Text style={styles.sectionEyebrow}>CUPPER'S TASTING NOTES</Text>
-          <View style={styles.notesQuoteBox}>
-            <Text style={styles.notesText}>"{review.notes}"</Text>
-          </View>
-        </View>
-      ) : null}
 
       {/* Secondary / Destructive Footer Actions */}
       <View testID="detail-actions-footer" style={styles.actionRow}>
@@ -478,32 +482,32 @@ const useStyles = makeStyles((colors) => ({
     color: colors.accent,
     letterSpacing: 1,
   },
-  heroCard: {
+  reviewSheet: {
     backgroundColor: colors.panel,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
     borderRadius: 12,
     padding: 16,
-    gap: 10,
+    gap: 16,
+  },
+  headerBlock: {
+    gap: 6,
   },
   heroMetaRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 6,
   },
-  methodBadge: {
-    backgroundColor: colors.panelRecessed,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    borderRadius: 6,
-    paddingVertical: 3,
-    paddingHorizontal: 8,
+  methodMetaText: {
+    fontFamily: FONTS.sansMedium,
+    fontSize: 12,
+    color: colors.textSecondary,
+    letterSpacing: 0.8,
   },
-  methodBadgeText: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 11,
-    color: colors.accent,
-    letterSpacing: 1,
+  metaDot: {
+    fontFamily: FONTS.sansRegular,
+    fontSize: 12,
+    color: colors.textMuted,
   },
   dateText: {
     fontFamily: FONTS.sansRegular,
@@ -543,12 +547,17 @@ const useStyles = makeStyles((colors) => ({
     color: colors.canvas,
     letterSpacing: 1,
   },
-  sectionChassis: {
-    backgroundColor: colors.panel,
+  heroScoreStrip: {
+    backgroundColor: colors.panelRecessed,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 14,
+  },
+  sectionBlock: {
+    borderTopWidth: 1,
+    borderTopColor: colors.borderSubtle,
+    paddingTop: 16,
     gap: 12,
   },
   sectionEyebrow: {

@@ -138,7 +138,7 @@ export const ScaAttributeScoring: React.FC<ScaAttributeScoringProps> = ({
       )}
 
       {/* Attributes List */}
-      <View style={styles.attributesList}>
+      <View style={[styles.attributesList, hideSummaryHero && styles.attributesListFlat]}>
         {ATTRIBUTES.map((attr) => {
           const value = Number(scores[attr.key] ?? 0);
           return (
@@ -248,6 +248,11 @@ const useStyles = makeStyles((colors) => ({
     borderRadius: 8,
     padding: 12,
     gap: 10,
+  },
+  attributesListFlat: {
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    padding: 0,
   },
   attributeRow: {
     flexDirection: 'row',
