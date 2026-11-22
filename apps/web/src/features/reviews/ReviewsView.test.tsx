@@ -724,12 +724,15 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     expect(screen.getByRole('button', { name: /Descriptors/i })).toBeDefined();
     expect(screen.queryByRole('button', { name: /Tag List/i })).toBeNull();
 
-    // Check accessible star rating groups and buttons
+    // Check single accessible star rating group and Would brew again checkbox in top hero banner
     const starRatingGroups = screen.getAllByRole('group', { name: /Star rating/i });
-    expect(starRatingGroups.length).toBeGreaterThanOrEqual(1);
+    expect(starRatingGroups).toHaveLength(1);
 
-    expect(screen.getAllByRole('button', { name: /Rate 5 stars/i }).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByRole('button', { name: /Rate 1 star$/i }).length).toBeGreaterThanOrEqual(1);
+    const editorHero = screen.getByTestId('editor-hero-score-banner');
+    expect(within(editorHero).getByRole('checkbox', { name: /Would brew again/i })).toBeDefined();
+
+    expect(screen.getAllByRole('button', { name: /Rate 5 stars/i })).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: /Rate 1 star$/i })).toHaveLength(1);
   });
 
   it('pre-fills grinderId and grindSetting from primary grinder in pendingBrewSession', () => {

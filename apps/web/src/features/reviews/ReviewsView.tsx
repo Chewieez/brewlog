@@ -772,7 +772,10 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
 
               <div className="space-y-6">
                 {/* Dedicated Hero Live Score Banner */}
-              <div className="bg-panel rounded-xl p-5 border border-border-subtle shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div
+                data-testid="editor-hero-score-banner"
+                className="bg-panel rounded-xl p-5 border border-border-subtle shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              >
                 <div
                   data-testid="hero-score-badge"
                   className="whitespace-nowrap flex items-center gap-3"
@@ -789,29 +792,41 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                   </span>
                 </div>
 
-                {/* 5-Star Rating Preview / Interactive Quick-Rate */}
-                <div className="flex items-center gap-1" role="group" aria-label="Star rating">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setRating(s)}
-                      className="p-1 cursor-pointer transition-transform hover:scale-110"
-                      aria-label={`Rate ${s} star${s > 1 ? 's' : ''}`}
-                      title={`Rate ${s} stars`}
-                    >
-                      <Star
-                        className={`w-4 h-4 ${
-                          s <= rating
-                            ? 'fill-amber-400 text-amber-400'
-                            : 'text-border-subtle dark:text-zinc-700'
-                        }`}
-                      />
-                    </button>
-                  ))}
-                  <span className="text-xs text-foreground-secondary ml-1 tabular-nums font-medium">
-                    ({rating.toFixed(1)}/5)
-                  </span>
+                {/* 5-Star Rating Preview / Interactive Quick-Rate & Would Brew Again */}
+                <div className="flex flex-col sm:items-end gap-2">
+                  <div className="flex items-center gap-1" role="group" aria-label="Star rating">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setRating(s)}
+                        className="p-1 cursor-pointer transition-transform hover:scale-110"
+                        aria-label={`Rate ${s} star${s > 1 ? 's' : ''}`}
+                        title={`Rate ${s} stars`}
+                      >
+                        <Star
+                          className={`w-4 h-4 ${
+                            s <= rating
+                              ? 'fill-amber-400 text-amber-400'
+                              : 'text-border-subtle dark:text-zinc-700'
+                          }`}
+                        />
+                      </button>
+                    ))}
+                    <span className="text-xs text-foreground-secondary ml-1 tabular-nums font-medium">
+                      ({rating.toFixed(1)}/5)
+                    </span>
+                  </div>
+
+                  <label className="flex items-center space-x-2 text-xs text-foreground cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={wouldBrewAgain}
+                      onChange={(e) => setWouldBrewAgain(e.target.checked)}
+                      className="w-4 h-4 accent-accent rounded cursor-pointer"
+                    />
+                    <span>Would brew again</span>
+                  </label>
                 </div>
               </div>
 
@@ -1262,58 +1277,18 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 </div>
               </div>
 
-              {/* Section 4: Tasting Notes & Quick Rating */}
-              <div className="p-5 rounded-xl bg-panel border border-border-subtle space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-foreground-secondary mb-1.5">
-                    Tasting Impressions & Cupper's Notes
-                  </label>
-                  <textarea
-                    rows={3}
-                    placeholder="e.g. Vibrant peach and white tea notes, crisp malic acidity, silky finish..."
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent resize-none font-sans"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between flex-wrap gap-4 pt-1">
-                  {/* Star Rating */}
-                  <div className="flex items-center space-x-1" role="group" aria-label="Star rating">
-                    <span className="text-xs text-foreground-secondary mr-1.5 font-medium">Rating:</span>
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setRating(star)}
-                        aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
-                        className="p-1 cursor-pointer transition-transform hover:scale-110"
-                      >
-                        <Star
-                          className={`w-4 h-4 ${
-                            rating >= star
-                              ? 'text-amber-400 fill-amber-400'
-                              : 'text-border-subtle dark:text-zinc-700'
-                          }`}
-                        />
-                      </button>
-                    ))}
-                    <span className="text-xs font-medium text-foreground-secondary ml-1 tabular-nums">
-                      {rating.toFixed(1)}
-                    </span>
-                  </div>
-
-                  {/* Would Brew Again */}
-                  <label className="flex items-center space-x-2 text-xs text-foreground cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={wouldBrewAgain}
-                      onChange={(e) => setWouldBrewAgain(e.target.checked)}
-                      className="w-4 h-4 accent-accent rounded cursor-pointer"
-                    />
-                    <span>Would brew again</span>
-                  </label>
-                </div>
+              {/* Section 4: Tasting Notes */}
+              <div className="p-5 rounded-xl bg-panel border border-border-subtle">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-foreground-secondary mb-1.5">
+                  Tasting Impressions & Cupper's Notes
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="e.g. Vibrant peach and white tea notes, crisp malic acidity, silky finish..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-xs text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent resize-none font-sans"
+                />
               </div>
 
               {/* Error Alert Banner */}
