@@ -707,29 +707,48 @@ export const StashView: React.FC<StashViewProps> = ({
         >
           <div
             data-testid="stash-bean-modal"
-            className="w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 rounded-xl bg-panel border border-border-subtle shadow-2xl space-y-4"
+            className="w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden rounded-xl bg-panel border border-border-subtle shadow-2xl"
           >
-            <div className="flex items-center justify-between pb-2 border-b border-border-subtle sticky top-0 bg-panel z-10">
-              <h3 id="add-bean-modal-title" className="text-lg font-bold text-foreground">
-                {editingBean ? 'Edit Coffee Bean' : 'Add New Whole Bean'}
-              </h3>
+            <div
+              data-testid="stash-bean-modal-header"
+              className="shrink-0 flex items-center justify-between px-6 py-5 border-b border-border-subtle bg-panel"
+            >
+              <div className="flex items-center space-x-2.5">
+                <div className="p-2 rounded-lg bg-panel-recessed border border-border-subtle text-accent">
+                  <Coffee className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 id="add-bean-modal-title" className="text-xl font-bold tracking-tight text-foreground">
+                    {editingBean ? 'Edit Coffee Bean' : 'Add New Whole Bean'}
+                  </h3>
+                  <p className="text-xs text-foreground-secondary mt-0.5">
+                    {editingBean
+                      ? 'Update coffee origin, resting window, and remaining bag inventory.'
+                      : 'Track roast date, origin terroir, resting window, and bag inventory.'}
+                  </p>
+                </div>
+              </div>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground-secondary hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer"
                 aria-label="Close dialog"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmitBean} className="space-y-4 text-sm">
-              {errorMessage && (
-                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
-                  {errorMessage}
-                </div>
-              )}
+            {errorMessage && (
+              <div className="shrink-0 mx-6 mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+                {errorMessage}
+              </div>
+            )}
 
+            <form onSubmit={handleSubmitBean} className="flex-1 min-h-0 flex flex-col text-sm">
+              <div
+                data-testid="stash-bean-modal-body"
+                className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-4"
+              >
               {/* Section 1: Coffee Identity */}
               <div className="space-y-3">
                 <span className="text-[11px] font-mono font-bold text-accent tracking-wider uppercase">
@@ -1091,9 +1110,13 @@ export const StashView: React.FC<StashViewProps> = ({
                   />
                 </div>
               </div>
+              </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-between pt-3 border-t border-border-subtle">
+              <div
+                data-testid="stash-bean-modal-footer"
+                className="shrink-0 flex items-center justify-between px-6 py-4 border-t border-border-subtle bg-panel"
+              >
                 {editingBean && onDeleteBean ? (
                   <Button
                     type="button"
