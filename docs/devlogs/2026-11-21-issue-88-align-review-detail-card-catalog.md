@@ -33,10 +33,11 @@ This milestone standardizes all three Review surfaces around a **Web-led hierarc
   5. **Telemetry Footer:** Method badge • `dose:water` • brew duration on left; localized `brewDate` on right.
 - Dropped the redundant Equipment Snapshot row from Mobile `ReviewCard` (kept in Detail).
 
-### 3. Review Detail (`ReviewDetailPane.tsx` & `ReviewDetailScreen.tsx`)
-- **Web (`apps/web/src/features/reviews/ReviewDetailPane.tsx`):** De-cluttered the sticky header meta row so it shows only `[METHOD]` (left) and `Date` (right), moving `Would Brew Again` cleanly into the Hero Score Banner alongside the 5-star rating.
+### 3. Review Detail & Editor (`ReviewDetailPane.tsx`, `ReviewDetailScreen.tsx`, & `ReviewsView.tsx`)
+- **Unified Single-Sheet Hierarchy & Title-First Header:** Both Web `ReviewDetailPane.tsx` and Mobile `ReviewDetailScreen.tsx` present Review Detail as a single cohesive container with section dividers instead of fragmented boxed cards, leading with the coffee title above muted `Roaster • Method • Date` metadata and moving `Would Brew Again` cleanly into the Hero Score Banner alongside the 5-star rating.
+- **Web Editor Rating Streamlining (`ReviewsView.tsx`):** Moved the `Would brew again` toggle up into the top Hero Rating Banner during review creation/editing and removed the duplicate bottom overall rating row.
 - **Mobile (`apps/mobile/src/features/reviews/screens/ReviewDetailScreen.tsx`, `ScaFlavorWheelSvg.tsx`, `ScaAttributeScoring.tsx`, `RecipeContext.tsx`):**
-  - Reordered `ReviewDetailScreen` to the canonical 6-section hierarchy: Header Card -> primary `BREW AGAIN` CTA -> Hero Score & Tier Banner (with stars & `Would Brew Again`) -> Sensory Profile (`Descriptors` / `Wheel` `@brewlog/ui` `SegmentedControl`) -> 10-Attribute SCA Score Matrix -> Brew Parameters & Equipment -> Cupper's Tasting Notes -> `EDIT REVIEW` / `DELETE` footer.
+  - Reordered `ReviewDetailScreen` to the canonical 6-section hierarchy inside one unified sheet: Title-First Header -> primary `BREW AGAIN` CTA -> Hero Score & Tier Banner (with stars & `Would Brew Again`) -> Sensory Profile (`Descriptors` / `Wheel` `@brewlog/ui` `SegmentedControl`) -> 10-Attribute SCA Score Matrix -> Brew Parameters & Equipment -> Cupper's Tasting Notes -> `EDIT REVIEW` / `DELETE` footer.
   - Added `readOnly` prop to Mobile `ScaFlavorWheelSvg.tsx` so tapping flavor slices in Detail inspects descriptors without displaying `ADD`/`REMOVE` buttons.
   - Added `hideSummaryHero` prop to `ScaAttributeScoring.tsx` so Detail omits the duplicate inner `SCA SENSORY TOTAL` card while `ReviewModalScreen.tsx` retains its live scoring header during edits.
   - Exported `useOptionalRecipes` from `RecipeContext.tsx` and implemented `BREW AGAIN` timer handoff (matching linked/snapshot bean and recipe, preserving `isBrewActive` reset confirmation, and navigating to `/(tabs)` with `mode: 'recipe'`).
@@ -45,6 +46,10 @@ This milestone standardizes all three Review surfaces around a **Web-led hierarc
 - Removed `ReviewsSummaryBar` from `ReviewsCatalogScreen.tsx` and deleted unused `ReviewsSummaryBar.tsx` / `ReviewsSummaryBar.test.tsx`.
 - Aligned both catalogs to consume `@brewlog/core` search, method, and rating filter helpers (`"All"` method prefix, auto-hidden `FilterPills` when `<= 1` option qualifies, synchronous `effective*` fallback + `useEffect` reset).
 - Added inline `Clear search` (`h-8 w-8 rounded-lg`) and `CLEAR FILTERS` empty-state recovery on Web `ReviewsView.tsx` alongside `reviews-rating-filters`.
+
+### 5. Shared Web `ModalShell` Unification (`apps/web/src/components/shared/ModalShell.tsx`)
+- Extracted `ModalShell.tsx` (`max-h-[90vh] flex flex-col overflow-hidden rounded-xl`) with a `shrink-0` pinned header (icon badge, title, optional subtitle, `X` close button), optional pinned alert banner, independently scrollable `flex-1 min-h-0 overflow-y-auto` form body, and `shrink-0` pinned footer (`border-t`).
+- Migrated all six Web dialogs (`RecipeBuilderModal.tsx`, `StashView.tsx` Add/Edit Bean modal, `EquipmentView.tsx` Add/Edit Equipment modal, `ConfirmationModal.tsx`, `ReviewDetailPane.tsx` delete confirmation via `ConfirmationModal`, and `AuthModal.tsx`) onto `ModalShell`, eliminating scroll drift and header-overlap clipping.
 
 ---
 
@@ -59,10 +64,10 @@ This milestone standardizes all three Review surfaces around a **Web-led hierarc
 ## Automated Verification Evidence
 
 - **Monorepo Typecheck (`npm run typecheck`):** Passed with 0 errors across all 5 workspaces (`@brewlog/core`, `@brewlog/supabase`, `@brewlog/ui`, `@brewlog/mobile`, `@brewlog/web`).
-- **Monorepo Unit Tests (`npm run test`):** 117 test files, **1,077 tests passed**, 0 failures:
+- **Monorepo Unit Tests (`npm run test`):** 117 test files, **1,082 tests passed**, 0 failures:
   - `@brewlog/core`: 8 files, 102/102 passed (including 8 new tests in `reviewsUtils.test.ts`)
   - `@brewlog/supabase`: 4 files, 29/29 passed
   - `@brewlog/ui`: 14 files, 81/81 passed
   - `@brewlog/mobile`: 61 files, 559/559 passed (including `ReviewCard.test.tsx`, `ReviewDetailScreen.test.tsx`, `ReviewsCatalogScreen.test.tsx`, `ScaFlavorWheelSvg.test.tsx`, `ScaAttributeScoring.test.tsx`)
-  - `@brewlog/web`: 30 files, 306/306 passed (including `ReviewCard.test.tsx`, `ReviewDetailPane.test.tsx`, `ReviewsView.test.tsx`)
-- **Playwright E2E (`npm run test:e2e`):** **19/19 passed** (`7.9s`), covering `button-sizing-tokens.spec.ts`, `corner-radius-hierarchy.spec.ts`, `context-features.spec.ts` (including `reviews-method-filters` and `reviews-rating-filters` spacing and keyboard navigation), and `smoke.spec.ts`.
+  - `@brewlog/web`: 30 files, 311/311 passed (including `ReviewCard.test.tsx`, `ReviewDetailPane.test.tsx`, `ReviewsView.test.tsx`, `RecipeBuilderModal.test.tsx`, `StashView.test.tsx`, `EquipmentView.test.tsx`, `ConfirmationModal.test.tsx`, `AuthModal.test.tsx`)
+- **Playwright E2E (`npm run test:e2e`):** **19/19 passed**, covering `button-sizing-tokens.spec.ts`, `corner-radius-hierarchy.spec.ts`, `context-features.spec.ts` (including `reviews-method-filters` and `reviews-rating-filters` spacing and keyboard navigation), and `smoke.spec.ts`.
