@@ -698,7 +698,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                 type="button"
                 onClick={() => setErrorMessage(null)}
                 aria-label="Dismiss error"
-                className="p-1 rounded-lg text-red-400 hover:text-red-200 hover:bg-red-500/20 transition-colors cursor-pointer"
+                className="h-8 w-8 rounded-lg inline-flex items-center justify-center shrink-0 text-red-400 hover:text-red-200 hover:bg-red-500/20 transition-colors cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -800,7 +800,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                         key={s}
                         type="button"
                         onClick={() => setRating(s)}
-                        className="p-1 cursor-pointer transition-transform hover:scale-110"
+                        className="h-8 w-8 inline-flex items-center justify-center rounded-lg cursor-pointer transition-transform hover:scale-110"
                         aria-label={`Rate ${s} star${s > 1 ? 's' : ''}`}
                         title={`Rate ${s} stars`}
                       >
@@ -1305,7 +1305,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     type="button"
                     onClick={() => setErrorMessage(null)}
                     aria-label="Dismiss error"
-                    className="p-1 rounded-lg text-red-400 hover:text-red-200 hover:bg-red-500/20 transition-colors cursor-pointer"
+                    className="h-8 w-8 rounded-lg inline-flex items-center justify-center shrink-0 text-red-400 hover:text-red-200 hover:bg-red-500/20 transition-colors cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>

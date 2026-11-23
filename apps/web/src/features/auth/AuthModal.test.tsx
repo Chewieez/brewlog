@@ -105,4 +105,11 @@ describe('AuthModal', () => {
     expect(body.className).toContain('overflow-y-auto');
     expect(footer.className).toContain('shrink-0');
   });
+
+  it('closes AuthModal when Escape key is pressed', () => {
+    render(<AuthModal isOpen={true} onClose={mockClose} />);
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(mockClose).toHaveBeenCalledTimes(1);
+  });
 });

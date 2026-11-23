@@ -158,6 +158,11 @@ describe('ReviewDetailPane component', () => {
     fireEvent.click(wheelTab);
 
     expect(screen.getByRole('button', { name: /Descriptors/i })).toBeDefined();
+
+    // Detail wheel is readOnly: hovering a descriptor previews it without rendering an Add button
+    const honeySlice = screen.getByRole('checkbox', { name: /Honey/i });
+    fireEvent.mouseEnter(honeySlice);
+    expect(screen.queryByRole('button', { name: /Add Honey/i })).toBeNull();
   });
 
   it('triggers onEdit and onBrewAgain when buttons are clicked', () => {

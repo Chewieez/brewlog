@@ -5,6 +5,7 @@ import { Check, Plus, Tag } from 'lucide-react';
 interface ScaFlavorWheelSvgProps {
   selectedTags?: string[];
   onToggleTag?: (tag: string) => void;
+  readOnly?: boolean;
   className?: string;
 }
 
@@ -66,6 +67,7 @@ function describeArc(x: number, y: number, innerRadius: number, outerRadius: num
 export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
   selectedTags = [],
   onToggleTag = () => {},
+  readOnly = false,
   className = '',
 }) => {
   const titleId = useId();
@@ -185,6 +187,17 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
       case ' ':
       case 'Enter':
         e.preventDefault();
+        if (readOnly) {
+          setInspectedItem({
+            type: 'descriptor',
+            name: slice.name,
+            category: slice.category,
+            color: slice.color,
+            isSelected: slice.isSelected,
+          });
+          setAnnouncement(`${slice.name}, ${slice.category}, ${slice.isSelected ? 'selected' : 'not selected'}`);
+          break;
+        }
         onToggleTag(slice.name);
         const willBeSelected = !slice.isSelected;
         setAnnouncement(`${slice.name}, ${slice.category}, ${willBeSelected ? 'selected' : 'removed'}`);
@@ -202,16 +215,27 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
   };
 
   const handleDescriptorClick = (slice: DescriptorSlice) => {
+    if (readOnly) {
+      setInspectedItem({
+        type: 'descriptor',
+        name: slice.name,
+        category: slice.category,
+        color: slice.color,
+        isSelected: slice.isSelected,
+      });
+      setAnnouncement(`${slice.name}, ${slice.category}, ${slice.isSelected ? 'selected' : 'not selected'}`);
+      return;
+    }
     onToggleTag(slice.name);
-    const willBeSelected = !slice.isSelected;
+    const willBe = !slice.isSelected;
     setInspectedItem({
       type: 'descriptor',
       name: slice.name,
       category: slice.category,
       color: slice.color,
-      isSelected: willBeSelected,
+      isSelected: willBe,
     });
-    setAnnouncement(`${slice.name}, ${slice.category}, ${willBeSelected ? 'selected' : 'removed'}`);
+    setAnnouncement(`${slice.name}, ${slice.category}, ${willBe ? 'selected' : 'removed'}`);
   };
 
   const handleCategoryClick = (cat: CategorySlice) => {
@@ -261,7 +285,9 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
         >
           <title id={titleId}>SCA Coffee Taster's Flavor Wheel</title>
           <desc id={descId}>
-            Interactive sensory flavor wheel with 9 primary categories and {totalDescriptors} descriptors. Use arrow keys to rotate, Space or Enter to toggle notes.
+            {readOnly
+              ? `Sensory flavor wheel with 9 primary categories and ${totalDescriptors} descriptors. Hover, tap, or use arrow keys to inspect notes.`
+              : `Interactive sensory flavor wheel with 9 primary categories and ${totalDescriptors} descriptors. Use arrow keys to rotate, Space or Enter to toggle notes.`}
           </desc>
 
           {/* Inner Ring (Categories) */}
@@ -380,34 +406,43 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                   {inspectedItem.name}
                 </span>
 
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onToggleTag(inspectedItem.name);
-                    const willBe = !inspectedItem.isSelected;
-                    setInspectedItem((prev) => (prev ? { ...prev, isSelected: willBe } : null));
-                    setAnnouncement(`${inspectedItem.name}, ${willBe ? 'selected' : 'removed'}`);
-                  }}
-                  aria-label={`${inspectedItem.isSelected ? 'Remove' : 'Add'} ${inspectedItem.name}`}
-                  className={`pointer-events-auto mt-1 px-2.5 py-0.5 rounded-lg text-[10px] font-sans uppercase tracking-wider font-bold flex items-center space-x-1 transition-all shadow-sm active:scale-95 cursor-pointer ${
-                    inspectedItem.isSelected
-                      ? 'bg-accent text-canvas'
-                      : 'bg-panel-recessed text-foreground-secondary border border-border-subtle hover:bg-panel hover:border-border-active hover:text-foreground'
-                  }`}
-                >
-                  {inspectedItem.isSelected ? (
-                    <>
-                      <Check className="w-2.5 h-2.5 text-canvas stroke-[3]" />
+                {readOnly ? (
+                  inspectedItem.isSelected ? (
+                    <span className="mt-1 px-2 py-0.5 rounded-md text-[10px] font-sans uppercase tracking-wider font-bold bg-accent/15 text-accent border border-accent/30 flex items-center space-x-1">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
                       <span>Selected</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-2.5 h-2.5 text-foreground-muted" />
-                      <span>Add Note</span>
-                    </>
-                  )}
-                </button>
+                    </span>
+                  ) : null
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleTag(inspectedItem.name);
+                      const willBe = !inspectedItem.isSelected;
+                      setInspectedItem((prev) => (prev ? { ...prev, isSelected: willBe } : null));
+                      setAnnouncement(`${inspectedItem.name}, ${willBe ? 'selected' : 'removed'}`);
+                    }}
+                    aria-label={`${inspectedItem.isSelected ? 'Remove' : 'Add'} ${inspectedItem.name}`}
+                    className={`pointer-events-auto mt-1 px-2.5 py-0.5 rounded-lg text-[10px] font-sans uppercase tracking-wider font-bold flex items-center space-x-1 transition-all shadow-sm active:scale-95 cursor-pointer ${
+                      inspectedItem.isSelected
+                        ? 'bg-accent text-canvas'
+                        : 'bg-panel-recessed text-foreground-secondary border border-border-subtle hover:bg-panel hover:border-border-active hover:text-foreground'
+                    }`}
+                  >
+                    {inspectedItem.isSelected ? (
+                      <>
+                        <Check className="w-2.5 h-2.5 text-canvas stroke-[3]" />
+                        <span>Selected</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-2.5 h-2.5 text-foreground-muted" />
+                        <span>Add Note</span>
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center max-w-[130px]">
@@ -423,9 +458,11 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                 <span className="text-[10px] text-foreground-secondary font-sans tabular-nums mt-1">
                   {inspectedItem.selectedCount}/{inspectedItem.totalCount} selected
                 </span>
-                <span className="text-[8px] text-foreground-muted mt-0.5">
-                  Tap outer ring to pick
-                </span>
+                {!readOnly && (
+                  <span className="text-[8px] text-foreground-muted mt-0.5">
+                    Tap outer ring to pick
+                  </span>
+                )}
               </div>
             )
           ) : (
@@ -445,9 +482,11 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
         </div>
       </div>
 
-      <p className="text-[11px] text-foreground-muted mt-2 text-center max-w-sm font-sans">
-        Use <kbd className="px-1 py-0.5 bg-panel-recessed rounded-md text-[10px] font-sans text-accent border border-border-subtle">←</kbd> <kbd className="px-1 py-0.5 bg-panel-recessed rounded-md text-[10px] font-sans text-accent border border-border-subtle">→</kbd> to rotate, <kbd className="px-1.5 py-0.5 bg-panel-recessed rounded-md text-[10px] font-sans text-accent border border-border-subtle">Space</kbd> to toggle, or tap any sensory note.
-      </p>
+      {!readOnly && (
+        <p className="text-[11px] text-foreground-muted mt-2 text-center max-w-sm font-sans">
+          Use <kbd className="px-1 py-0.5 bg-panel-recessed rounded-md text-[10px] font-sans text-accent border border-border-subtle">←</kbd> <kbd className="px-1 py-0.5 bg-panel-recessed rounded-md text-[10px] font-sans text-accent border border-border-subtle">→</kbd> to rotate, <kbd className="px-1.5 py-0.5 bg-panel-recessed rounded-md text-[10px] font-sans text-accent border border-border-subtle">Space</kbd> to toggle, or tap any sensory note.
+        </p>
+      )}
     </div>
   );
 };

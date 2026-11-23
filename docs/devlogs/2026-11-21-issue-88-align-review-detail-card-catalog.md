@@ -48,8 +48,9 @@ This milestone standardizes all three Review surfaces around a **Web-led hierarc
 - Added inline `Clear search` (`h-8 w-8 rounded-lg`) and `CLEAR FILTERS` empty-state recovery on Web `ReviewsView.tsx` alongside `reviews-rating-filters`.
 
 ### 5. Shared Web `ModalShell` Unification (`apps/web/src/components/shared/ModalShell.tsx`)
-- Extracted `ModalShell.tsx` (`max-h-[90vh] flex flex-col overflow-hidden rounded-xl`) with a `shrink-0` pinned header (icon badge, title, optional subtitle, `X` close button), optional pinned alert banner, independently scrollable `flex-1 min-h-0 overflow-y-auto` form body, and `shrink-0` pinned footer (`border-t`).
+- Extracted `ModalShell.tsx` (`max-h-[90vh] flex flex-col overflow-hidden rounded-xl`) with a `shrink-0` pinned header (icon badge, title, optional subtitle, `X` close button), centralized `closeOnEscape` / `closeOnBackdropClick` handling (enabling Escape dismissal on `AuthModal` and guarding nested dialogs in `StashView` and `EquipmentView` when `isDeleteConfirmOpen` is active), optional pinned alert banner, independently scrollable `flex-1 min-h-0 overflow-y-auto` form body, and `shrink-0` pinned footer (`border-t`).
 - Migrated all six Web dialogs (`RecipeBuilderModal.tsx`, `StashView.tsx` Add/Edit Bean modal, `EquipmentView.tsx` Add/Edit Equipment modal, `ConfirmationModal.tsx`, `ReviewDetailPane.tsx` delete confirmation via `ConfirmationModal`, and `AuthModal.tsx`) onto `ModalShell`, eliminating scroll drift and header-overlap clipping.
+- Added `readOnly` mode to Web `ScaFlavorWheelSvg.tsx` (passed from `ReviewDetailPane.tsx`) and standardized Review Editor star rating and error-dismiss buttons to `h-8 w-8 rounded-lg` (`32px`).
 
 ---
 
@@ -64,10 +65,10 @@ This milestone standardizes all three Review surfaces around a **Web-led hierarc
 ## Automated Verification Evidence
 
 - **Monorepo Typecheck (`npm run typecheck`):** Passed with 0 errors across all 5 workspaces (`@brewlog/core`, `@brewlog/supabase`, `@brewlog/ui`, `@brewlog/mobile`, `@brewlog/web`).
-- **Monorepo Unit Tests (`npm run test`):** 117 test files, **1,082 tests passed**, 0 failures:
+- **Monorepo Unit Tests (`npm run test`):** 117 test files, **1,085 tests passed**, 0 failures:
   - `@brewlog/core`: 8 files, 102/102 passed (including 8 new tests in `reviewsUtils.test.ts`)
   - `@brewlog/supabase`: 4 files, 29/29 passed
   - `@brewlog/ui`: 14 files, 81/81 passed
   - `@brewlog/mobile`: 61 files, 559/559 passed (including `ReviewCard.test.tsx`, `ReviewDetailScreen.test.tsx`, `ReviewsCatalogScreen.test.tsx`, `ScaFlavorWheelSvg.test.tsx`, `ScaAttributeScoring.test.tsx`)
-  - `@brewlog/web`: 30 files, 311/311 passed (including `ReviewCard.test.tsx`, `ReviewDetailPane.test.tsx`, `ReviewsView.test.tsx`, `RecipeBuilderModal.test.tsx`, `StashView.test.tsx`, `EquipmentView.test.tsx`, `ConfirmationModal.test.tsx`, `AuthModal.test.tsx`)
-- **Playwright E2E (`npm run test:e2e`):** **19/19 passed**, covering `button-sizing-tokens.spec.ts`, `corner-radius-hierarchy.spec.ts`, `context-features.spec.ts` (including `reviews-method-filters` and `reviews-rating-filters` spacing and keyboard navigation), and `smoke.spec.ts`.
+  - `@brewlog/web`: 30 files, 314/314 passed (including `ReviewCard.test.tsx`, `ReviewDetailPane.test.tsx`, `ReviewsView.test.tsx`, `ScaFlavorWheelSvg.test.tsx`, `RecipeBuilderModal.test.tsx`, `StashView.test.tsx`, `EquipmentView.test.tsx`, `ConfirmationModal.test.tsx`, `AuthModal.test.tsx`)
+- **Playwright E2E (`npm run test:e2e`):** **19/19 passed**, covering `button-sizing-tokens.spec.ts` (including editor star rating controls), `corner-radius-hierarchy.spec.ts`, `context-features.spec.ts` (including `reviews-method-filters` and `reviews-rating-filters` spacing and keyboard navigation), and `smoke.spec.ts`.

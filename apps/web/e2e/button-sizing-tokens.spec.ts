@@ -85,6 +85,15 @@ test.describe("Design System Button Sizing Tokens", () => {
     expect(wheelBox).not.toBeNull();
     expect(Math.abs(descBox!.height - 32)).toBeLessThanOrEqual(TOLERANCE);
     expect(Math.abs(wheelBox!.height - 32)).toBeLessThanOrEqual(TOLERANCE);
+
+    for (let s = 1; s <= 5; s++) {
+      const starBtn = page.getByRole("button", { name: new RegExp(`^Rate ${s} star`, "i") });
+      await expect(starBtn).toBeVisible();
+      const starBox = await starBtn.boundingBox();
+      expect(starBox).not.toBeNull();
+      expect(Math.abs(starBox!.height - 32)).toBeLessThanOrEqual(TOLERANCE);
+      expect(Math.abs(starBox!.width - 32)).toBeLessThanOrEqual(TOLERANCE);
+    }
   });
 
   test("all interactive buttons across primary views conform to [32px, 40px, 48px]", async ({ page }) => {

@@ -1041,6 +1041,35 @@ describe('StashView', () => {
     expect(footer.className).toContain('shrink-0');
     expect(body.contains(footer)).toBe(false);
   });
+
+  it('keeps bean modal open on Escape and backdrop click while delete confirmation modal is open', () => {
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={vi.fn()}
+        onUpdateBean={vi.fn()}
+        onDeleteBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: `Edit ${MOCK_BEANS[0].name}` }));
+    fireEvent.click(screen.getByRole('button', { name: /DELETE BEAN/i }));
+
+    expect(screen.getByText('Delete Coffee Bean?')).toBeDefined();
+    expect(screen.getByTestId('stash-bean-modal')).toBeDefined();
+
+    // Pressing Escape closes only the confirmation dialog, leaving Edit Bean modal open
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByText('Delete Coffee Bean?')).toBeNull();
+    expect(screen.getByTestId('stash-bean-modal')).toBeDefined();
+
+    // Re-open confirm modal and click outer bean modal backdrop: bean modal stays open
+    fireEvent.click(screen.getByRole('button', { name: /DELETE BEAN/i }));
+    const dialogs = screen.getAllByRole('dialog');
+    fireEvent.click(dialogs[0]);
+    expect(screen.getByTestId('stash-bean-modal')).toBeDefined();
+  });
 });
 
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 
 export interface ModalShellProps {
@@ -42,6 +42,8 @@ export interface ModalShellProps {
   modalTestId?: string;
   /** Controls whether clicking the backdrop triggers `onClose`. */
   closeOnBackdropClick?: boolean;
+  /** Controls whether pressing Escape triggers `onClose`. */
+  closeOnEscape?: boolean;
 }
 
 /**
@@ -70,7 +72,19 @@ export const ModalShell: React.FC<ModalShellProps> = ({
   testIdPrefix,
   modalTestId,
   closeOnBackdropClick = true,
+  closeOnEscape = true,
 }) => {
+  useEffect(() => {
+    if (!isOpen || !closeOnEscape) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, closeOnEscape, onClose]);
+
   if (!isOpen) return null;
 
   const HeadingTag = headingLevel === 2 ? 'h2' : 'h3';

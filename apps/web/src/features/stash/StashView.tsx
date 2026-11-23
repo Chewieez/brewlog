@@ -107,20 +107,6 @@ export const StashView: React.FC<StashViewProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
-  useEffect(() => {
-    if (!isModalOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isDeleteConfirmOpen) return;
-      if (e.key === 'Escape') {
-        setIsModalOpen(false);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isModalOpen, isDeleteConfirmOpen]);
-
   const resetForm = () => {
     setName('');
     setRoaster('');
@@ -697,6 +683,8 @@ export const StashView: React.FC<StashViewProps> = ({
       <ModalShell
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        closeOnBackdropClick={!isDeleteConfirmOpen}
+        closeOnEscape={!isDeleteConfirmOpen}
         title={editingBean ? 'Edit Coffee Bean' : 'Add New Whole Bean'}
         subtitle={
           editingBean

@@ -1089,6 +1089,17 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     const alertBanner = screen.getByRole('alert');
     expect(alertBanner).toBeDefined();
     expect(alertBanner.textContent).toContain('update handler is not available');
+
+    // Dismiss button and star rating buttons adhere to 32px (h-8 w-8) sizing token
+    const dismissBtn = screen.getByRole('button', { name: /dismiss error/i });
+    expect(dismissBtn.className).toContain('h-8');
+    expect(dismissBtn.className).toContain('w-8');
+    expect(dismissBtn.className).toContain('rounded-lg');
+
+    const starBtn = screen.getByRole('button', { name: /Rate 5 stars/i });
+    expect(starBtn.className).toContain('h-8');
+    expect(starBtn.className).toContain('w-8');
+    expect(starBtn.className).toContain('rounded-lg');
   });
 });
 

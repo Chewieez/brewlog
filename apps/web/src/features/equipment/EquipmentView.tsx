@@ -47,18 +47,6 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
   const [notes, setNotes] = useState("");
   const [isFavorite, setIsFavorite] = useState(false);
 
-  useEffect(() => {
-    if (!isModalOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isDeleteConfirmOpen) return;
-      if (e.key === "Escape") {
-        setIsModalOpen(false);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isModalOpen, isDeleteConfirmOpen]);
-
   const resetForm = () => {
     setType("grinder");
     setBrand("");
@@ -410,6 +398,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         closeOnBackdropClick={!isDeleteConfirmOpen}
+        closeOnEscape={!isDeleteConfirmOpen}
         title={editingEquipment ? "Edit Equipment" : "Add Equipment"}
         subtitle={
           editingEquipment

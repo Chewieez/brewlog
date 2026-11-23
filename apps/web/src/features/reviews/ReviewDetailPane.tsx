@@ -273,7 +273,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
             <div className="flex justify-center py-2">
               <ScaFlavorWheelSvg
                 selectedTags={log.flavorTags || []}
-                onToggleTag={() => {}}
+                readOnly
               />
             </div>
           )}
