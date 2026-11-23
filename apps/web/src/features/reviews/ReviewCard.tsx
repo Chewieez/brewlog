@@ -134,10 +134,14 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
           <span className="tabular-nums">
             {log.coffeeDoseGrams}g:{log.waterAmountGrams}g
           </span>
-          <span>•</span>
-          <span className="tabular-nums">
-            {formatBrewTime(log.actualTimeSeconds)}
-          </span>
+          {log.actualTimeSeconds ? (
+            <>
+              <span>•</span>
+              <span className="tabular-nums">
+                {formatBrewTime(log.actualTimeSeconds)}
+              </span>
+            </>
+          ) : null}
         </div>
         <span className="tabular-nums">{formatDate(log.brewDate, dateFormat)}</span>
       </div>

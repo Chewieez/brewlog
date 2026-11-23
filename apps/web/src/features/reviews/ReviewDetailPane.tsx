@@ -147,6 +147,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
           <div className="flex items-center gap-2 flex-wrap shrink-0">
             {onBrewAgain && (
               <button
+                type="button"
                 onClick={() => onBrewAgain(log)}
                 className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold rounded-lg btn-tactile-primary cursor-pointer border-0"
                 title="Transfer coffee and specs to Brew Timer"
@@ -156,6 +157,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
               </button>
             )}
             <button
+              type="button"
               onClick={() => onEdit(log)}
               className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-lg btn-tactile-secondary text-foreground-muted hover:text-foreground cursor-pointer border-0"
             >
@@ -163,6 +165,7 @@ export const ReviewDetailPane: React.FC<ReviewDetailPaneProps> = ({
               Edit
             </button>
             <button
+              type="button"
               onClick={() => setShowDeleteModal(true)}
               className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-lg btn-tactile-secondary text-rose-400 hover:text-rose-300 cursor-pointer border-0"
             >

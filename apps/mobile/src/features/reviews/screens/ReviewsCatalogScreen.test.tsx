@@ -320,13 +320,18 @@ describe('ReviewsCatalogScreen', () => {
     expect(queryByText('Worka Sakaro Anaerobic')).toBeNull();
   });
 
-  it('renders empty state when no reviews match filters with clear button', () => {
-    const { getByPlaceholderText, getByText } = render(<ReviewsCatalogScreen />);
+  it('renders empty state when no reviews match filters with 44px clear button', () => {
+    const { getByPlaceholderText, getByText, getByRole } = render(<ReviewsCatalogScreen />);
 
     const input = getByPlaceholderText(/Search reviews/i);
     fireEvent.change(input, { target: { value: 'Nonexistent' } });
 
     expect(getByText('No reviews match your filters')).toBeTruthy();
+    const clearButton = getByRole('button', { name: 'Clear all filters' });
+    const parsedStyle = JSON.parse(clearButton.getAttribute('data-style') || '{}');
+    const parsedHitSlop = JSON.parse(clearButton.getAttribute('data-hitslop') || '{}');
+    expect(parsedStyle.minHeight).toBeGreaterThanOrEqual(44);
+    expect(parsedHitSlop).toEqual({ top: 6, bottom: 6, left: 8, right: 8 });
     const clearBtn = getByText('CLEAR FILTERS');
     fireEvent.click(clearBtn);
 

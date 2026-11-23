@@ -208,6 +208,7 @@ export const ReviewsCatalogScreen: React.FC = () => {
           onPress={handleClearFilters}
           accessibilityRole="button"
           accessibilityLabel="Clear all filters"
+          hitSlop={{ top: 6, bottom: 6, left: 8, right: 8 }}
         >
           <Text style={styles.clearFiltersButtonText}>CLEAR FILTERS</Text>
         </Pressable>
@@ -324,9 +325,9 @@ const useStyles = makeStyles((colors) => ({
     borderWidth: 1,
     borderColor: colors.borderSubtle,
     borderRadius: 6,
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 16,
-    minHeight: 40,
+    minHeight: 44,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 6,

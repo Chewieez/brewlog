@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
 export interface ModalShellProps {
@@ -74,6 +74,37 @@ export const ModalShell: React.FC<ModalShellProps> = ({
   closeOnBackdropClick = true,
   closeOnEscape = true,
 }) => {
+  const wasOpenRef = useRef(false);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (isOpen && !wasOpenRef.current) {
+      previousFocusRef.current =
+        document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      wasOpenRef.current = true;
+    } else if (!isOpen && wasOpenRef.current) {
+      wasOpenRef.current = false;
+      const prev = previousFocusRef.current;
+      previousFocusRef.current = null;
+      if (prev && prev.isConnected) {
+        prev.focus();
+      }
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (wasOpenRef.current) {
+        wasOpenRef.current = false;
+        const prev = previousFocusRef.current;
+        previousFocusRef.current = null;
+        if (prev && prev.isConnected) {
+          prev.focus();
+        }
+      }
+    };
+  }, []);
+
   useEffect(() => {
     if (!isOpen || !closeOnEscape) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -134,9 +165,9 @@ export const ModalShell: React.FC<ModalShellProps> = ({
         {/* Pinned Header */}
         <div
           data-testid={headerTestId}
-          className="shrink-0 flex items-center justify-between px-6 py-5 border-b border-border-subtle bg-panel"
+          className="shrink-0 flex items-center justify-between gap-3 px-6 py-5 border-b border-border-subtle bg-panel"
         >
-          <div className="flex items-center space-x-2.5">
+          <div className="flex items-center space-x-2.5 min-w-0">
             {icon && (
               <div
                 className={`p-2 rounded-lg bg-panel-recessed border border-border-subtle shrink-0 ${iconColorClass}`}
@@ -144,11 +175,11 @@ export const ModalShell: React.FC<ModalShellProps> = ({
                 {icon}
               </div>
             )}
-            <div>
-              <HeadingTag id={titleId} className="text-xl font-bold tracking-tight text-foreground">
+            <div className="min-w-0">
+              <HeadingTag id={titleId} className="text-xl font-bold tracking-tight text-foreground truncate">
                 {title}
               </HeadingTag>
-              {subtitle && <p className="text-xs text-foreground-secondary mt-0.5">{subtitle}</p>}
+              {subtitle && <p className="text-xs text-foreground-secondary mt-0.5 truncate">{subtitle}</p>}
             </div>
           </div>
 

@@ -602,6 +602,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary" />
             <input
               type="text"
+              aria-label="Search reviews"
               placeholder="Search coffee, roaster, tags..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -814,7 +815,7 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                       </button>
                     ))}
                     <span className="text-xs text-foreground-secondary ml-1 tabular-nums font-medium">
-                      ({rating.toFixed(1)}/5)
+                      ({rating || 0}/5)
                     </span>
                   </div>
 

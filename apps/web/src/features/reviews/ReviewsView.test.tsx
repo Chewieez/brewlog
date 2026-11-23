@@ -1100,6 +1100,12 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     expect(starBtn.className).toContain('h-8');
     expect(starBtn.className).toContain('w-8');
     expect(starBtn.className).toContain('rounded-lg');
+
+    // Editor rating text matches detail integer format (({rating || 0}/5))
+    expect(screen.getByText('(5/5)')).toBeDefined();
+
+    // Search input provides an accessible aria-label
+    expect(screen.getByLabelText('Search reviews')).toBeDefined();
   });
 });
 

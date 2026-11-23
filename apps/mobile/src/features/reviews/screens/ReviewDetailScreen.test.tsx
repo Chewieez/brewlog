@@ -331,19 +331,29 @@ describe('ReviewDetailScreen', () => {
       params: { mode: 'recipe' },
     });
 
-    // Safe navigation when no bean or recipe matches
+    // Safe navigation when no bean or recipe matches (and no Switch Recipe prompt even if isBrewActive is true)
     vi.clearAllMocks();
-    mockRecipeValue = { recipes: [], setActiveTimerRecipe: vi.fn(), isBrewActive: false };
+    mockRecipeValue = { recipes: [], setActiveTimerRecipe: vi.fn(), isBrewActive: true };
     mockStashValue = { beans: [], setActiveBrewBean: vi.fn() };
     cleanup();
     const emptyMatchRes = render(<ReviewDetailScreen />);
     fireEvent.click(emptyMatchRes.getByTestId('detail-brew-again-button'));
+    expect(Alert.alert).not.toHaveBeenCalled();
     expect(mockStashValue.setActiveBrewBean).not.toHaveBeenCalled();
     expect(mockRecipeValue.setActiveTimerRecipe).not.toHaveBeenCalled();
     expect(mockReplace).toHaveBeenCalledWith({
       pathname: '/(tabs)',
       params: { mode: 'recipe' },
     });
+
+    // Case-insensitive brewMethod fallback
+    vi.clearAllMocks();
+    mockReviews = [{ ...mockReview, recipeId: undefined, brewMethod: 'V60' as any }];
+    mockRecipeValue = { recipes: [{ ...mockRecipe, brewMethod: 'v60' }], setActiveTimerRecipe: vi.fn(), isBrewActive: false };
+    cleanup();
+    const caseRes = render(<ReviewDetailScreen />);
+    fireEvent.click(caseRes.getByTestId('detail-brew-again-button'));
+    expect(mockRecipeValue.setActiveTimerRecipe).toHaveBeenCalledWith(expect.objectContaining({ id: mockRecipe.id }), 20);
   });
 
   it('7. navigates to /reviews/modal with id when Edit Review is pressed', () => {

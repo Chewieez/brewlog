@@ -133,14 +133,7 @@ export const ReviewDetailScreen: React.FC = () => {
       stash?.setActiveBrewBean(matchedBean);
     }
 
-    const recipes = recipeContext?.recipes ?? [];
-    const matchedRecipe =
-      (review.recipeId
-        ? recipes.find((r) => r.id === review.recipeId)
-        : undefined) ??
-      (review.brewMethod
-        ? recipes.find((r) => r.brewMethod === review.brewMethod)
-        : undefined);
+    const matchedRecipe = findMatchedRecipe();
     if (matchedRecipe) {
       const targetDose =
         review.coffeeDoseGrams > 0
@@ -152,8 +145,23 @@ export const ReviewDetailScreen: React.FC = () => {
     router.replace({ pathname: '/(tabs)', params: { mode: 'recipe' } });
   };
 
+  const findMatchedRecipe = () => {
+    const recipes = recipeContext?.recipes ?? [];
+    const normalizedMethod = review.brewMethod?.toLowerCase();
+    return (
+      (review.recipeId
+        ? recipes.find((r) => r.id === review.recipeId)
+        : undefined) ??
+      (normalizedMethod
+        ? recipes.find((r) => r.brewMethod?.toLowerCase() === normalizedMethod)
+        : undefined)
+    );
+  };
+
   const handleBrewAgain = () => {
-    if (recipeContext?.isBrewActive) {
+    const matchedRecipe = findMatchedRecipe();
+
+    if (recipeContext?.isBrewActive && matchedRecipe) {
       Alert.alert(
         'Switch Recipe?',
         'A brew is currently in progress. Switching recipes will reset your timer.',

@@ -128,4 +128,19 @@ describe('ReviewCard (web)', () => {
     expect(spaceEvent.defaultPrevented).toBe(true);
     expect(onSelect).toHaveBeenCalledTimes(3);
   });
+
+  it('omits brew duration from telemetry footer when actualTimeSeconds is 0', () => {
+    render(
+      <ReviewCard
+        log={{ ...sampleLog, actualTimeSeconds: 0 }}
+        isSelected={false}
+        dateFormat="YYYY-MM-DD"
+        onSelect={vi.fn()}
+      />
+    );
+
+    const footer = screen.getByTestId('review-card-footer');
+    expect(footer.textContent).toContain('20g:300g');
+    expect(footer.textContent).not.toContain('0s');
+  });
 });

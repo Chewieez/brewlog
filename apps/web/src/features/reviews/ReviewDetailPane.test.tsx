@@ -179,12 +179,17 @@ describe('ReviewDetailPane component', () => {
     );
 
     const editBtn = screen.getByRole('button', { name: /^Edit$/i });
+    expect(editBtn.getAttribute('type')).toBe('button');
     fireEvent.click(editBtn);
     expect(handleEdit).toHaveBeenCalledWith(mockLog);
 
     const brewAgainBtn = screen.getByRole('button', { name: /Brew Again/i });
+    expect(brewAgainBtn.getAttribute('type')).toBe('button');
     fireEvent.click(brewAgainBtn);
     expect(handleBrewAgain).toHaveBeenCalledWith(mockLog);
+
+    const deleteBtn = screen.getByRole('button', { name: /^Delete$/i });
+    expect(deleteBtn.getAttribute('type')).toBe('button');
   });
 
   it('opens confirmation modal before calling onDelete', () => {
