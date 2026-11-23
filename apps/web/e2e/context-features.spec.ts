@@ -422,6 +422,24 @@ test.describe("Core Web App End-to-End Context Flows", () => {
     await expect(masterFeed.getByText("Seed Independent AeroPress Lot")).toBeVisible();
     await expect(masterFeed.locator('[role="button"]')).toHaveCount(totalReviewsCount);
 
+    const ratingGroup = page.getByTestId("reviews-rating-filters");
+    if ((await ratingGroup.count()) > 0) {
+      await expect(ratingGroup).toBeVisible();
+      const lastRatingPill = ratingGroup.locator("button").last();
+      const lastRatingPillBox = await lastRatingPill.boundingBox();
+      const firstCardAfterRatingBox = await masterFeed.locator('[role="button"]').first().boundingBox();
+      expect(lastRatingPillBox).not.toBeNull();
+      expect(firstCardAfterRatingBox).not.toBeNull();
+      expect(firstCardAfterRatingBox!.y - (lastRatingPillBox!.y + lastRatingPillBox!.height)).toBeGreaterThanOrEqual(12);
+
+      await ratingGroup.getByRole("button", { name: "All Ratings", exact: true }).focus();
+      await page.keyboard.press("ArrowRight");
+      await page.keyboard.press("Enter");
+      await page.keyboard.press("Home");
+      await page.keyboard.press("Space");
+      await expect(masterFeed.locator('[role="button"]')).toHaveCount(totalReviewsCount);
+    }
+
     await page.goto("/equipment");
     const equipmentGroup = page.getByTestId("equipment-category-filters");
     await expect(equipmentGroup).toBeVisible();

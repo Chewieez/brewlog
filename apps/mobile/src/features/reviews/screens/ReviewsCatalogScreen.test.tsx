@@ -267,10 +267,12 @@ describe('ReviewsCatalogScreen', () => {
 
   afterEach(cleanup);
 
-  it('renders title, summary bar, and review cards', () => {
-    const { getByText } = render(<ReviewsCatalogScreen />);
+  it('renders title and review cards without summary bar', () => {
+    const { getByText, queryByRole, getByRole } = render(<ReviewsCatalogScreen />);
 
     expect(getByText('Reviews')).toBeTruthy();
+    expect(queryByRole('summary')).toBeNull();
+    expect(getByRole('button', { name: 'Filter by method All' })).toBeTruthy();
     expect(getByText('Worka Sakaro Anaerobic')).toBeTruthy();
     expect(getByText('Southern Weather')).toBeTruthy();
   });
@@ -318,13 +320,18 @@ describe('ReviewsCatalogScreen', () => {
     expect(queryByText('Worka Sakaro Anaerobic')).toBeNull();
   });
 
-  it('renders empty state when no reviews match filters with clear button', () => {
-    const { getByPlaceholderText, getByText } = render(<ReviewsCatalogScreen />);
+  it('renders empty state when no reviews match filters with 44px clear button', () => {
+    const { getByPlaceholderText, getByText, getByRole } = render(<ReviewsCatalogScreen />);
 
     const input = getByPlaceholderText(/Search reviews/i);
     fireEvent.change(input, { target: { value: 'Nonexistent' } });
 
     expect(getByText('No reviews match your filters')).toBeTruthy();
+    const clearButton = getByRole('button', { name: 'Clear all filters' });
+    const parsedStyle = JSON.parse(clearButton.getAttribute('data-style') || '{}');
+    const parsedHitSlop = JSON.parse(clearButton.getAttribute('data-hitslop') || '{}');
+    expect(parsedStyle.minHeight).toBeGreaterThanOrEqual(44);
+    expect(parsedHitSlop).toEqual({ top: 6, bottom: 6, left: 8, right: 8 });
     const clearBtn = getByText('CLEAR FILTERS');
     fireEvent.click(clearBtn);
 
@@ -340,49 +347,6 @@ describe('ReviewsCatalogScreen', () => {
     fireEvent.click(addFirst);
 
     expect(mockPush).toHaveBeenCalledWith('/reviews/modal');
-  });
-
-  it('excludes unscored reviews (score 0.0) when calculating average SCA score', () => {
-    currentReviews = [
-      ...mockReviews,
-      {
-        id: 'rev-unscored',
-        beanNameSnapshot: 'Quick Brew Bean',
-        roasterSnapshot: 'Quick Roaster',
-        recipeNameSnapshot: 'Quick Brew',
-        brewMethod: 'aeropress',
-        brewDate: '2026-09-03T10:00:00.000Z',
-        coffeeDoseGrams: 15,
-        waterAmountGrams: 250,
-        actualTimeSeconds: 120,
-        grindSetting: '',
-        waterTempCelsius: 92,
-        scores: {
-          fragranceAroma: 0,
-          flavor: 0,
-          aftertaste: 0,
-          acidity: 0,
-          body: 0,
-          balance: 0,
-          uniformity: 0,
-          cleanCup: 0,
-          sweetness: 0,
-          overall: 0,
-        },
-        calculatedScaScore: 0.0,
-        rating: 3,
-        flavorTags: [],
-        notes: '',
-        wouldBrewAgain: false,
-        createdAt: '2026-09-03T10:05:00.000Z',
-      },
-    ];
-
-    const { getByText } = render(<ReviewsCatalogScreen />);
-
-    // rev-1 (90.0) and rev-2 (84.5) average to 87.3 (174.5 / 2 = 87.25 -> 87.3)
-    // If unscored (0.0) were included, average would be 174.5 / 3 = 58.2
-    expect(getByText('87.3')).toBeTruthy();
   });
 
   it('renders method and rating filter bars via @brewlog/ui FilterPills', () => {

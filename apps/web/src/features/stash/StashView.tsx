@@ -9,6 +9,7 @@ import {
 } from '@brewlog/core';
 import { Plus, Search, Star, Calendar, MapPin, Snowflake, X, Archive, Coffee } from 'lucide-react';
 import { ConfirmationModal } from '../../components/shared/ConfirmationModal';
+import { ModalShell } from '../../components/shared/ModalShell';
 import { CellarSummaryBar } from './CellarSummaryBar';
 
 export type ShelfType = 'active' | 'frozen' | 'archived';
@@ -105,20 +106,6 @@ export const StashView: React.FC<StashViewProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isModalOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isDeleteConfirmOpen) return;
-      if (e.key === 'Escape') {
-        setIsModalOpen(false);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isModalOpen, isDeleteConfirmOpen]);
 
   const resetForm = () => {
     setName('');
@@ -693,43 +680,70 @@ export const StashView: React.FC<StashViewProps> = ({
       )}
 
       {/* Add / Edit Bean Modal */}
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/60 backdrop-blur-xs p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="add-bean-modal-title"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setIsModalOpen(false);
-            }
-          }}
-        >
-          <div
-            data-testid="stash-bean-modal"
-            className="w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 rounded-xl bg-panel border border-border-subtle shadow-2xl space-y-4"
-          >
-            <div className="flex items-center justify-between pb-2 border-b border-border-subtle sticky top-0 bg-panel z-10">
-              <h3 id="add-bean-modal-title" className="text-lg font-bold text-foreground">
-                {editingBean ? 'Edit Coffee Bean' : 'Add New Whole Bean'}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground-secondary hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer"
-                aria-label="Close dialog"
-              >
-                <X className="w-4 h-4" />
-              </button>
+      <ModalShell
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        closeOnBackdropClick={!isDeleteConfirmOpen}
+        closeOnEscape={!isDeleteConfirmOpen}
+        title={editingBean ? 'Edit Coffee Bean' : 'Add New Whole Bean'}
+        subtitle={
+          editingBean
+            ? 'Update coffee origin, resting window, and remaining bag inventory.'
+            : 'Track roast date, origin terroir, resting window, and bag inventory.'
+        }
+        icon={<Coffee className="w-5 h-5" />}
+        titleId="add-bean-modal-title"
+        headingLevel={3}
+        closeButtonLabel="Close dialog"
+        maxWidthClassName="max-w-xl"
+        bodyClassName="space-y-4"
+        formClassName="text-sm"
+        footerClassName="justify-between"
+        testIdPrefix="stash-bean-modal"
+        onSubmit={handleSubmitBean}
+        alert={
+          errorMessage ? (
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+              {errorMessage}
             </div>
+          ) : undefined
+        }
+        footer={
+          <>
+            {editingBean && onDeleteBean ? (
+              <Button
+                type="button"
+                variant="danger"
+                size="md"
+                disabled={isDeleting || isSaving}
+                loading={isDeleting}
+                onClick={() => setIsDeleteConfirmOpen(true)}
+                label={isDeleting ? 'DELETING...' : 'DELETE BEAN'}
+              />
+            ) : (
+              <div />
+            )}
 
-            <form onSubmit={handleSubmitBean} className="space-y-4 text-sm">
-              {errorMessage && (
-                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
-                  {errorMessage}
-                </div>
-              )}
-
+            <div className="flex space-x-3">
+              <Button
+                type="button"
+                variant="secondary"
+                size="md"
+                onClick={() => setIsModalOpen(false)}
+                label="CANCEL"
+              />
+              <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                disabled={isSaving || isDeleting}
+                loading={isSaving}
+                label={isSaving ? 'SAVING...' : editingBean ? 'SAVE CHANGES' : 'SAVE BEAN'}
+              />
+            </div>
+          </>
+        }
+      >
               {/* Section 1: Coffee Identity */}
               <div className="space-y-3">
                 <span className="text-[11px] font-mono font-bold text-accent tracking-wider uppercase">
@@ -1091,45 +1105,7 @@ export const StashView: React.FC<StashViewProps> = ({
                   />
                 </div>
               </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-between pt-3 border-t border-border-subtle">
-                {editingBean && onDeleteBean ? (
-                  <Button
-                    type="button"
-                    variant="danger"
-                    size="md"
-                    disabled={isDeleting || isSaving}
-                    loading={isDeleting}
-                    onClick={() => setIsDeleteConfirmOpen(true)}
-                    label={isDeleting ? 'DELETING...' : 'DELETE BEAN'}
-                  />
-                ) : (
-                  <div />
-                )}
-
-                <div className="flex space-x-3">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="md"
-                    onClick={() => setIsModalOpen(false)}
-                    label="CANCEL"
-                  />
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="md"
-                    disabled={isSaving || isDeleting}
-                    loading={isSaving}
-                    label={isSaving ? 'SAVING...' : editingBean ? 'SAVE CHANGES' : 'SAVE BEAN'}
-                  />
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      </ModalShell>
 
       {/* Delete Confirmation Modal */}
       <ConfirmationModal

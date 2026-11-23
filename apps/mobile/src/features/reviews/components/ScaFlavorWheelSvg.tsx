@@ -9,6 +9,7 @@ export interface ScaFlavorWheelSvgProps {
   selectedTags: string[];
   onToggleTag: (tag: string) => void;
   size?: number;
+  readOnly?: boolean;
 }
 
 interface CategorySlice {
@@ -58,6 +59,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
   selectedTags,
   onToggleTag,
   size = 320,
+  readOnly = false,
 }) => {
   const styles = useStyles();
   const { colors } = useTheme();
@@ -174,20 +176,22 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
               <Text style={styles.centerDescriptor} numberOfLines={2}>
                 {inspectedDescriptor.name}
               </Text>
-              <Pressable
-                style={[
-                  styles.centerActionBtn,
-                  selectedTags.includes(inspectedDescriptor.name) && styles.centerActionBtnActive,
-                ]}
-                onPress={() => onToggleTag(inspectedDescriptor.name)}
-                accessibilityRole="button"
-                accessibilityLabel={`${selectedTags.includes(inspectedDescriptor.name) ? 'Remove' : 'Add'} ${inspectedDescriptor.name}`}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <Text style={styles.centerActionText}>
-                  {selectedTags.includes(inspectedDescriptor.name) ? 'REMOVE' : 'ADD'}
-                </Text>
-              </Pressable>
+              {!readOnly && (
+                <Pressable
+                  style={[
+                    styles.centerActionBtn,
+                    selectedTags.includes(inspectedDescriptor.name) && styles.centerActionBtnActive,
+                  ]}
+                  onPress={() => onToggleTag(inspectedDescriptor.name)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${selectedTags.includes(inspectedDescriptor.name) ? 'Remove' : 'Add'} ${inspectedDescriptor.name}`}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Text style={styles.centerActionText}>
+                    {selectedTags.includes(inspectedDescriptor.name) ? 'REMOVE' : 'ADD'}
+                  </Text>
+                </Pressable>
+              )}
             </View>
           ) : (
             <View style={styles.centerContent}>

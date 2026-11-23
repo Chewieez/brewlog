@@ -84,6 +84,22 @@ describe('ReviewDetailPane component', () => {
     expect(heroContainer.className).toContain('whitespace-nowrap');
   });
 
+  it('places Would Brew Again in the hero score banner rather than the header method/date row', () => {
+    render(
+      <ReviewDetailPane
+        log={mockLog}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+      />
+    );
+
+    const headerMetaRow = screen.getByTestId('detail-header-meta-row');
+    const heroBanner = screen.getByTestId('hero-score-banner');
+
+    expect(headerMetaRow.textContent).not.toContain('Would Brew Again');
+    expect(heroBanner.textContent).toContain('Would Brew Again');
+  });
+
   it('renders 10-attribute score breakdown meter bars', () => {
     render(
       <ReviewDetailPane
@@ -142,6 +158,11 @@ describe('ReviewDetailPane component', () => {
     fireEvent.click(wheelTab);
 
     expect(screen.getByRole('button', { name: /Descriptors/i })).toBeDefined();
+
+    // Detail wheel is readOnly: hovering a descriptor previews it without rendering an Add button
+    const honeySlice = screen.getByRole('checkbox', { name: /Honey/i });
+    fireEvent.mouseEnter(honeySlice);
+    expect(screen.queryByRole('button', { name: /Add Honey/i })).toBeNull();
   });
 
   it('triggers onEdit and onBrewAgain when buttons are clicked', () => {
@@ -158,12 +179,17 @@ describe('ReviewDetailPane component', () => {
     );
 
     const editBtn = screen.getByRole('button', { name: /^Edit$/i });
+    expect(editBtn.getAttribute('type')).toBe('button');
     fireEvent.click(editBtn);
     expect(handleEdit).toHaveBeenCalledWith(mockLog);
 
     const brewAgainBtn = screen.getByRole('button', { name: /Brew Again/i });
+    expect(brewAgainBtn.getAttribute('type')).toBe('button');
     fireEvent.click(brewAgainBtn);
     expect(handleBrewAgain).toHaveBeenCalledWith(mockLog);
+
+    const deleteBtn = screen.getByRole('button', { name: /^Delete$/i });
+    expect(deleteBtn.getAttribute('type')).toBe('button');
   });
 
   it('opens confirmation modal before calling onDelete', () => {

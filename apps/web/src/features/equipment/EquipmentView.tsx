@@ -3,6 +3,7 @@ import { Button, FilterPills, type FilterPillsOption } from "@brewlog/ui";
 import { Equipment, EquipmentType, GrinderSettingScale } from "@brewlog/core";
 import { Sliders, Plus, Coffee, Scale, Flame, Trash2, Search, X, Star, Layers } from "lucide-react";
 import { ConfirmationModal } from "../../components/shared/ConfirmationModal";
+import { ModalShell } from "../../components/shared/ModalShell";
 
 export type CategoryFilter = "all" | EquipmentType;
 
@@ -45,18 +46,6 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
   const [settingScaleType, setSettingScaleType] = useState<GrinderSettingScale>("stepped-numbers");
   const [notes, setNotes] = useState("");
   const [isFavorite, setIsFavorite] = useState(false);
-
-  useEffect(() => {
-    if (!isModalOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isDeleteConfirmOpen) return;
-      if (e.key === "Escape") {
-        setIsModalOpen(false);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isModalOpen, isDeleteConfirmOpen]);
 
   const resetForm = () => {
     setType("grinder");
@@ -405,43 +394,65 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
       )}
 
       {/* Add / Edit Modal */}
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/60 backdrop-blur-xs p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="equipment-modal-title"
-          onClick={(e) => {
-            if (e.target === e.currentTarget && !isDeleteConfirmOpen) {
-              setIsModalOpen(false);
-            }
-          }}
-        >
-          <div
-            data-testid="equipment-modal"
-            className="w-full max-w-md p-6 rounded-xl bg-panel border border-border-subtle shadow-2xl space-y-4"
-          >
-            <div className="flex items-center justify-between pb-1 border-b border-border-subtle">
-              <h3 id="equipment-modal-title" className="text-lg font-bold text-foreground">
-                {editingEquipment ? "Edit Equipment" : "Add Equipment"}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground-secondary hover:text-foreground hover:bg-panel-recessed transition-colors cursor-pointer"
-                aria-label="Close dialog"
-              >
-                <X className="w-4 h-4" />
-              </button>
+      <ModalShell
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        closeOnBackdropClick={!isDeleteConfirmOpen}
+        closeOnEscape={!isDeleteConfirmOpen}
+        title={editingEquipment ? "Edit Equipment" : "Add Equipment"}
+        subtitle={
+          editingEquipment
+            ? "Update gear details, grinder dial format, and preferences."
+            : "Add a grinder, brewer, scale, or kettle to your coffee setup."
+        }
+        icon={<Sliders className="w-5 h-5" />}
+        titleId="equipment-modal-title"
+        headingLevel={3}
+        closeButtonLabel="Close dialog"
+        maxWidthClassName="max-w-md"
+        bodyClassName="space-y-3"
+        formClassName="text-sm"
+        footerClassName="justify-between"
+        testIdPrefix="equipment-modal"
+        onSubmit={handleSubmit}
+        alert={
+          errorMessage ? (
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
+              {errorMessage}
             </div>
-
-            {errorMessage && (
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
-                {errorMessage}
-              </div>
+          ) : undefined
+        }
+        footer={
+          <>
+            {editingEquipment && onDeleteEquipment ? (
+              <Button
+                type="button"
+                variant="danger"
+                size="md"
+                onClick={() => setIsDeleteConfirmOpen(true)}
+                label="DELETE"
+              />
+            ) : (
+              <div />
             )}
-
-            <form onSubmit={handleSubmit} className="space-y-3 text-sm">
+            <div className="flex items-center space-x-3">
+              <Button
+                type="button"
+                variant="secondary"
+                size="md"
+                onClick={() => setIsModalOpen(false)}
+                label="CANCEL"
+              />
+              <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                label={editingEquipment ? "SAVE CHANGES" : "SAVE EQUIPMENT"}
+              />
+            </div>
+          </>
+        }
+      >
               <div>
                 <label className="block text-xs font-medium text-foreground-secondary mb-1">
                   Equipment Category
@@ -580,39 +591,7 @@ export const EquipmentView: React.FC<EquipmentViewProps> = ({
                   className="w-full px-3 py-2 rounded-lg bg-panel-recessed border border-border-subtle text-foreground placeholder:text-foreground-muted text-sm focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
-
-              <div className="flex items-center justify-between pt-3 border-t border-border-subtle">
-                {editingEquipment && onDeleteEquipment ? (
-                  <Button
-                    type="button"
-                    variant="danger"
-                    size="md"
-                    onClick={() => setIsDeleteConfirmOpen(true)}
-                    label="DELETE"
-                  />
-                ) : (
-                  <div />
-                )}
-                <div className="flex items-center space-x-3">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="md"
-                    onClick={() => setIsModalOpen(false)}
-                    label="CANCEL"
-                  />
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="md"
-                    label={editingEquipment ? "SAVE CHANGES" : "SAVE EQUIPMENT"}
-                  />
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      </ModalShell>
 
       {/* Delete Confirmation Modal */}
       <ConfirmationModal

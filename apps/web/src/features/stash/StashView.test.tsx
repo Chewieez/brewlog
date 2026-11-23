@@ -1011,6 +1011,65 @@ describe('StashView', () => {
     fireEvent.click(screen.getByRole('tab', { name: /Freezer Vault/i }));
     expect(screen.getByText(MOCK_BEANS[1].name)).toBeDefined();
   });
+
+  it('pins the add bean modal header and footer outside the scrollable form body', () => {
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={vi.fn()}
+        onUpdateBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /ADD BEAN/i }));
+
+    const modal = screen.getByTestId('stash-bean-modal');
+    const header = screen.getByTestId('stash-bean-modal-header');
+    const body = screen.getByTestId('stash-bean-modal-body');
+    const footer = screen.getByTestId('stash-bean-modal-footer');
+    const title = screen.getByRole('heading', { name: /add new whole bean/i });
+    const closeBtn = screen.getByRole('button', { name: /close dialog/i });
+
+    expect(modal.className).toContain('flex-col');
+    expect(modal.className).toContain('overflow-hidden');
+    expect(header.className).toContain('shrink-0');
+    expect(header.contains(title)).toBe(true);
+    expect(header.contains(closeBtn)).toBe(true);
+    expect(body.className).toContain('overflow-y-auto');
+    expect(body.contains(header)).toBe(false);
+    expect(footer.className).toContain('shrink-0');
+    expect(body.contains(footer)).toBe(false);
+  });
+
+  it('keeps bean modal open on Escape and backdrop click while delete confirmation modal is open', () => {
+    render(
+      <StashView
+        beans={MOCK_BEANS}
+        onAddBean={vi.fn()}
+        onUpdateBean={vi.fn()}
+        onDeleteBean={vi.fn()}
+        onSelectBeanForBrew={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: `Edit ${MOCK_BEANS[0].name}` }));
+    fireEvent.click(screen.getByRole('button', { name: /DELETE BEAN/i }));
+
+    expect(screen.getByText('Delete Coffee Bean?')).toBeDefined();
+    expect(screen.getByTestId('stash-bean-modal')).toBeDefined();
+
+    // Pressing Escape closes only the confirmation dialog, leaving Edit Bean modal open
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByText('Delete Coffee Bean?')).toBeNull();
+    expect(screen.getByTestId('stash-bean-modal')).toBeDefined();
+
+    // Re-open confirm modal and click outer bean modal backdrop: bean modal stays open
+    fireEvent.click(screen.getByRole('button', { name: /DELETE BEAN/i }));
+    const dialogs = screen.getAllByRole('dialog');
+    fireEvent.click(dialogs[0]);
+    expect(screen.getByTestId('stash-bean-modal')).toBeDefined();
+  });
 });
 
 

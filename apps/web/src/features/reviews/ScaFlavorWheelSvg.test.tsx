@@ -163,4 +163,37 @@ describe('ScaFlavorWheelSvg', () => {
     expect(activeText.className).not.toContain('font-mono');
     expect(activeText.className).toContain('tabular-nums');
   });
+
+  it('inspects descriptors without rendering action buttons or calling onToggleTag in readOnly mode', () => {
+    const handleToggle = vi.fn();
+    render(
+      <ScaFlavorWheelSvg
+        selectedTags={['Blackberry']}
+        onToggleTag={handleToggle}
+        readOnly
+      />
+    );
+
+    // Edit hint paragraph should be hidden in readOnly mode
+    expect(screen.queryByText(/to toggle/i)).toBeNull();
+
+    // Hover / click unselected descriptor inspects without Add Note button or toggling
+    const peachSlice = screen.getByRole('checkbox', { name: /Peach/i });
+    expect(peachSlice.getAttribute('aria-readonly')).toBe('true');
+    fireEvent.mouseEnter(peachSlice);
+    expect(screen.getByText('Peach')).toBeDefined();
+    expect(screen.queryByRole('button', { name: /Add Peach/i })).toBeNull();
+
+    fireEvent.click(peachSlice);
+    fireEvent.keyDown(peachSlice, { key: 'Enter' });
+    fireEvent.keyDown(peachSlice, { key: ' ' });
+    expect(handleToggle).not.toHaveBeenCalled();
+    expect(peachSlice.getAttribute('aria-checked')).toBe('false');
+
+    // Hover selected descriptor shows static Selected pill, not interactive Remove button
+    const blackberrySlice = screen.getByRole('checkbox', { name: /Blackberry/i });
+    fireEvent.mouseEnter(blackberrySlice);
+    expect(screen.getByText('Selected')).toBeDefined();
+    expect(screen.queryByRole('button', { name: /Remove Blackberry/i })).toBeNull();
+  });
 });

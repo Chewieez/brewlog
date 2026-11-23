@@ -693,6 +693,34 @@ describe('RecipeBuilderModal', () => {
       expect(badge.className).not.toContain('text-accent');
     });
   });
+
+  it('keeps the modal header and close button pinned outside the scrollable form body', () => {
+    render(
+      <RecipeBuilderModal
+        isOpen={true}
+        onClose={vi.fn()}
+        onSaveRecipe={vi.fn()}
+        initialRecipe={null}
+      />
+    );
+
+    const modal = screen.getByTestId('recipe-builder-modal');
+    const header = screen.getByTestId('recipe-builder-header');
+    const body = screen.getByTestId('recipe-builder-body');
+    const footer = screen.getByTestId('recipe-builder-footer');
+    const title = screen.getByRole('heading', { level: 2, name: /create new custom recipe/i });
+    const closeBtn = screen.getByRole('button', { name: /close modal/i });
+
+    expect(modal.className).toContain('flex-col');
+    expect(modal.className).toContain('overflow-hidden');
+    expect(header.className).toContain('shrink-0');
+    expect(header.contains(title)).toBe(true);
+    expect(header.contains(closeBtn)).toBe(true);
+    expect(body.className).toContain('overflow-y-auto');
+    expect(body.contains(header)).toBe(false);
+    expect(footer.className).toContain('shrink-0');
+    expect(body.contains(footer)).toBe(false);
+  });
 });
 
 

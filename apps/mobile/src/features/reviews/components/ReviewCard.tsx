@@ -1,14 +1,42 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Star } from 'lucide-react-native';
-import { TastingLog, formatDisplayDate } from '@brewlog/core';
-import { makeStyles, useTheme } from '@brewlog/ui';
+import {
+  TastingLog,
+  formatDisplayDate,
+  getScaTierInfo,
+  ScaTierKey,
+} from '@brewlog/core';
+import { makeStyles, useTheme, ThemeColors } from '@brewlog/ui';
 import { useOptionalSettings } from '../../settings/SettingsContext';
 import { FONTS } from '../../../theme/fonts';
 
 export interface ReviewCardProps {
   review: TastingLog;
   onPress: (review: TastingLog) => void;
+}
+
+function getTierColor(key: ScaTierKey, colors: ThemeColors): string {
+  switch (key) {
+    case 'outstanding':
+      return colors.statusSuccess;
+    case 'excellent':
+      return colors.statusWarning;
+    case 'very-good':
+      return colors.statusInfo;
+    case 'commercial':
+    default:
+      return colors.textMuted;
+  }
+}
+
+function formatBrewDuration(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  if (mins > 0) {
+    return `${mins}m ${secs.toString().padStart(2, '0')}s`;
+  }
+  return `${secs}s`;
 }
 
 export const ReviewCard: React.FC<ReviewCardProps> = ({ review, onPress }) => {
@@ -21,6 +49,9 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, onPress }) => {
     : '';
 
   const scaScore = Number(review.calculatedScaScore ?? 0);
+  const tier = getScaTierInfo(scaScore);
+  const tierColor = getTierColor(tier.key, colors);
+  const trimmedNotes = review.notes?.trim() ?? '';
 
   return (
     <Pressable
@@ -29,95 +60,93 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({ review, onPress }) => {
       accessibilityRole="button"
       accessibilityLabel={`Review for ${review.beanNameSnapshot}`}
     >
-      {/* Header Row: Roaster Eyebrow, Coffee Name & Star Rating + Date */}
-      <View style={styles.headerRow}>
-        <View style={styles.titleSection}>
-          <Text style={styles.roasterEyebrow}>
-            {review.roasterSnapshot.toUpperCase()}
-          </Text>
-          <Text style={styles.coffeeName} numberOfLines={1}>
-            {review.beanNameSnapshot}
-          </Text>
+      {/* 1. Header Row: Star Rating & SCA Score + Tier Badge */}
+      <View testID="review-card-header" style={styles.headerRow}>
+        <View style={styles.ratingBadge}>
+          <Star size={14} color={colors.accent} fill={colors.accent} />
+          <Text style={styles.ratingValueText}>{review.rating || '—'}</Text>
         </View>
 
-        <View style={styles.headerRightCol}>
-          <View style={styles.ratingRow}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={`star-${star}`}
-                size={14}
-                color={star <= review.rating ? colors.accent : colors.textMuted}
-                fill={star <= review.rating ? colors.accent : 'none'}
-              />
-            ))}
+        <View style={styles.scaRow}>
+          <Text style={styles.scaValue}>{scaScore.toFixed(1)}</Text>
+          <View
+            style={[
+              styles.tierBadge,
+              {
+                borderColor: `${tierColor}55`,
+                backgroundColor: `${tierColor}18`,
+              },
+            ]}
+          >
+            <Text style={[styles.tierBadgeText, { color: tierColor }]}>
+              {tier.label}
+            </Text>
           </View>
-          {formattedDate ? (
-            <Text style={styles.dateText}>{formattedDate}</Text>
-          ) : null}
         </View>
       </View>
 
-      {/* Badges / Meta Row: Method Badge */}
-      <View style={styles.badgeRow}>
-        <View style={styles.methodBadge}>
-          <Text style={styles.methodBadgeText}>
-            {review.brewMethod.toUpperCase()}
-          </Text>
-        </View>
-      </View>
-
-      {/* Equipment Snapshot Row */}
-      {(review.grinderSnapshot || review.brewerSnapshot || review.grindSetting) && (
-        <View style={styles.equipmentRow}>
-          <Text style={styles.equipmentText} numberOfLines={1}>
-            {(() => {
-              const grinderPart = review.grinderSnapshot
-                ? `${review.grinderSnapshot}${review.grindSetting ? ` @ ${review.grindSetting}` : ''}`
-                : (review.grindSetting ? `Grind: ${review.grindSetting}` : '');
-              return [grinderPart, review.brewerSnapshot].filter(Boolean).join(' • ');
-            })()}
-          </Text>
-        </View>
-      )}
-
-      {/* Specs Row */}
-      <View style={styles.specsRow}>
-        <Text style={styles.specsText}>
-          {review.coffeeDoseGrams}g : {review.waterAmountGrams}g
-          {review.actualTimeSeconds ? ` • ${Math.floor(review.actualTimeSeconds / 60)}:${(review.actualTimeSeconds % 60).toString().padStart(2, '0')}` : ''}
-          {review.waterTempCelsius ? ` • ${review.waterTempCelsius}°C` : ''}
+      {/* 2. Identity: Coffee Name & Roaster */}
+      <View testID="review-card-identity" style={styles.titleSection}>
+        <Text style={styles.coffeeName} numberOfLines={1}>
+          {review.beanNameSnapshot}
         </Text>
-
-        {scaScore > 0 && (
-          <View style={styles.scaBadge}>
-            <Text style={styles.scaLabel}>SCA</Text>
-            <Text style={styles.scaValue}>{scaScore.toFixed(1)}</Text>
-          </View>
-        )}
+        <Text style={styles.roasterText} numberOfLines={1}>
+          {review.roasterSnapshot}
+        </Text>
       </View>
 
-      {/* Flavor Tags */}
+      {/* 3. Flavor Tags */}
       {review.flavorTags && review.flavorTags.length > 0 && (
-        <View style={styles.tagsContainer}>
-          {review.flavorTags.slice(0, 4).map((tag) => (
+        <View testID="review-card-tags" style={styles.tagsContainer}>
+          {review.flavorTags.slice(0, 3).map((tag) => (
             <View key={`tag-${tag}`} style={styles.tagChip}>
               <Text style={styles.tagChipText}>{tag}</Text>
             </View>
           ))}
-          {review.flavorTags.length > 4 && (
+          {review.flavorTags.length > 3 && (
             <Text style={styles.extraTagsText}>
-              +{review.flavorTags.length - 4}
+              +{review.flavorTags.length - 3}
             </Text>
           )}
         </View>
       )}
 
-      {/* Notes Snippet */}
-      {review.notes ? (
-        <Text style={styles.notesText} numberOfLines={2}>
-          {review.notes}
+      {/* 4. Notes Snippet */}
+      {trimmedNotes ? (
+        <Text
+          testID="review-card-notes"
+          style={styles.notesText}
+          numberOfLines={2}
+        >
+          {trimmedNotes}
         </Text>
       ) : null}
+
+      {/* 5. Telemetry Footer */}
+      <View testID="review-card-footer" style={styles.footerRow}>
+        <View style={styles.footerLeft}>
+          <View style={styles.methodBadge}>
+            <Text style={styles.methodBadgeText}>
+              {review.brewMethod.toUpperCase()}
+            </Text>
+          </View>
+          <Text style={styles.telemetryDot}>•</Text>
+          <Text style={styles.specsText}>
+            {review.coffeeDoseGrams}g:{review.waterAmountGrams}g
+          </Text>
+          {review.actualTimeSeconds ? (
+            <>
+              <Text style={styles.telemetryDot}>•</Text>
+              <Text style={styles.specsText}>
+                {formatBrewDuration(review.actualTimeSeconds)}
+              </Text>
+            </>
+          ) : null}
+        </View>
+        {formattedDate ? (
+          <Text style={styles.dateText}>{formattedDate}</Text>
+        ) : null}
+      </View>
     </Pressable>
   );
 };
@@ -127,7 +156,7 @@ const useStyles = makeStyles((colors) => ({
     backgroundColor: colors.panel,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
-    borderRadius: 8,
+    borderRadius: 12,
     padding: 14,
     gap: 8,
   },
@@ -138,120 +167,73 @@ const useStyles = makeStyles((colors) => ({
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 8,
-  },
-  badgeRow: {
-    flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  methodBadge: {
-    backgroundColor: colors.panelRecessed,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    borderRadius: 4,
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-  },
-  methodBadgeText: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 10,
-    color: colors.accent,
-    letterSpacing: 1,
-  },
-  headerRightCol: {
-    alignItems: 'flex-end',
+  ratingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 4,
-    marginTop: 2,
   },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  dateText: {
-    fontFamily: FONTS.sansRegular,
-    fontSize: 11,
-    color: colors.textMuted,
-  },
-  titleSection: {
-    flex: 1,
-    gap: 2,
-  },
-  roasterEyebrow: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 10,
-    color: colors.accent,
-    letterSpacing: 1.2,
-  },
-  coffeeName: {
-    fontFamily: FONTS.displayMedium,
-    fontSize: 17,
-    color: colors.textPrimary,
-  },
-  equipmentRow: {
-    backgroundColor: colors.panelRecessed,
-    borderRadius: 4,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-  },
-  equipmentText: {
-    fontFamily: FONTS.sansRegular,
-    fontSize: 11,
-    color: colors.textSecondary,
-  },
-  specsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  specsText: {
-    fontFamily: FONTS.sansMedium,
+  ratingValueText: {
+    fontFamily: FONTS.sansSemiBold,
     fontSize: 12,
-    color: colors.textMuted,
+    color: colors.textSecondary,
+    fontVariant: ['tabular-nums'],
   },
-  scaBadge: {
+  scaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.panelRecessed,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    borderRadius: 4,
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-  },
-  scaLabel: {
-    fontFamily: FONTS.monoBold,
-    fontSize: 9,
-    color: colors.textMuted,
-    letterSpacing: 0.8,
+    gap: 6,
   },
   scaValue: {
-    fontFamily: FONTS.sansBold,
-    fontSize: 12,
+    fontFamily: FONTS.sansSemiBold,
+    fontSize: 14,
     color: colors.textPrimary,
     fontVariant: ['tabular-nums'],
+  },
+  tierBadge: {
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingVertical: 2,
+    paddingHorizontal: 7,
+  },
+  tierBadgeText: {
+    fontFamily: FONTS.sansSemiBold,
+    fontSize: 10,
+  },
+  titleSection: {
+    gap: 2,
+  },
+  coffeeName: {
+    fontFamily: FONTS.displayBold,
+    fontSize: 15,
+    color: colors.textPrimary,
+  },
+  roasterText: {
+    fontFamily: FONTS.bodyRegular,
+    fontSize: 12,
+    color: colors.textSecondary,
   },
   tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
     gap: 6,
+    marginTop: 2,
   },
   tagChip: {
-    backgroundColor: colors.panelRecessed,
-    borderRadius: 4,
+    backgroundColor: `${colors.accent}18`,
+    borderRadius: 6,
     paddingVertical: 3,
-    paddingHorizontal: 6,
+    paddingHorizontal: 7,
     borderWidth: 1,
-    borderColor: colors.borderSubtle,
+    borderColor: `${colors.accent}35`,
   },
   tagChipText: {
-    fontFamily: FONTS.bodyRegular,
+    fontFamily: FONTS.bodyMedium,
     fontSize: 11,
-    color: colors.textSecondary,
+    color: colors.accent,
   },
   extraTagsText: {
     fontFamily: FONTS.sansRegular,
@@ -263,5 +245,54 @@ const useStyles = makeStyles((colors) => ({
     fontSize: 12,
     color: colors.textSecondary,
     fontStyle: 'italic',
+    lineHeight: 17,
+    marginTop: 2,
+  },
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 4,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: colors.borderSubtle,
+  },
+  footerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexShrink: 1,
+  },
+  methodBadge: {
+    backgroundColor: colors.panelRecessed,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    borderRadius: 6,
+    paddingVertical: 2,
+    paddingHorizontal: 7,
+  },
+  methodBadgeText: {
+    fontFamily: FONTS.monoBold,
+    fontSize: 10,
+    color: colors.accent,
+    letterSpacing: 0.8,
+  },
+  telemetryDot: {
+    fontFamily: FONTS.sansRegular,
+    fontSize: 11,
+    color: colors.textMuted,
+  },
+  specsText: {
+    fontFamily: FONTS.sansMedium,
+    fontSize: 11,
+    color: colors.textSecondary,
+    fontVariant: ['tabular-nums'],
+  },
+  dateText: {
+    fontFamily: FONTS.sansRegular,
+    fontSize: 11,
+    color: colors.textMuted,
+    fontVariant: ['tabular-nums'],
   },
 }));

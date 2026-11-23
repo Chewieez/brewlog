@@ -129,6 +129,9 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     expect(within(detailPane).getByText('88.5')).toBeDefined();
     expect(within(detailPane).getByText('Peach')).toBeDefined();
     expect(within(detailPane).getByText('Jasmine')).toBeDefined();
+
+    // Master feed card renders notes snippet
+    expect(within(masterFeed).getByText('Floral, crisp peach, delicate sweet finish.')).toBeDefined();
   });
 
   it('updates detail pane when selecting another card in master feed', () => {
@@ -271,7 +274,7 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     );
 
     expect(screen.getAllByText('Freshly Added Gesha').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/Crisp bergamot and honey/i)).toBeDefined();
+    expect(within(screen.getByTestId('detail-pane')).getByText(/Crisp bergamot and honey/i)).toBeDefined();
   });
 
   it('loads review into edit mode and calls onUpdateTastingLog on save', async () => {
@@ -456,7 +459,7 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     expect(within(masterFeed).queryByText('Worka Sakaro')).toBeNull();
   });
 
-  it('filters cards by method filter pills including the Other bucket and updates aria-pressed', () => {
+  it('filters cards by dynamic method filter pills and updates aria-pressed', () => {
     const flairLog: TastingLog = {
       ...sampleLog1,
       id: 'log-flair',
@@ -485,7 +488,8 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     const allChip = within(filterGroup).getByRole('button', { name: 'All' });
     const v60Chip = within(filterGroup).getByRole('button', { name: 'V60' });
     const aeroPressChip = within(filterGroup).getByRole('button', { name: /^AeroPress$/i });
-    const otherChip = within(filterGroup).getByRole('button', { name: 'Other' });
+    const flairChip = within(filterGroup).getByRole('button', { name: 'Flair' });
+    const customChip = within(filterGroup).getByRole('button', { name: 'Custom' });
 
     expect(v60Chip).toBeDefined();
     expect(within(filterGroup).queryByRole('button', { name: 'Chemex' })).toBeNull();
@@ -502,16 +506,101 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     expect(within(masterFeed).getByText('El Paraiso')).toBeDefined();
     expect(within(masterFeed).queryByText('Worka Sakaro')).toBeNull();
 
-    fireEvent.click(otherChip);
+    fireEvent.click(flairChip);
     expect(within(masterFeed).getByText('Flair Lever Shot')).toBeDefined();
+    expect(within(masterFeed).queryByText('Tasting Bowl Cup')).toBeNull();
+
+    fireEvent.click(customChip);
     expect(within(masterFeed).getByText('Tasting Bowl Cup')).toBeDefined();
-    expect(within(masterFeed).queryByText('El Paraiso')).toBeNull();
+    expect(within(masterFeed).queryByText('Flair Lever Shot')).toBeNull();
 
     fireEvent.click(allChip);
     expect(within(masterFeed).getByText('Worka Sakaro')).toBeDefined();
     expect(within(masterFeed).getByText('El Paraiso')).toBeDefined();
     expect(within(masterFeed).getByText('Flair Lever Shot')).toBeDefined();
     expect(within(masterFeed).getByText('Tasting Bowl Cup')).toBeDefined();
+  });
+
+  it('filters by rating pills, hides when no logs qualify, and resets synchronously when removed', () => {
+    const threeStarLog: TastingLog = {
+      ...sampleLog2,
+      id: 'log-3star',
+      beanNameSnapshot: 'Three Star Cup',
+      rating: 3,
+    };
+
+    const { rerender } = render(
+      <ReviewsView
+        logs={[threeStarLog]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    expect(screen.queryByTestId('reviews-rating-filters')).toBeNull();
+
+    rerender(
+      <ReviewsView
+        logs={[sampleLog1, sampleLog2, threeStarLog]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const ratingGroup = screen.getByTestId('reviews-rating-filters');
+    const masterFeed = screen.getByTestId('master-feed');
+
+    fireEvent.click(within(ratingGroup).getByRole('button', { name: '5 Stars' }));
+    expect(within(masterFeed).getByText('Worka Sakaro')).toBeDefined();
+    expect(within(masterFeed).queryByText('El Paraiso')).toBeNull();
+    expect(within(masterFeed).queryByText('Three Star Cup')).toBeNull();
+
+    // Remove 5-star log -> rating filter synchronously falls back to 'all'
+    rerender(
+      <ReviewsView
+        logs={[sampleLog2, threeStarLog]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    expect(within(masterFeed).getByText('El Paraiso')).toBeDefined();
+    expect(within(masterFeed).getByText('Three Star Cup')).toBeDefined();
+    expect(
+      within(screen.getByTestId('reviews-rating-filters'))
+        .queryByRole('button', { name: '5 Stars' })
+    ).toBeNull();
+  });
+
+  it('supports search clear button and CLEAR FILTERS empty state recovery', () => {
+    render(
+      <ReviewsView
+        logs={[sampleLog1, sampleLog2]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const searchInput = screen.getByPlaceholderText(/Search coffee, roaster, tags/i) as HTMLInputElement;
+    fireEvent.change(searchInput, { target: { value: 'Nonexistent' } });
+
+    const clearSearchBtn = screen.getByRole('button', { name: 'Clear search' });
+    expect(clearSearchBtn.className).toContain('h-8');
+    expect(clearSearchBtn.className).toContain('w-8');
+    expect(screen.getByText(/No reviews match your filters\./i)).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: 'CLEAR FILTERS' }));
+    expect(searchInput.value).toBe('');
+    expect(within(screen.getByTestId('master-feed')).getByText('Worka Sakaro')).toBeDefined();
+
+    fireEvent.change(searchInput, { target: { value: 'El Paraiso' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Clear search' }));
+    expect(searchInput.value).toBe('');
+    expect(within(screen.getByTestId('master-feed')).getByText('Worka Sakaro')).toBeDefined();
   });
 
   it('hides FilterPills when logs is empty and resets filter when active method disappears', () => {
@@ -635,12 +724,15 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     expect(screen.getByRole('button', { name: /Descriptors/i })).toBeDefined();
     expect(screen.queryByRole('button', { name: /Tag List/i })).toBeNull();
 
-    // Check accessible star rating groups and buttons
+    // Check single accessible star rating group and Would brew again checkbox in top hero banner
     const starRatingGroups = screen.getAllByRole('group', { name: /Star rating/i });
-    expect(starRatingGroups.length).toBeGreaterThanOrEqual(1);
+    expect(starRatingGroups).toHaveLength(1);
 
-    expect(screen.getAllByRole('button', { name: /Rate 5 stars/i }).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByRole('button', { name: /Rate 1 star$/i }).length).toBeGreaterThanOrEqual(1);
+    const editorHero = screen.getByTestId('editor-hero-score-banner');
+    expect(within(editorHero).getByRole('checkbox', { name: /Would brew again/i })).toBeDefined();
+
+    expect(screen.getAllByRole('button', { name: /Rate 5 stars/i })).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: /Rate 1 star$/i })).toHaveLength(1);
   });
 
   it('pre-fills grinderId and grindSetting from primary grinder in pendingBrewSession', () => {
@@ -997,6 +1089,23 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     const alertBanner = screen.getByRole('alert');
     expect(alertBanner).toBeDefined();
     expect(alertBanner.textContent).toContain('update handler is not available');
+
+    // Dismiss button and star rating buttons adhere to 32px (h-8 w-8) sizing token
+    const dismissBtn = screen.getByRole('button', { name: /dismiss error/i });
+    expect(dismissBtn.className).toContain('h-8');
+    expect(dismissBtn.className).toContain('w-8');
+    expect(dismissBtn.className).toContain('rounded-lg');
+
+    const starBtn = screen.getByRole('button', { name: /Rate 5 stars/i });
+    expect(starBtn.className).toContain('h-8');
+    expect(starBtn.className).toContain('w-8');
+    expect(starBtn.className).toContain('rounded-lg');
+
+    // Editor rating text matches detail integer format (({rating || 0}/5))
+    expect(screen.getByText('(5/5)')).toBeDefined();
+
+    // Search input provides an accessible aria-label
+    expect(screen.getByLabelText('Search reviews')).toBeDefined();
   });
 });
 

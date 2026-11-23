@@ -14,6 +14,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+import { ModalShell } from "../../components/shared/ModalShell";
+
 export type AuthMode = "signin" | "signup" | "forgot" | "update_password";
 
 const MODAL_TITLES: Record<AuthMode, string> = {
@@ -21,6 +23,13 @@ const MODAL_TITLES: Record<AuthMode, string> = {
   signup: "Create Account",
   forgot: "Reset Your Password",
   update_password: "Choose New Password",
+};
+
+const MODAL_SUBTITLES: Record<AuthMode, string> = {
+  signin: "Access your saved recipes, bean cellar, and tasting reviews.",
+  signup: "Save custom brew profiles, bean inventory, and cupping notes.",
+  forgot: "Recover access to your BrewLog cloud account.",
+  update_password: "Set a new password for your BrewLog account.",
 };
 
 interface AuthModalProps {
@@ -157,25 +166,99 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setSubmitting(false);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-      <div className="w-full max-w-md p-6 rounded-xl bg-panel border border-border-subtle shadow-2xl space-y-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Sparkles className="w-5 h-5 text-accent" />
-            <h3 className="text-base font-bold text-foreground font-mono tracking-tight">
-              {MODAL_TITLES[mode]}
-            </h3>
-          </div>
-          <button
-            onClick={handleClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground-muted hover:text-foreground cursor-pointer text-sm"
-            aria-label="Close authentication modal"
-          >
-            ✕
-          </button>
-        </div>
+  const showForm = !needsEmailConfirmation && !(isUpdatePassword && successMsg);
 
+  const authFooter = needsEmailConfirmation ? (
+    <>
+      <button
+        type="button"
+        onClick={() => switchMode("signin")}
+        className="h-10 inline-flex items-center space-x-1.5 px-4 rounded-lg bg-accent text-canvas font-mono text-xs uppercase tracking-wider font-bold hover:bg-accent-hover cursor-pointer transition-colors"
+      >
+        <span>GO TO SIGN IN</span>
+        <ArrowRight className="w-3.5 h-3.5" />
+      </button>
+
+      <button
+        type="button"
+        onClick={handleClose}
+        className="h-10 inline-flex items-center justify-center px-3 rounded-lg text-xs font-mono uppercase tracking-wider text-foreground-muted hover:text-foreground cursor-pointer"
+      >
+        CLOSE
+      </button>
+    </>
+  ) : showForm ? (
+    <div className="w-full space-y-2">
+      <button
+        type="submit"
+        disabled={submitting}
+        className="w-full h-10 flex items-center justify-center space-x-2 px-4 rounded-lg bg-accent hover:bg-accent-hover text-canvas font-mono text-xs uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all active:scale-95 disabled:opacity-50"
+      >
+        {isSignIn ? (
+          <>
+            <LogIn className="w-4 h-4" />
+            <span>{submitting ? "SIGNING IN..." : "SIGN IN"}</span>
+          </>
+        ) : isSignUp ? (
+          <>
+            <UserPlus className="w-4 h-4" />
+            <span>{submitting ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"}</span>
+          </>
+        ) : isForgot ? (
+          <>
+            <KeyRound className="w-4 h-4" />
+            <span>{submitting ? "SENDING LINK..." : "SEND PASSWORD RESET LINK"}</span>
+          </>
+        ) : (
+          <>
+            <ShieldCheck className="w-4 h-4" />
+            <span>{submitting ? "UPDATING PASSWORD..." : "SAVE NEW PASSWORD"}</span>
+          </>
+        )}
+      </button>
+
+      {isForgot && (
+        <button
+          type="button"
+          onClick={() => switchMode("signin")}
+          className="w-full h-8 flex items-center justify-center space-x-1.5 px-3 rounded-lg text-xs font-mono uppercase tracking-wider text-foreground-muted hover:text-foreground cursor-pointer transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>BACK TO SIGN IN</span>
+        </button>
+      )}
+    </div>
+  ) : undefined;
+
+  return (
+    <ModalShell
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={MODAL_TITLES[mode]}
+      subtitle={MODAL_SUBTITLES[mode]}
+      icon={<Sparkles className="w-5 h-5" />}
+      titleId="auth-modal-title"
+      headingLevel={3}
+      closeButtonLabel="Close authentication modal"
+      maxWidthClassName="max-w-md"
+      bodyClassName="space-y-4"
+      formClassName="text-sm"
+      footerClassName={needsEmailConfirmation ? "justify-between" : ""}
+      testIdPrefix="auth-modal"
+      onSubmit={showForm ? handleSubmit : undefined}
+      alert={
+        errorMsg ? (
+          <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/25 text-red-300 text-xs flex items-start space-x-2.5 font-mono">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-400" />
+            <div className="space-y-1">
+              <span className="font-semibold block uppercase tracking-wider text-[11px]">Authentication Notice</span>
+              <span>{errorMsg}</span>
+            </div>
+          </div>
+        ) : undefined
+      }
+      footer={authFooter}
+    >
         {/* Tab Switcher for Sign In / Sign Up */}
         {isCredentialMode ? (
           <div className="flex rounded-lg bg-panel-recessed p-1 border border-border-subtle">
@@ -221,16 +304,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           </div>
         )}
 
-        {errorMsg && (
-          <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/25 text-red-300 text-xs flex items-start space-x-2.5 font-mono">
-            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-400" />
-            <div className="space-y-1">
-              <span className="font-semibold block uppercase tracking-wider text-[11px]">Authentication Notice</span>
-              <span>{errorMsg}</span>
-            </div>
-          </div>
-        )}
-
         {needsEmailConfirmation ? (
           <div className="p-5 rounded-lg bg-panel border border-border-subtle text-foreground space-y-4 text-center animate-fade-in">
             <div className="w-12 h-12 rounded-lg bg-panel-recessed border border-border-subtle flex items-center justify-center mx-auto text-accent shadow-sm">
@@ -255,25 +328,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 <li>Return here to log into your account!</li>
               </ol>
             </div>
-
-            <div className="pt-2 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => switchMode("signin")}
-                className="h-8 inline-flex items-center space-x-1.5 px-4 rounded-lg bg-accent text-canvas font-mono text-xs uppercase tracking-wider font-bold hover:bg-accent-hover cursor-pointer transition-colors"
-              >
-                <span>GO TO SIGN IN</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-
-              <button
-                type="button"
-                onClick={handleClose}
-                className="h-8 inline-flex items-center justify-center px-3 rounded-lg text-xs font-mono uppercase tracking-wider text-foreground-muted hover:text-foreground cursor-pointer"
-              >
-                CLOSE
-              </button>
-            </div>
           </div>
         ) : isUpdatePassword && successMsg ? (
           <div className="py-8 text-center space-y-4 animate-fade-in">
@@ -291,7 +345,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-3.5 text-sm">
+          <div className="space-y-3.5 text-sm">
             {successMsg && (
               <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-start space-x-2 font-mono">
                 <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
@@ -387,50 +441,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 </div>
               </div>
             )}
-
-            <div className="pt-2 space-y-2">
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full h-10 flex items-center justify-center space-x-2 px-4 rounded-lg bg-accent hover:bg-accent-hover text-canvas font-mono text-xs uppercase tracking-wider font-bold shadow-md cursor-pointer transition-all active:scale-95 disabled:opacity-50"
-              >
-                {isSignIn ? (
-                  <>
-                    <LogIn className="w-4 h-4" />
-                    <span>{submitting ? "SIGNING IN..." : "SIGN IN"}</span>
-                  </>
-                ) : isSignUp ? (
-                  <>
-                    <UserPlus className="w-4 h-4" />
-                    <span>{submitting ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"}</span>
-                  </>
-                ) : isForgot ? (
-                  <>
-                    <KeyRound className="w-4 h-4" />
-                    <span>{submitting ? "SENDING LINK..." : "SEND PASSWORD RESET LINK"}</span>
-                  </>
-                ) : (
-                  <>
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>{submitting ? "UPDATING PASSWORD..." : "SAVE NEW PASSWORD"}</span>
-                  </>
-                )}
-              </button>
-
-              {isForgot && (
-                <button
-                  type="button"
-                  onClick={() => switchMode("signin")}
-                  className="w-full h-8 flex items-center justify-center space-x-1.5 px-3 rounded-lg text-xs font-mono uppercase tracking-wider text-foreground-muted hover:text-foreground cursor-pointer transition-colors"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>BACK TO SIGN IN</span>
-                </button>
-              )}
-            </div>
-          </form>
+          </div>
         )}
-      </div>
-    </div>
+    </ModalShell>
   );
 };

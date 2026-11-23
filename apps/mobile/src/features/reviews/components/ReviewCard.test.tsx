@@ -10,17 +10,19 @@ vi.mock('react-native', () => ({
   View: ({
     children,
     style,
+    testID,
     accessibilityRole,
     accessibilityLabel,
     ...props
   }: {
     children?: React.ReactNode;
     style?: unknown;
+    testID?: string;
     accessibilityRole?: string;
     accessibilityLabel?: string;
     [key: string]: unknown;
   }) => (
-    <div role={accessibilityRole} aria-label={accessibilityLabel} {...props}>
+    <div data-testid={testID} role={accessibilityRole} aria-label={accessibilityLabel} {...props}>
       {children}
     </div>
   ),
@@ -28,13 +30,19 @@ vi.mock('react-native', () => ({
     children,
     style,
     numberOfLines,
+    testID,
     ...props
   }: {
     children?: React.ReactNode;
     style?: unknown;
     numberOfLines?: number;
+    testID?: string;
     [key: string]: unknown;
-  }) => <span {...props}>{children}</span>,
+  }) => (
+    <span data-testid={testID} {...props}>
+      {children}
+    </span>
+  ),
   Pressable: ({
     children,
     onPress,
@@ -104,47 +112,72 @@ const mockReview: TastingLog = {
   },
   calculatedScaScore: 90.0,
   rating: 5,
-  flavorTags: ['Jasmine', 'Peach', 'Bergamot'],
+  flavorTags: ['Jasmine', 'Peach', 'Bergamot', 'Honey'],
   notes: 'Floral and vibrant',
   wouldBrewAgain: true,
   createdAt: '2026-09-02T10:05:00.000Z',
 };
 
-describe('ReviewCard', () => {
+describe('ReviewCard (mobile)', () => {
   afterEach(cleanup);
 
-  it('renders coffee name, roaster, brew method, and rating', () => {
+  it('renders aligned 5-part hierarchy with tier badge, 3 tags + overflow, notes, and telemetry footer', () => {
     const onPress = vi.fn();
-    const { getByText } = render(
+    const { getByTestId, queryByText } = render(
       <ReviewCard review={mockReview} onPress={onPress} />
     );
 
-    expect(getByText('Worka Sakaro Anaerobic')).toBeTruthy();
-    expect(getByText('SEY COFFEE')).toBeTruthy();
-    expect(getByText('V60')).toBeTruthy();
-    expect(getByText('90.0')).toBeTruthy();
+    const header = getByTestId('review-card-header');
+    const identity = getByTestId('review-card-identity');
+    const tags = getByTestId('review-card-tags');
+    const notes = getByTestId('review-card-notes');
+    const footer = getByTestId('review-card-footer');
+
+    expect(header.compareDocumentPosition(identity) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(identity.compareDocumentPosition(tags) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(tags.compareDocumentPosition(notes) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(notes.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    expect(header.textContent).toContain('5');
+    expect(header.textContent).toContain('90.0');
+    expect(header.textContent).toContain('Outstanding');
+
+    expect(identity.textContent).toContain('Worka Sakaro Anaerobic');
+    expect(identity.textContent).toContain('Sey Coffee');
+
+    expect(tags.textContent).toContain('Jasmine');
+    expect(tags.textContent).toContain('Peach');
+    expect(tags.textContent).toContain('Bergamot');
+    expect(tags.textContent).toContain('+1');
+
+    expect(notes.textContent).toContain('Floral and vibrant');
+
+    expect(footer.textContent).toContain('V60');
+    expect(footer.textContent).toContain('20g:300g');
+
+    expect(queryByText(/Fellow Ode Gen 2/)).toBeNull();
+    expect(queryByText(/18 clicks/)).toBeNull();
+    expect(queryByText(/Hario V60 02/)).toBeNull();
   });
 
-  it('renders equipment snapshot and grind setting', () => {
-    const onPress = vi.fn();
-    const { getByText } = render(
-      <ReviewCard review={mockReview} onPress={onPress} />
+  it('renders 0.0 and Commercial badge for unscored reviews and omits empty notes/tags', () => {
+    const unscoredReview: TastingLog = {
+      ...mockReview,
+      calculatedScaScore: 0,
+      rating: 0,
+      flavorTags: [],
+      notes: '',
+    };
+
+    const { getByTestId, queryByTestId } = render(
+      <ReviewCard review={unscoredReview} onPress={vi.fn()} />
     );
 
-    expect(getByText(/Fellow Ode Gen 2/)).toBeTruthy();
-    expect(getByText(/18 clicks/)).toBeTruthy();
-    expect(getByText(/Hario V60 02/)).toBeTruthy();
-  });
-
-  it('renders flavor tags', () => {
-    const onPress = vi.fn();
-    const { getByText } = render(
-      <ReviewCard review={mockReview} onPress={onPress} />
-    );
-
-    expect(getByText('Jasmine')).toBeTruthy();
-    expect(getByText('Peach')).toBeTruthy();
-    expect(getByText('Bergamot')).toBeTruthy();
+    const header = getByTestId('review-card-header');
+    expect(header.textContent).toContain('0.0');
+    expect(header.textContent).toContain('Commercial');
+    expect(queryByTestId('review-card-tags')).toBeNull();
+    expect(queryByTestId('review-card-notes')).toBeNull();
   });
 
   it('triggers onPress when pressed', () => {
@@ -166,12 +199,12 @@ describe('ReviewCard', () => {
       resetToDefaults: vi.fn(),
     };
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <SettingsContext.Provider value={mockContext}>
         <ReviewCard review={mockReview} onPress={onPress} />
       </SettingsContext.Provider>
     );
 
-    expect(getByText('2026-09-02')).toBeTruthy();
+    expect(getByTestId('review-card-footer').textContent).toContain('2026-09-02');
   });
 });

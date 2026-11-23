@@ -354,4 +354,25 @@ describe("EquipmentView", () => {
 
     expect(handleDelete).toHaveBeenCalledWith("grinder-1");
   });
+
+  it("renders equipment modal using the shared pinned header and footer shell", () => {
+    render(<EquipmentView equipment={MOCK_EQUIPMENT} onAddEquipment={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /add equipment/i }));
+
+    const modal = screen.getByTestId("equipment-modal");
+    const header = screen.getByTestId("equipment-modal-header");
+    const body = screen.getByTestId("equipment-modal-body");
+    const footer = screen.getByTestId("equipment-modal-footer");
+
+    expect(modal.className).toContain("flex-col");
+    expect(modal.className).toContain("overflow-hidden");
+    expect(header.className).toContain("shrink-0");
+    expect(header.contains(screen.getByRole("heading", { name: "Add Equipment" }))).toBe(true);
+    expect(header.contains(screen.getByRole("button", { name: /close dialog/i }))).toBe(true);
+    expect(body.className).toContain("overflow-y-auto");
+    expect(body.contains(header)).toBe(false);
+    expect(footer.className).toContain("shrink-0");
+    expect(body.contains(footer)).toBe(false);
+  });
 });

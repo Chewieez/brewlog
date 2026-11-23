@@ -152,5 +152,29 @@ describe('ConfirmationModal', () => {
     fireEvent.click(screen.getByText('Delete Item?'));
     expect(onClose).not.toHaveBeenCalled();
   });
+
+  it('uses the shared pinned header and footer modal shell', () => {
+    render(
+      <ConfirmationModal
+        isOpen={true}
+        title="Delete Item?"
+        message="Are you sure?"
+        onClose={vi.fn()}
+        onConfirm={vi.fn()}
+      />
+    );
+
+    const modal = screen.getByTestId('confirmation-modal');
+    const header = screen.getByTestId('confirmation-modal-header');
+    const body = screen.getByTestId('confirmation-modal-body');
+    const footer = screen.getByTestId('confirmation-modal-footer');
+
+    expect(modal.className).toContain('flex-col');
+    expect(modal.className).toContain('overflow-hidden');
+    expect(header.className).toContain('shrink-0');
+    expect(header.contains(screen.getByRole('button', { name: /close dialog/i }))).toBe(true);
+    expect(body.className).toContain('overflow-y-auto');
+    expect(footer.className).toContain('shrink-0');
+  });
 });
 
