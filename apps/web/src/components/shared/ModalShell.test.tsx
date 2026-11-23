@@ -71,4 +71,36 @@ describe('ModalShell', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.activeElement).toBe(trigger);
   });
+
+  it('moves initial focus into the dialog on open and traps Tab/Shift+Tab within focusable elements', () => {
+    render(
+      <ModalShell
+        isOpen={true}
+        onClose={vi.fn()}
+        title="Focus Trap Dialog"
+        titleId="trap-modal-title"
+        testIdPrefix="trap-modal"
+        closeButtonLabel="Close trap dialog"
+        footer={<button type="button">Confirm Action</button>}
+      >
+        <input aria-label="First field" />
+      </ModalShell>
+    );
+
+    const closeBtn = screen.getByRole('button', { name: 'Close trap dialog' });
+    const input = screen.getByLabelText('First field');
+    const confirmBtn = screen.getByRole('button', { name: 'Confirm Action' });
+
+    // Initial focus moves to first interactive body control
+    expect(document.activeElement).toBe(input);
+
+    // Tab from last focusable wraps to first focusable (header close button)
+    confirmBtn.focus();
+    fireEvent.keyDown(window, { key: 'Tab' });
+    expect(document.activeElement).toBe(closeBtn);
+
+    // Shift+Tab from first focusable wraps back to last focusable
+    fireEvent.keyDown(window, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(confirmBtn);
+  });
 });

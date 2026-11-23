@@ -46,6 +46,22 @@ export interface ModalShellProps {
   closeOnEscape?: boolean;
 }
 
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled]):not([type="hidden"])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(', ');
+
+function getFocusableElements(container: HTMLElement | null): HTMLElement[] {
+  if (!container) return [];
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+    (el) => !el.hasAttribute('hidden') && el.getAttribute('aria-hidden') !== 'true'
+  );
+}
+
 /**
  * Shared desktop/web modal frame matching the Recipe Builder layout:
  * pinned header (icon badge, title, optional subtitle, X button), optional pinned alert,
@@ -76,12 +92,23 @@ export const ModalShell: React.FC<ModalShellProps> = ({
 }) => {
   const wasOpenRef = useRef(false);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const backdropRef = useRef<HTMLDivElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const bodyRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (isOpen && !wasOpenRef.current) {
       previousFocusRef.current =
         document.activeElement instanceof HTMLElement ? document.activeElement : null;
       wasOpenRef.current = true;
+
+      const dialogEl = dialogRef.current;
+      if (dialogEl && !dialogEl.contains(document.activeElement)) {
+        const bodyFocusables = getFocusableElements(bodyRef.current);
+        const dialogFocusables = getFocusableElements(dialogEl);
+        const initialTarget = bodyFocusables[0] ?? dialogFocusables[0] ?? dialogEl;
+        initialTarget.focus();
+      }
     } else if (!isOpen && wasOpenRef.current) {
       wasOpenRef.current = false;
       const prev = previousFocusRef.current;
@@ -106,10 +133,49 @@ export const ModalShell: React.FC<ModalShellProps> = ({
   }, []);
 
   useEffect(() => {
-    if (!isOpen || !closeOnEscape) return;
+    if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        if (closeOnEscape) {
+          onClose();
+        }
+        return;
+      }
+
+      if (e.key !== 'Tab') return;
+
+      // Yield focus trapping to the topmost dialog when modals are nested.
+      const openDialogs = document.querySelectorAll('[role="dialog"]');
+      if (openDialogs.length > 0 && openDialogs[openDialogs.length - 1] !== backdropRef.current) {
+        return;
+      }
+
+      const dialogEl = dialogRef.current;
+      if (!dialogEl) return;
+
+      const focusables = getFocusableElements(dialogEl);
+      if (focusables.length === 0) {
+        e.preventDefault();
+        dialogEl.focus();
+        return;
+      }
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (!active || !dialogEl.contains(active) || active === dialogEl) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+        return;
+      }
+
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -129,6 +195,7 @@ export const ModalShell: React.FC<ModalShellProps> = ({
   const content = (
     <>
       <div
+        ref={bodyRef}
         data-testid={bodyTestId}
         className={`flex-1 min-h-0 overflow-y-auto px-6 py-5 ${bodyClassName}`.trim()}
       >
@@ -148,6 +215,7 @@ export const ModalShell: React.FC<ModalShellProps> = ({
 
   return (
     <div
+      ref={backdropRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
       role="dialog"
       aria-modal="true"
@@ -159,8 +227,10 @@ export const ModalShell: React.FC<ModalShellProps> = ({
       }}
     >
       <div
+        ref={dialogRef}
+        tabIndex={-1}
         data-testid={resolvedModalTestId}
-        className={`w-full ${maxWidthClassName} max-h-[90vh] flex flex-col overflow-hidden rounded-xl bg-panel border border-border-subtle shadow-2xl`.trim()}
+        className={`w-full ${maxWidthClassName} max-h-[90vh] flex flex-col overflow-hidden rounded-xl bg-panel border border-border-subtle shadow-2xl focus:outline-none`.trim()}
       >
         {/* Pinned Header */}
         <div

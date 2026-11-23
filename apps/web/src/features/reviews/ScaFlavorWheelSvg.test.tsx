@@ -179,6 +179,7 @@ describe('ScaFlavorWheelSvg', () => {
 
     // Hover / click unselected descriptor inspects without Add Note button or toggling
     const peachSlice = screen.getByRole('checkbox', { name: /Peach/i });
+    expect(peachSlice.getAttribute('aria-readonly')).toBe('true');
     fireEvent.mouseEnter(peachSlice);
     expect(screen.getByText('Peach')).toBeDefined();
     expect(screen.queryByRole('button', { name: /Add Peach/i })).toBeNull();

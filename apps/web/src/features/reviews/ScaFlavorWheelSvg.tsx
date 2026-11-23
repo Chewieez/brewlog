@@ -341,6 +341,7 @@ export const ScaFlavorWheelSvg: React.FC<ScaFlavorWheelSvgProps> = ({
                 role="checkbox"
                 tabIndex={focusedIndex === index ? 0 : -1}
                 aria-checked={slice.isSelected}
+                aria-readonly={readOnly || undefined}
                 aria-label={`${slice.name}, category ${slice.category}, ${slice.isSelected ? 'Selected' : 'Not selected'}`}
                 className="cursor-pointer focus:outline-none"
                 onClick={() => handleDescriptorClick(slice)}
