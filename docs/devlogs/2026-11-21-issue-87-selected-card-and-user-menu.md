@@ -27,6 +27,10 @@ This change unifies the selected/unselected card styling and active ARIA attribu
 ### 2. Account Trigger & Dropdown Typography (`UserMenu.tsx`)
 - **`apps/web/src/features/auth/UserMenu.tsx`:** Updated the signed-in account trigger button (`type="button"`, avatar initial, and `displayName` label) and the open dropdown container (`Settings` `<Link>` and `Sign Out` `<button type="button">`) from `font-mono` / uppercase to mixed-case `font-sans text-xs lg:text-sm font-medium` matching `Header.tsx` navigation links, with `h-8` sizing, `displayName` (`text-sm font-semibold`) + `user.email` (`text-xs text-foreground-muted`) dropdown header styling, and `group-hover:text-status-error` replacing hardcoded `group-hover:text-red-400`.
 
+### 3. Settings Copy & Heading Polish (`SettingsRoute.tsx` & `apps/mobile/app/settings/modal.tsx`)
+- **`apps/web/src/routes/SettingsRoute.tsx`:** Removed the redundant `SYSTEM // CALIBRATION` eyebrow above the page heading and simplified `APPEARANCE // THEME` to `APPEARANCE` (matching mobile).
+- **Web & Mobile Settings Sync Copy:** Replaced `"Instrument preferences synced across devices."` with `"Your settings, beans, recipes, equipment, and reviews sync across web and mobile."` in both `SettingsRoute.tsx` and `apps/mobile/app/settings/modal.tsx`.
+
 ---
 
 ## Safeguards & Accessibility

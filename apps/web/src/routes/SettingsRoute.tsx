@@ -44,9 +44,6 @@ export const SettingsRoute: React.FC = () => {
     <div className="max-w-4xl mx-auto pb-16 space-y-8 animate-fade-in">
       {/* Page Header */}
       <div className="border-b border-border-subtle pb-6">
-        <div className="text-[11px] font-mono tracking-widest text-foreground-muted uppercase mb-1.5">
-          SYSTEM // CALIBRATION
-        </div>
         <div className="flex items-center space-x-3">
           <div className="w-9 h-9 rounded-lg bg-panel-recessed border border-border-subtle flex items-center justify-center text-accent">
             <Settings className="w-5 h-5" />
@@ -173,7 +170,7 @@ export const SettingsRoute: React.FC = () => {
 
       {/* Preferences Sections */}
       <div className="space-y-6">
-        {/* Section: Appearance / Theme */}
+        {/* Section: Appearance */}
         <section
           aria-labelledby="theme-heading"
           className="bg-panel border border-border-subtle rounded-xl p-5 sm:p-6 shadow-sm"
@@ -184,7 +181,7 @@ export const SettingsRoute: React.FC = () => {
                 id="theme-heading"
                 className="text-sm font-mono font-bold uppercase tracking-wider text-foreground"
               >
-                APPEARANCE // THEME
+                APPEARANCE
               </h2>
               <p className="text-xs text-foreground-muted mt-1">
                 Visual workspace theme and ambient contrast
@@ -483,7 +480,7 @@ export const SettingsRoute: React.FC = () => {
               )}
               <p className="text-xs text-foreground-secondary">
                 {user
-                  ? 'Instrument preferences synced across devices.'
+                  ? 'Your settings, beans, recipes, equipment, and reviews sync across web and mobile.'
                   : 'Saved to local device. Sign in to sync across platforms.'}
               </p>
             </div>

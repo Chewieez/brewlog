@@ -224,6 +224,11 @@ describe('SettingsModalScreen', () => {
 
     expect(getByText(/CLOUD SYNC ACTIVE/i)).toBeTruthy();
     expect(getByText('barista@brewlog.dev')).toBeTruthy();
+    expect(
+      getByText(
+        'Your settings, beans, recipes, equipment, and reviews sync across web and mobile.'
+      )
+    ).toBeTruthy();
   });
 
   it('updates settings and triggers haptic feedback when selecting options', () => {

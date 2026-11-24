@@ -329,7 +329,7 @@ export default function SettingsModalScreen() {
               ) : null}
               <Text style={styles.statusDescription}>
                 {user
-                  ? 'Instrument preferences synced across devices.'
+                  ? 'Your settings, beans, recipes, equipment, and reviews sync across web and mobile.'
                   : 'Saved to local device. Sign in to sync across platforms.'}
               </Text>
             </View>
