@@ -43,6 +43,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
     <div
       onClick={() => onSelect(log)}
       role="button"
+      aria-pressed={isSelected}
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -55,7 +56,7 @@ export const ReviewCard: React.FC<ReviewCardProps> = ({
       className={`p-4 rounded-xl border cursor-pointer transition-all text-left relative ${
         isSelected
           ? 'bg-panel-recessed border-accent shadow-sm'
-          : 'bg-panel border-border-subtle hover:border-border-active'
+          : 'bg-panel border-border-subtle hover:border-border-active hover:bg-panel-recessed/40'
       }`}
     >
       {/* 1. Header: Star Rating & SCA Score + Tier Badge */}
