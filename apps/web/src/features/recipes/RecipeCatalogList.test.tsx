@@ -448,4 +448,39 @@ describe('RecipeCatalogList', () => {
       })
     ).toBeNull();
   });
+
+  it('styles the selected recipe card with a full hairline accent border and no left stripe', () => {
+    const activeId = DEFAULT_PRESET_RECIPES[0].id;
+    render(
+      <MemoryRouter>
+        <RecipeCatalogList
+          recipes={DEFAULT_PRESET_RECIPES}
+          activeRecipeId={activeId}
+          selectedMethodFilter="all"
+          onSelectMethodFilter={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+
+    const cards = screen.getAllByTestId('recipe-catalog-card');
+    const selectedCard = cards[0];
+    const unselectedCard = cards[1];
+
+    expect(selectedCard.className).toContain('bg-panel-recessed');
+    expect(selectedCard.className).toContain('border-accent');
+    expect(selectedCard.className).toContain('shadow-sm');
+    expect(selectedCard.className).not.toContain('border-l-4');
+    expect(selectedCard.querySelector('.bg-accent.w-1')).toBeNull();
+
+    const selectedLink = within(selectedCard).getByRole('link');
+    expect(selectedLink.getAttribute('aria-current')).toBe('page');
+
+    expect(unselectedCard.className).toContain('bg-panel');
+    expect(unselectedCard.className).toContain('border-border-subtle');
+    expect(unselectedCard.className).toContain('hover:bg-panel-recessed/40');
+    expect(unselectedCard.className).not.toContain('border-accent');
+
+    const unselectedLink = within(unselectedCard).getByRole('link');
+    expect(unselectedLink.getAttribute('aria-current')).toBeNull();
+  });
 });

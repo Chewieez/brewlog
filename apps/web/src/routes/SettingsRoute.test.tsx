@@ -47,8 +47,9 @@ describe('SettingsRoute', () => {
     );
 
     expect(screen.getByRole('heading', { name: /^SETTINGS$/i })).toBeDefined();
-    expect(screen.getByText(/SYSTEM \/\/ CALIBRATION/i)).toBeDefined();
-    expect(screen.getByText(/APPEARANCE \/\/ THEME/i)).toBeDefined();
+    expect(screen.queryByText(/SYSTEM \/\/ CALIBRATION/i)).toBeNull();
+    expect(screen.getByRole('heading', { name: /^APPEARANCE$/i })).toBeDefined();
+    expect(screen.queryByText(/APPEARANCE \/\/ THEME/i)).toBeNull();
     expect(screen.getByText(/WEIGHT UNIT/i)).toBeDefined();
     expect(screen.getByText(/TEMPERATURE UNIT/i)).toBeDefined();
     expect(screen.getByText(/DEFAULT TIMER MODE/i)).toBeDefined();
@@ -333,6 +334,11 @@ describe('SettingsRoute', () => {
 
     expect(screen.getByText(/CLOUD SYNC ACTIVE/i)).toBeDefined();
     expect(screen.getByText('barista@brewlog.app')).toBeDefined();
+    expect(
+      screen.getByText(
+        'Your settings, beans, recipes, equipment, and reviews sync across web and mobile.'
+      )
+    ).toBeDefined();
   });
 
   describe('UserMenu navigation entry', () => {

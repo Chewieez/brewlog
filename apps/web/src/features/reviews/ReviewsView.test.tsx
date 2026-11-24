@@ -1107,5 +1107,31 @@ describe('ReviewsView Master-Detail Cupping Journal', () => {
     // Search input provides an accessible aria-label
     expect(screen.getByLabelText('Search reviews')).toBeDefined();
   });
+
+  it('toggles aria-pressed and selected review card styling when switching cards or entering create mode', () => {
+    render(
+      <ReviewsView
+        logs={[sampleLog1, sampleLog2]}
+        beans={INITIAL_BEANS}
+        equipment={mockEquipment}
+        onAddTastingLog={vi.fn()}
+      />
+    );
+
+    const masterFeed = screen.getByTestId('master-feed');
+    const card1 = within(masterFeed).getByText('Worka Sakaro').closest('[role="button"]')!;
+    const card2 = within(masterFeed).getByText('El Paraiso').closest('[role="button"]')!;
+
+    expect(card1.getAttribute('aria-pressed')).toBe('true');
+    expect(card2.getAttribute('aria-pressed')).toBe('false');
+
+    fireEvent.click(card2);
+    expect(card1.getAttribute('aria-pressed')).toBe('false');
+    expect(card2.getAttribute('aria-pressed')).toBe('true');
+
+    fireEvent.click(screen.getByRole('button', { name: /LOG REVIEW/i }));
+    expect(card2.getAttribute('aria-pressed')).toBe('false');
+    expect(card2.className).not.toContain('border-accent');
+  });
 });
 

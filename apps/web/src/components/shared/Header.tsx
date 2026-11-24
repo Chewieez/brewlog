@@ -5,22 +5,18 @@ import { Link, NavLink } from 'react-router';
 import { ThemeToggle } from './ThemeToggle';
 
 export interface HeaderProps {
-  beanCount: number;
-  brewCount: number;
   onOpenAuthModal: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  beanCount,
-  brewCount,
   onOpenAuthModal,
 }) => {
   const tabs = [
     { id: 'timer', path: '/timer', label: 'Brew Timer', icon: Timer },
-    { id: 'stash', path: '/stash', label: 'Bean Stash', icon: Bean, badge: beanCount },
+    { id: 'stash', path: '/stash', label: 'Bean Stash', icon: Bean },
     { id: 'recipes', path: '/recipes', label: 'Recipes', icon: BookOpen },
     { id: 'equipment', path: '/equipment', label: 'Equipment', icon: Scale },
-    { id: 'reviews', path: '/reviews', label: 'Reviews', icon: Award, badge: brewCount },
+    { id: 'reviews', path: '/reviews', label: 'Reviews', icon: Award },
   ];
 
   return (
@@ -61,11 +57,6 @@ export const Header: React.FC<HeaderProps> = ({
                     <>
                       <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-accent' : 'text-foreground-muted'}`} />
                       <span>{tab.label}</span>
-                      {tab.badge !== undefined && tab.badge > 0 && (
-                        <span className="ml-1 px-1.5 py-0.2 text-[10px] lg:text-[11px] font-mono font-medium rounded-md bg-panel-recessed text-foreground-muted border border-border-subtle flex-shrink-0">
-                          {tab.badge}
-                        </span>
-                      )}
                     </>
                   )}
                 </NavLink>
@@ -102,11 +93,6 @@ export const Header: React.FC<HeaderProps> = ({
                   <>
                     <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? 'text-accent' : 'text-foreground-muted'}`} />
                     <span>{tab.label}</span>
-                    {tab.badge !== undefined && tab.badge > 0 && (
-                      <span className="ml-1 px-1.5 py-0.2 text-[10px] font-mono font-medium rounded-md bg-panel-recessed text-foreground-muted border border-border-subtle">
-                        {tab.badge}
-                      </span>
-                    )}
                   </>
                 )}
               </NavLink>

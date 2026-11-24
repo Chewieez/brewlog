@@ -90,7 +90,7 @@ const useStyles = makeStyles((colors) => ({
     overflow: "hidden",
   },
   initialsText: {
-    fontFamily: FONTS.monoBold,
+    fontFamily: FONTS.sansBold,
     fontSize: 11,
     fontWeight: "700",
     color: colors.foreground,

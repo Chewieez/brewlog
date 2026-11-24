@@ -14,33 +14,41 @@ vi.mock('../../features/auth/AuthContext', () => ({
 }));
 
 describe('Header', () => {
-  it('renders navigation links pointing to router paths', () => {
+  it('renders navigation links pointing to router paths without count badges', () => {
     render(
       <MemoryRouter initialEntries={['/timer']}>
         <SettingsProvider>
-          <Header beanCount={3} brewCount={5} onOpenAuthModal={vi.fn()} />
+          <Header onOpenAuthModal={vi.fn()} />
         </SettingsProvider>
       </MemoryRouter>
     );
 
     const timerLink = screen.getAllByRole('link', { name: /Brew Timer/i })[0];
-    const stashLink = screen.getAllByRole('link', { name: /Bean Stash/i })[0];
+    const stashLinks = screen.getAllByRole('link', { name: /Bean Stash/i });
     const recipesLink = screen.getAllByRole('link', { name: /Recipes/i })[0];
     const equipmentLink = screen.getAllByRole('link', { name: /Equipment/i })[0];
-    const reviewsLink = screen.getAllByRole('link', { name: /Reviews/i })[0];
+    const reviewsLinks = screen.getAllByRole('link', { name: /Reviews/i });
 
     expect(timerLink.getAttribute('href')).toBe('/timer');
-    expect(stashLink.getAttribute('href')).toBe('/stash');
+    expect(stashLinks).toHaveLength(2);
+    stashLinks.forEach((link) => {
+      expect(link.getAttribute('href')).toBe('/stash');
+      expect(link.textContent).toBe('Bean Stash');
+    });
     expect(recipesLink.getAttribute('href')).toBe('/recipes');
     expect(equipmentLink.getAttribute('href')).toBe('/equipment');
-    expect(reviewsLink.getAttribute('href')).toBe('/reviews');
+    expect(reviewsLinks).toHaveLength(2);
+    reviewsLinks.forEach((link) => {
+      expect(link.getAttribute('href')).toBe('/reviews');
+      expect(link.textContent).toBe('Reviews');
+    });
   });
 
   it('marks current route as active', () => {
     render(
       <MemoryRouter initialEntries={['/stash']}>
         <SettingsProvider>
-          <Header beanCount={3} brewCount={5} onOpenAuthModal={vi.fn()} />
+          <Header onOpenAuthModal={vi.fn()} />
         </SettingsProvider>
       </MemoryRouter>
     );
@@ -53,7 +61,7 @@ describe('Header', () => {
     render(
       <MemoryRouter initialEntries={['/recipes']}>
         <SettingsProvider>
-          <Header beanCount={3} brewCount={5} onOpenAuthModal={vi.fn()} />
+          <Header onOpenAuthModal={vi.fn()} />
         </SettingsProvider>
       </MemoryRouter>
     );
@@ -66,7 +74,7 @@ describe('Header', () => {
     render(
       <MemoryRouter initialEntries={['/timer']}>
         <SettingsProvider>
-          <Header beanCount={3} brewCount={5} onOpenAuthModal={vi.fn()} />
+          <Header onOpenAuthModal={vi.fn()} />
         </SettingsProvider>
       </MemoryRouter>
     );
@@ -94,7 +102,7 @@ describe('Header', () => {
     render(
       <MemoryRouter initialEntries={['/timer']}>
         <SettingsProvider>
-          <Header beanCount={0} brewCount={0} onOpenAuthModal={vi.fn()} />
+          <Header onOpenAuthModal={vi.fn()} />
         </SettingsProvider>
       </MemoryRouter>
     );

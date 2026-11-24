@@ -114,8 +114,12 @@ describe('ReviewCard (web)', () => {
     );
 
     const card = screen.getByRole('button');
+    expect(card.getAttribute('aria-pressed')).toBe('true');
     expect(card.className).toContain('border-accent');
     expect(card.className).toContain('bg-panel-recessed');
+    expect(card.className).toContain('shadow-sm');
+    expect(card.className).not.toContain('border-l-4');
+    expect(card.className).not.toContain('border-l-accent');
 
     fireEvent.click(card);
     expect(onSelect).toHaveBeenCalledTimes(1);
@@ -127,6 +131,24 @@ describe('ReviewCard (web)', () => {
     fireEvent(card, spaceEvent);
     expect(spaceEvent.defaultPrevented).toBe(true);
     expect(onSelect).toHaveBeenCalledTimes(3);
+  });
+
+  it('exposes aria-pressed="false" and unified hover styles when unselected', () => {
+    render(
+      <ReviewCard
+        log={sampleLog}
+        isSelected={false}
+        dateFormat="YYYY-MM-DD"
+        onSelect={vi.fn()}
+      />
+    );
+
+    const unselectedCard = screen.getByRole('button');
+    expect(unselectedCard.getAttribute('aria-pressed')).toBe('false');
+    expect(unselectedCard.className).toContain('bg-panel');
+    expect(unselectedCard.className).toContain('border-border-subtle');
+    expect(unselectedCard.className).toContain('hover:bg-panel-recessed/40');
+    expect(unselectedCard.className).not.toContain('border-accent');
   });
 
   it('omits brew duration from telemetry footer when actualTimeSeconds is 0', () => {
