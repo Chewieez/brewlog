@@ -177,19 +177,15 @@ export const RecipeCatalogList: React.FC<RecipeCatalogListProps> = ({
                 data-testid="recipe-catalog-card"
                 className={`p-4 rounded-xl border transition-[border-color,background-color,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] has-[a:active]:scale-[0.99] motion-reduce:transition-colors motion-reduce:has-[a:active]:scale-100 relative group overflow-hidden ${
                   isSelected
-                    ? 'bg-panel-recessed border-border-active'
+                    ? 'bg-panel-recessed border-accent shadow-sm'
                     : 'bg-panel border-border-subtle hover:border-border-active hover:bg-panel-recessed/40'
                 }`}
               >
-                {/* Active Copper Indicator */}
-                {isSelected && (
-                  <div className="absolute left-0 top-3.5 bottom-3.5 w-1 bg-accent rounded-r" />
-                )}
-
                 {/* Overlay Link for navigation and accessible card click */}
                 <Link
                   to={`/recipes/${r.id}`}
                   aria-label={r.name}
+                  aria-current={isSelected ? 'page' : undefined}
                   onClick={() => onSelectRecipe?.(r)}
                   className="absolute inset-0 rounded-xl z-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent/50"
                 />
