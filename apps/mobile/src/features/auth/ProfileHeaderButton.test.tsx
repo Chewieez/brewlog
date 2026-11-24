@@ -8,7 +8,11 @@ vi.mock("react-native", () => ({
       {children}
     </div>
   ),
-  Text: ({ children, style, ...props }: any) => <span {...props}>{children}</span>,
+  Text: ({ children, style, ...props }: any) => (
+    <span data-style={JSON.stringify(style)} {...props}>
+      {children}
+    </span>
+  ),
   Pressable: ({
     children,
     onPress,
@@ -124,7 +128,10 @@ describe("ProfileHeaderButton", () => {
 
     const { getByText, getByTestId } = render(<ProfileHeaderButton onPress={vi.fn()} />);
 
-    expect(getByText("GL")).toBeDefined();
+    const initialsEl = getByText("GL");
+    expect(initialsEl).toBeDefined();
+    expect(initialsEl.getAttribute("data-style")).toContain("Outfit_700Bold");
+    expect(initialsEl.getAttribute("data-style")).not.toContain("JetBrainsMono");
     expect(getByTestId("connection-dot")).toBeDefined();
   });
 

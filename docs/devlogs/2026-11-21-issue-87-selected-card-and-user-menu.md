@@ -24,8 +24,9 @@ This change unifies the selected/unselected card styling and active ARIA attribu
 - **`apps/web/src/features/recipes/RecipeCatalogList.tsx`:** Updated selected cards to `bg-panel-recessed border-accent shadow-sm`, removed the single-sided `<div className="absolute left-0 top-3.5 bottom-3.5 w-1 bg-accent rounded-r" />` bar (complying with `design-doctrine` against one-sided colored borders), and added `aria-current={isSelected ? 'page' : undefined}` to the card's overlay `<Link>`.
 - **`apps/web/src/features/reviews/ReviewCard.tsx`:** Added `aria-pressed={isSelected}` to the `role="button"` card container and aligned the unselected hover styling to `hover:border-border-active hover:bg-panel-recessed/40` alongside the existing `bg-panel-recessed border-accent shadow-sm` selected state.
 
-### 2. Account Trigger & Dropdown Typography (`UserMenu.tsx`)
+### 2. Account Trigger & Dropdown Typography (`UserMenu.tsx` & `ProfileHeaderButton.tsx`)
 - **`apps/web/src/features/auth/UserMenu.tsx`:** Updated the signed-in account trigger button (`type="button"`, avatar initial, and `displayName` label) and the open dropdown container (`Settings` `<Link>` and `Sign Out` `<button type="button">`) from `font-mono` / uppercase to mixed-case `font-sans text-xs lg:text-sm font-medium` matching `Header.tsx` navigation links, with `h-8` sizing, `displayName` (`text-sm font-semibold`) + `user.email` (`text-xs text-foreground-muted`) dropdown header styling, and `group-hover:text-status-error` replacing hardcoded `group-hover:text-red-400`.
+- **`apps/mobile/src/features/auth/ProfileHeaderButton.tsx`:** Updated `initialsText` from `FONTS.monoBold` (`JetBrainsMono_700Bold`) to `FONTS.sansBold` (`Outfit_700Bold`) to maintain cross-platform typography parity with Web's `UserMenu` avatar initial.
 
 ### 3. Settings Copy & Heading Polish (`SettingsRoute.tsx` & `apps/mobile/app/settings/modal.tsx`)
 - **`apps/web/src/routes/SettingsRoute.tsx`:** Removed the redundant `SYSTEM // CALIBRATION` eyebrow above the page heading and simplified `APPEARANCE // THEME` to `APPEARANCE` (matching mobile).
