@@ -13,7 +13,7 @@ Resolve two visual polish inconsistencies discovered on web during issue #84 tes
 - Keep all unit tests and Playwright E2E design token gates (`button-sizing-tokens.spec.ts`, `corner-radius-hierarchy.spec.ts`) green.
 
 ## Non-Goals & Anti-Goals
-- Do **not** alter the unauthenticated `SIGN IN` tactile button or trigger avatar badge in `UserMenu.tsx` (scope is the open account dropdown).
+- Do **not** alter the unauthenticated `SIGN IN` tactile button in `UserMenu.tsx`.
 - Do **not** introduce or retain any single-sided colored border (`border-l-4 border-l-accent` or an absolute left accent bar) on cards, per `design-doctrine`.
 - Do **not** refactor `ReviewCard.tsx`, `ReviewsView.tsx`, or `RecipeCatalogList.tsx` card layouts beyond selection/hover consistency.
 
@@ -39,5 +39,11 @@ Resolve two visual polish inconsistencies discovered on web during issue #84 tes
    - Icons inside dropdown items: `Settings` uses `w-3.5 h-3.5 text-foreground-muted group-hover:text-foreground transition-colors` (add `group` class to `Link`), and `LogOut` uses `w-3.5 h-3.5 text-foreground-muted group-hover:text-status-error transition-colors`.
 
 3. **Verification**
-   - Unit tests: update `RecipeCatalogList.test.tsx`, `ReviewCard.test.tsx`, and `ReviewsView.test.tsx` to assert unified selected/unselected styling (`bg-panel-recessed`, `border-accent`, `shadow-sm`, `hover:bg-panel-recessed/40`), active ARIA attributes (`aria-current="page"`, `aria-pressed`), and absence of single-sided accent bars (`border-l-4`, `w-1 bg-accent`); add `UserMenu.test.tsx` verifying `Settings` and `Sign Out` render with `font-sans` (no `font-mono` / `uppercase`).
-   - E2E gates: run `button-sizing-tokens.spec.ts` and `corner-radius-hierarchy.spec.ts` via Playwright, plus web typecheck and unit test suite before finalizing.
+   - Unit tests: update `RecipeCatalogList.test.tsx`, `ReviewCard.test.tsx`, `ReviewsView.test.tsx`, `Header.test.tsx`, `SettingsRoute.test.tsx`, `SettingsModalScreen.test.tsx`, and `ProfileHeaderButton.test.tsx`; add `UserMenu.test.tsx`.
+   - E2E & monorepo gates: run monorepo `npm run typecheck`, `npm run test`, and full Playwright E2E `npm run test:e2e --workspace=@brewlog/web` (including `button-sizing-tokens.spec.ts` and `corner-radius-hierarchy.spec.ts`).
+
+## Scope Amendments (PR #97 Follow-Up Polish)
+During live web + mobile verification after the initial 4 tasks, scope was explicitly expanded to keep Web and Mobile parity:
+1. **Signed-in Account Trigger & Mobile Avatar Parity:** Updated the signed-in `UserMenu.tsx` trigger button (`type="button"`, avatar initial, and `displayName` label) from `font-mono` to `font-sans text-xs lg:text-sm font-medium` matching `Header.tsx` links, and updated mobile `ProfileHeaderButton.tsx` `initialsText` from `FONTS.monoBold` (`JetBrainsMono_700Bold`) to `FONTS.sansBold` (`Outfit_700Bold`).
+2. **Settings Headings & Sync Copy (`SettingsRoute.tsx`, `apps/mobile/app/settings/modal.tsx`):** Removed the `SYSTEM // CALIBRATION` eyebrow above `Settings`, simplified `APPEARANCE // THEME` to `APPEARANCE` (matching mobile), and updated the signed-in sync description on both platforms to `"Your settings, beans, recipes, equipment, and reviews sync across web and mobile."`
+3. **Header Nav Count Badges (`Header.tsx`, `RootLayout.tsx`):** Removed the `beanCount` / `brewCount` badges from desktop and mobile `Bean Stash` / `Reviews` nav links along with unused `useBeans` / `useReviews` wiring in `RootLayout.tsx`.

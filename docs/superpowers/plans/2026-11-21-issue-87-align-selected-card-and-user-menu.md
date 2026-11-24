@@ -16,7 +16,7 @@
 - **Button sizing tokens (`button-sizing-tokens.spec.ts`):** All visible `<button>` elements must measure `32px` (`h-8`), `40px` (`h-10`), or `48px` (`h-12`); dropdown action items use `h-8`.
 - **Corner radius hierarchy (`corner-radius-hierarchy.spec.ts`):** Catalog cards and dropdown panel remain `rounded-xl` (`12px`); dropdown items remain `rounded-lg` (`8px`).
 - **Semantic tokens only:** Replace hardcoded `group-hover:text-red-400` in `UserMenu.tsx` with `group-hover:text-status-error`.
-- **Scope boundary:** Keep the unauthenticated `SIGN IN` button and closed trigger pill in `UserMenu.tsx` unchanged.
+- **Scope boundary:** Keep the unauthenticated `SIGN IN` button in `UserMenu.tsx` unchanged. (Post-implementation polish amended scope to also align the signed-in `UserMenu` trigger font, mobile `ProfileHeaderButton` initials font, `Header` nav count badges, and Web/Mobile Settings headings & sync copy; see Spec `Scope Amendments`.)
 
 ## Review Focus
 

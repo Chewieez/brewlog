@@ -46,6 +46,11 @@ This change unifies the selected/unselected card styling and active ARIA attribu
 
 ## Automated Verification Evidence
 
-- **Web Typecheck (`npm run typecheck --workspace=@brewlog/web`):** Passed with 0 errors.
-- **Web Unit Tests (`npm run test --workspace=@brewlog/web`):** **32 test files, 324/324 tests passed** (including `RecipeCatalogList.test.tsx` 14/14, `ReviewCard.test.tsx` 5/5, `ReviewsView.test.tsx` 28/28, and new `UserMenu.test.tsx` 3/3).
-- **Playwright E2E Design Token Gates (`npx playwright test e2e/button-sizing-tokens.spec.ts e2e/corner-radius-hierarchy.spec.ts` in `apps/web`):** **11/11 passed** (all button height and corner radius assertions green across primary routes and both themes).
+- **Monorepo Typecheck (`npm run typecheck`):** Passed with 0 errors across all 5 workspaces (`@brewlog/core`, `@brewlog/supabase`, `@brewlog/ui`, `@brewlog/mobile`, `@brewlog/web`).
+- **Monorepo Unit Tests (`npm run test`):** 119 test files, **1,095/1,095 passed**:
+  - `@brewlog/core`: 8 files, 102/102 passed
+  - `@brewlog/supabase`: 4 files, 29/29 passed
+  - `@brewlog/ui`: 14 files, 81/81 passed
+  - `@brewlog/mobile`: 61 files, 559/559 passed (including `ProfileHeaderButton.test.tsx` 7/7 and `SettingsModalScreen.test.tsx` 10/10)
+  - `@brewlog/web`: 32 files, 324/324 passed (including `RecipeCatalogList.test.tsx` 14/14, `ReviewCard.test.tsx` 5/5, `ReviewsView.test.tsx` 28/28, `UserMenu.test.tsx` 3/3, `Header.test.tsx` 5/5, and `SettingsRoute.test.tsx` 13/13)
+- **Playwright E2E (`npm run test:e2e --workspace=@brewlog/web`):** **19/19 passed** across `button-sizing-tokens.spec.ts`, `corner-radius-hierarchy.spec.ts`, `context-features.spec.ts`, and `smoke.spec.ts`.
