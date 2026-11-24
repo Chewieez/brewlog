@@ -1,0 +1,43 @@
+# Devlog: Issue #87 — Align Selected Recipe/Review Card Styling & Account Dropdown Link Font
+
+- **Date:** 2026-11-24
+- **Issue:** [#87](https://github.com/Chewieez/brewlog/issues/87)
+- **Branch:** `Chewieez/87-ui-web-align-selected-recipe-review-card`
+- **Design Spec:** [`docs/superpowers/specs/2026-11-21-issue-87-align-selected-card-and-user-menu-design.md`](../superpowers/specs/2026-11-21-issue-87-align-selected-card-and-user-menu-design.md)
+- **Implementation Plan:** [`docs/superpowers/plans/2026-11-21-issue-87-align-selected-card-and-user-menu.md`](../superpowers/plans/2026-11-21-issue-87-align-selected-card-and-user-menu.md)
+
+---
+
+## Executive Summary
+
+During issue #84 testing on web, two visual polish inconsistencies stood out:
+1. Selected recipe cards in `RecipeCatalogList.tsx` used `bg-panel-recessed border-border-active` with an inner 4px left copper strip (`w-1 bg-accent`), whereas review cards (`ReviewCard.tsx`, extracted from `ReviewsView.tsx` in PR #96) used `bg-panel-recessed border-accent shadow-sm` without a one-sided accent bar.
+2. The authenticated `UserMenu.tsx` dropdown rendered `SETTINGS` and `SIGN OUT` in uppercase `font-mono` (`tracking-wider font-semibold`) instead of matching the clean `font-sans` mixed-case typography of `Header.tsx` navigation links.
+
+This change unifies the selected/unselected card styling and active ARIA attributes across `RecipeCatalogList.tsx` and `ReviewCard.tsx`, and updates the `UserMenu.tsx` dropdown to `font-sans` mixed-case items (`Settings`, `Sign Out`) with `h-8` sizing and semantic hover tokens.
+
+---
+
+## Architecture & Deliverables
+
+### 1. Unified Selected & Unselected Card Styling (`RecipeCatalogList.tsx` & `ReviewCard.tsx`)
+- **`apps/web/src/features/recipes/RecipeCatalogList.tsx`:** Updated selected cards to `bg-panel-recessed border-accent shadow-sm`, removed the single-sided `<div className="absolute left-0 top-3.5 bottom-3.5 w-1 bg-accent rounded-r" />` bar (complying with `design-doctrine` against one-sided colored borders), and added `aria-current={isSelected ? 'page' : undefined}` to the card's overlay `<Link>`.
+- **`apps/web/src/features/reviews/ReviewCard.tsx`:** Added `aria-pressed={isSelected}` to the `role="button"` card container and aligned the unselected hover styling to `hover:border-border-active hover:bg-panel-recessed/40` alongside the existing `bg-panel-recessed border-accent shadow-sm` selected state.
+
+### 2. Account Dropdown Typography (`UserMenu.tsx`)
+- **`apps/web/src/features/auth/UserMenu.tsx`:** Switched the open dropdown container from `text-xs font-mono` to `font-sans`, formatted `displayName` (`text-sm font-semibold`) and `user.email` (`text-xs text-foreground-muted`), and updated `Settings` (`<Link>`) and `Sign Out` (`<button type="button">`) to mixed-case labels with `h-8 px-3 rounded-lg font-sans text-xs lg:text-sm font-medium text-foreground-secondary hover:text-foreground hover:bg-panel-recessed`, replacing hardcoded `group-hover:text-red-400` with `group-hover:text-status-error`.
+
+---
+
+## Safeguards & Accessibility
+
+- **Semantic Selection State:** Active cards expose `aria-current="page"` (`RecipeCatalogList.tsx`) and `aria-pressed={isSelected}` (`ReviewCard.tsx`) alongside full-perimeter `border-accent`.
+- **Design System Token Gates:** Dropdown actions enforce `h-8` (`32px`) height and `rounded-lg` (`8px`) corner radius inside the `rounded-xl` (`12px`) dropdown panel, keeping `button-sizing-tokens.spec.ts` and `corner-radius-hierarchy.spec.ts` green.
+
+---
+
+## Automated Verification Evidence
+
+- **Web Typecheck (`npm run typecheck --workspace=@brewlog/web`):** Passed with 0 errors.
+- **Web Unit Tests (`npm run test --workspace=@brewlog/web`):** **32 test files, 324/324 tests passed** (including `RecipeCatalogList.test.tsx` 14/14, `ReviewCard.test.tsx` 5/5, `ReviewsView.test.tsx` 28/28, and new `UserMenu.test.tsx` 3/3).
+- **Playwright E2E Design Token Gates (`npx playwright test e2e/button-sizing-tokens.spec.ts e2e/corner-radius-hierarchy.spec.ts` in `apps/web`):** **11/11 passed** (all button height and corner radius assertions green across primary routes and both themes).
