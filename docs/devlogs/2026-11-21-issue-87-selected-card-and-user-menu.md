@@ -31,6 +31,9 @@ This change unifies the selected/unselected card styling and active ARIA attribu
 - **`apps/web/src/routes/SettingsRoute.tsx`:** Removed the redundant `SYSTEM // CALIBRATION` eyebrow above the page heading and simplified `APPEARANCE // THEME` to `APPEARANCE` (matching mobile).
 - **Web & Mobile Settings Sync Copy:** Replaced `"Instrument preferences synced across devices."` with `"Your settings, beans, recipes, equipment, and reviews sync across web and mobile."` in both `SettingsRoute.tsx` and `apps/mobile/app/settings/modal.tsx`.
 
+### 4. Header Navigation Link Cleanup (`Header.tsx` & `RootLayout.tsx`)
+- **`apps/web/src/components/shared/Header.tsx` & `apps/web/src/layouts/RootLayout.tsx`:** Removed the count badges (`beanCount` on `Bean Stash`, `brewCount` on `Reviews`) from both desktop and mobile header navigation links along with unused `useBeans` / `useReviews` wiring in `RootLayout.tsx`.
+
 ---
 
 ## Safeguards & Accessibility

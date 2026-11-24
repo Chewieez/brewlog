@@ -14,11 +14,11 @@ vi.mock('../../features/auth/AuthContext', () => ({
 }));
 
 describe('Header', () => {
-  it('renders navigation links pointing to router paths', () => {
+  it('renders navigation links pointing to router paths without count badges', () => {
     render(
       <MemoryRouter initialEntries={['/timer']}>
         <SettingsProvider>
-          <Header beanCount={3} brewCount={5} onOpenAuthModal={vi.fn()} />
+          <Header onOpenAuthModal={vi.fn()} />
         </SettingsProvider>
       </MemoryRouter>
     );
@@ -34,13 +34,16 @@ describe('Header', () => {
     expect(recipesLink.getAttribute('href')).toBe('/recipes');
     expect(equipmentLink.getAttribute('href')).toBe('/equipment');
     expect(reviewsLink.getAttribute('href')).toBe('/reviews');
+
+    expect(stashLink.textContent).toBe('Bean Stash');
+    expect(reviewsLink.textContent).toBe('Reviews');
   });
 
   it('marks current route as active', () => {
     render(
       <MemoryRouter initialEntries={['/stash']}>
         <SettingsProvider>
-          <Header beanCount={3} brewCount={5} onOpenAuthModal={vi.fn()} />
+          <Header onOpenAuthModal={vi.fn()} />
         </SettingsProvider>
       </MemoryRouter>
     );
@@ -53,7 +56,7 @@ describe('Header', () => {
     render(
       <MemoryRouter initialEntries={['/recipes']}>
         <SettingsProvider>
-          <Header beanCount={3} brewCount={5} onOpenAuthModal={vi.fn()} />
+          <Header onOpenAuthModal={vi.fn()} />
         </SettingsProvider>
       </MemoryRouter>
     );
@@ -66,7 +69,7 @@ describe('Header', () => {
     render(
       <MemoryRouter initialEntries={['/timer']}>
         <SettingsProvider>
-          <Header beanCount={3} brewCount={5} onOpenAuthModal={vi.fn()} />
+          <Header onOpenAuthModal={vi.fn()} />
         </SettingsProvider>
       </MemoryRouter>
     );
@@ -94,7 +97,7 @@ describe('Header', () => {
     render(
       <MemoryRouter initialEntries={['/timer']}>
         <SettingsProvider>
-          <Header beanCount={0} brewCount={0} onOpenAuthModal={vi.fn()} />
+          <Header onOpenAuthModal={vi.fn()} />
         </SettingsProvider>
       </MemoryRouter>
     );

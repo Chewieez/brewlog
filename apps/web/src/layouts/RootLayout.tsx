@@ -3,12 +3,8 @@ import { Outlet } from 'react-router';
 import { Header } from '../components/shared/Header';
 import { AuthModal } from '../features/auth/AuthModal';
 import { useAuth } from '../features/auth/AuthContext';
-import { useBeans } from '../features/stash/BeansContext';
-import { useReviews } from '../features/reviews/ReviewsContext';
 
 export const RootLayout: React.FC = () => {
-  const { beans } = useBeans();
-  const { logs: tastingLogs } = useReviews();
   const { isPasswordRecovery, authUrlError } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
@@ -29,8 +25,6 @@ export const RootLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-canvas text-foreground flex flex-col font-sans selection:bg-accent/30 selection:text-foreground">
       <Header
-        beanCount={beans.length}
-        brewCount={tastingLogs.length}
         onOpenAuthModal={handleOpenAuthModal}
       />
 
