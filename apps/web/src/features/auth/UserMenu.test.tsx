@@ -77,6 +77,19 @@ describe('UserMenu', () => {
 
     const trigger = screen.getByRole('button', { name: 'User account menu' });
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(trigger.getAttribute('type')).toBe('button');
+
+    const avatarInitial = trigger.querySelector('div')!;
+    expect(avatarInitial.className).toContain('font-sans');
+    expect(avatarInitial.className).not.toContain('font-mono');
+
+    const triggerLabel = trigger.querySelector('span')!;
+    expect(triggerLabel.textContent).toBe('Clara Brewer');
+    expect(triggerLabel.className).toContain('font-sans');
+    expect(triggerLabel.className).toContain('text-xs');
+    expect(triggerLabel.className).toContain('lg:text-sm');
+    expect(triggerLabel.className).toContain('font-medium');
+    expect(triggerLabel.className).not.toContain('font-mono');
 
     fireEvent.click(trigger);
     expect(trigger.getAttribute('aria-expanded')).toBe('true');

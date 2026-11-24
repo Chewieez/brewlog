@@ -41,16 +41,17 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onOpenAuthModal }) => {
   return (
     <div className="relative">
       <button
+        type="button"
         onClick={() => setDropdownOpen(!dropdownOpen)}
         aria-label="User account menu"
         aria-haspopup="true"
         aria-expanded={dropdownOpen}
         className="btn-tactile-secondary h-8 flex items-center space-x-2 px-2.5 rounded-lg"
       >
-        <div className="w-6 h-6 rounded-md bg-accent flex items-center justify-center text-accent-foreground font-bold text-xs font-mono">
+        <div className="w-6 h-6 rounded-md bg-accent flex items-center justify-center text-accent-foreground font-bold text-xs font-sans">
           {displayName.charAt(0).toUpperCase()}
         </div>
-        <span className="text-xs font-mono text-foreground hidden sm:inline max-w-[100px] truncate">
+        <span className="font-sans text-xs lg:text-sm font-medium text-foreground hidden sm:inline max-w-[100px] truncate">
           {displayName}
         </span>
         <ChevronDown className="w-3 h-3 text-foreground-muted" />
